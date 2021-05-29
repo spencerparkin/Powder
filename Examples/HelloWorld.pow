@@ -1,0 +1,6 @@
+# HelloWorld.pow
+
+proc main()
+{
+    print("Hello, World!");
+}

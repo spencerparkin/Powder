@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source\VirtualMachine">
+      <UniqueIdentifier>{6d5f38ab-71d6-43b0-a20e-f995151fd474}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\VirtualMachine\Instructions">
+      <UniqueIdentifier>{1e89c76e-424a-4a59-9190-75cf49aae959}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Compiler">
+      <UniqueIdentifier>{1cf60845-98dd-417e-a8c7-58631549b5a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\GarbageCollector">
+      <UniqueIdentifier>{53e91455-60af-4817-b06f-4064bbffc7fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Examples">
+      <UniqueIdentifier>{25cae7f1-1fec-45c8-baaf-7b64e5a29bac}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\VirtualMachine\Executor.cpp">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instruction.cpp">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Scope.cpp">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Value.cpp">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\VirtualMachine.cpp">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\ForkInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\JumpInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\MathInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\YieldInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp">
+      <Filter>Source\GarbageCollector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GarbageCollector\GCObject.cpp">
+      <Filter>Source\GarbageCollector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp">
+      <Filter>Source\GarbageCollector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\SysCallInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\PushInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\PopInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\Compiler.cpp">
+      <Filter>Source\Compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\BranchInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\VirtualMachine\Executor.h">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\HashMap.hpp">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instruction.h">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Scope.h">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Value.h">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\VirtualMachine.h">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\ForkInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\JumpInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\MathInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\YieldInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GarbageCollector\GarbageCollector.h">
+      <Filter>Source\GarbageCollector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GarbageCollector\GCReference.hpp">
+      <Filter>Source\GarbageCollector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GarbageCollector\GCObject.h">
+      <Filter>Source\GarbageCollector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Defines.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GarbageCollector\GCCollectable.h">
+      <Filter>Source\GarbageCollector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\SysCallInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\PushInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\PopInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\Compiler.h">
+      <Filter>Source\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\BranchInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Readme.md" />
+    <None Include="Examples\HelloWorld.pow">
+      <Filter>Examples</Filter>
+    </None>
+    <None Include="Examples\Fibbonacci.pow">
+      <Filter>Examples</Filter>
+    </None>
+    <None Include="Examples\Fork.pow">
+      <Filter>Examples</Filter>
+    </None>
+  </ItemGroup>
+</Project>

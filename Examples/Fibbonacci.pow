@@ -1,0 +1,18 @@
+# Fibbonacci.pow
+
+proc blah() return 5;
+
+proc calc_fib(i)
+{
+    if(i < 2)
+        return 1;
+    else
+        return calc_fib(i - 2) + calc_fib(i - 1);
+}
+
+proc main()
+{
+    i = calc_fib(blah());
+    message = "Fibbonacci's " + blah() + "(th) number is " + i;
+    print(message);
+}

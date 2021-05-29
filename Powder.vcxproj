@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Compiler\Compiler.cpp" />
+    <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp" />
+    <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp" />
+    <ClCompile Include="Source\GarbageCollector\GCObject.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Executor.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\BranchInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\ForkInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\JumpInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\MathInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\PopInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\PushInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\SysCallInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\YieldInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Scope.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Value.cpp" />
+    <ClCompile Include="Source\VirtualMachine\VirtualMachine.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Compiler\Compiler.h" />
+    <ClInclude Include="Source\Defines.h" />
+    <ClInclude Include="Source\GarbageCollector\GarbageCollector.h" />
+    <ClInclude Include="Source\GarbageCollector\GCCollectable.h" />
+    <ClInclude Include="Source\GarbageCollector\GCObject.h" />
+    <ClInclude Include="Source\GarbageCollector\GCReference.hpp" />
+    <ClInclude Include="Source\VirtualMachine\Executor.h" />
+    <ClInclude Include="Source\VirtualMachine\HashMap.hpp" />
+    <ClInclude Include="Source\VirtualMachine\Instruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\BranchInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\ForkInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\JumpInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\MathInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\PopInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\PushInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\SysCallInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\YieldInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Scope.h" />
+    <ClInclude Include="Source\VirtualMachine\Value.h" />
+    <ClInclude Include="Source\VirtualMachine\VirtualMachine.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Examples\Fibbonacci.pow" />
+    <None Include="Examples\Fork.pow" />
+    <None Include="Examples\HelloWorld.pow" />
+    <None Include="Readme.md" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{ffce671a-9f49-470a-9d4e-80c5b95038ac}</ProjectGuid>
+    <RootNamespace>Powder</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); POWDER_API_EXPORT</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>./Source; ./Source/VirtualMachine; ./Source/VirtualMachine/Instructions; ./Source/GarbageCollector; ./Source/Compiler</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); POWDER_API_EXPORT</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>./Source; ./Source/VirtualMachine; ./Source/VirtualMachine/Instructions; ./Source/GarbageCollector; ./Source/Compiler</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); POWDER_API_EXPORT</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>./Source; ./Source/VirtualMachine; ./Source/VirtualMachine/Instructions; ./Source/GarbageCollector; ./Source/Compiler</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); POWDER_API_EXPORT</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>./Source; ./Source/VirtualMachine; ./Source/VirtualMachine/Instructions; ./Source/GarbageCollector; ./Source/Compiler</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
