@@ -38,14 +38,16 @@
     <ClCompile Include="Source\VirtualMachine\VirtualMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Compiler\Assembler.h" />
     <ClInclude Include="Source\Compiler\Compiler.h" />
     <ClInclude Include="Source\Defines.h" />
     <ClInclude Include="Source\GarbageCollector\GarbageCollector.h" />
     <ClInclude Include="Source\GarbageCollector\GCCollectable.h" />
     <ClInclude Include="Source\GarbageCollector\GCObject.h" />
     <ClInclude Include="Source\GarbageCollector\GCReference.hpp" />
+    <ClInclude Include="Source\Utilities\HashMap.hpp" />
+    <ClInclude Include="Source\Utilities\Stream.h" />
     <ClInclude Include="Source\VirtualMachine\Executor.h" />
-    <ClInclude Include="Source\VirtualMachine\HashMap.hpp" />
     <ClInclude Include="Source\VirtualMachine\Instruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\BranchInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\ForkInstruction.h" />
@@ -137,7 +139,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source; ./Source/VirtualMachine; ./Source/VirtualMachine/Instructions; ./Source/GarbageCollector; ./Source/Compiler</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,7 +157,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source; ./Source/VirtualMachine; ./Source/VirtualMachine/Instructions; ./Source/GarbageCollector; ./Source/Compiler</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,7 +175,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source; ./Source/VirtualMachine; ./Source/VirtualMachine/Instructions; ./Source/GarbageCollector; ./Source/Compiler</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -191,7 +193,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source; ./Source/VirtualMachine; ./Source/VirtualMachine/Instructions; ./Source/GarbageCollector; ./Source/Compiler</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

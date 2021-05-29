@@ -20,6 +20,9 @@
     <Filter Include="Examples">
       <UniqueIdentifier>{25cae7f1-1fec-45c8-baaf-7b64e5a29bac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Utilities">
+      <UniqueIdentifier>{14db1e30-60ef-4e39-ad19-29c183427550}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\VirtualMachine\Executor.cpp">
@@ -78,9 +81,6 @@
     <ClInclude Include="Source\VirtualMachine\Executor.h">
       <Filter>Source\VirtualMachine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\VirtualMachine\HashMap.hpp">
-      <Filter>Source\VirtualMachine</Filter>
-    </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Instruction.h">
       <Filter>Source\VirtualMachine</Filter>
     </ClInclude>
@@ -134,6 +134,15 @@
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Instructions\BranchInstruction.h">
       <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utilities\HashMap.hpp">
+      <Filter>Source\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utilities\Stream.h">
+      <Filter>Source\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\Assembler.h">
+      <Filter>Source\Compiler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
