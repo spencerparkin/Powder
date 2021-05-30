@@ -17,21 +17,19 @@ namespace Powder
 		Scope(Scope* containingScope);
 		virtual ~Scope();
 
-		Value* LookupValue(const char* identifier, uint32_t scopeLevel);
-		void StoreValue(const char* identifier, Value* value, uint32_t scopeLevel);
-		void DeleteValue(const char* identifier, uint32_t scopeLevel);
+		Value* LookupValue(const char* identifier, bool canPropagateSearch);
+		void StoreValue(const char* identifier, Value* value);
+		void DeleteValue(const char* identifier);
 
 		Scope* GetContainingScope() { return this->containingScope; }
 
-		void LoadValueOntoEvaluationStackTop(const char* identifier, uint32_t scopeLevel);
-		void StoreValueFromEvaluationStackTop(const char* identifier, uint32_t scopeLevel);
+		void LoadValueOntoEvaluationStackTop(const char* identifier);
+		void StoreValueFromEvaluationStackTop(const char* identifier);
 
 		void PushValueOntoEvaluationStackTop(Value* value);
 		void PopValueFromEvaluationStackTop(Value*& value);
 
 	private:
-
-		Scope* FindScopeAtLevel(uint32_t scopeLevel);
 
 		Scope* containingScope;
 

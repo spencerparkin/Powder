@@ -22,6 +22,11 @@ namespace Powder
 		// Look for an object that can be the start of a BFS for a spanning tree.
 		// This is an object we have not yet visited.  Once we find that we have
 		// visited them all, we start over.
+		// TODO: One idea that came to mind is that whenever a GCReference goes out of
+		//       scope, we could have it recommend to us its referenced objects as a
+		//       good possible start for a BFS.  If we only fallow these leads, then
+		//       we're less likely to waste time doing BFS-es on objects that cannot
+		//       be collected.
 		std::list<GCObject*> objectQueue;
 		while (objectQueue.size() == 0)
 		{

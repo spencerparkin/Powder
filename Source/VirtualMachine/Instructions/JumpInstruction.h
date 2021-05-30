@@ -14,8 +14,8 @@ namespace Powder
 
 		enum class Type
 		{
-			JUMP_GIVEN_ADDRESS,
-			JUMP_RETURN_ADDRESS
+			JUMP_TO_EMBEDDED_ADDRESS,
+			JUMP_TO_LOADED_ADDRESS
 		};
 
 		virtual Executor::Result Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;

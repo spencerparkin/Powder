@@ -5,6 +5,7 @@
 #include <list>
 #include <string>
 #include "HashMap.hpp"
+#include "LinkedList.hpp"
 
 namespace Powder
 {
@@ -16,7 +17,7 @@ namespace Powder
 		Assembler();
 		virtual ~Assembler();
 
-		uint8_t* AssembleExecutable(const std::list<Instruction*>& instructionList, uint64_t& programBufferSize);
+		uint8_t* AssembleExecutable(const LinkedList<Instruction*>& instructionList, uint64_t& programBufferSize);
 	};
 
 	struct POWDER_API AssemblyData

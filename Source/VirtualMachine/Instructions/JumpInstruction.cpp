@@ -24,14 +24,16 @@ namespace Powder
 
 		switch (type)
 		{
-			case Type::JUMP_GIVEN_ADDRESS:
+			case Type::JUMP_TO_EMBEDDED_ADDRESS:
 			{
 				::memcpy(&programBufferLocation, &programBuffer[programBufferLocation + 2], sizeof(uint64_t));
 				break;
 			}
-			case Type::JUMP_RETURN_ADDRESS:
+			case Type::JUMP_TO_LOADED_ADDRESS:
 			{
-				Value* value = executor->GetCurrentScope()->LookupValue("__return_address__", 0);
+				Value* value = nullptr;
+				executor->GetCurrentScope()->PopValueFromEvaluationStackTop(value);
+
 				if (!value)
 				{
 					// TODO: Throw an exception.
@@ -61,11 +63,11 @@ namespace Powder
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
-			if (typeEntry->string == "jump_return_address")
-				programBuffer[programBufferLocation + 1] = uint8_t(Type::JUMP_RETURN_ADDRESS);
-			else if (typeEntry->string == "jump_given_address")
+			if (typeEntry->string == "jump_to_loaded_address")
+				programBuffer[programBufferLocation + 1] = uint8_t(Type::JUMP_TO_LOADED_ADDRESS);
+			else if (typeEntry->string == "jump_to_embedded_address")
 			{
-				programBuffer[programBufferLocation + 1] = uint8_t(Type::JUMP_GIVEN_ADDRESS);
+				programBuffer[programBufferLocation + 1] = uint8_t(Type::JUMP_TO_EMBEDDED_ADDRESS);
 
 				const AssemblyData::Entry* jumpEntry = this->assemblyData->configMap.LookupPtr("jump");
 				if (!jumpEntry)
@@ -79,7 +81,7 @@ namespace Powder
 
 		programBufferLocation += 2;
 
-		if (typeEntry->string == "jump_given_address")
+		if (typeEntry->string == "jump_to_embedded_address")
 			programBufferLocation += sizeof(uint64_t);
 	}
 }

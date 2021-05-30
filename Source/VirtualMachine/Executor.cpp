@@ -3,6 +3,7 @@
 #include "VirtualMachine.h"
 #include "Value.h"
 #include "Scope.h"
+#include "GarbageCollector.h"
 
 namespace Powder
 {
@@ -50,6 +51,8 @@ namespace Powder
 			Executor::Result result = instruction->Execute(programBuffer, programBufferSize, this->programBufferLocation, this, virtualMachine);
 			if (result != Executor::Result::CONTINUE)
 				return result;
+
+			// TODO: Run garbage collector here periodically, but once every tick might be too much.
 		}
 
 		return Result::HALT;

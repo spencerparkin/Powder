@@ -11,12 +11,12 @@ namespace Powder
 	{
 	}
 
-	uint8_t* Assembler::AssembleExecutable(const std::list<Instruction*>& instructionList, uint64_t& programBufferSize)
+	uint8_t* Assembler::AssembleExecutable(const LinkedList<Instruction*>& instructionList, uint64_t& programBufferSize)
 	{
 		uint64_t programBufferLocation = 0L;
-		for (std::list<Instruction*>::const_iterator iter = instructionList.cbegin(); iter != instructionList.cend(); iter++)
+		for(const LinkedList<Instruction*>::Node* node = instructionList.GetHead(); node; node = node->GetNext())
 		{
-			const Instruction* instruction = *iter;
+			const Instruction* instruction = node->value;
 			instruction->assemblyData->programBufferLocation = programBufferLocation;
 			instruction->Assemble(nullptr, 0, programBufferLocation, Instruction::AssemblyPass::CALC_EXTENT);
 		}
@@ -27,9 +27,9 @@ namespace Powder
 
 		uint8_t* programBuffer = new uint8_t[(unsigned int)programBufferSize];
 		programBufferLocation = 0L;
-		for (std::list<Instruction*>::const_iterator iter = instructionList.cbegin(); iter != instructionList.cend(); iter++)
+		for(const LinkedList<Instruction*>::Node* node = instructionList.GetHead(); node; node = node->GetNext())
 		{
-			const Instruction* instruction = *iter;
+			const Instruction* instruction = node->value;
 			programBuffer[programBufferLocation] = instruction->OpCode();
 			instruction->Assemble(programBuffer, programBufferSize, programBufferLocation, Instruction::AssemblyPass::RENDER);
 		}

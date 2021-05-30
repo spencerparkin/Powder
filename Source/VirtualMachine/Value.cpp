@@ -19,4 +19,14 @@ namespace Powder
 	{
 		return nullptr;
 	}
+
+	/*virtual*/ std::string Value::ToString() const
+	{
+		return "?";
+	}
+
+	/*virtual*/ bool Value::FromString(const std::string& str)
+	{
+		return false;
+	}
 }

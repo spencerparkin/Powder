@@ -2,6 +2,7 @@
 
 #include "GCCollectable.h"
 #include "MathInstruction.h"
+#include <string>
 
 namespace Powder
 {
@@ -16,5 +17,7 @@ namespace Powder
 
 		virtual Value* Copy() const;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp) const;
+		virtual std::string ToString() const;
+		virtual bool FromString(const std::string& str);
 	};
 }

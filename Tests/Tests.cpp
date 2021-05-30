@@ -7,6 +7,7 @@
 #include "PushInstruction.h"
 #include "MathInstruction.h"
 #include "StoreInstruction.h"
+#include "LoadInstruction.h"
 #include "JumpInstruction.h"
 #include "SysCallInstruction.h"
 #include "VirtualMachine.h"
@@ -92,60 +93,91 @@ void GCTest(void)
 void AssemblyTest(void)
 {
     Powder::Assembler assembler;
-
-    std::list<Powder::Instruction*> instructionList;
+    Powder::LinkedList<Powder::Instruction*> instructionList;
     Powder::AssemblyData::Entry entry;
+    Powder::Instruction* instruction = nullptr;
 
-    // This illustrates the calling convention...
+    // We should always start a program with scope.
 
-    Powder::Instruction* instruction = new Powder::ScopeInstruction();
+    instruction = new Powder::ScopeInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
     entry.string = "push";
     instruction->assemblyData->configMap.Insert("scopeOp", entry);
-    instructionList.push_back(instruction);
+    instructionList.AddTail(instruction);
+
+    // This illustrates the calling convention.  First step is to push new scope.
+
+    instruction = new Powder::ScopeInstruction();
+    instruction->assemblyData = new Powder::AssemblyData;
+    entry.string = "push";
+    instruction->assemblyData->configMap.Insert("scopeOp", entry);
+    instructionList.AddTail(instruction);
+
+    // Next we assign arguments and the return address to the scope.  These assignments can be done in any order.
+    // Here there are no arguments, so we just store the return address.
 
     Powder::PushInstruction* pushReturnAddressInstruction = new Powder::PushInstruction();
     instruction = pushReturnAddressInstruction;
     instruction->assemblyData = new Powder::AssemblyData;
     entry.string = "address";
     instruction->assemblyData->configMap.Insert("type", entry);
-    instructionList.push_back(instruction);
+    instructionList.AddTail(instruction);           // We do not yet have the return address instruction.
 
     instruction = new Powder::StoreInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
     entry.string = "__return_address__";
     instruction->assemblyData->configMap.Insert("name", entry);
-    instructionList.push_back(instruction);
+    instructionList.AddTail(instruction);
 
-    //...now this is where we would load all the arguments to the procedure call if it had any...
+    // Again, here is where we would load any arguments into the scope, if we had any, which we don't.
+    // Note that as thing stand now, arguments would always be being passed by reference, which might
+    // not be bad.  We could require pass-by-value to be the explicit rather than the implicit case.
+    // Okay, so now jump to the start of the procedure.
 
     Powder::JumpInstruction* procCallInstruction = new Powder::JumpInstruction();
     instruction = procCallInstruction;
     instruction->assemblyData = new Powder::AssemblyData();
-    entry.string = "jump_given_address";
+    entry.string = "jump_to_embedded_address";
     instruction->assemblyData->configMap.Insert("type", entry);
-    instructionList.push_back(instruction);
+    instructionList.AddTail(instruction);           // We do not yet know where the start of the procedure is.
 
-    instruction = new Powder::ScopeInstruction();
+    // We'll return from the procedure to just after our jump call to the procedure.
+    // The first thing we might do is load the return value of the procedure from the scope,
+    // if it is something we care about.  The compiler should always produce such a result,
+    // but it won't necessarily be something we load upon return.
+
+    instruction = new Powder::LoadInstruction();
     instruction->assemblyData = new Powder::AssemblyData();
-    entry.string = "pop";
-    instruction->assemblyData->configMap.Insert("scopeOp", entry);
-    instructionList.push_back(instruction);
+    entry.string = "__return_value__";
+    instruction->assemblyData->configMap.Insert("name", entry);
+    instructionList.AddTail(instruction);
+
+    // Okay, now we know where the return address instruction is, so patch that now.
 
     entry.instruction = instruction;
     instruction->assemblyData->configMap.Insert("data", entry);
     pushReturnAddressInstruction->assemblyData->configMap.Insert("data", entry);
 
-    //...this is where we could load the "__return_result__" value if we were already in a scope before the call...
-    // The compiler should always provide a return result, but the caller won't always load it into the evaluation stack.
+    // Next we pop the scope of the function we just returned from.
+
+    instruction = new Powder::ScopeInstruction();
+    instruction->assemblyData = new Powder::AssemblyData();
+    entry.string = "pop";
+    instruction->assemblyData->configMap.Insert("scopeOp", entry);
+    instructionList.AddTail(instruction);
+
+    // We need to make a system call here to halt the program, otherwise
+    // we would fall right into the start of the procedure.
 
     instruction = new Powder::SysCallInstruction();
     instruction->assemblyData = new Powder::AssemblyData();
     entry.string = "halt";
     instruction->assemblyData->configMap.Insert("sys_call", entry);
-    instructionList.push_back(instruction);
+    instructionList.AddTail(instruction);
 
-    //----------- Start of Procedure -----------
+    // This is the first instruction of the procedure we want to call.
+    // This is where we might start loading our arguments, but since
+    // we don't have any, we don't care.
 
     instruction = new Powder::PushInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
@@ -153,7 +185,9 @@ void AssemblyTest(void)
     instruction->assemblyData->configMap.Insert("type", entry);
     entry.string = "Hello, ";
     instruction->assemblyData->configMap.Insert("data", entry);
-    instructionList.push_back(instruction);
+    instructionList.AddTail(instruction);
+
+    // Now that we have the first instruction, patch the procesure call instruction.
 
     entry.instruction = instruction;
     procCallInstruction->assemblyData->configMap.Insert("jump", entry);
@@ -164,29 +198,51 @@ void AssemblyTest(void)
     instruction->assemblyData->configMap.Insert("type", entry);
     entry.string = "World!";
     instruction->assemblyData->configMap.Insert("data", entry);
-    instructionList.push_back(instruction);
+    instructionList.AddTail(instruction);
 
     instruction = new Powder::MathInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
     entry.string = "add";
     instruction->assemblyData->configMap.Insert("mathOp", entry);
-    instructionList.push_back(instruction);
+    instructionList.AddTail(instruction);
 
     instruction = new Powder::SysCallInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
     entry.string = "output";
     instruction->assemblyData->configMap.Insert("sys-call", entry);
-    instructionList.push_back(instruction);
+    instructionList.AddTail(instruction);
 
-    // ...there is where we could do a store-value instruction in the caller's scope to store the __return_result__...
+    // Before jumping to the return address, here we should store our return result.
+    // We should always store a return result, even if none is given by the way the
+    // procedure was written.
+
+    instruction = new Powder::PushInstruction();
+    instruction->assemblyData = new Powder::AssemblyData;
+    entry.string = "undefined";
+    instruction->assemblyData->configMap.Insert("type", entry);
+    instructionList.AddTail(instruction);
+
+    instruction = new Powder::StoreInstruction();
+    instruction->assemblyData = new Powder::AssemblyData;
+    entry.string = "__return_value__";
+    instruction->assemblyData->configMap.Insert("name", entry);
+    instructionList.AddTail(instruction);
+
+    // Lastly, jump to the return address.
+
+    instruction = new Powder::LoadInstruction();
+    instruction->assemblyData = new Powder::AssemblyData;
+    entry.string = "__return_address__";
+    instruction->assemblyData->configMap.Insert("name", entry);
+    instructionList.AddTail(instruction);
 
     instruction = new Powder::JumpInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
-    entry.string = "jump_return_address";
+    entry.string = "jump_to_loaded_address";
     instruction->assemblyData->configMap.Insert("type", entry);
-    instructionList.push_back(instruction);
+    instructionList.AddTail(instruction);
 
-    // ------------End of Procesure ------------
+    // And that's the last instruction of the program.
 
     uint64_t programBufferSize = 0L;
     uint8_t* programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);
@@ -196,11 +252,7 @@ void AssemblyTest(void)
 
     delete[] programBuffer;
 
-    for (std::list<Powder::Instruction*>::iterator iter = instructionList.begin(); iter != instructionList.end(); iter++)
-    {
-        instruction = *iter;
-        delete instruction;
-    }
+    Powder::DeleteList<Powder::Instruction*>(instructionList);
 }
 
 int main()

@@ -15,39 +15,38 @@ namespace Powder
 		delete this->evaluationStack;
 	}
 
-	Scope* Scope::FindScopeAtLevel(uint32_t scopeLevel)
+	Value* Scope::LookupValue(const char* identifier, bool canPropagateSearch)
 	{
+		Value* value = nullptr;
 		Scope* scope = this;
-		while (scopeLevel-- > 0)
+		while (scope)
 		{
-			scope = scope->containingScope;
-			if (!scope)
-			{
-				// TODO: Throw an exception.
-			}
+			value = scope->valueMap.Lookup(identifier);
+			if (value)
+				break;
+
+			if (canPropagateSearch)
+				scope = scope->GetContainingScope();
+			else
+				break;
 		}
 
-		return scope;
+		return value;
 	}
 
-	Value* Scope::LookupValue(const char* identifier, uint32_t scopeLevel)
+	void Scope::StoreValue(const char* identifier, Value* value)
 	{
-		return this->FindScopeAtLevel(scopeLevel)->valueMap.Lookup(identifier);
+		this->valueMap.Insert(identifier, value);
 	}
 
-	void Scope::StoreValue(const char* identifier, Value* value, uint32_t scopeLevel)
+	void Scope::DeleteValue(const char* identifier)
 	{
-		this->FindScopeAtLevel(scopeLevel)->valueMap.Insert(identifier, value);
+		this->valueMap.Remove(identifier);
 	}
 
-	void Scope::DeleteValue(const char* identifier, uint32_t scopeLevel)
+	void Scope::LoadValueOntoEvaluationStackTop(const char* identifier)
 	{
-		this->FindScopeAtLevel(scopeLevel)->valueMap.Remove(identifier);
-	}
-
-	void Scope::LoadValueOntoEvaluationStackTop(const char* identifier, uint32_t scopeLevel)
-	{
-		Value* value = this->LookupValue(identifier, scopeLevel);
+		Value* value = this->LookupValue(identifier, false);
 		if (!value)
 		{
 			// TODO: Throw an exception.
@@ -56,11 +55,11 @@ namespace Powder
 		return this->PushValueOntoEvaluationStackTop(value);
 	}
 
-	void Scope::StoreValueFromEvaluationStackTop(const char* identifier, uint32_t scopeLevel)
+	void Scope::StoreValueFromEvaluationStackTop(const char* identifier)
 	{
 		Value* value = nullptr;
 		this->PopValueFromEvaluationStackTop(value);
-		this->StoreValue(identifier, value, scopeLevel);
+		this->StoreValue(identifier, value);
 	}
 
 	void Scope::PushValueOntoEvaluationStackTop(Value* value)
