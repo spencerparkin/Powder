@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Compiler\Assembler.cpp" />
     <ClCompile Include="Source\Compiler\Compiler.cpp" />
     <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp" />
@@ -28,13 +29,18 @@
     <ClCompile Include="Source\VirtualMachine\Instructions\BranchInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\ForkInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\JumpInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\LoadInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\MathInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\PopInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\PushInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\ScopeInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\StoreInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\SysCallInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\YieldInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Scope.cpp" />
     <ClCompile Include="Source\VirtualMachine\Value.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\NumberValue.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\UndefinedValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\VirtualMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -46,19 +52,23 @@
     <ClInclude Include="Source\GarbageCollector\GCObject.h" />
     <ClInclude Include="Source\GarbageCollector\GCReference.hpp" />
     <ClInclude Include="Source\Utilities\HashMap.hpp" />
-    <ClInclude Include="Source\Utilities\Stream.h" />
     <ClInclude Include="Source\VirtualMachine\Executor.h" />
     <ClInclude Include="Source\VirtualMachine\Instruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\BranchInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\ForkInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\JumpInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\LoadInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\MathInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\PopInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\PushInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\ScopeInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\StoreInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\SysCallInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\YieldInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Scope.h" />
     <ClInclude Include="Source\VirtualMachine\Value.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\NumberValue.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\UndefinedValue.h" />
     <ClInclude Include="Source\VirtualMachine\VirtualMachine.h" />
   </ItemGroup>
   <ItemGroup>
@@ -139,7 +149,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -157,7 +167,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -175,7 +185,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -193,7 +203,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

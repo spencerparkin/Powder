@@ -1,15 +1,15 @@
 #include "Executor.h"
 #include "Instruction.h"
 #include "VirtualMachine.h"
+#include "Value.h"
 #include "Scope.h"
 
 namespace Powder
 {
-	Executor::Executor(uint64_t programBufferLocation, Scope* currentScope)
+	Executor::Executor(uint64_t programBufferLocation)
 	{
 		this->programBufferLocation = programBufferLocation;
-		this->currentScope = currentScope;
-		this->evaluationStack = new std::vector<GCReference<Value>>();
+		this->currentScope = nullptr;
 	}
 
 	/*virtual*/ Executor::~Executor()
@@ -17,8 +17,6 @@ namespace Powder
 		while (this->PopScope())
 		{
 		}
-
-		delete this->evaluationStack;
 	}
 
 	bool Executor::PushScope()
@@ -30,32 +28,12 @@ namespace Powder
 
 	bool Executor::PopScope()
 	{
-		Scope* containingScope = this->currentScope->GetContainingScope();
-		if (!containingScope)
+		if (!this->currentScope)
 			return false;
 
+		Scope* containingScope = this->currentScope->GetContainingScope();
 		delete this->currentScope;
 		this->currentScope = containingScope;
-		return true;
-	}
-
-	bool Executor::LoadValue(const char* identifier)
-	{
-		Value* value = this->currentScope->LookupValue(identifier);
-		if (!value)
-			return false;
-
-		this->evaluationStack->push_back(value);
-		return true;
-	}
-
-	bool Executor::StoreValue(const char* identifier)
-	{
-		if (this->evaluationStack->size() == 0)
-			return false;
-
-		this->currentScope->StoreValue(identifier, (*this->evaluationStack)[this->evaluationStack->size() - 1]);
-		this->evaluationStack->pop_back();
 		return true;
 	}
 

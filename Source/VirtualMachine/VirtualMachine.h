@@ -47,7 +47,5 @@ namespace Powder
 
 		typedef HashMap<Instruction*> InstructionMap;
 		InstructionMap* instructionMap;
-
-		Scope* globalScope;
 	};
 }

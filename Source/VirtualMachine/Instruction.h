@@ -5,37 +5,45 @@
 namespace Powder
 {
 	class VirtualMachine;
-	class Stream;
-	class AssemblyData;
+	struct AssemblyData;
 
+	// Derivatives of this class are responsible for both the decoding
+	// and encoding of a Powder VM instructions.
 	class POWDER_API Instruction
 	{
 	public:
 		Instruction();
 		virtual ~Instruction();
 
-		// Note that for faster execution, implimentation of this virtual
+		// Read and execute this instruction from the given buffer.
+		// Note that for faster execution, implimentations of this virtual
 		// method need not bounds-check their access to the given program
-		// buffer.  A bound error here means there is a bug in the compiler.
-		virtual Executor::Result Execute(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) = 0;
+		// buffer.  An out-of-bounds error here means there is a bug in the compiler.
+		virtual Executor::Result Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) = 0;
 
 		enum class AssemblyPass
 		{
-			// In this pass, all instructions get layed down into the
-			// executable program buffer, and are thereby located.
-			LOCATE,
+			// In this pass, nothing is written to the program buffer.
+			// Rather, it is expected that the given program location
+			// just be advanced by the size of the instruction.  In
+			// addition to helping us calculate the overall executable
+			// buffer size, this also allows us to locate all the instructions
+			// in the buffer before they're actually written to the buffer.
+			CALC_EXTENT,
 
-			// In this pass, all instructions that refer to other instructions
-			// by pointer can now be resolved as refering to them by location.
-			// This completes the assembly of, e.g., unconditional jump instructions
-			// to fixed locations in the program buffer.
-			LINK
+			// In this pass, the instruction gets written to the given
+			// program buffer.  Since all instruction locations were
+			// determined in the first pass, this allows the instruction
+			// to resolve pointer references it has to other instructions,
+			// if any, as location offsets into the program buffer.
+			RENDER
 		};
 
-		//virtual void Assemble(Stream* stream, AssemblyPass assemblyPass) = 0;
+		// Format and write this instruction into the given buffer.
+		virtual void Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const = 0;
 
-	protected:
-
+		// This pointer is setup by the compiler and used during
+		// assembly to know how to configure and link the instruction.
 		AssemblyData* assemblyData;
 	};
 }

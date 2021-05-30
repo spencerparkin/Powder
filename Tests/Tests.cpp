@@ -1,7 +1,10 @@
 #include <iostream>
-#include "GarbageCollector/GarbageCollector.h"
-#include "GarbageCollector/GCCollectable.h"
-#include "GarbageCollector/GCReference.hpp"
+#include "GarbageCollector.h"
+#include "GCCollectable.h"
+#include "GCReference.hpp"
+#include "Assembler.h"
+#include "ScopeInstruction.h"
+#include "VirtualMachine.h"
 
 class Blah : public Powder::GCCollectable
 {
@@ -81,11 +84,33 @@ void GCTest(void)
     std::cout << "End GC test!" << std::endl;
 }
 
+void AssemblyTest(void)
+{
+    Powder::Assembler assembler;
+
+    std::list<Powder::Instruction*> instructionList;
+
+    Powder::Instruction* instruction = new Powder::ScopeInstruction();
+    instruction->assemblyData = new Powder::AssemblyData;
+    Powder::AssemblyData::Entry entry;
+    entry.string = "push";
+    instruction->assemblyData->configMap.Insert("scopeOp", entry);
+    instructionList.push_back(instruction);
+
+    uint64_t programBufferSize = 0L;
+    uint8_t* programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);
+
+    Powder::VirtualMachine vm;
+    vm.Execute(programBuffer, programBufferSize);
+
+    delete[] programBuffer;
+}
+
 int main()
 {
-    GCTest();
+    //GCTest();
 
-    // TODO: Write test that sends hand-made program to VM and then runs the program.
+    AssemblyTest();
 
     return 0;
 }

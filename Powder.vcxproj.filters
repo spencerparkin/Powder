@@ -23,6 +23,9 @@
     <Filter Include="Source\Utilities">
       <UniqueIdentifier>{14db1e30-60ef-4e39-ad19-29c183427550}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\VirtualMachine\Values">
+      <UniqueIdentifier>{58653117-3c49-42ab-b0b0-13fa6df89c0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\VirtualMachine\Executor.cpp">
@@ -74,6 +77,24 @@
       <Filter>Source\Compiler</Filter>
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\Instructions\BranchInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\Assembler.cpp">
+      <Filter>Source\Compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Values\NumberValue.cpp">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Values\UndefinedValue.cpp">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\LoadInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\StoreInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\ScopeInstruction.cpp">
       <Filter>Source\VirtualMachine\Instructions</Filter>
     </ClCompile>
   </ItemGroup>
@@ -138,11 +159,23 @@
     <ClInclude Include="Source\Utilities\HashMap.hpp">
       <Filter>Source\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Utilities\Stream.h">
-      <Filter>Source\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Compiler\Assembler.h">
       <Filter>Source\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Values\NumberValue.h">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Values\UndefinedValue.h">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\LoadInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\StoreInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\ScopeInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

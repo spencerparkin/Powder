@@ -1,13 +1,17 @@
 #include "VirtualMachine.h"
 #include "Executor.h"
 #include "Scope.h"
+#include "Value.h"
 #include "GarbageCollector.h"
 #include "BranchInstruction.h"
 #include "ForkInstruction.h"
 #include "JumpInstruction.h"
+#include "LoadInstruction.h"
 #include "MathInstruction.h"
 #include "PopInstruction.h"
 #include "PushInstruction.h"
+#include "ScopeInstruction.h"
+#include "StoreInstruction.h"
 #include "SysCallInstruction.h"
 #include "YieldInstruction.h"
 
@@ -15,16 +19,18 @@ namespace Powder
 {
 	VirtualMachine::VirtualMachine()
 	{
-		this->globalScope = new Scope(nullptr);
 		this->executorList = new ExecutorList();
 		this->instructionMap = new InstructionMap();
 
 		this->RegisterInstruction<BranchInstruction>();
 		this->RegisterInstruction<ForkInstruction>();
 		this->RegisterInstruction<JumpInstruction>();
+		this->RegisterInstruction<LoadInstruction>();
 		this->RegisterInstruction<MathInstruction>();
 		this->RegisterInstruction<PopInstruction>();
 		this->RegisterInstruction<PushInstruction>();
+		this->RegisterInstruction<ScopeInstruction>();
+		this->RegisterInstruction<StoreInstruction>();
 		this->RegisterInstruction<SysCallInstruction>();
 		this->RegisterInstruction<YieldInstruction>();
 	}
@@ -43,17 +49,19 @@ namespace Powder
 
 		delete this->instructionMap;
 		delete this->executorList;
-		delete this->globalScope;
 	}
 
 	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation)
 	{
-		Executor* executor = new Executor(programBufferLocation, this->globalScope);
+		Executor* executor = new Executor(programBufferLocation);
 		this->executorList->push_back(executor);
 	}
 
 	/*virtual*/ void VirtualMachine::Execute(uint8_t* programBuffer, uint64_t programBufferSize)
 	{
+		if (!programBuffer || programBufferSize == 0)
+			return;
+
 		this->CreateExecutorAtLocation(0);
 
 		while (this->executorList->size() > 0)

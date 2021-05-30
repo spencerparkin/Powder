@@ -4,13 +4,19 @@
 
 namespace Powder
 {
-	class POWDER_API BranchInstruction : public Instruction
+	class POWDER_API ScopeInstruction : public Instruction
 	{
 	public:
-		BranchInstruction();
-		virtual ~BranchInstruction();
+		ScopeInstruction();
+		virtual ~ScopeInstruction();
 
-		static uint8_t OpCode() { return 0x08; }
+		static uint8_t OpCode() { return 0x0B; }
+
+		enum ScopeOp
+		{
+			PUSH,
+			POP
+		};
 
 		virtual Executor::Result Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;
 		virtual void Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const override;

@@ -2,6 +2,7 @@
 
 #include "HashMap.hpp"
 #include "GCReference.hpp"
+#include <vector>
 
 namespace Powder
 {
@@ -24,11 +25,19 @@ namespace Powder
 		void DeleteValue(const char* identifier);
 		Scope* GetContainingScope() { return this->containingScope; }
 
+		bool LoadValueOntoEvaluationStackTop(const char* identifier);
+		bool StoreValueFromEvaluationStackTop(const char* identifier);
+
+		bool PushValueOntoEvaluationStackTop(Value* value);
+		bool PopValueFromEvaluationStackTop(Value*& value);
+
 	private:
 
 		Scope* containingScope;
 
 		typedef HashMap<GCReference<Value>> ValueMap;
 		ValueMap valueMap;
+
+		std::vector<GCReference<Value>>* evaluationStack;
 	};
 }

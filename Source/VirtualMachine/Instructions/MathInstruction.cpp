@@ -10,7 +10,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ Executor::Result MathInstruction::Execute(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ Executor::Result MathInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		// TODO: We first decpypher here our operation from the program buffer using the next byte.
 		//       We then, based on how we're configured (the next byte in the program buffer), collect our arguments
@@ -22,5 +22,9 @@ namespace Powder
 		//       an over-proliferation of C++ class types.  Or we can deligate math operations to a Value class virtual method.
 
 		return Executor::Result::YIELD;
+	}
+
+	/*virtual*/ void MathInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	{
 	}
 }

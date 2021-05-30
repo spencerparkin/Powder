@@ -1,4 +1,5 @@
 #include "Instruction.h"
+#include "Assembler.h"
 
 namespace Powder
 {

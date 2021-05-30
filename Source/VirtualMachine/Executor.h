@@ -1,9 +1,7 @@
 #pragma once
 
+#include "Defines.h"
 #include <cinttypes>
-#include <vector>
-#include "Value.h"
-#include "GCReference.hpp"
 
 namespace Powder
 {
@@ -13,7 +11,7 @@ namespace Powder
 	class POWDER_API Executor
 	{
 	public:
-		Executor(uint64_t programBufferLocation, Scope* currentScope);
+		Executor(uint64_t programBufferLocation);
 		virtual ~Executor();
 
 		enum class Result
@@ -28,13 +26,9 @@ namespace Powder
 		bool PushScope();
 		bool PopScope();
 
-		bool LoadValue(const char* identifier);
-		bool StoreValue(const char* identifier);
-
 	protected:
 
 		uint64_t programBufferLocation;
 		Scope* currentScope;
-		std::vector<GCReference<Value>>* evaluationStack;
 	};
 }

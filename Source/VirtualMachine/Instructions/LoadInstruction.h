@@ -4,13 +4,13 @@
 
 namespace Powder
 {
-	class POWDER_API BranchInstruction : public Instruction
+	class POWDER_API LoadInstruction : public Instruction
 	{
 	public:
-		BranchInstruction();
-		virtual ~BranchInstruction();
+		LoadInstruction();
+		virtual ~LoadInstruction();
 
-		static uint8_t OpCode() { return 0x08; }
+		static uint8_t OpCode() { return 0x09; }
 
 		virtual Executor::Result Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;
 		virtual void Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const override;

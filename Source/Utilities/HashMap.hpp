@@ -30,8 +30,19 @@ namespace Powder
 
 		virtual uint32_t CalcHash(const char* key)
 		{
-			std::hash<const char*> hash;
-			return hash(key);
+			// https://en.wikipedia.org/wiki/Jenkins_hash_function
+			uint32_t hash = 0;
+			int i = 0;
+			while (key[i] != '\0')
+			{
+				hash += key[i++];
+				hash += hash << 10;
+				hash ^= hash >> 6;
+			}
+			hash += hash << 3;
+			hash ^= hash >> 11;
+			hash += hash << 15;
+			return hash;
 		}
 
 		uint32_t NumEntries() const
@@ -71,12 +82,25 @@ namespace Powder
 		{
 			TableEntry* entry = this->FindEntry(key, true);
 			entry->data = data;
+			this->numEntries++;
 		}
 
 		T Lookup(const char* key)
 		{
 			TableEntry* entry = this->FindEntry(key, false);
 			return entry ? entry->data : nullptr;
+		}
+
+		T* LookupPtr(const char* key)
+		{
+			TableEntry* entry = this->FindEntry(key, false);
+			return entry ? &entry->data : nullptr;
+		}
+
+		const T* LookupPtr(const char* key) const
+		{
+			TableEntry* entry = this->FindEntry(key, false);
+			return entry ? &entry->data : nullptr;
 		}
 
 		void Remove(const char* key)
@@ -96,6 +120,7 @@ namespace Powder
 				}
 
 				delete doomedEntry;
+				this->numEntries--;
 			}
 		}
 

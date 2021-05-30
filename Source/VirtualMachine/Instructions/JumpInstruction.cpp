@@ -11,7 +11,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ Executor::Result JumpInstruction::Execute(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ Executor::Result JumpInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		// TODO: We should also be able to be configured (using a config byte)
 		//       to jump to an offset determined by a value in the scope.
@@ -25,5 +25,9 @@ namespace Powder
 		//       6) Unconditional jump to return address stored in scope.
 		::memcpy(&programBufferLocation, &programBuffer[programBufferLocation + 1], sizeof(uint64_t));
 		return Executor::Result::CONTINUE;
+	}
+
+	/*virtual*/ void JumpInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	{
 	}
 }
