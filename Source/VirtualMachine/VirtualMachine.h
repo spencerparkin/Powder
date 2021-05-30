@@ -32,12 +32,12 @@ namespace Powder
 		template<typename T>
 		void RegisterInstruction()
 		{
-			char opCodeStr[2] = { (char)T::OpCode(), '\0' };
-			if (!this->instructionMap->Lookup(opCodeStr))
-			{
-				T* instruction = new T();
+			T* instruction = new T();
+			char opCodeStr[2] = { (char)instruction->OpCode(), '\0' };
+			if (this->instructionMap->Lookup(opCodeStr))
+				delete instruction;
+			else
 				this->instructionMap->Insert(opCodeStr, instruction);
-			}
 		}
 
 	protected:

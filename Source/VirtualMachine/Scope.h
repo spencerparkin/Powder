@@ -25,11 +25,11 @@ namespace Powder
 		void DeleteValue(const char* identifier);
 		Scope* GetContainingScope() { return this->containingScope; }
 
-		bool LoadValueOntoEvaluationStackTop(const char* identifier);
-		bool StoreValueFromEvaluationStackTop(const char* identifier);
+		void LoadValueOntoEvaluationStackTop(const char* identifier);
+		void StoreValueFromEvaluationStackTop(const char* identifier);
 
-		bool PushValueOntoEvaluationStackTop(Value* value);
-		bool PopValueFromEvaluationStackTop(Value*& value);
+		void PushValueOntoEvaluationStackTop(Value* value);
+		void PopValueFromEvaluationStackTop(Value*& value);
 
 	private:
 

@@ -43,7 +43,9 @@ namespace Powder
 		{
 			Instruction* instruction = virtualMachine->LookupInstruction(programBuffer[this->programBufferLocation]);
 			if (!instruction)
-				break;
+			{
+				// TODO: Throw exception!
+			}
 
 			Executor::Result result = instruction->Execute(programBuffer, programBufferSize, this->programBufferLocation, this, virtualMachine);
 			if (result != Executor::Result::CONTINUE)

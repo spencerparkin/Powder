@@ -10,6 +10,11 @@ namespace Powder
 	{
 	}
 
+	/*virtual*/ uint8_t YieldInstruction::OpCode() const
+	{
+		return 0x0B;
+	}
+
 	/*virtual*/ Executor::Result YieldInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		programBufferLocation++;
@@ -18,9 +23,6 @@ namespace Powder
 
 	/*virtual*/ void YieldInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
 	{
-		if (assemblyPass == AssemblyPass::RENDER)
-			programBuffer[programBufferLocation] = this->OpCode();
-
 		programBufferLocation++;
 	}
 }

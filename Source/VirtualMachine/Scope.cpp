@@ -35,40 +35,39 @@ namespace Powder
 		this->valueMap.Remove(identifier);
 	}
 
-	bool Scope::LoadValueOntoEvaluationStackTop(const char* identifier)
+	void Scope::LoadValueOntoEvaluationStackTop(const char* identifier)
 	{
 		Value* value = this->LookupValue(identifier);
 		if (!value)
-			return false;
+		{
+			// TODO: Throw an exception.
+		}
 
 		return this->PushValueOntoEvaluationStackTop(value);
 	}
 
-	bool Scope::StoreValueFromEvaluationStackTop(const char* identifier)
+	void Scope::StoreValueFromEvaluationStackTop(const char* identifier)
 	{
 		Value* value = nullptr;
-		if (!this->PopValueFromEvaluationStackTop(value))
-			return false;
-
+		this->PopValueFromEvaluationStackTop(value);
 		this->StoreValue(identifier, value);
-		return true;
 	}
 
-	bool Scope::PushValueOntoEvaluationStackTop(Value* value)
+	void Scope::PushValueOntoEvaluationStackTop(Value* value)
 	{
 		this->evaluationStack->push_back(value);
-		return true;
 	}
 
-	bool Scope::PopValueFromEvaluationStackTop(Value*& value)
+	void Scope::PopValueFromEvaluationStackTop(Value*& value)
 	{
 		value = nullptr;
 
 		if (this->evaluationStack->size() == 0)
-			return false;
+		{
+			// TODO: Throw an exception.
+		}
 
 		value = (*this->evaluationStack)[this->evaluationStack->size() - 1];
 		this->evaluationStack->pop_back();
-		return true;
 	}
 }

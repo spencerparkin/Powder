@@ -30,6 +30,7 @@ namespace Powder
 		for (std::list<Instruction*>::const_iterator iter = instructionList.cbegin(); iter != instructionList.cend(); iter++)
 		{
 			const Instruction* instruction = *iter;
+			programBuffer[programBufferLocation] = instruction->OpCode();
 			instruction->Assemble(programBuffer, programBufferSize, programBufferLocation, Instruction::AssemblyPass::RENDER);
 		}
 

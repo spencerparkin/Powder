@@ -4,6 +4,8 @@
 #include "GCReference.hpp"
 #include "Assembler.h"
 #include "ScopeInstruction.h"
+#include "PushInstruction.h"
+#include "MathInstruction.h"
 #include "VirtualMachine.h"
 
 class Blah : public Powder::GCCollectable
@@ -89,12 +91,34 @@ void AssemblyTest(void)
     Powder::Assembler assembler;
 
     std::list<Powder::Instruction*> instructionList;
+    Powder::AssemblyData::Entry entry;
 
     Powder::Instruction* instruction = new Powder::ScopeInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
-    Powder::AssemblyData::Entry entry;
     entry.string = "push";
     instruction->assemblyData->configMap.Insert("scopeOp", entry);
+    instructionList.push_back(instruction);
+
+    instruction = new Powder::PushInstruction();
+    instruction->assemblyData = new Powder::AssemblyData;
+    entry.string = "string";
+    instruction->assemblyData->configMap.Insert("type", entry);
+    entry.string = "Hello, ";
+    instruction->assemblyData->configMap.Insert("data", entry);
+    instructionList.push_back(instruction);
+
+    instruction = new Powder::PushInstruction();
+    instruction->assemblyData = new Powder::AssemblyData;
+    entry.string = "string";
+    instruction->assemblyData->configMap.Insert("type", entry);
+    entry.string = "World!";
+    instruction->assemblyData->configMap.Insert("data", entry);
+    instructionList.push_back(instruction);
+
+    instruction = new Powder::MathInstruction();
+    instruction->assemblyData = new Powder::AssemblyData;
+    entry.string = "add";
+    instruction->assemblyData->configMap.Insert("mathOp", entry);
     instructionList.push_back(instruction);
 
     uint64_t programBufferSize = 0L;
@@ -104,6 +128,12 @@ void AssemblyTest(void)
     vm.Execute(programBuffer, programBufferSize);
 
     delete[] programBuffer;
+
+    for (std::list<Powder::Instruction*>::iterator iter = instructionList.begin(); iter != instructionList.end(); iter++)
+    {
+        instruction = *iter;
+        delete instruction;
+    }
 }
 
 int main()

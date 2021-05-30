@@ -15,6 +15,8 @@ namespace Powder
 		Instruction();
 		virtual ~Instruction();
 
+		virtual uint8_t OpCode() const = 0;
+
 		// Read and execute this instruction from the given buffer.
 		// Note that for faster execution, implimentations of this virtual
 		// method need not bounds-check their access to the given program
@@ -40,6 +42,8 @@ namespace Powder
 		};
 
 		// Format and write this instruction into the given buffer.
+		// Note that overrides need not write their op-code into
+		// the buffer; the assemlber does that for you.
 		virtual void Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const = 0;
 
 		// This pointer is setup by the compiler and used during

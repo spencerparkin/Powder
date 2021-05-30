@@ -17,14 +17,9 @@ namespace Powder
 
 		virtual bool IsReference(void) override;
 
-		void OwnObject(GCObject* object)
-		{
-			this->ConnectTo(object);
-		}
-
-		void DisownObject(GCObject* object)
-		{
-			this->DisconnectFrom(object);
-		}
+		// Never call these in a destructor.  The GC will
+		// delete objects in an indeterminant order.
+		void OwnObject(GCObject* object) { this->ConnectTo(object); }
+		void DisownObject(GCObject* object) { this->DisconnectFrom(object); }
 	};
 }

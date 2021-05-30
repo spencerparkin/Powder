@@ -10,7 +10,7 @@ namespace Powder
 		ScopeInstruction();
 		virtual ~ScopeInstruction();
 
-		static uint8_t OpCode() { return 0x0B; }
+		virtual uint8_t OpCode() const override;
 
 		enum ScopeOp
 		{

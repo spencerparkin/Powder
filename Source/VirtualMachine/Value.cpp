@@ -14,4 +14,9 @@ namespace Powder
 	{
 		return nullptr;
 	}
+
+	/*virtual*/ Value* Value::CombineWith(const Value* value, MathInstruction::MathOp mathOp) const
+	{
+		return nullptr;
+	}
 }

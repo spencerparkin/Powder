@@ -1,4 +1,7 @@
 #include "MathInstruction.h"
+#include "Assembler.h"
+#include "Scope.h"
+#include "Value.h"
 
 namespace Powder
 {
@@ -10,21 +13,58 @@ namespace Powder
 	{
 	}
 
+	/*virtual*/ uint8_t MathInstruction::OpCode() const
+	{
+		return 0x05;
+	}
+
 	/*virtual*/ Executor::Result MathInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
-		// TODO: We first decpypher here our operation from the program buffer using the next byte.
-		//       We then, based on how we're configured (the next byte in the program buffer), collect our arguments
-		//       as either immediates from the program buffer or as values popped from the evaluation stack.
-		//       (There should be instructions for pushing values found in scope onto the evaluation stack, and
-		//       instructions for popping values from the evaluation stack back into scope.)
-		//       In either case, or combination of cases, we perform our operation, then push the result onto the evaluation stack.
-		//       Note that this class will handle as many binary operations as possible, math or otherwise, so as to prevent
-		//       an over-proliferation of C++ class types.  Or we can deligate math operations to a Value class virtual method.
+		Value* rightValue = nullptr;
+		Value* leftValue = nullptr;
 
-		return Executor::Result::YIELD;
+		executor->GetCurrentScope()->PopValueFromEvaluationStackTop(rightValue);
+		executor->GetCurrentScope()->PopValueFromEvaluationStackTop(leftValue);
+
+		MathOp mathOp = MathOp(programBuffer[programBufferLocation + 1]);
+
+		Value* result = leftValue->CombineWith(rightValue, mathOp);
+		if (!result)
+		{
+			// TODO: Throw exception.
+		}
+
+		executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(result);
+
+		programBufferLocation += 2;
+
+		return Executor::Result::CONTINUE;
 	}
 
 	/*virtual*/ void MathInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
 	{
+		if (assemblyPass == AssemblyPass::RENDER)
+		{
+			const AssemblyData::Entry* mathOpEntry = this->assemblyData->configMap.LookupPtr("mathOp");
+			if (!mathOpEntry)
+			{
+				// TODO: Throw exception.
+			}
+
+			if (mathOpEntry->string == "add")
+				programBuffer[programBufferLocation + 1] = uint8_t(MathOp::ADD);
+			else if (mathOpEntry->string == "subtract")
+				programBuffer[programBufferLocation + 1] = uint8_t(MathOp::SUBTRACT);
+			else if (mathOpEntry->string == "multiply")
+				programBuffer[programBufferLocation + 1] = uint8_t(MathOp::MULTIPLY);
+			else if (mathOpEntry->string == "divide")
+				programBuffer[programBufferLocation + 1] = uint8_t(MathOp::DIVIDE);
+			else
+			{
+				// TODO: Throw an exception.
+			}
+		}
+
+		programBufferLocation += 2L;
 	}
 }

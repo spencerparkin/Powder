@@ -12,6 +12,11 @@ namespace Powder
 	{
 	}
 
+	/*virtual*/ uint8_t ForkInstruction::OpCode() const
+	{
+		return 0x02;
+	}
+
 	/*virtual*/ Executor::Result ForkInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		uint64_t forkedProgramBufferLocation = 0;

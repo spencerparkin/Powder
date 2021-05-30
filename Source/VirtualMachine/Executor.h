@@ -26,6 +26,8 @@ namespace Powder
 		bool PushScope();
 		bool PopScope();
 
+		Scope* GetCurrentScope() { return this->currentScope; }
+
 	protected:
 
 		uint64_t programBufferLocation;

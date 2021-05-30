@@ -11,6 +11,11 @@ namespace Powder
 	{
 	}
 
+	/*virtual*/ uint8_t SysCallInstruction::OpCode() const
+	{
+		return 0x0A;
+	}
+
 	/*virtual*/ Executor::Result SysCallInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		uint8_t sysCallCode = programBuffer[programBufferLocation + 1];

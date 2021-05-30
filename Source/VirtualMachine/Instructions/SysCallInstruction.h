@@ -10,7 +10,7 @@ namespace Powder
 		SysCallInstruction();
 		virtual ~SysCallInstruction();
 
-		static uint8_t OpCode() { return 0x05; }
+		virtual uint8_t OpCode() const override;
 
 		enum class SysCall
 		{

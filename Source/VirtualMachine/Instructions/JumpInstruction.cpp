@@ -11,6 +11,11 @@ namespace Powder
 	{
 	}
 
+	/*virtual*/ uint8_t JumpInstruction::OpCode() const
+	{
+		return 0x03;
+	}
+
 	/*virtual*/ Executor::Result JumpInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		// TODO: We should also be able to be configured (using a config byte)

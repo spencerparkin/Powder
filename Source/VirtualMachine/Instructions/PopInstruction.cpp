@@ -10,10 +10,14 @@ namespace Powder
 	{
 	}
 
+	/*virtual*/ uint8_t PopInstruction::OpCode() const
+	{
+		return 0x06;
+	}
+
 	/*virtual*/ Executor::Result PopInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
-		// TODO: Call executor->StoreValue().  Also call executor->PopScope().
-
+		//...
 		return Executor::Result::CONTINUE;
 	}
 
