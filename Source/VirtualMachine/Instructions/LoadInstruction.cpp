@@ -17,7 +17,7 @@ namespace Powder
 
 	/*virtual*/ Executor::Result LoadInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
-		// TODO: Call executor->LoadValue() to move value from scope into the evaluation stack.
+		// TODO: Call executor->LoadValue() to move value from scope into the top of the evaluation stack.  We push the value in the process.
 
 		return Executor::Result::CONTINUE;
 	}

@@ -31,7 +31,7 @@ namespace Powder
 				// this as something the program has to do manually until I can find a better GC algorithm.
 				// Even if the program never calls this, it should not leak memory as a full pass is made
 				// over all objects when the VM finishes execution of a given program.
-				GarbageCollector::GC()->Run();
+				GarbageCollector::GC()->FullPass();
 				break;
 			}
 			case int(SysCall::INPUT):

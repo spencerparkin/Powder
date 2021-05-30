@@ -103,6 +103,9 @@
     <ClCompile Include="Source\VirtualMachine\Values\ListValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Values\AddressValue.cpp">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -187,6 +190,9 @@
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\ListValue.h">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Values\AddressValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
   </ItemGroup>

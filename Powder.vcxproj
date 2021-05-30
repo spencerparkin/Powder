@@ -39,6 +39,7 @@
     <ClCompile Include="Source\VirtualMachine\Instructions\YieldInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Scope.cpp" />
     <ClCompile Include="Source\VirtualMachine\Value.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\AddressValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\ListValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\NumberValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\StringValue.cpp" />
@@ -69,6 +70,7 @@
     <ClInclude Include="Source\VirtualMachine\Instructions\YieldInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Scope.h" />
     <ClInclude Include="Source\VirtualMachine\Value.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\AddressValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\ListValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\NumberValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\StringValue.h" />
