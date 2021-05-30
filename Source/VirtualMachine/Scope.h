@@ -8,11 +8,8 @@ namespace Powder
 {
 	class Value;
 
-	// Scopes provide the main mechanism for facilitating a procedural language, but
-	// they can also be used for scope changes within a procedure (local scoping) or
-	// for the global scope.  The return address and arguments to a function call
-	// are stored in scopes, and therefore, there is no real distinction between
-	// local variables of a subroutine and the arguments passed to it.
+	// The name here may be an abuse of the term.  A perhaps more accurate
+	// term here is call stack frame.
 	class POWDER_API Scope
 	{
 	public:
@@ -20,18 +17,21 @@ namespace Powder
 		Scope(Scope* containingScope);
 		virtual ~Scope();
 
-		Value* LookupValue(const char* identifier);
-		void StoreValue(const char* identifier, Value* value);
-		void DeleteValue(const char* identifier);
+		Value* LookupValue(const char* identifier, uint32_t scopeLevel);
+		void StoreValue(const char* identifier, Value* value, uint32_t scopeLevel);
+		void DeleteValue(const char* identifier, uint32_t scopeLevel);
+
 		Scope* GetContainingScope() { return this->containingScope; }
 
-		void LoadValueOntoEvaluationStackTop(const char* identifier);
-		void StoreValueFromEvaluationStackTop(const char* identifier);
+		void LoadValueOntoEvaluationStackTop(const char* identifier, uint32_t scopeLevel);
+		void StoreValueFromEvaluationStackTop(const char* identifier, uint32_t scopeLevel);
 
 		void PushValueOntoEvaluationStackTop(Value* value);
 		void PopValueFromEvaluationStackTop(Value*& value);
 
 	private:
+
+		Scope* FindScopeAtLevel(uint32_t scopeLevel);
 
 		Scope* containingScope;
 

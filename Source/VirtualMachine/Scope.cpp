@@ -15,29 +15,39 @@ namespace Powder
 		delete this->evaluationStack;
 	}
 
-	Value* Scope::LookupValue(const char* identifier)
+	Scope* Scope::FindScopeAtLevel(uint32_t scopeLevel)
 	{
-		Value* value = this->valueMap.Lookup(identifier);
-		
-		if (!value && this->containingScope)
-			value = this->containingScope->LookupValue(identifier);
+		Scope* scope = this;
+		while (scopeLevel-- > 0)
+		{
+			scope = scope->containingScope;
+			if (!scope)
+			{
+				// TODO: Throw an exception.
+			}
+		}
 
-		return value;
+		return scope;
 	}
 
-	void Scope::StoreValue(const char* identifier, Value* value)
+	Value* Scope::LookupValue(const char* identifier, uint32_t scopeLevel)
 	{
-		this->valueMap.Insert(identifier, value);
+		return this->FindScopeAtLevel(scopeLevel)->valueMap.Lookup(identifier);
 	}
 
-	void Scope::DeleteValue(const char* identifier)
+	void Scope::StoreValue(const char* identifier, Value* value, uint32_t scopeLevel)
 	{
-		this->valueMap.Remove(identifier);
+		this->FindScopeAtLevel(scopeLevel)->valueMap.Insert(identifier, value);
 	}
 
-	void Scope::LoadValueOntoEvaluationStackTop(const char* identifier)
+	void Scope::DeleteValue(const char* identifier, uint32_t scopeLevel)
 	{
-		Value* value = this->LookupValue(identifier);
+		this->FindScopeAtLevel(scopeLevel)->valueMap.Remove(identifier);
+	}
+
+	void Scope::LoadValueOntoEvaluationStackTop(const char* identifier, uint32_t scopeLevel)
+	{
+		Value* value = this->LookupValue(identifier, scopeLevel);
 		if (!value)
 		{
 			// TODO: Throw an exception.
@@ -46,11 +56,11 @@ namespace Powder
 		return this->PushValueOntoEvaluationStackTop(value);
 	}
 
-	void Scope::StoreValueFromEvaluationStackTop(const char* identifier)
+	void Scope::StoreValueFromEvaluationStackTop(const char* identifier, uint32_t scopeLevel)
 	{
 		Value* value = nullptr;
 		this->PopValueFromEvaluationStackTop(value);
-		this->StoreValue(identifier, value);
+		this->StoreValue(identifier, value, scopeLevel);
 	}
 
 	void Scope::PushValueOntoEvaluationStackTop(Value* value)

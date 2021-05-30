@@ -126,15 +126,24 @@ void AssemblyTest(void)
     instruction->assemblyData->configMap.Insert("type", entry);
     instructionList.push_back(instruction);
 
-    instruction = new Powder::SysCallInstruction();
+    instruction = new Powder::ScopeInstruction();
     instruction->assemblyData = new Powder::AssemblyData();
-    entry.string = "halt";
-    instruction->assemblyData->configMap.Insert("sys_call", entry);
+    entry.string = "pop";
+    instruction->assemblyData->configMap.Insert("scopeOp", entry);
     instructionList.push_back(instruction);
 
     entry.instruction = instruction;
     instruction->assemblyData->configMap.Insert("data", entry);
     pushReturnAddressInstruction->assemblyData->configMap.Insert("data", entry);
+
+    //...this is where we could load the "__return_result__" value if we were already in a scope before the call...
+    // The compiler should always provide a return result, but the caller won't always load it into the evaluation stack.
+
+    instruction = new Powder::SysCallInstruction();
+    instruction->assemblyData = new Powder::AssemblyData();
+    entry.string = "halt";
+    instruction->assemblyData->configMap.Insert("sys_call", entry);
+    instructionList.push_back(instruction);
 
     //----------- Start of Procedure -----------
 
@@ -168,6 +177,8 @@ void AssemblyTest(void)
     entry.string = "output";
     instruction->assemblyData->configMap.Insert("sys-call", entry);
     instructionList.push_back(instruction);
+
+    // ...there is where we could do a store-value instruction in the caller's scope to store the __return_result__...
 
     instruction = new Powder::JumpInstruction();
     instruction->assemblyData = new Powder::AssemblyData;

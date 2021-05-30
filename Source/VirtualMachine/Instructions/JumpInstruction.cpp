@@ -31,7 +31,7 @@ namespace Powder
 			}
 			case Type::JUMP_RETURN_ADDRESS:
 			{
-				Value* value = executor->GetCurrentScope()->LookupValue("__return_address__");
+				Value* value = executor->GetCurrentScope()->LookupValue("__return_address__", 0);
 				if (!value)
 				{
 					// TODO: Throw an exception.
@@ -44,7 +44,6 @@ namespace Powder
 				}
 
 				programBufferLocation = *addressValue;
-				executor->PopScope();
 				break;
 			}
 		}
