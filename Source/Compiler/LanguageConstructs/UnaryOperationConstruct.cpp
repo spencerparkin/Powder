@@ -5,11 +5,13 @@ namespace Powder
 	UnaryOperationConstruct::UnaryOperationConstruct()
 	{
 		this->operandConstruct = nullptr;
+		this->unaryOperation = new std::string;
 	}
 
 	/*virtual*/ UnaryOperationConstruct::~UnaryOperationConstruct()
 	{
 		delete this->operandConstruct;
+		delete this->unaryOperation;
 	}
 
 	/*virtual*/ LanguageConstruct* UnaryOperationConstruct::New()

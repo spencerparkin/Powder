@@ -17,9 +17,6 @@
     <Filter Include="Source\GarbageCollector">
       <UniqueIdentifier>{53e91455-60af-4817-b06f-4064bbffc7fb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Examples">
-      <UniqueIdentifier>{25cae7f1-1fec-45c8-baaf-7b64e5a29bac}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Utilities">
       <UniqueIdentifier>{14db1e30-60ef-4e39-ad19-29c183427550}</UniqueIdentifier>
     </Filter>
@@ -285,14 +282,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
-    <None Include="Examples\HelloWorld.pow">
-      <Filter>Examples</Filter>
-    </None>
-    <None Include="Examples\Fibbonacci.pow">
-      <Filter>Examples</Filter>
-    </None>
-    <None Include="Examples\Fork.pow">
-      <Filter>Examples</Filter>
-    </None>
   </ItemGroup>
 </Project>

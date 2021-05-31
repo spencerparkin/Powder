@@ -5,7 +5,7 @@
 
 namespace Powder
 {
-	class FunctionConstruct : public LanguageConstruct
+	class POWDER_API FunctionConstruct : public LanguageConstruct
 	{
 	public:
 		FunctionConstruct();
@@ -18,6 +18,6 @@ namespace Powder
 	protected:
 		LanguageConstruct* bodyConstruct;
 
-		std::list<std::string> namedArgumentsList;
+		std::list<std::string>* namedArgumentsList;
 	};
 }

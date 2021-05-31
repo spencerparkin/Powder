@@ -6,12 +6,14 @@ namespace Powder
 	{
 		this->leftOperandConstruct = nullptr;
 		this->rightOperandConstruct = nullptr;
+		this->binaryOperation = new std::string;
 	}
 
 	/*virtual*/ BinaryOperationConstruct::~BinaryOperationConstruct()
 	{
 		delete this->leftOperandConstruct;
 		delete this->rightOperandConstruct;
+		delete this->binaryOperation;
 	}
 
 	/*virtual*/ LanguageConstruct* BinaryOperationConstruct::New()

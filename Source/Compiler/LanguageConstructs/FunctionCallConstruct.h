@@ -4,7 +4,7 @@
 
 namespace Powder
 {
-	class FunctionCallConstruct : public LanguageConstruct
+	class POWDER_API FunctionCallConstruct : public LanguageConstruct
 	{
 	public:
 		FunctionCallConstruct();

@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Defines.h"
 #include <string>
 
 namespace Powder
 {
-	class Exception
+	class POWDER_API Exception
 	{
 	public:
 		Exception(const std::string& errorMsg)
@@ -19,7 +20,7 @@ namespace Powder
 		std::string errorMsg;
 	};
 
-	class RunTimeException : public Exception
+	class POWDER_API RunTimeException : public Exception
 	{
 	public:
 		RunTimeException(const std::string& errorMsg) : Exception(errorMsg)
@@ -31,7 +32,7 @@ namespace Powder
 		}
 	};
 
-	class CompileTimeException : public Exception
+	class POWDER_API CompileTimeException : public Exception
 	{
 	public:
 		CompileTimeException(const std::string& errorMsg) : Exception(errorMsg)

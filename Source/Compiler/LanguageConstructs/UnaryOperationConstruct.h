@@ -4,7 +4,7 @@
 
 namespace Powder
 {
-	class UnaryOperationConstruct : public LanguageConstruct
+	class POWDER_API UnaryOperationConstruct : public LanguageConstruct
 	{
 	public:
 		UnaryOperationConstruct();
@@ -17,6 +17,6 @@ namespace Powder
 	protected:
 		LanguageConstruct* operandConstruct;
 
-		std::string unaryOperation;
+		std::string* unaryOperation;
 	};
 }

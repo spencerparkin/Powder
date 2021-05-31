@@ -5,7 +5,7 @@
 namespace Powder
 {
 	// These are what make heavy use of the evaluation stack.
-	class BinaryOperationConstruct : public LanguageConstruct
+	class POWDER_API BinaryOperationConstruct : public LanguageConstruct
 	{
 	public:
 		BinaryOperationConstruct();
@@ -19,6 +19,6 @@ namespace Powder
 		LanguageConstruct* leftOperandConstruct;
 		LanguageConstruct* rightOperandConstruct;
 
-		std::string binaryOperation;
+		std::string* binaryOperation;
 	};
 }

@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Defines.h"
+
 namespace Powder
 {
 	template<typename T>
-	class LinkedList
+	class POWDER_API LinkedList
 	{
 	public:
 

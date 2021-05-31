@@ -4,7 +4,7 @@
 
 namespace Powder
 {
-	class OperandConstruct : public LanguageConstruct
+	class POWDER_API OperandConstruct : public LanguageConstruct
 	{
 	public:
 		OperandConstruct();

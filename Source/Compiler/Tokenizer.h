@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Defines.h"
 #include <cstdint>
 #include "LinkedList.hpp"
 #include <string>
@@ -27,7 +28,7 @@ namespace Powder
 
 	typedef LinkedList<Token> TokenList;
 
-	class Tokenizer
+	class POWDER_API Tokenizer
 	{
 	public:
 		Tokenizer();

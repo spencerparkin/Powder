@@ -12,7 +12,7 @@ namespace Powder
 	// a validly written program as one that successfully parses
 	// as a program construct.  Note that it also often appears as the
 	// child or children of all other constructs.
-	class ProgramConstruct : public LanguageConstruct
+	class POWDER_API ProgramConstruct : public LanguageConstruct
 	{
 	public:
 		ProgramConstruct();

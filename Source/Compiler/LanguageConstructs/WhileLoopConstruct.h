@@ -4,7 +4,7 @@
 
 namespace Powder
 {
-	class WhileLoopConstruct : public LanguageConstruct
+	class POWDER_API WhileLoopConstruct : public LanguageConstruct
 	{
 	public:
 		WhileLoopConstruct();

@@ -4,7 +4,7 @@
 
 namespace Powder
 {
-	class ListConstruct : public LanguageConstruct
+	class POWDER_API ListConstruct : public LanguageConstruct
 	{
 	public:
 		ListConstruct();

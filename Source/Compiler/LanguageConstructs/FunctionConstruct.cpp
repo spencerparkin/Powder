@@ -6,11 +6,13 @@ namespace Powder
 	FunctionConstruct::FunctionConstruct()
 	{
 		this->bodyConstruct = new ProgramConstruct();
+		this->namedArgumentsList = new std::list<std::string>;
 	}
 
 	/*virtual*/ FunctionConstruct::~FunctionConstruct()
 	{
 		delete this->bodyConstruct;
+		delete this->namedArgumentsList;
 	}
 
 	/*virtual*/ LanguageConstruct* FunctionConstruct::New()

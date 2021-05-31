@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Defines.h"
 #include "LinkedList.hpp"
 #include "Tokenizer.h"
 #include <list>
@@ -13,7 +14,7 @@ namespace Powder
 	// a function of a given token list.  If this succeeds, then the token
 	// list is grammatically correct, and therefore, represents a valid program,
 	// even if the program doesn't necessarily do what the programmer intends.
-	class LanguageConstruct
+	class POWDER_API LanguageConstruct
 	{
 	public:
 		LanguageConstruct();

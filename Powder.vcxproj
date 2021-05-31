@@ -106,9 +106,6 @@
     <ClInclude Include="Source\VirtualMachine\VirtualMachine.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Examples\Fibbonacci.pow" />
-    <None Include="Examples\Fork.pow" />
-    <None Include="Examples\HelloWorld.pow" />
     <None Include="Readme.md" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -4,7 +4,7 @@
 
 namespace Powder
 {
-	class IfThenElseConstruct : public LanguageConstruct
+	class POWDER_API IfThenElseConstruct : public LanguageConstruct
 	{
 	public:
 		IfThenElseConstruct();
