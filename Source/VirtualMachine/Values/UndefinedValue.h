@@ -11,6 +11,6 @@ namespace Powder
 		virtual ~UndefinedValue();
 
 		virtual Value* Copy() const override;
-		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp) const override;
+		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 	};
 }

@@ -1,5 +1,6 @@
 #include "Scope.h"
 #include "Value.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -48,17 +49,14 @@ namespace Powder
 	{
 		Value* value = this->LookupValue(identifier, false);
 		if (!value)
-		{
-			// TODO: Throw an exception.
-		}
+			throw new RunTimeException("Failed to lookup identifier %s.");
 
 		return this->PushValueOntoEvaluationStackTop(value);
 	}
 
 	void Scope::StoreValueFromEvaluationStackTop(const char* identifier)
 	{
-		Value* value = nullptr;
-		this->PopValueFromEvaluationStackTop(value);
+		Value* value = this->PopValueFromEvaluationStackTop();
 		this->StoreValue(identifier, value);
 	}
 
@@ -67,16 +65,13 @@ namespace Powder
 		this->evaluationStack->push_back(value);
 	}
 
-	void Scope::PopValueFromEvaluationStackTop(Value*& value)
+	Value* Scope::PopValueFromEvaluationStackTop()
 	{
-		value = nullptr;
-
+		Value* value = nullptr;
 		if (this->evaluationStack->size() == 0)
-		{
-			// TODO: Throw an exception.
-		}
-
+			throw new RunTimeException("Evaluation stack underflow!");
 		value = (*this->evaluationStack)[this->evaluationStack->size() - 1];
 		this->evaluationStack->pop_back();
+		return value;
 	}
 }

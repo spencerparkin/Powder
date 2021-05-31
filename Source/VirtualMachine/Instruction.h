@@ -23,7 +23,7 @@ namespace Powder
 		// buffer.  An out-of-bounds error here means there is a bug in the compiler.
 		virtual Executor::Result Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) = 0;
 
-		enum class AssemblyPass
+		enum AssemblyPass
 		{
 			// In this pass, nothing is written to the program buffer.
 			// Rather, it is expected that the given program location

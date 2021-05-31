@@ -2,6 +2,7 @@
 #include "Scope.h"
 #include "AddressValue.h"
 #include "Assembler.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -21,7 +22,6 @@ namespace Powder
 	/*virtual*/ Executor::Result JumpInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		Type type = Type(programBuffer[programBufferLocation + 1]);
-
 		switch (type)
 		{
 			case Type::JUMP_TO_EMBEDDED_ADDRESS:
@@ -31,19 +31,10 @@ namespace Powder
 			}
 			case Type::JUMP_TO_LOADED_ADDRESS:
 			{
-				Value* value = nullptr;
-				executor->GetCurrentScope()->PopValueFromEvaluationStackTop(value);
-
-				if (!value)
-				{
-					// TODO: Throw an exception.
-				}
-
+				Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
 				AddressValue* addressValue = dynamic_cast<AddressValue*>(value);
 				if (!addressValue)
-				{
-					// TODO: Throw an exception.
-				}
+					throw new RunTimeException("Cannot jump to location indicated by anything other than an address value.");
 
 				programBufferLocation = *addressValue;
 				break;
@@ -57,31 +48,24 @@ namespace Powder
 	{
 		const AssemblyData::Entry* typeEntry = this->assemblyData->configMap.LookupPtr("type");
 		if (!typeEntry)
-		{
-			// TODO: Throw an exception.
-		}
+			throw new CompileTimeException("Can't assemble jump instruction if not given the jump-type.");
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
-			if (typeEntry->string == "jump_to_loaded_address")
-				programBuffer[programBufferLocation + 1] = uint8_t(Type::JUMP_TO_LOADED_ADDRESS);
-			else if (typeEntry->string == "jump_to_embedded_address")
-			{
-				programBuffer[programBufferLocation + 1] = uint8_t(Type::JUMP_TO_EMBEDDED_ADDRESS);
+			programBuffer[programBufferLocation + 1] = typeEntry->code;
 
+			if (typeEntry->code == Type::JUMP_TO_EMBEDDED_ADDRESS)
+			{
 				const AssemblyData::Entry* jumpEntry = this->assemblyData->configMap.LookupPtr("jump");
 				if (!jumpEntry)
-				{
-					// TODO: Throw an exception.
-				}
+					throw new CompileTimeException("Can't assemble jump instruction to hard-coded program location if not given that location.");
 
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(uint64_t), &jumpEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 			}
 		}
 
 		programBufferLocation += 2;
-
-		if (typeEntry->string == "jump_to_embedded_address")
+		if (typeEntry->code == Type::JUMP_TO_EMBEDDED_ADDRESS)
 			programBufferLocation += sizeof(uint64_t);
 	}
 }

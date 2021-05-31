@@ -40,6 +40,7 @@ namespace Powder
 			Instruction* instruction;
 			double number;
 			std::string string;
+			uint8_t code;
 		};
 
 		HashMap<Entry> configMap;

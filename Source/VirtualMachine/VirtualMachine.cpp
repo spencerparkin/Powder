@@ -1,4 +1,5 @@
 #include "VirtualMachine.h"
+#include "Exceptions.hpp"
 #include "Executor.h"
 #include "Scope.h"
 #include "Value.h"
@@ -38,15 +39,7 @@ namespace Powder
 	/*virtual*/ VirtualMachine::~VirtualMachine()
 	{
 		this->instructionMap->DeleteAndClear();
-
-		while (this->executorList->size() > 0)
-		{
-			ExecutorList::iterator iter = this->executorList->begin();
-			Executor* executor = *iter;
-			delete executor;
-			this->executorList->erase(iter);
-		}
-
+		DeleteList<Executor*>(*this->executorList);
 		delete this->instructionMap;
 		delete this->executorList;
 	}
@@ -54,7 +47,7 @@ namespace Powder
 	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation)
 	{
 		Executor* executor = new Executor(programBufferLocation);
-		this->executorList->push_back(executor);
+		this->executorList->AddTail(executor);
 	}
 
 	/*virtual*/ void VirtualMachine::Execute(uint8_t* programBuffer, uint64_t programBufferSize)
@@ -62,22 +55,27 @@ namespace Powder
 		if (!programBuffer || programBufferSize == 0)
 			return;
 
-		this->CreateExecutorAtLocation(0);
-
-		while (this->executorList->size() > 0)
+		try
 		{
-			ExecutorList::iterator iter = this->executorList->begin();
-			Executor* executor = *iter;
-			this->executorList->erase(iter);
-
-			Executor::Result result = executor->Execute(programBuffer, programBufferSize, this);
-
-			if (result == Executor::Result::YIELD)
-				this->executorList->push_back(executor);
-			else if (result == Executor::Result::HALT)
-				delete executor;
-			else
-				break;
+			this->CreateExecutorAtLocation(0);
+			while (this->executorList->GetCount() > 0)
+			{
+				ExecutorList::Node* node = this->executorList->GetHead();
+				Executor* executor = node->value;
+				this->executorList->Remove(node);
+				Executor::Result result = executor->Execute(programBuffer, programBufferSize, this);
+				if (result == Executor::Result::YIELD)
+					this->executorList->AddTail(executor);
+				else if (result == Executor::Result::HALT)
+					delete executor;
+				else
+					break;
+			}
+		}
+		catch (RunTimeException* exc)
+		{
+			//...
+			delete exc;
 		}
 
 		GarbageCollector::GC()->FullPass();

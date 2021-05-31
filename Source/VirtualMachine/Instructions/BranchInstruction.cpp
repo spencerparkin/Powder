@@ -1,4 +1,8 @@
 #include "BranchInstruction.h"
+#include "Assembler.h"
+#include "Scope.h"
+#include "Value.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -17,14 +21,25 @@ namespace Powder
 
 	/*virtual*/ Executor::Result BranchInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
-		// TODO: Look at value on top of eval stack.  Call virtual method on value to get it's "truth state" to know if we change the program location
-		//       to immediately after the branch instruction or to the given offset embedded in the instruction.  An unconditional jump should be
-		//       placed where needed so that a non-jump here does cause us to fall into the else-clause, if any, of the if-statement.
-
+		Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+		if (value->AsBoolean())
+			::memcpy_s(&programBufferLocation, sizeof(uint64_t), &programBuffer[programBufferLocation + 1], sizeof(uint64_t));
+		else
+			programBufferLocation += 1 + sizeof(uint64_t);
 		return Executor::Result::CONTINUE;
 	}
 
 	/*virtual*/ void BranchInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
 	{
+		if (assemblyPass == AssemblyPass::RENDER)
+		{
+			const AssemblyData::Entry* branchEntry = this->assemblyData->configMap.LookupPtr("branch");
+			if (!branchEntry)
+				throw new CompileTimeException("Cannot assemble branch instruction without the branch address information being given.");
+
+			::memcpy_s(&programBuffer[programBufferLocation + 1], sizeof(uint64_t), &branchEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
+		}
+
+		programBufferLocation += 1 + sizeof(uint64_t);
 	}
 }

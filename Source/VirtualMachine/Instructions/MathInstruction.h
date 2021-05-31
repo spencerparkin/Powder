@@ -12,12 +12,13 @@ namespace Powder
 
 		virtual uint8_t OpCode() const override;
 
-		enum class MathOp
+		enum MathOp
 		{
 			ADD,
 			SUBTRACT,
 			MULTIPLY,
-			DIVIDE
+			DIVIDE,
+			ASSIGN
 		};
 
 		virtual Executor::Result Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;

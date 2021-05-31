@@ -4,6 +4,7 @@
 #include "Value.h"
 #include "Scope.h"
 #include "GarbageCollector.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -44,9 +45,7 @@ namespace Powder
 		{
 			Instruction* instruction = virtualMachine->LookupInstruction(programBuffer[this->programBufferLocation]);
 			if (!instruction)
-			{
-				// TODO: Throw exception!
-			}
+				throw new RunTimeException("Encountered unknown opcode 0x%04x");
 
 			Executor::Result result = instruction->Execute(programBuffer, programBufferSize, this->programBufferLocation, this, virtualMachine);
 			if (result != Executor::Result::CONTINUE)

@@ -8,7 +8,7 @@ namespace Powder
 {
 	struct Token
 	{
-		enum class Type
+		enum Type
 		{
 			IDENTIFIER,
 			BINARY_OPERATOR,

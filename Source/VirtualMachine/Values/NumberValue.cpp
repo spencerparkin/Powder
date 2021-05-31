@@ -22,7 +22,7 @@ namespace Powder
 		return new NumberValue(this->number);
 	}
 
-	/*virtual*/ Value* NumberValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp) const
+	/*virtual*/ Value* NumberValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		const NumberValue* numberValue = dynamic_cast<const NumberValue*>(value);
 		if (numberValue)

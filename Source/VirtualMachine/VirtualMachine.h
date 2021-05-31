@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cinttypes>
-#include <list>
+#include "LinkedList.hpp"
 #include "HashMap.hpp"
 
 namespace Powder
@@ -42,7 +42,7 @@ namespace Powder
 
 	protected:
 
-		typedef std::list<Executor*> ExecutorList;
+		typedef LinkedList<Executor*> ExecutorList;
 		ExecutorList* executorList;
 
 		typedef HashMap<Instruction*> InstructionMap;

@@ -26,6 +26,7 @@
     <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionCallConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\IfThenElseConstruct.cpp" />
+    <ClCompile Include="Source\Compiler\LanguageConstructs\ListConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\OperandConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\ProgramConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\UnaryOperationConstruct.cpp" />
@@ -50,10 +51,12 @@
     <ClCompile Include="Source\VirtualMachine\Scope.cpp" />
     <ClCompile Include="Source\VirtualMachine\Value.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\AddressValue.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\BooleanValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\ListValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\NumberValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\StringValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\UndefinedValue.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\VariableValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\VirtualMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -64,12 +67,14 @@
     <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionCallConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\IfThenElseConstruct.h" />
+    <ClInclude Include="Source\Compiler\LanguageConstructs\ListConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\OperandConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\ProgramConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\UnaryOperationConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\WhileLoopConstruct.h" />
     <ClInclude Include="Source\Compiler\Tokenizer.h" />
     <ClInclude Include="Source\Defines.h" />
+    <ClInclude Include="Source\Exceptions.hpp" />
     <ClInclude Include="Source\GarbageCollector\GarbageCollector.h" />
     <ClInclude Include="Source\GarbageCollector\GCCollectable.h" />
     <ClInclude Include="Source\GarbageCollector\GCObject.h" />
@@ -92,10 +97,12 @@
     <ClInclude Include="Source\VirtualMachine\Scope.h" />
     <ClInclude Include="Source\VirtualMachine\Value.h" />
     <ClInclude Include="Source\VirtualMachine\Values\AddressValue.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\BooleanValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\ListValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\NumberValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\StringValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\UndefinedValue.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\VariableValue.h" />
     <ClInclude Include="Source\VirtualMachine\VirtualMachine.h" />
   </ItemGroup>
   <ItemGroup>

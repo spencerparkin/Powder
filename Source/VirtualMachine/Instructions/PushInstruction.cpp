@@ -5,6 +5,8 @@
 #include "StringValue.h"
 #include "NumberValue.h"
 #include "ListValue.h"
+#include "VariableValue.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -23,9 +25,8 @@ namespace Powder
 
 	/*virtual*/ Executor::Result PushInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
-		DataType dataType = DataType(programBuffer[programBufferLocation + 1]);
-
-		switch (dataType)
+		uint8_t pushType = programBuffer[programBufferLocation + 1];
+		switch (pushType)
 		{
 			case DataType::UNDEFINED:
 			{
@@ -34,12 +35,14 @@ namespace Powder
 				break;
 			}
 			case DataType::STRING:
+			case DataType::VARIABLE:
 			{
 				uint64_t i = programBufferLocation + 2;
 				std::string str;
 				while (programBuffer[i] != '\0')
 					str += programBuffer[i++];
-				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(new StringValue(str));
+				Value* value = (pushType == DataType::STRING) ? (Value*)new StringValue(str) : (Value*)new VariableValue(str);
+				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(value);
 				programBufferLocation += 2 + str.size() + 1;
 				break;
 			}
@@ -57,6 +60,10 @@ namespace Powder
 				programBufferLocation += 2;
 				break;
 			}
+			default:
+			{
+				throw new RunTimeException("Encountered uknown push type 0x%04x");
+			}
 		}
 
 		return Executor::Result::CONTINUE;
@@ -67,43 +74,35 @@ namespace Powder
 		const AssemblyData::Entry* typeEntry = this->assemblyData->configMap.LookupPtr("type");
 		const AssemblyData::Entry* dataEntry = this->assemblyData->configMap.LookupPtr("data");
 
-		if (!typeEntry || !dataEntry)
-		{
-			// TODO: Throw an exception here.
-		}
+		if (!typeEntry)
+			throw new CompileTimeException("Can't assemble push instruction if not given type information.");
+
+		if (!dataEntry)
+			throw new CompileTimeException("Can't assemble push instruction if not given data information.");
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
-			if (typeEntry->string == "undefined")
-				programBuffer[programBufferLocation + 1] = uint8_t(DataType::UNDEFINED);
-			else if (typeEntry->string == "string")
+			programBuffer[programBufferLocation + 1] = typeEntry->code;
+
+			if (typeEntry->code == DataType::STRING || typeEntry->code == DataType::VARIABLE)
 			{
-				programBuffer[programBufferLocation + 1] = uint8_t(DataType::STRING);
 				::memcpy_s(&programBuffer[programBufferLocation + 2], dataEntry->string.length(), dataEntry->string.c_str(), dataEntry->string.length());
 				programBuffer[programBufferLocation + 2 + dataEntry->string.length()] = '\0';
 			}
-			else if (typeEntry->string == "number")
-			{
-				programBuffer[programBufferLocation + 1] = uint8_t(DataType::NUMBER);
+			else if (typeEntry->code == DataType::NUMBER)
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(double), &dataEntry->number, sizeof(double));
-			}
-			else if (typeEntry->string == "emptyList")
-				programBuffer[programBufferLocation + 1] = uint8_t(DataType::EMPTY_LIST);
-			else
-			{
-				// TODO: Throw exception.
-			}
+			else if (typeEntry->code == DataType::ADDRESS)
+				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(uint64_t), &dataEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 		}
 
 		programBufferLocation += 2L;
-
-		if (typeEntry->string == "undefined")
+		if (typeEntry->code == DataType::UNDEFINED || typeEntry->code == DataType::EMPTY_LIST)
 			programBufferLocation += 0L;
-		else if (typeEntry->string == "string")
+		else if (typeEntry->code == DataType::STRING || typeEntry->code == DataType::VARIABLE)
 			programBufferLocation += uint64_t(dataEntry->string.length()) + 1L;
-		else if (typeEntry->string == "number")
+		else if (typeEntry->code == DataType::NUMBER)
 			programBufferLocation += sizeof(double);
-		else if (typeEntry->string == "emptyList")
-			programBufferLocation += 0L;
+		else if (typeEntry->code == DataType::ADDRESS)
+			programBufferLocation += sizeof(uint64_t);
 	}
 }

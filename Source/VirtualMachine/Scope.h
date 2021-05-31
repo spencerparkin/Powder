@@ -27,7 +27,7 @@ namespace Powder
 		void StoreValueFromEvaluationStackTop(const char* identifier);
 
 		void PushValueOntoEvaluationStackTop(Value* value);
-		void PopValueFromEvaluationStackTop(Value*& value);
+		Value* PopValueFromEvaluationStackTop();
 
 	private:
 

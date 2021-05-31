@@ -1,5 +1,6 @@
 #include "ScopeInstruction.h"
 #include "Assembler.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -31,6 +32,10 @@ namespace Powder
 				executor->PopScope();
 				break;
 			}
+			default:
+			{
+				throw new RunTimeException("Encountered unknonwn scope operation 0x%04x");
+			}
 		}
 
 		programBufferLocation += 2;
@@ -43,16 +48,11 @@ namespace Powder
 		{
 			programBuffer[programBufferLocation + 1] = -1;
 
-			const AssemblyData::Entry* entry = this->assemblyData->configMap.LookupPtr("scopeOp");
-			if (!entry)
-			{
-				// TODO: Throw exception.
-			}
+			const AssemblyData::Entry* scopeOpEntry = this->assemblyData->configMap.LookupPtr("scopeOp");
+			if (!scopeOpEntry)
+				throw new CompileTimeException("Failed to assemble scope instruction because no scope operation was specified.");
 			
-			if (entry->string == "push")
-				programBuffer[programBufferLocation + 1] = ScopeOp::PUSH;
-			else if (entry->string == "pop")
-				programBuffer[programBufferLocation + 1] = ScopeOp::POP;
+			programBuffer[programBufferLocation + 1] = scopeOpEntry->code;
 		}
 
 		programBufferLocation += 2;

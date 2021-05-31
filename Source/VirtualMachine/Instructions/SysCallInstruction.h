@@ -12,7 +12,7 @@ namespace Powder
 
 		virtual uint8_t OpCode() const override;
 
-		enum class SysCall
+		enum SysCall
 		{
 			EXIT,
 			GC,

@@ -12,12 +12,14 @@ namespace Powder
 
 		virtual uint8_t OpCode() const override;
 
-		enum class DataType
+		enum DataType
 		{
 			UNDEFINED,
 			NUMBER,
 			STRING,
-			EMPTY_LIST
+			EMPTY_LIST,
+			VARIABLE,
+			ADDRESS
 		};
 
 		virtual Executor::Result Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;

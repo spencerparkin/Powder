@@ -2,6 +2,7 @@
 #include "Assembler.h"
 #include "Scope.h"
 #include "Value.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -25,10 +26,7 @@ namespace Powder
 		while (programBuffer[i] != '\0')
 			name += programBuffer[i];
 
-		Value* value = nullptr;
-		executor->GetCurrentScope()->PopValueFromEvaluationStackTop(value);
-		executor->GetCurrentScope()->StoreValue(name.c_str(), value);
-
+		executor->GetCurrentScope()->StoreValueFromEvaluationStackTop(name.c_str());
 		return Executor::Result::CONTINUE;
 	}
 
@@ -36,9 +34,7 @@ namespace Powder
 	{
 		const AssemblyData::Entry* nameEntry = this->assemblyData->configMap.LookupPtr("name");
 		if (!nameEntry)
-		{
-			// TODO: Throw an exception.
-		}
+			throw new CompileTimeException("Assembly of store instruction failed because no identifier was give.");
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{

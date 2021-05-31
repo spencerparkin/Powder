@@ -15,7 +15,7 @@ namespace Powder
 		return new UndefinedValue();
 	}
 
-	/*virtual*/ Value* UndefinedValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp) const
+	/*virtual*/ Value* UndefinedValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		return new UndefinedValue();
 	}

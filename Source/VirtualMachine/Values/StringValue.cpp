@@ -24,7 +24,7 @@ namespace Powder
 		return new StringValue(*this->str);
 	}
 
-	/*virtual*/ Value* StringValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp) const
+	/*virtual*/ Value* StringValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		const StringValue* stringValue = dynamic_cast<const StringValue*>(value);
 		if (stringValue)

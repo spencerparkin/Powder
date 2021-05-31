@@ -15,7 +15,7 @@ namespace Powder
 		return nullptr;
 	}
 
-	/*virtual*/ Value* Value::CombineWith(const Value* value, MathInstruction::MathOp mathOp) const
+	/*virtual*/ Value* Value::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		return nullptr;
 	}
@@ -26,6 +26,11 @@ namespace Powder
 	}
 
 	/*virtual*/ bool Value::FromString(const std::string& str)
+	{
+		return false;
+	}
+
+	/*virtual*/ bool Value::AsBoolean() const
 	{
 		return false;
 	}

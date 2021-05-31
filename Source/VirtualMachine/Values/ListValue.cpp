@@ -18,7 +18,7 @@ namespace Powder
 		return nullptr;
 	}
 
-	/*virtual*/ Value* ListValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp) const
+	/*virtual*/ Value* ListValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		return nullptr;
 	}

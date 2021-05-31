@@ -13,6 +13,7 @@ namespace Powder
 
 	/*virtual*/ ProgramConstruct::~ProgramConstruct()
 	{
+		DeleteList<LanguageConstruct*>(this->constructList);
 	}
 
 	/*virtual*/ LanguageConstruct* ProgramConstruct::New()

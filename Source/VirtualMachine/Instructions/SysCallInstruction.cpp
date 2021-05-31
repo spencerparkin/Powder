@@ -6,6 +6,7 @@
 #include "NumberValue.h"
 #include "StringValue.h"
 #include "UndefinedValue.h"
+#include "Exceptions.hpp"
 #include <iostream>
 
 namespace Powder
@@ -28,16 +29,16 @@ namespace Powder
 		uint8_t sysCallCode = programBuffer[programBufferLocation + 1];
 		switch (sysCallCode)
 		{
-			case uint8_t(SysCall::EXIT):
+			case SysCall::EXIT:
 			{
 				return Executor::Result::HALT;
 			}
-			case uint8_t(SysCall::GC):
+			case SysCall::GC:
 			{
 				GarbageCollector::GC()->FullPass();
 				break;
 			}
-			case uint8_t(SysCall::INPUT):
+			case SysCall::INPUT:
 			{
 				std::string str;
 				std::cin >> str;
@@ -59,17 +60,15 @@ namespace Powder
 				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(value);
 				break;
 			}
-			case uint8_t(SysCall::OUTPUT) :
+			case SysCall::OUTPUT:
 			{
-				Value* value = nullptr;
-				executor->GetCurrentScope()->PopValueFromEvaluationStackTop(value);
-				if (value)
-					std::cout << value->ToString() << std::endl;
-				else
-				{
-					// TODO: Throw an exception.
-				}
+				Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+				std::cout << value->ToString() << std::endl;
 				break;
+			}
+			default:
+			{
+				throw new RunTimeException("Encountered unknown system call 0x%04x");
 			}
 		}
 
@@ -86,14 +85,7 @@ namespace Powder
 				// TODO: Throw an exception.
 			}
 
-			if (sysCallEntry->string == "exit")
-				programBuffer[programBufferLocation + 1] = uint8_t(SysCall::EXIT);
-			else if (sysCallEntry->string == "gc")
-				programBuffer[programBufferLocation + 1] = uint8_t(SysCall::GC);
-			else if (sysCallEntry->string == "input")
-				programBuffer[programBufferLocation + 1] = uint8_t(SysCall::INPUT);
-			else if (sysCallEntry->string == "output")
-				programBuffer[programBufferLocation + 1] = uint8_t(SysCall::OUTPUT);
+			programBuffer[programBufferLocation + 1] = sysCallEntry->code;
 		}
 
 		programBufferLocation += 2;

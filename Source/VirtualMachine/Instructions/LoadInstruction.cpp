@@ -2,6 +2,7 @@
 #include "Assembler.h"
 #include "Scope.h"
 #include "Value.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -25,9 +26,7 @@ namespace Powder
 		while (programBuffer[i] != '\0')
 			name += programBuffer[i];
 
-		Value* value = executor->GetCurrentScope()->LookupValue(name.c_str(), false);
-		executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(value);
-
+		executor->GetCurrentScope()->LoadValueOntoEvaluationStackTop(name.c_str());
 		return Executor::Result::CONTINUE;
 	}
 
@@ -35,9 +34,7 @@ namespace Powder
 	{
 		const AssemblyData::Entry* nameEntry = this->assemblyData->configMap.LookupPtr("name");
 		if (!nameEntry)
-		{
-			// TODO: Throw an exception.
-		}
+			throw new CompileTimeException("Can't assemble load instruction if not given identifier information.");
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{

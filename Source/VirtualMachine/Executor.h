@@ -14,7 +14,7 @@ namespace Powder
 		Executor(uint64_t programBufferLocation);
 		virtual ~Executor();
 
-		enum class Result
+		enum Result
 		{
 			HALT,
 			YIELD,

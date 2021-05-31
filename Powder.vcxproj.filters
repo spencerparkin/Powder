@@ -139,6 +139,15 @@
     <ClCompile Include="Source\Compiler\Tokenizer.cpp">
       <Filter>Source\Compiler</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Compiler\LanguageConstructs\ListConstruct.cpp">
+      <Filter>Source\Compiler\LanguageConstructs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Values\BooleanValue.cpp">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Values\VariableValue.cpp">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -260,6 +269,18 @@
     </ClInclude>
     <ClInclude Include="Source\Compiler\LanguageConstructs\OperandConstruct.h">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\LanguageConstructs\ListConstruct.h">
+      <Filter>Source\Compiler\LanguageConstructs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Values\BooleanValue.h">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Exceptions.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Values\VariableValue.h">
+      <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

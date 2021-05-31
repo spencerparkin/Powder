@@ -21,7 +21,7 @@ namespace Powder
 
 		virtual LanguageConstruct* New() = 0;
 
-		enum class ParseResult
+		enum ParseResult
 		{
 			NOT_RECOGNIZED,
 			SYNTAX_ERROR,

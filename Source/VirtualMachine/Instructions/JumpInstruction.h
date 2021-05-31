@@ -12,7 +12,7 @@ namespace Powder
 
 		virtual uint8_t OpCode() const override;
 
-		enum class Type
+		enum Type
 		{
 			JUMP_TO_EMBEDDED_ADDRESS,
 			JUMP_TO_LOADED_ADDRESS

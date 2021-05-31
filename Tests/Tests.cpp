@@ -101,7 +101,7 @@ void AssemblyTest(void)
 
     instruction = new Powder::ScopeInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
-    entry.string = "push";
+    entry.code = Powder::ScopeInstruction::ScopeOp::PUSH;
     instruction->assemblyData->configMap.Insert("scopeOp", entry);
     instructionList.AddTail(instruction);
 
@@ -109,7 +109,7 @@ void AssemblyTest(void)
 
     instruction = new Powder::ScopeInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
-    entry.string = "push";
+    entry.code = Powder::ScopeInstruction::ScopeOp::PUSH;
     instruction->assemblyData->configMap.Insert("scopeOp", entry);
     instructionList.AddTail(instruction);
 
@@ -119,7 +119,7 @@ void AssemblyTest(void)
     Powder::PushInstruction* pushReturnAddressInstruction = new Powder::PushInstruction();
     instruction = pushReturnAddressInstruction;
     instruction->assemblyData = new Powder::AssemblyData;
-    entry.string = "address";
+    entry.code = Powder::PushInstruction::DataType::ADDRESS;
     instruction->assemblyData->configMap.Insert("type", entry);
     instructionList.AddTail(instruction);           // We do not yet have the return address instruction.
 
@@ -137,7 +137,7 @@ void AssemblyTest(void)
     Powder::JumpInstruction* procCallInstruction = new Powder::JumpInstruction();
     instruction = procCallInstruction;
     instruction->assemblyData = new Powder::AssemblyData();
-    entry.string = "jump_to_embedded_address";
+    entry.code = Powder::JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
     instruction->assemblyData->configMap.Insert("type", entry);
     instructionList.AddTail(instruction);           // We do not yet know where the start of the procedure is.
 
@@ -162,7 +162,7 @@ void AssemblyTest(void)
 
     instruction = new Powder::ScopeInstruction();
     instruction->assemblyData = new Powder::AssemblyData();
-    entry.string = "pop";
+    entry.code = Powder::ScopeInstruction::POP;
     instruction->assemblyData->configMap.Insert("scopeOp", entry);
     instructionList.AddTail(instruction);
 
@@ -171,7 +171,7 @@ void AssemblyTest(void)
 
     instruction = new Powder::SysCallInstruction();
     instruction->assemblyData = new Powder::AssemblyData();
-    entry.string = "halt";
+    entry.code = Powder::SysCallInstruction::SysCall::EXIT;
     instruction->assemblyData->configMap.Insert("sys_call", entry);
     instructionList.AddTail(instruction);
 
@@ -181,7 +181,7 @@ void AssemblyTest(void)
 
     instruction = new Powder::PushInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
-    entry.string = "string";
+    entry.code = Powder::PushInstruction::STRING;
     instruction->assemblyData->configMap.Insert("type", entry);
     entry.string = "Hello, ";
     instruction->assemblyData->configMap.Insert("data", entry);
@@ -194,7 +194,7 @@ void AssemblyTest(void)
 
     instruction = new Powder::PushInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
-    entry.string = "string";
+    entry.code = Powder::PushInstruction::STRING;
     instruction->assemblyData->configMap.Insert("type", entry);
     entry.string = "World!";
     instruction->assemblyData->configMap.Insert("data", entry);
@@ -202,14 +202,14 @@ void AssemblyTest(void)
 
     instruction = new Powder::MathInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
-    entry.string = "add";
+    entry.code = Powder::MathInstruction::ADD;
     instruction->assemblyData->configMap.Insert("mathOp", entry);
     instructionList.AddTail(instruction);
 
     instruction = new Powder::SysCallInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
-    entry.string = "output";
-    instruction->assemblyData->configMap.Insert("sys-call", entry);
+    entry.code = Powder::SysCallInstruction::SysCall::OUTPUT;
+    instruction->assemblyData->configMap.Insert("sys_call", entry);
     instructionList.AddTail(instruction);
 
     // Before jumping to the return address, here we should store our return result.
@@ -218,7 +218,7 @@ void AssemblyTest(void)
 
     instruction = new Powder::PushInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
-    entry.string = "undefined";
+    entry.code = Powder::PushInstruction::UNDEFINED;
     instruction->assemblyData->configMap.Insert("type", entry);
     instructionList.AddTail(instruction);
 
@@ -238,7 +238,7 @@ void AssemblyTest(void)
 
     instruction = new Powder::JumpInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
-    entry.string = "jump_to_loaded_address";
+    entry.code = Powder::JumpInstruction::JUMP_TO_LOADED_ADDRESS;
     instruction->assemblyData->configMap.Insert("type", entry);
     instructionList.AddTail(instruction);
 

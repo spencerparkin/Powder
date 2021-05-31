@@ -4,18 +4,18 @@
 
 namespace Powder
 {
-	class POWDER_API NumberValue : public Value
+	class POWDER_API VariableValue : public Value
 	{
 	public:
-		NumberValue();
-		NumberValue(double number);
-		virtual ~NumberValue();
+		VariableValue();
+		VariableValue(const std::string& identifier);
+		virtual ~VariableValue();
 
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 
 	private:
 
-		double number;
+		std::string* identifier;
 	};
 }
