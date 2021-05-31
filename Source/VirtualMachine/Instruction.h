@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Executor.h"
+#include <string>
 
 namespace Powder
 {
@@ -49,5 +50,9 @@ namespace Powder
 		// This pointer is setup by the compiler and used during
 		// assembly to know how to configure and link the instruction.
 		AssemblyData* assemblyData;
+
+	protected:
+
+		std::string ExtractEmbeddedString(const uint8_t* programBuffer, uint64_t programBufferLocation);
 	};
 }

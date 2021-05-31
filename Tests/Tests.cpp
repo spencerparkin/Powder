@@ -172,7 +172,7 @@ void AssemblyTest(void)
     instruction = new Powder::SysCallInstruction();
     instruction->assemblyData = new Powder::AssemblyData();
     entry.code = Powder::SysCallInstruction::SysCall::EXIT;
-    instruction->assemblyData->configMap.Insert("sys_call", entry);
+    instruction->assemblyData->configMap.Insert("sysCall", entry);
     instructionList.AddTail(instruction);
 
     // This is the first instruction of the procedure we want to call.
@@ -209,7 +209,7 @@ void AssemblyTest(void)
     instruction = new Powder::SysCallInstruction();
     instruction->assemblyData = new Powder::AssemblyData;
     entry.code = Powder::SysCallInstruction::SysCall::OUTPUT;
-    instruction->assemblyData->configMap.Insert("sys_call", entry);
+    instruction->assemblyData->configMap.Insert("sysCall", entry);
     instructionList.AddTail(instruction);
 
     // Before jumping to the return address, here we should store our return result.

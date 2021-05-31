@@ -23,8 +23,8 @@ namespace Powder
 
 		Scope* GetContainingScope() { return this->containingScope; }
 
-		void LoadValueOntoEvaluationStackTop(const char* identifier);
-		void StoreValueFromEvaluationStackTop(const char* identifier);
+		void LoadAndPushValueOntoEvaluationStackTop(const char* identifier);
+		void StoreAndPopValueFromEvaluationStackTop(const char* identifier);
 
 		void PushValueOntoEvaluationStackTop(Value* value);
 		Value* PopValueFromEvaluationStackTop();

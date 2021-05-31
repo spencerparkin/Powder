@@ -37,4 +37,15 @@ namespace Powder
 
 		return new UndefinedValue();
 	}
+
+	/*virtual*/ std::string StringValue::ToString() const
+	{
+		return *this->str;
+	}
+
+	/*virtual*/ bool StringValue::FromString(const std::string& str)
+	{
+		*this->str = str;
+		return true;
+	}
 }

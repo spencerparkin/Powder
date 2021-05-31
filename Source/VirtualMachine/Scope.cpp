@@ -45,7 +45,7 @@ namespace Powder
 		this->valueMap.Remove(identifier);
 	}
 
-	void Scope::LoadValueOntoEvaluationStackTop(const char* identifier)
+	void Scope::LoadAndPushValueOntoEvaluationStackTop(const char* identifier)
 	{
 		Value* value = this->LookupValue(identifier, false);
 		if (!value)
@@ -54,7 +54,7 @@ namespace Powder
 		return this->PushValueOntoEvaluationStackTop(value);
 	}
 
-	void Scope::StoreValueFromEvaluationStackTop(const char* identifier)
+	void Scope::StoreAndPopValueFromEvaluationStackTop(const char* identifier)
 	{
 		Value* value = this->PopValueFromEvaluationStackTop();
 		this->StoreValue(identifier, value);

@@ -6,6 +6,7 @@
 #include "NumberValue.h"
 #include "ListValue.h"
 #include "VariableValue.h"
+#include "AddressValue.h"
 #include "Exceptions.hpp"
 
 namespace Powder
@@ -37,13 +38,10 @@ namespace Powder
 			case DataType::STRING:
 			case DataType::VARIABLE:
 			{
-				uint64_t i = programBufferLocation + 2;
-				std::string str;
-				while (programBuffer[i] != '\0')
-					str += programBuffer[i++];
+				std::string str = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 2);
 				Value* value = (pushType == DataType::STRING) ? (Value*)new StringValue(str) : (Value*)new VariableValue(str);
 				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(value);
-				programBufferLocation += 2 + str.size() + 1;
+				programBufferLocation += 2 + str.length() + 1;
 				break;
 			}
 			case DataType::NUMBER:
@@ -58,6 +56,14 @@ namespace Powder
 			{
 				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(new ListValue());
 				programBufferLocation += 2;
+				break;
+			}
+			case DataType::ADDRESS:
+			{
+				uint64_t programBufferAddress = 0L;
+				::memcpy_s(&programBufferAddress, sizeof(uint64_t), &programBuffer[programBufferLocation + 2], sizeof(uint64_t));
+				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(new AddressValue(programBufferAddress));
+				programBufferLocation += 2 + sizeof(uint64_t);
 				break;
 			}
 			default:
@@ -77,8 +83,8 @@ namespace Powder
 		if (!typeEntry)
 			throw new CompileTimeException("Can't assemble push instruction if not given type information.");
 
-		if (!dataEntry)
-			throw new CompileTimeException("Can't assemble push instruction if not given data information.");
+		if (!dataEntry && typeEntry->code != DataType::UNDEFINED && typeEntry->code != DataType::EMPTY_LIST)
+			throw new CompileTimeException("Some push instructions can't be assembled without being given more information about the push content.");
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{

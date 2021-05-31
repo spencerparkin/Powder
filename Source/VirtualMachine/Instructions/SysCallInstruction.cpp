@@ -36,6 +36,7 @@ namespace Powder
 			case SysCall::GC:
 			{
 				GarbageCollector::GC()->FullPass();
+				programBufferLocation += 2;
 				break;
 			}
 			case SysCall::INPUT:
@@ -58,12 +59,15 @@ namespace Powder
 				}
 
 				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(value);
+
+				programBufferLocation += 2;
 				break;
 			}
 			case SysCall::OUTPUT:
 			{
 				Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
 				std::cout << value->ToString() << std::endl;
+				programBufferLocation += 2;
 				break;
 			}
 			default:
@@ -81,9 +85,7 @@ namespace Powder
 		{
 			const AssemblyData::Entry* sysCallEntry = this->assemblyData->configMap.LookupPtr("sysCall");
 			if (!sysCallEntry)
-			{
-				// TODO: Throw an exception.
-			}
+				throw new CompileTimeException("System call instruction can't be assembled without knowing what system call to call.");
 
 			programBuffer[programBufferLocation + 1] = sysCallEntry->code;
 		}

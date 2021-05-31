@@ -14,6 +14,8 @@ namespace Powder
 
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
+		virtual std::string ToString() const override;
+		virtual bool FromString(const std::string& str) override;
 
 	private:
 

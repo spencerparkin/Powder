@@ -12,4 +12,12 @@ namespace Powder
 	{
 		delete this->assemblyData;
 	}
+
+	std::string Instruction::ExtractEmbeddedString(const uint8_t* programBuffer, uint64_t programBufferLocation)
+	{
+		std::string str;
+		while (programBuffer[programBufferLocation] != '\0')
+			str += programBuffer[programBufferLocation++];
+		return str;
+	}
 }
