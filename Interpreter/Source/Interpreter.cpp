@@ -15,9 +15,15 @@ int main(int argc, char**argv)
         return -1;
     }
 
-    const char* powFilePath = argv[1];
+    std::string powFilePath = argv[1];
     std::fstream fileStream;
     fileStream.open(powFilePath, std::fstream::in);
+    if (!fileStream.is_open())
+    {
+        std::cerr << "Failed to open file: " + powFilePath << std::endl;
+        return -1;
+    }
+
     std::string powFileCode;
     fileStream >> powFileCode;
     fileStream.close();
