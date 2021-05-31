@@ -3,6 +3,7 @@
 #include <cstdint>
 #include "Compiler.h"
 #include "VirtualMachine.h"
+#include "Exceptions.hpp"
 
 int main(int argc, char**argv)
 {
@@ -21,14 +22,25 @@ int main(int argc, char**argv)
     fileStream >> powFileCode;
     fileStream.close();
 
-    const char* programCode = powFileCode.c_str();
-    Compiler compiler;
     uint64_t programBufferSize = 0;
-    uint8_t* programBuffer = compiler.CompileCode(programCode, programBufferSize);
-    if (programBuffer)
+    uint8_t* programBuffer = nullptr;
+
+    try
     {
-        VirtualMachine vm;
-        vm.Execute(programBuffer, programBufferSize);
+        const char* programCode = powFileCode.c_str();
+        Compiler compiler;
+        programBuffer = compiler.CompileCode(programCode, programBufferSize);
+        if (programBuffer)
+        {
+            VirtualMachine vm;
+            vm.Execute(programBuffer, programBufferSize);
+        }
+    }
+    catch (Exception* exc)
+    {
+        std::string errorMsg = exc->GetErrorMessage();
+        std::cerr << errorMsg << std::endl;
+        delete exc;
     }
 
     delete[] programBuffer;

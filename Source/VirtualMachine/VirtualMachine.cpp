@@ -1,5 +1,4 @@
 #include "VirtualMachine.h"
-#include "Exceptions.hpp"
 #include "Executor.h"
 #include "Scope.h"
 #include "Value.h"
@@ -55,27 +54,22 @@ namespace Powder
 		if (!programBuffer || programBufferSize == 0)
 			return;
 
-		try
+		this->CreateExecutorAtLocation(0);
+
+		while (this->executorList->GetCount() > 0)
 		{
-			this->CreateExecutorAtLocation(0);
-			while (this->executorList->GetCount() > 0)
-			{
-				ExecutorList::Node* node = this->executorList->GetHead();
-				Executor* executor = node->value;
-				this->executorList->Remove(node);
-				Executor::Result result = executor->Execute(programBuffer, programBufferSize, this);
-				if (result == Executor::Result::YIELD)
-					this->executorList->AddTail(executor);
-				else if (result == Executor::Result::HALT)
-					delete executor;
-				else
-					break;
-			}
-		}
-		catch (RunTimeException* exc)
-		{
-			//...
-			delete exc;
+			ExecutorList::Node* node = this->executorList->GetHead();
+			Executor* executor = node->value;
+			this->executorList->Remove(node);
+
+			Executor::Result result = executor->Execute(programBuffer, programBufferSize, this);
+
+			if (result == Executor::Result::YIELD)
+				this->executorList->AddTail(executor);
+			else if (result == Executor::Result::HALT)
+				delete executor;
+			else
+				break;
 		}
 
 		GarbageCollector::GC()->FullPass();

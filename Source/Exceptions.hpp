@@ -19,6 +19,11 @@ namespace Powder
 			delete this->errorMsg;
 		}
 
+		virtual std::string GetErrorMessage()
+		{
+			return *this->errorMsg;
+		}
+
 		std::string* errorMsg;
 	};
 
@@ -32,6 +37,11 @@ namespace Powder
 		virtual ~RunTimeException()
 		{
 		}
+
+		virtual std::string GetErrorMessage() override
+		{
+			return "Run-time error: " + *this->errorMsg;
+		}
 	};
 
 	class POWDER_API CompileTimeException : public Exception
@@ -43,6 +53,11 @@ namespace Powder
 
 		virtual ~CompileTimeException()
 		{
+		}
+
+		virtual std::string GetErrorMessage() override
+		{
+			return "Compile-time error: " + *this->errorMsg;
 		}
 	};
 }
