@@ -4,11 +4,13 @@ namespace Powder
 {
 	FunctionCallConstruct::FunctionCallConstruct()
 	{
+		this->functionName = new std::string;
 	}
 
 	/*virtual*/ FunctionCallConstruct::~FunctionCallConstruct()
 	{
 		DeleteList<LanguageConstruct*>(this->argumentConstructList);
+		delete this->functionName;
 	}
 
 	/*virtual*/ LanguageConstruct* FunctionCallConstruct::New()

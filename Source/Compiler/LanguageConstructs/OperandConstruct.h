@@ -16,6 +16,6 @@ namespace Powder
 
 	protected:
 
-		std::string operandText;
+		std::string* operandText;
 	};
 }

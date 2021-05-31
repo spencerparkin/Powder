@@ -18,6 +18,6 @@ namespace Powder
 		
 		LinkedList<LanguageConstruct*> argumentConstructList;
 
-		std::string functionName;
+		std::string* functionName;
 	};
 }

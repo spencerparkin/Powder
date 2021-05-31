@@ -10,14 +10,16 @@ namespace Powder
 	public:
 		Exception(const std::string& errorMsg)
 		{
-			this->errorMsg = errorMsg;
+			this->errorMsg = new std::string;
+			*this->errorMsg = errorMsg;
 		}
 
 		virtual ~Exception()
 		{
+			delete this->errorMsg;
 		}
 
-		std::string errorMsg;
+		std::string* errorMsg;
 	};
 
 	class POWDER_API RunTimeException : public Exception

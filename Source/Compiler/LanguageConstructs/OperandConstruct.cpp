@@ -4,10 +4,12 @@ namespace Powder
 {
 	OperandConstruct::OperandConstruct()
 	{
+		this->operandText = new std::string;
 	}
 
 	/*virtual*/ OperandConstruct::~OperandConstruct()
 	{
+		delete this->operandText;
 	}
 
 	/*virtual*/ LanguageConstruct* OperandConstruct::New()
