@@ -18,12 +18,13 @@ namespace Powder
 		return new FunctionCallConstruct();
 	}
 	
-	/*virtual*/ LanguageConstruct::ParseResult FunctionCallConstruct::Parse(TokenList& tokenList, std::list<std::string>& errorList)
+	/*virtual*/ bool FunctionCallConstruct::Parse(TokenList& tokenList)
 	{
-		return ParseResult::SYNTAX_ERROR;
+		return false;
 	}
 
 	/*virtual*/ void FunctionCallConstruct::GenerateInstructionSequence(LinkedList<Instruction*>& instructionList)
 	{
+		// Note that this could also be a system call.
 	}
 }

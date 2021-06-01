@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cstdint>
 #include "Compiler.h"
 #include "VirtualMachine.h"
@@ -24,8 +25,9 @@ int main(int argc, char**argv)
         return -1;
     }
 
-    std::string powFileCode;
-    fileStream >> powFileCode;
+    std::stringstream stringStream;
+    stringStream << fileStream.rdbuf();
+    std::string powFileCode = stringStream.str();
     fileStream.close();
 
     uint64_t programBufferSize = 0;

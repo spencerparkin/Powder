@@ -19,7 +19,7 @@ namespace Powder
 		virtual ~ProgramConstruct();
 
 		virtual LanguageConstruct* New() override;
-		virtual ParseResult Parse(TokenList& tokenList, std::list<std::string>& errorList) override;
+		virtual bool Parse(TokenList& tokenList) override;
 		virtual void GenerateInstructionSequence(LinkedList<Instruction*>& instructionList) override;
 
 	protected:

@@ -1,9 +1,10 @@
 #include "ProgramConstruct.h"
 #include "BinaryOperationConstruct.h"
-#include "UnaryOperationConstruct.h"
-#include "FunctionConstruct.h"
+#include "FunctionDefinitionConstruct.h"
+#include "FunctionCallConstruct.h"
 #include "IfThenElseConstruct.h"
 #include "WhileLoopConstruct.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -21,14 +22,19 @@ namespace Powder
 		return new ProgramConstruct();
 	}
 
-	/*virtual*/ LanguageConstruct::ParseResult ProgramConstruct::Parse(TokenList& tokenList, std::list<std::string>& errorList)
+	/*virtual*/ bool ProgramConstruct::Parse(TokenList& tokenList)
 	{
 		LinkedList<LanguageConstruct*> languageConstructList;
-		languageConstructList.AddTail(new FunctionConstruct());
+
+		// Note that the order here is significant and intentional.
+		// Most constructs are easily recognizable by their use of keywords.
+		// When all such constructs are exhausted, what remains is an attempt
+		// to parse as a binary expression.
+		languageConstructList.AddTail(new FunctionDefinitionConstruct());
+		languageConstructList.AddTail(new FunctionCallConstruct());
 		languageConstructList.AddTail(new IfThenElseConstruct());
 		languageConstructList.AddTail(new WhileLoopConstruct());
 		languageConstructList.AddTail(new BinaryOperationConstruct());
-		languageConstructList.AddTail(new UnaryOperationConstruct());
 
 		while (tokenList.GetCount() > 0)
 		{
@@ -37,25 +43,20 @@ namespace Powder
 			for (LinkedList<LanguageConstruct*>::Node* node = languageConstructList.GetHead(); node; node = node->GetNext())
 			{
 				LanguageConstruct* languageConstruct = node->value;
-				ParseResult parseResult = languageConstruct->Parse(tokenList, errorList);
-				if (parseResult == ParseResult::SUCCESS)
+				if (languageConstruct->Parse(tokenList))
 				{
 					this->constructList.AddTail(languageConstruct);
 					node->value = languageConstruct->New();
 					break;
 				}
-				else if (parseResult == ParseResult::SYNTAX_ERROR)
-					break;
 			}
 
 			if(listSize == this->constructList.GetCount())
-			{
-				errorList.push_back("Could not parse code starting on line %d as any recognizeable program construct.");
-				return ParseResult::SYNTAX_ERROR;
-			}
+				throw new CompileTimeException("Could not parse code as any recognizeable program construct.", tokenList.GetHead()->value.lineNumber);
 		}
 
-		return ParseResult::SUCCESS;
+		DeleteList<LanguageConstruct*>(languageConstructList);
+		return true;
 	}
 
 	/*virtual*/ void ProgramConstruct::GenerateInstructionSequence(LinkedList<Instruction*>& instructionList)

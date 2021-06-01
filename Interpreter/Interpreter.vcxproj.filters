@@ -28,4 +28,9 @@
       <Filter>Examples</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Examples\Function.pow">
+      <Filter>Examples</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

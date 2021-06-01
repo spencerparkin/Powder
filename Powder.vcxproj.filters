@@ -115,9 +115,6 @@
     <ClCompile Include="Source\Compiler\LanguageConstructs\BinaryOperationConstruct.cpp">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Compiler\LanguageConstructs\IfThenElseConstruct.cpp">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClCompile>
@@ -144,6 +141,9 @@
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\Values\VariableValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionDefinitionConstruct.cpp">
+      <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -252,9 +252,6 @@
     <ClInclude Include="Source\Compiler\LanguageConstructs\WhileLoopConstruct.h">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Compiler\LanguageConstructs\BinaryOperationConstruct.h">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClInclude>
@@ -278,6 +275,9 @@
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\VariableValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionDefinitionConstruct.h">
+      <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

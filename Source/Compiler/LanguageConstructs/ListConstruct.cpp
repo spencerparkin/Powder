@@ -17,9 +17,9 @@ namespace Powder
 		return new ListConstruct();
 	}
 
-	/*virtual*/ LanguageConstruct::ParseResult ListConstruct::Parse(TokenList& tokenList, std::list<std::string>& errorList)
+	/*virtual*/ bool ListConstruct::Parse(TokenList& tokenList)
 	{
-		return ParseResult::SYNTAX_ERROR;
+		return false;
 	}
 
 	/*virtual*/ void ListConstruct::GenerateInstructionSequence(LinkedList<Instruction*>& instructionList)

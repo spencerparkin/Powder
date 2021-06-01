@@ -27,6 +27,9 @@
     <None Include="Examples\HelloWorld.pow" />
     <None Include="Examples\MathExpression.pow" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Examples\Function.pow" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

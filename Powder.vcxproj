@@ -24,7 +24,7 @@
     <ClCompile Include="Source\Compiler\LanguageConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\BinaryOperationConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionCallConstruct.cpp" />
-    <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionConstruct.cpp" />
+    <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionDefinitionConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\IfThenElseConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\ListConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\OperandConstruct.cpp" />
@@ -65,7 +65,7 @@
     <ClInclude Include="Source\Compiler\LanguageConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\BinaryOperationConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionCallConstruct.h" />
-    <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionConstruct.h" />
+    <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionDefinitionConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\IfThenElseConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\ListConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\OperandConstruct.h" />

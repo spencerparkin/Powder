@@ -19,9 +19,9 @@ namespace Powder
 		return new WhileLoopConstruct();
 	}
 
-	/*virtual*/ LanguageConstruct::ParseResult WhileLoopConstruct::Parse(TokenList& tokenList, std::list<std::string>& errorList)
+	/*virtual*/ bool WhileLoopConstruct::Parse(TokenList& tokenList)
 	{
-		return ParseResult::SYNTAX_ERROR;
+		return false;
 	}
 
 	/*virtual*/ void WhileLoopConstruct::GenerateInstructionSequence(LinkedList<Instruction*>& instructionList)

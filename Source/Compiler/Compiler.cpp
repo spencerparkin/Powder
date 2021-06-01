@@ -2,6 +2,7 @@
 #include "Tokenizer.h"
 #include "ProgramConstruct.h"
 #include "Assembler.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -22,27 +23,22 @@ namespace Powder
 		Tokenizer tokenizer;
 		tokenizer.Tokenize(programCode, tokenList);
 
-		std::list<std::string> errorList;
 		ProgramConstruct* programConstruct = new ProgramConstruct();
-		LanguageConstruct::ParseResult parseResult = programConstruct->Parse(tokenList, errorList);
-		if (parseResult != LanguageConstruct::ParseResult::SUCCESS)
-		{
-			//...
-		}
-		else
-		{
-			// TODO: Here we might do some sort of rule check on the resulting construct tree.
-			//       Does it make sense?  For example, we can't have a function definition inside
-			//       the conditional of an if-then-else statement.  That makes no sense.
+		if (!programConstruct->Parse(tokenList))
+			throw new CompileTimeException("Failed to parse program at root level as program construct.", 0);
+		
+		// TODO: Here we might do some sort of rule check on the resulting construct tree.
+		//       Does it make sense?  For example, we can't have a function definition inside
+		//       the conditional of an if-then-else statement.  That makes no sense.
 
-			LinkedList<Instruction*> instructionList;
-			programConstruct->GenerateInstructionSequence(instructionList);
-
-			Assembler assembler;
-			programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);
-		}
+		LinkedList<Instruction*> instructionList;
+		programConstruct->GenerateInstructionSequence(instructionList);
 
 		delete programConstruct;
+
+		Assembler assembler;
+		programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);
+		
 		return programBuffer;
 	}
 }

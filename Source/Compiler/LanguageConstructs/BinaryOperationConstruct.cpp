@@ -21,9 +21,11 @@ namespace Powder
 		return new BinaryOperationConstruct();
 	}
 
-	/*virtual*/ LanguageConstruct::ParseResult BinaryOperationConstruct::Parse(TokenList& tokenList, std::list<std::string>& errorList)
+	/*virtual*/ bool BinaryOperationConstruct::Parse(TokenList& tokenList)
 	{
-		return ParseResult::SYNTAX_ERROR;
+
+
+		return false;
 	}
 
 	/*virtual*/ void BinaryOperationConstruct::GenerateInstructionSequence(LinkedList<Instruction*>& instructionList)
@@ -31,6 +33,6 @@ namespace Powder
 		// Generate instructions for left operand, then right, then string those together.
 		// At this point, we should have two results at the top of the evaluation stack.
 		// We simply now tack on the appropriate math instruction which will pop those
-		// results off, perform the operatoin, then push the result onto the stack.
+		// results off, perform the operation, then push the result onto the stack.
 	}
 }

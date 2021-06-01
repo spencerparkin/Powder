@@ -21,16 +21,12 @@ namespace Powder
 		virtual ~LanguageConstruct();
 
 		virtual LanguageConstruct* New() = 0;
-
-		enum ParseResult
-		{
-			NOT_RECOGNIZED,
-			SYNTAX_ERROR,
-			SUCCESS
-		};
-
-		virtual ParseResult Parse(TokenList& tokenList, std::list<std::string>& errorList) = 0;
-
+		virtual bool Parse(TokenList& tokenList) = 0;
 		virtual void GenerateInstructionSequence(LinkedList<Instruction*>& instructionList) = 0;
+
+	protected:
+
+		TokenList::Node* FindCloserMatchingOpener(TokenList::Node* node);
+		void ExtractSubList(TokenList& parentList, TokenList& childList, TokenList::Node* leftNode, TokenList::Node* rightNode);
 	};
 }

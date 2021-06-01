@@ -5,19 +5,19 @@
 
 namespace Powder
 {
-	class POWDER_API FunctionConstruct : public LanguageConstruct
+	class POWDER_API FunctionDefinitionConstruct : public LanguageConstruct
 	{
 	public:
-		FunctionConstruct();
-		virtual ~FunctionConstruct();
+		FunctionDefinitionConstruct();
+		virtual ~FunctionDefinitionConstruct();
 
 		virtual LanguageConstruct* New() override;
-		virtual ParseResult Parse(TokenList& tokenList, std::list<std::string>& errorList) override;
+		virtual bool Parse(TokenList& tokenList) override;
 		virtual void GenerateInstructionSequence(LinkedList<Instruction*>& instructionList) override;
 
 	protected:
 		LanguageConstruct* bodyConstruct;
-
+		std::string* functionName;
 		std::list<std::string>* namedArgumentsList;
 	};
 }

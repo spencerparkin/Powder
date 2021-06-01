@@ -1,6 +1,6 @@
 # Fibbonacci.pow
 
-proc calc_fib(i)
+func calc_fib(i)
 {
     if(i < 3)
         return 1;

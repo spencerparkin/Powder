@@ -11,19 +11,25 @@ namespace Powder
 	{
 		enum Type
 		{
+			UNKNOWN,
 			IDENTIFIER,
-			BINARY_OPERATOR,
-			UNARY_OPERATOR,
+			NUMBER,
+			STRING,
+			OPERATOR,
 			DELIMETER,
-			OPEN_PARAN,
-			CLOSE_PARAN,
-			OPEN_CURLY,
-			CLOSE_CURLY
+			OPENER,
+			CLOSER
 		};
+
+		Token()
+		{
+			this->type = UNKNOWN;
+			this->lineNumber = -1;
+		}
 
 		std::string text;
 		Type type;
-		uint32_t lineNumber;
+		uint16_t lineNumber;
 	};
 
 	typedef LinkedList<Token> TokenList;
@@ -35,5 +41,10 @@ namespace Powder
 		virtual ~Tokenizer();
 
 		void Tokenize(const char* programCodeBuffer, TokenList& tokenList);
+
+	private:
+		Token GenerateToken(const char* programCodeBuffer, uint64_t& programCodeBufferLocation, uint16_t& lineNumber);
+
+		bool IsAnyChar(char givenChar, const char* charSet);
 	};
 }

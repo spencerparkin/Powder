@@ -47,8 +47,9 @@ namespace Powder
 	class POWDER_API CompileTimeException : public Exception
 	{
 	public:
-		CompileTimeException(const std::string& errorMsg) : Exception(errorMsg)
+		CompileTimeException(const std::string& errorMsg, uint16_t lineNumber = -1) : Exception(errorMsg)
 		{
+			this->lineNumber = lineNumber;
 		}
 
 		virtual ~CompileTimeException()
@@ -57,7 +58,10 @@ namespace Powder
 
 		virtual std::string GetErrorMessage() override
 		{
+			// TODO: Format line number in with this message.
 			return "Compile-time error: " + *this->errorMsg;
 		}
+
+		uint16_t lineNumber;
 	};
 }
