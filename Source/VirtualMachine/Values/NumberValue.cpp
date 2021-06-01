@@ -24,6 +24,8 @@ namespace Powder
 
 	/*virtual*/ Value* NumberValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
+		value = value->MathValue(executor);
+
 		const NumberValue* numberValue = dynamic_cast<const NumberValue*>(value);
 		if (numberValue)
 		{

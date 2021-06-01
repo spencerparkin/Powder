@@ -34,4 +34,9 @@ namespace Powder
 	{
 		return false;
 	}
+
+	/*virtual*/ const Value* Value::MathValue(Executor* executor) const
+	{
+		return this;
+	}
 }
