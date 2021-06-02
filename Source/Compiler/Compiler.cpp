@@ -1,6 +1,5 @@
 #include "Compiler.h"
 #include "Tokenizer.h"
-#include "ProgramConstruct.h"
 #include "Assembler.h"
 #include "Exceptions.hpp"
 
@@ -23,14 +22,10 @@ namespace Powder
 		Tokenizer tokenizer;
 		tokenizer.Tokenize(programCode, tokenList);
 
-		ProgramConstruct* programConstruct = new ProgramConstruct();
-		if (!programConstruct->Parse(tokenList))
-			throw new CompileTimeException("Failed to parse program at root level as program construct.", 0);
+		//...
 
 		LinkedList<Instruction*> instructionList;
-		programConstruct->GenerateInstructionSequence(instructionList);
-
-		delete programConstruct;
+		//...
 
 		Assembler assembler;
 		programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);
