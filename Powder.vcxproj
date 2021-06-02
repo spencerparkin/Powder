@@ -21,6 +21,8 @@
   <ItemGroup>
     <ClCompile Include="Source\Compiler\Assembler.cpp" />
     <ClCompile Include="Source\Compiler\Compiler.cpp" />
+    <ClCompile Include="Source\Compiler\Grammar.cpp" />
+    <ClCompile Include="Source\Compiler\Parser.cpp" />
     <ClCompile Include="Source\Compiler\Tokenizer.cpp" />
     <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp" />
@@ -52,6 +54,8 @@
   <ItemGroup>
     <ClInclude Include="Source\Compiler\Assembler.h" />
     <ClInclude Include="Source\Compiler\Compiler.h" />
+    <ClInclude Include="Source\Compiler\Grammar.h" />
+    <ClInclude Include="Source\Compiler\Parser.h" />
     <ClInclude Include="Source\Compiler\Tokenizer.h" />
     <ClInclude Include="Source\Defines.h" />
     <ClInclude Include="Source\Exceptions.hpp" />
@@ -160,7 +164,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -179,7 +183,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -198,7 +202,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -217,7 +221,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

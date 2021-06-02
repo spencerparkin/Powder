@@ -27,7 +27,7 @@ namespace Powder
 			this->lineNumber = -1;
 		}
 
-		void AdjustLevel(uint32_t& level)
+		void AdjustLevel(int& level) const
 		{
 			if (this->type == OPENER)
 				level++;

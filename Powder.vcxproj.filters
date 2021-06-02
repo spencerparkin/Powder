@@ -112,6 +112,12 @@
     <ClCompile Include="Source\VirtualMachine\Values\VariableValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Compiler\Parser.cpp">
+      <Filter>Source\Compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\Grammar.cpp">
+      <Filter>Source\Compiler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -215,6 +221,12 @@
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\VariableValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\Parser.h">
+      <Filter>Source\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\Grammar.h">
+      <Filter>Source\Compiler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

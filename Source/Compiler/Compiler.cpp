@@ -1,5 +1,6 @@
 #include "Compiler.h"
 #include "Tokenizer.h"
+#include "Parser.h"
 #include "Assembler.h"
 #include "Exceptions.hpp"
 
@@ -22,10 +23,14 @@ namespace Powder
 		Tokenizer tokenizer;
 		tokenizer.Tokenize(programCode, tokenList);
 
-		//...
+		Parser parser;
+		Parser::SyntaxNode* syntaxNode = parser.Parse(tokenList);
 
 		LinkedList<Instruction*> instructionList;
-		//...
+		
+		// TODO: Generate instruction list as a function of the syntax tree.
+
+		delete syntaxNode;
 
 		Assembler assembler;
 		programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);
