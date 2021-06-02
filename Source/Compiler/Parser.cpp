@@ -52,11 +52,12 @@ namespace Powder
 
 		Range range = { tokenList.GetHead(), tokenList.GetTail(), tokenList.GetCount() };
 		SyntaxNode* rootNode = this->TryGrammarRule("statement-list", range);
-		if(rootNode)
-			rootNode->FlattenWherePossible();
-
-		while (rootNode->PerformReductions())
+		if (rootNode)
 		{
+			rootNode->FlattenWherePossible();
+			while (rootNode->PerformReductions())
+			{
+			}
 		}
 
 		return rootNode;
@@ -83,7 +84,7 @@ namespace Powder
 
 	Parser::SyntaxNode* Parser::TryExpansionRule(const char* nonTerminal, const rapidjson::Value& matchListValue, const Range& range)
 	{
-		if(range.size == 1)
+		if(strcmp(nonTerminal, "function-definition") == 0)
 		{
 			int b = 0;
 		}
@@ -94,12 +95,16 @@ namespace Powder
 		if (matchListValue.Size() == 0)
 			throw new CompileTimeException("Expected expansion rule for non-terminal %s to be an array of non-zero size in the JSON grammar file.");
 
+		std::vector<const TokenList::Node*> terminalArray;
+		this->FindAllRootLevelTerminals(range, terminalArray, SearchDirection::LEFT_TO_RIGHT);
+
 		struct Subsequence
 		{
 			std::string name;
 			Range range;
 		};
 
+		int j = 0;
 		int contiguousNonTerminalCount = 0;
 		std::vector<Subsequence> subsequenceArray;
 		for (int i = 0; i < (signed)matchListValue.Size(); i++)
@@ -128,11 +133,11 @@ namespace Powder
 				contiguousNonTerminalCount = 0;
 
 				// If we don't find the terminal, then this expansion rule does not apply.
-				subsequence.range.firstNode = this->FindTerminal(range, subsequence.name);
-				if (!subsequence.range.firstNode)
+				const TokenList::Node* foundNode = this->ScanTerminalsForMatch(j, terminalArray, subsequence.name);
+				if (!foundNode)
 					return nullptr;
 
-				subsequence.range.lastNode = subsequence.range.firstNode;
+				subsequence.range.firstNode = subsequence.range.lastNode = foundNode;
 				subsequence.range.size = 1;
 			}
 
@@ -224,70 +229,66 @@ namespace Powder
 		return !this->IsNonTerminal(name);
 	}
 
-	const TokenList::Node* Parser::FindTerminal(const Range& range, std::string& terminal)
+	const TokenList::Node* Parser::ScanTerminalsForMatch(int& i, const std::vector<const TokenList::Node*>& terminalArray, const std::string& terminal)
+	{
+		while (i < (signed)terminalArray.size())
+		{
+			// TODO: May need to scan terminals in other direction in order to account for associativity of some binary operators?
+			const TokenList::Node* node = terminalArray[i++];
+
+			if (terminal == "identifier")
+			{
+				if (node->value.type == Token::IDENTIFIER)
+					return node;
+			}
+			else if (terminal == "string-literal")
+			{
+				if (node->value.type == Token::STRING)
+					return node;
+			}
+			else if (terminal == "number-literal")
+			{
+				if (node->value.type == Token::NUMBER)
+					return node;
+			}
+			else
+			{
+				if (terminal == node->value.text)
+					return node;
+			}
+		}
+
+		return nullptr;
+	}
+
+	void Parser::FindAllRootLevelTerminals(const Range& range, std::vector<const TokenList::Node*>& terminalArray, SearchDirection searchDirection)
 	{
 		const TokenList::Node* node = nullptr;
-
-		enum MatchMode
-		{
-			MATCH_TEXT,
-			MATCH_TYPE
-		};
-
-		MatchMode matchMode = MatchMode::MATCH_TEXT;
-		Token::Type tokenType = Token::UNKNOWN;
-
-		if (terminal == "identifier")
-		{
-			matchMode = MatchMode::MATCH_TYPE;
-			tokenType = Token::IDENTIFIER;
-		}
-		else if (terminal == "string-literal")
-		{
-			matchMode = MatchMode::MATCH_TYPE;
-			tokenType = Token::STRING;
-		}
-		else if (terminal == "number-literal")
-		{
-			matchMode = MatchMode::MATCH_TYPE;
-			tokenType = Token::NUMBER;
-		}
-
-		enum SearchDirection
-		{
-			LEFT_TO_RIGHT,
-			RIGHT_TO_LEFT
-		};
-
-		SearchDirection searchDirection = SearchDirection::LEFT_TO_RIGHT;
-
-		// In some special cases, we need to actually search right to left in order to obey operator associativity.
-		if (terminal == "=" || terminal == "^")
-			searchDirection = SearchDirection::RIGHT_TO_LEFT;
 
 		if (searchDirection == SearchDirection::LEFT_TO_RIGHT)
 			node = range.firstNode;
 		else if (searchDirection == SearchDirection::RIGHT_TO_LEFT)
 			node = range.lastNode;
+		else
+			return;
 
-		bool found = false;
 		int level = 0;
 		while (true)
 		{
-			if ((searchDirection == SearchDirection::LEFT_TO_RIGHT && node->value.type == Token::CLOSER) || (searchDirection == SearchDirection::RIGHT_TO_LEFT && node->value.type == Token::OPENER))
-				level--;
-
-			if (level == 0)
+			if ((searchDirection == SearchDirection::LEFT_TO_RIGHT && node->value.type == Token::CLOSER) ||
+				(searchDirection == SearchDirection::RIGHT_TO_LEFT && node->value.type == Token::OPENER))
 			{
-				if ((matchMode == MatchMode::MATCH_TEXT && node->value.text == terminal) || (matchMode == MatchMode::MATCH_TYPE && node->value.type == tokenType))
-				{
-					found = true;
-					break;
-				}
+				level--;
 			}
 
-			if ((searchDirection == SearchDirection::LEFT_TO_RIGHT && node->value.type == Token::OPENER) || (searchDirection == SearchDirection::RIGHT_TO_LEFT && node->value.type == Token::CLOSER))
+			if (level == 0 && this->IsTerminal(node->value.text.c_str()))
+				terminalArray.push_back(node);
+
+			if ((searchDirection == SearchDirection::LEFT_TO_RIGHT && node->value.type == Token::OPENER) ||
+				(searchDirection == SearchDirection::RIGHT_TO_LEFT && node->value.type == Token::CLOSER))
+			{
 				level++;
+			}
 
 			if (searchDirection == SearchDirection::LEFT_TO_RIGHT)
 			{
@@ -302,8 +303,6 @@ namespace Powder
 				node = node->GetPrev();
 			}
 		}
-
-		return found ? node : nullptr;
 	}
 
 	Parser::SyntaxNode::SyntaxNode(const char* name)
@@ -392,7 +391,9 @@ namespace Powder
 			while (node)
 			{
 				LinkedList<SyntaxNode*>::Node* nextNode = node->GetNext();
-				if (*node->value->name == "(" || *node->value->name == ")" || *node->value->name == ";")
+				if (*node->value->name == "(" || *node->value->name == ")" ||
+					*node->value->name == ";" || *node->value->name == "," ||
+					*node->value->name == "{" || *node->value->name == "}")
 				{
 					delete node->value;
 					this->childList.Remove(node);
