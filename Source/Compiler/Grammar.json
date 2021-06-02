@@ -35,7 +35,7 @@
         ["return", "expression", ";"]
     ],
     "yield-statement": [
-        ["yield", ";"]
+        ["yield"]
     ],
     "function-definition": [
         ["func", "identifier", "(", "identifier-list", ")", "block"]

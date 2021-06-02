@@ -84,11 +84,6 @@ namespace Powder
 
 	Parser::SyntaxNode* Parser::TryExpansionRule(const char* nonTerminal, const rapidjson::Value& matchListValue, const Range& range)
 	{
-		if(strcmp(nonTerminal, "function-definition") == 0)
-		{
-			int b = 0;
-		}
-
 		if (!matchListValue.IsArray())
 			throw new CompileTimeException("Expected expansion rule for non-terminal %s to be an array of strings in the JSON grammar file.");
 
@@ -157,12 +152,12 @@ namespace Powder
 
 				if (i == 0)
 					subsequence.range.firstNode = range.firstNode;
-				else
+				else if (subsequenceArray[i - 1].range.lastNode != range.lastNode)
 					subsequence.range.firstNode = subsequenceArray[i - 1].range.lastNode->GetNext();
 
 				if (i == subsequenceArray.size() - 1)
 					subsequence.range.lastNode = range.lastNode;
-				else
+				else if(subsequenceArray[i + 1].range.firstNode != range.firstNode)
 					subsequence.range.lastNode = subsequenceArray[i + 1].range.firstNode->GetPrev();
 
 				// Again, an expansion rule also doesn't apply if a non-terminal wasn't able to fill any space.
