@@ -14,11 +14,6 @@ namespace Powder
 		delete this->bodyConstruct;
 	}
 
-	/*virtual*/ LanguageConstruct* WhileLoopConstruct::New()
-	{
-		return new WhileLoopConstruct();
-	}
-
 	/*virtual*/ bool WhileLoopConstruct::Parse(TokenList& tokenList)
 	{
 		return false;

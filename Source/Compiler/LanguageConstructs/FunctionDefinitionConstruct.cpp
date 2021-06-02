@@ -6,7 +6,7 @@ namespace Powder
 {
 	FunctionDefinitionConstruct::FunctionDefinitionConstruct()
 	{
-		this->bodyConstruct = new ProgramConstruct();
+		this->bodyConstruct = nullptr;
 		this->functionName = new std::string;
 		this->namedArgumentsList = new std::list<std::string>;
 	}
@@ -16,11 +16,6 @@ namespace Powder
 		delete this->bodyConstruct;
 		delete this->functionName;
 		delete this->namedArgumentsList;
-	}
-
-	/*virtual*/ LanguageConstruct* FunctionDefinitionConstruct::New()
-	{
-		return new FunctionDefinitionConstruct();
 	}
 
 	/*virtual*/ bool FunctionDefinitionConstruct::Parse(TokenList& tokenList)
@@ -64,16 +59,13 @@ namespace Powder
 			throw new CompileTimeException("Did not find matching closing curly brace for function definition's body.", bodyOpener->value.lineNumber);
 
 		TokenList argTokenList;
-		this->ExtractSubList(tokenList, argTokenList, argListOpener, argListCloser);
+		this->ExtractSubList(tokenList, argTokenList, argListOpener, argListCloser, true);
 
 		TokenList bodyTokenList;
-		this->ExtractSubList(tokenList, bodyTokenList, bodyOpener, bodyCloser);
+		this->ExtractSubList(tokenList, bodyTokenList, bodyOpener, bodyCloser, true);
 
 		tokenList.Remove(tokenList.GetHead());
 		tokenList.Remove(tokenList.GetHead());
-
-		argTokenList.Remove(argTokenList.GetHead());
-		argTokenList.Remove(argTokenList.GetTail());
 
 		while (argTokenList.GetCount() > 0)
 		{
@@ -94,9 +86,7 @@ namespace Powder
 			}
 		}
 
-		bodyTokenList.Remove(bodyTokenList.GetHead());
-		bodyTokenList.Remove(bodyTokenList.GetTail());
-
+		this->bodyConstruct = new ProgramConstruct();
 		if (!this->bodyConstruct->Parse(bodyTokenList))
 			throw new CompileTimeException("Failed to parse function definition's body as program construct.", fundKeywordToken.lineNumber);
 

@@ -17,45 +17,24 @@ namespace Powder
 		DeleteList<LanguageConstruct*>(this->constructList);
 	}
 
-	/*virtual*/ LanguageConstruct* ProgramConstruct::New()
-	{
-		return new ProgramConstruct();
-	}
-
 	/*virtual*/ bool ProgramConstruct::Parse(TokenList& tokenList)
 	{
-		LinkedList<LanguageConstruct*> languageConstructList;
-
-		// Note that the order here is significant and intentional.
-		// Most constructs are easily recognizable by their use of keywords.
-		// When all such constructs are exhausted, what remains is an attempt
-		// to parse as a binary expression.
-		languageConstructList.AddTail(new FunctionDefinitionConstruct());
-		languageConstructList.AddTail(new FunctionCallConstruct());
-		languageConstructList.AddTail(new IfThenElseConstruct());
-		languageConstructList.AddTail(new WhileLoopConstruct());
-		languageConstructList.AddTail(new BinaryOperationConstruct());
-
-		while (tokenList.GetCount() > 0)
+		while(tokenList.GetCount() > 0)
 		{
-			uint32_t listSize = this->constructList.GetCount();
+			LinkedList<LanguageConstruct*> languageConstructList;
+			languageConstructList.AddTail(new FunctionDefinitionConstruct());
+			languageConstructList.AddTail(new FunctionCallConstruct());
+			languageConstructList.AddTail(new IfThenElseConstruct());
+			languageConstructList.AddTail(new WhileLoopConstruct());
+			languageConstructList.AddTail(new BinaryOperationConstruct());
 
-			for (LinkedList<LanguageConstruct*>::Node* node = languageConstructList.GetHead(); node; node = node->GetNext())
-			{
-				LanguageConstruct* languageConstruct = node->value;
-				if (languageConstruct->Parse(tokenList))
-				{
-					this->constructList.AddTail(languageConstruct);
-					node->value = languageConstruct->New();
-					break;
-				}
-			}
+			LanguageConstruct* languageConstruct = this->TryParseWithConstructList(tokenList, languageConstructList);
+			if (!languageConstruct)
+				throw new CompileTimeException("No recognizable program construct could be parsed.", tokenList.GetHead()->value.lineNumber);
 
-			if(listSize == this->constructList.GetCount())
-				throw new CompileTimeException("Could not parse code as any recognizeable program construct.", tokenList.GetHead()->value.lineNumber);
+			this->constructList.AddTail(languageConstruct);
 		}
 
-		DeleteList<LanguageConstruct*>(languageConstructList);
 		return true;
 	}
 

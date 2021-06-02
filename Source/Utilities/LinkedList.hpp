@@ -134,6 +134,18 @@ namespace Powder
 				this->Remove(this->head);
 		}
 
+		void Append(const LinkedList<T>& list)
+		{
+			for (Node* node = list.head; node; node = node->next)
+				this->AddTail(node->value);
+		}
+
+		void Prepend(const LinkedList<T>& list)
+		{
+			for (Node* node = list.tail; node; node = node->prev)
+				this->AddHead(node->value);
+		}
+
 		Node* GetHead() { return this->head; }
 		Node* GetTail() { return this->tail; }
 

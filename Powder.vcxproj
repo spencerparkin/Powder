@@ -27,7 +27,7 @@
     <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionDefinitionConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\IfThenElseConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\ListConstruct.cpp" />
-    <ClCompile Include="Source\Compiler\LanguageConstructs\OperandConstruct.cpp" />
+    <ClCompile Include="Source\Compiler\LanguageConstructs\AtomicConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\ProgramConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\UnaryOperationConstruct.cpp" />
     <ClCompile Include="Source\Compiler\LanguageConstructs\WhileLoopConstruct.cpp" />
@@ -68,7 +68,7 @@
     <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionDefinitionConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\IfThenElseConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\ListConstruct.h" />
-    <ClInclude Include="Source\Compiler\LanguageConstructs\OperandConstruct.h" />
+    <ClInclude Include="Source\Compiler\LanguageConstructs\AtomicConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\ProgramConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\UnaryOperationConstruct.h" />
     <ClInclude Include="Source\Compiler\LanguageConstructs\WhileLoopConstruct.h" />

@@ -12,11 +12,6 @@ namespace Powder
 		DeleteList<LanguageConstruct*>(this->elementConstructList);
 	}
 
-	/*virtual*/ LanguageConstruct* ListConstruct::New()
-	{
-		return new ListConstruct();
-	}
-
 	/*virtual*/ bool ListConstruct::Parse(TokenList& tokenList)
 	{
 		return false;

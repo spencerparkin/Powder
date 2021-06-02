@@ -124,9 +124,6 @@
     <ClCompile Include="Source\Compiler\LanguageConstructs\WhileLoopConstruct.cpp">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\OperandConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Compiler\LanguageConstructs\UnaryOperationConstruct.cpp">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClCompile>
@@ -143,6 +140,9 @@
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
     <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionDefinitionConstruct.cpp">
+      <Filter>Source\Compiler\LanguageConstructs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\LanguageConstructs\AtomicConstruct.cpp">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClCompile>
   </ItemGroup>
@@ -261,9 +261,6 @@
     <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionCallConstruct.h">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\OperandConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Compiler\LanguageConstructs\ListConstruct.h">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClInclude>
@@ -277,6 +274,9 @@
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
     <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionDefinitionConstruct.h">
+      <Filter>Source\Compiler\LanguageConstructs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\LanguageConstructs\AtomicConstruct.h">
       <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClInclude>
   </ItemGroup>

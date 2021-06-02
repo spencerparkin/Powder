@@ -26,10 +26,6 @@ namespace Powder
 		ProgramConstruct* programConstruct = new ProgramConstruct();
 		if (!programConstruct->Parse(tokenList))
 			throw new CompileTimeException("Failed to parse program at root level as program construct.", 0);
-		
-		// TODO: Here we might do some sort of rule check on the resulting construct tree.
-		//       Does it make sense?  For example, we can't have a function definition inside
-		//       the conditional of an if-then-else statement.  That makes no sense.
 
 		LinkedList<Instruction*> instructionList;
 		programConstruct->GenerateInstructionSequence(instructionList);

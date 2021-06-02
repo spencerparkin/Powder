@@ -18,7 +18,6 @@ namespace Powder
 		ProgramConstruct();
 		virtual ~ProgramConstruct();
 
-		virtual LanguageConstruct* New() override;
 		virtual bool Parse(TokenList& tokenList) override;
 		virtual void GenerateInstructionSequence(LinkedList<Instruction*>& instructionList) override;
 

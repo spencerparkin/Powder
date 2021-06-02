@@ -10,7 +10,6 @@ namespace Powder
 		ListConstruct();
 		virtual ~ListConstruct();
 
-		virtual LanguageConstruct* New() override;
 		virtual bool Parse(TokenList& tokenList) override;
 		virtual void GenerateInstructionSequence(LinkedList<Instruction*>& instructionList) override;
 

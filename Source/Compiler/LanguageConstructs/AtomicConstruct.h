@@ -4,18 +4,19 @@
 
 namespace Powder
 {
-	class POWDER_API OperandConstruct : public LanguageConstruct
+	struct Token;
+
+	class POWDER_API AtomicConstruct : public LanguageConstruct
 	{
 	public:
-		OperandConstruct();
-		virtual ~OperandConstruct();
+		AtomicConstruct();
+		virtual ~AtomicConstruct();
 
-		virtual LanguageConstruct* New() override;
 		virtual bool Parse(TokenList& tokenList) override;
 		virtual void GenerateInstructionSequence(LinkedList<Instruction*>& instructionList) override;
 
 	protected:
 
-		std::string* operandText;
+		Token* token;
 	};
 }
