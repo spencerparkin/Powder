@@ -3,6 +3,7 @@
 #include "Parser.h"
 #include "Assembler.h"
 #include "Exceptions.hpp"
+#include <iostream>
 
 namespace Powder
 {
@@ -25,6 +26,11 @@ namespace Powder
 
 		Parser parser;
 		Parser::SyntaxNode* syntaxNode = parser.Parse(tokenList);
+
+		if (syntaxNode)
+			syntaxNode->Print(std::cout);
+		else
+			std::cout << "No syntax tree!" << std::endl;
 
 		LinkedList<Instruction*> instructionList;
 		

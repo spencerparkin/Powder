@@ -6,7 +6,7 @@ func calc_fib(i)
         return 1;
     else
         return calc_fib(i - 2) + calc_fib(i - 1);
-}
+};
 
 i = 5;
 j = calc_fib(i);
