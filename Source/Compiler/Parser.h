@@ -46,8 +46,29 @@ namespace Powder
 			const TokenList::Node* lastNode;
 		};
 
-		SyntaxNode* TryGrammarRule(const char* nonTerminal, const Range& range);
-		SyntaxNode* TryExpansionRule(const char* nonTerminal, const rapidjson::Value& matchListValue, const Range& range);
+		struct ParseError
+		{
+			ParseError()
+			{
+				this->depth = 0;
+				this->matchCount = 0;
+			}
+
+			Range range;
+			std::string sourceCode;
+			std::string grammarRule;
+			std::string expansionRule;
+			std::string reason;
+			uint32_t matchCount;
+			uint32_t depth;
+
+			void Detail(const Range& range, const char* nonTerminal, const std::string& reason, const rapidjson::Value& matchListValue, uint32_t matchCount, uint32_t depth);
+			void ThrowException();
+			void Reset();
+		};
+
+		SyntaxNode* TryGrammarRule(const char* nonTerminal, const Range& range, ParseError& parseError, uint32_t depth);
+		SyntaxNode* TryExpansionRule(const char* nonTerminal, const rapidjson::Value& matchListValue, const Range& range, ParseError& parseError, uint32_t depth);
 
 		bool IsNonTerminal(const char* name);
 		bool IsTerminal(const char* name);

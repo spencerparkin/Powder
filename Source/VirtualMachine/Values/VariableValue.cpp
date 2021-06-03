@@ -41,7 +41,7 @@ namespace Powder
 	{
 		Value* heldValue = executor->GetCurrentScope()->LookupValue(this->identifier->c_str(), false);
 		if (!heldValue)
-			throw new RunTimeException("Tried to use variable %s before it was ever assigned a value.");
+			throw new RunTimeException(FormatString("Tried to use variable \"%s\" before it was ever assigned a value.", this->identifier->c_str()));
 
 		return heldValue;
 	}

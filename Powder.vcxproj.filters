@@ -115,6 +115,9 @@
     <ClCompile Include="Source\Compiler\Parser.cpp">
       <Filter>Source\Compiler</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utilities\StringFormat.cpp">
+      <Filter>Source\Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -221,6 +224,9 @@
     </ClInclude>
     <ClInclude Include="Source\Compiler\Parser.h">
       <Filter>Source\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utilities\StringFormat.h">
+      <Filter>Source\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

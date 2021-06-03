@@ -25,11 +25,13 @@ namespace Powder
 		{
 			this->type = UNKNOWN;
 			this->lineNumber = -1;
+			this->columnNumber = -1;
 		}
 
 		std::string text;
 		Type type;
 		uint16_t lineNumber;
+		uint16_t columnNumber;
 	};
 
 	typedef LinkedList<Token> TokenList;
@@ -43,7 +45,7 @@ namespace Powder
 		void Tokenize(const char* programCodeBuffer, TokenList& tokenList);
 
 	private:
-		Token GenerateToken(const char* programCodeBuffer, uint64_t& programCodeBufferLocation, uint16_t& lineNumber);
+		Token GenerateToken(const char* programCodeBuffer, uint64_t& programCodeBufferLocation, uint16_t& lineNumber, uint16_t& columnNumber);
 
 		bool IsAnyChar(char givenChar, const char* charSet);
 	};

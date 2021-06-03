@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Defines.h"
+#include "StringFormat.h"
 #include <string>
 
 namespace Powder
@@ -47,9 +48,10 @@ namespace Powder
 	class POWDER_API CompileTimeException : public Exception
 	{
 	public:
-		CompileTimeException(const std::string& errorMsg, uint16_t lineNumber = -1) : Exception(errorMsg)
+		CompileTimeException(const std::string& errorMsg, uint16_t lineNumber = -1, uint16_t columnNumber = -1) : Exception(errorMsg)
 		{
 			this->lineNumber = lineNumber;
+			this->columnNumber = columnNumber;
 		}
 
 		virtual ~CompileTimeException()
@@ -58,10 +60,19 @@ namespace Powder
 
 		virtual std::string GetErrorMessage() override
 		{
-			// TODO: Format line number in with this message.
-			return "Compile-time error: " + *this->errorMsg;
+			std::string formattedErrorMsg;
+			formattedErrorMsg = "Compile-time error...\n";
+			if (this->lineNumber != -1)
+			{
+				formattedErrorMsg += FormatString("Line number: %d\n", this->lineNumber);
+				if (this->columnNumber != -1)
+					formattedErrorMsg += FormatString("Column number: %d\n", this->columnNumber);
+			}
+			formattedErrorMsg += *this->errorMsg;
+			return formattedErrorMsg;
 		}
 
 		uint16_t lineNumber;
+		uint16_t columnNumber;
 	};
 }

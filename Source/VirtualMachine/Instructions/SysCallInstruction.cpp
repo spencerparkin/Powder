@@ -72,7 +72,7 @@ namespace Powder
 			}
 			default:
 			{
-				throw new RunTimeException("Encountered unknown system call 0x%04x");
+				throw new RunTimeException(FormatString("Encountered unknown system call: 0x%04x", sysCallCode));
 			}
 		}
 

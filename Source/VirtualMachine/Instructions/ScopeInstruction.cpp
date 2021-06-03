@@ -34,7 +34,7 @@ namespace Powder
 			}
 			default:
 			{
-				throw new RunTimeException("Encountered unknonwn scope operation 0x%04x");
+				throw new RunTimeException(FormatString("Encountered unknonwn scope operation: 0x%04x", scopeOp));
 			}
 		}
 

@@ -68,7 +68,7 @@ namespace Powder
 			}
 			default:
 			{
-				throw new RunTimeException("Encountered uknown push type 0x%04x");
+				throw new RunTimeException(FormatString("Encountered uknown push type: 0x%04x", pushType));
 			}
 		}
 

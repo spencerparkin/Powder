@@ -5,6 +5,7 @@
 #include "Scope.h"
 #include "GarbageCollector.h"
 #include "Exceptions.hpp"
+#include "StringFormat.h"
 
 namespace Powder
 {
@@ -43,9 +44,10 @@ namespace Powder
 	{
 		while (this->programBufferLocation < programBufferSize)
 		{
-			Instruction* instruction = virtualMachine->LookupInstruction(programBuffer[this->programBufferLocation]);
+			uint8_t opCode = programBuffer[this->programBufferLocation];
+			Instruction* instruction = virtualMachine->LookupInstruction(opCode);
 			if (!instruction)
-				throw new RunTimeException("Encountered unknown opcode 0x%04x");
+				throw new RunTimeException(FormatString("Encountered unknown opcode 0x%04x", opCode));
 
 			Executor::Result result = instruction->Execute(programBuffer, programBufferSize, this->programBufferLocation, this, virtualMachine);
 			if (result != Executor::Result::CONTINUE)

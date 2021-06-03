@@ -2,6 +2,7 @@
 #include "rapidjson/cursorstreamwrapper.h"
 #include "rapidjson/error/en.h"
 #include "Exceptions.hpp"
+#include "StringFormat.h"
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -28,10 +29,7 @@ namespace Powder
 		std::fstream fileStream;
 		fileStream.open(grammarFilePath, std::fstream::in);
 		if (!fileStream.is_open())
-		{
-			std::cerr << "Failed to open file: " + grammarFilePath << std::endl;
-			throw new CompileTimeException("Could not locate grammar file: %s");
-		}
+			throw new CompileTimeException(FormatString("Could not open grammar file: %s", grammarFilePath.c_str()));
 
 		std::stringstream stringStream;
 		stringStream << fileStream.rdbuf();
@@ -48,12 +46,12 @@ namespace Powder
 			const char* jsonParseError = rapidjson::GetParseError_En(errorCode);
 			size_t line = streamWrapper.GetLine();
 			size_t column = streamWrapper.GetColumn();
-
-			throw new CompileTimeException("Grammar file has JSON parser error on line %d, column %d: %s");
+			throw new CompileTimeException(FormatString("Grammar file has JSON parser error on line %d, column %d: %s", line, column, jsonParseError));
 		}
 
+		ParseError parseError;
 		Range range(tokenList.GetHead(), tokenList.GetTail());
-		SyntaxNode* rootNode = this->TryGrammarRule("statement-list", range);
+		SyntaxNode* rootNode = this->TryGrammarRule("statement-list", range, parseError, 1);
 		if (rootNode)
 		{
 			rootNode->FlattenWherePossible();
@@ -63,41 +61,62 @@ namespace Powder
 		}
 		else
 		{
-			//...
+			parseError.ThrowException();
 		}
 
 		return rootNode;
 	}
 
-	Parser::SyntaxNode* Parser::TryGrammarRule(const char* nonTerminal, const Range& range)
+	Parser::SyntaxNode* Parser::TryGrammarRule(const char* nonTerminal, const Range& range, ParseError& parseError, uint32_t depth)
 	{
 		if (this->IsNonTerminal(nonTerminal))
 		{
 			const rapidjson::Value& expansionsListValue = (*this->grammarDoc)[nonTerminal];
 			if (!expansionsListValue.IsArray())
-				throw new CompileTimeException("Expected array in grammar JSON file for non-terminal production rules.");
+				throw new CompileTimeException(FormatString("Expected expansion rule for grammar rule %s in grammar JSON file to be an array.", nonTerminal));
 			
 			for (int i = 0; i < (signed)expansionsListValue.Size(); i++)
 			{
-				SyntaxNode* syntaxNode = this->TryExpansionRule(nonTerminal, expansionsListValue[i], range);
+				SyntaxNode* syntaxNode = this->TryExpansionRule(nonTerminal, expansionsListValue[i], range, parseError, depth + 1);
 				if (syntaxNode)
+				{
+					// Reset error with each successfully parsed statement so that false-errors don't obscur true errors.
+					if (::strcmp(nonTerminal, "statement") == 0)
+						parseError.Reset();
+
 					return syntaxNode;
+				}
 			}
 		}
 
 		return nullptr;
 	}
 
-	Parser::SyntaxNode* Parser::TryExpansionRule(const char* nonTerminal, const rapidjson::Value& matchListValue, const Range& range)
+	Parser::SyntaxNode* Parser::TryExpansionRule(const char* nonTerminal, const rapidjson::Value& matchListValue, const Range& range, ParseError& parseError, uint32_t depth)
 	{
 		if (!matchListValue.IsArray())
-			throw new CompileTimeException("Expected expansion rule for non-terminal %s to be an array of strings in the JSON grammar file.");
+			throw new CompileTimeException(FormatString("Expected expansion rule for non-terminal %s to be an array of strings in the JSON grammar file.", nonTerminal));
 
 		if (matchListValue.Size() == 0)
-			throw new CompileTimeException("Expected expansion rule for non-terminal %s to be an array of non-zero size in the JSON grammar file.");
+			throw new CompileTimeException(FormatString("Expected expansion rule for non-terminal %s to be an array of non-zero size in the JSON grammar file.", nonTerminal));
 
 		std::vector<const TokenList::Node*> terminalArray;
 		this->FindAllRootLevelTerminals(range, terminalArray, SearchDirection::LEFT_TO_RIGHT);
+
+		// Special case: If we're trying to parse something as an expression, early-out if any top-level terminal is a semi-colon.
+		// I'm hoping this doesn't come back to bite me if I do find a legitimate reason to have semi-colons in an expression.
+		// In that case, I can simply remove this.  It's not just an optimization, but it may also improve improve error detection accuracy and applicability.
+		if (::strcmp(nonTerminal, "expression") == 0)
+		{
+			for (int i = 0; i < (signed)terminalArray.size(); i++)
+			{
+				if (terminalArray[i]->value.text == ";")
+				{
+					parseError.Detail(range, nonTerminal, "No expression should contain semi-colons at the top-level.  (They might appear nested, but not at the top level.)", matchListValue, 0, depth);
+					return nullptr;
+				}
+			}
+		}
 
 		struct Subsequence
 		{
@@ -105,6 +124,7 @@ namespace Powder
 			Range range;
 		};
 
+		uint32_t matchCount = 0;
 		int j = 0;
 		int contiguousNonTerminalCount = 0;
 		std::vector<Subsequence> subsequenceArray;
@@ -112,7 +132,7 @@ namespace Powder
 		{
 			const rapidjson::Value& matchValue = matchListValue[i];
 			if (!matchValue.IsString())
-				throw new CompileTimeException("Encountered non-string in expansion rule for non-terminal %s of JSON grammar file.");
+				throw new CompileTimeException(FormatString("Encountered non-string in expansion rule for non-terminal %s of JSON grammar file.", nonTerminal));
 
 			Subsequence subsequence;
 			subsequence.name = matchValue.GetString();
@@ -123,7 +143,9 @@ namespace Powder
 				{
 					// Throw an exception here.  I don't allow non-terminals to be adjacent to one another in an expansion rule.
 					// I don't know how to overcome this limitation, because it produces an ambiguity in my mind that I do not know how to resolve in all cases.
-					throw new CompileTimeException("Encountered adjacent non-terminals in grammar file.  Look for \"%s\".");
+					// One thought it to expand a grammar rule until it no two non-terminals touch one another, but that adds extra complication, and it's
+					// more likely that I just don't understand the proper algorithms for dealing with expansion rules.
+					throw new CompileTimeException(FormatString("Encountered adjacent non-terminals in expansion rule for grammar rule: %s", nonTerminal));
 				}
 			}
 			else
@@ -134,9 +156,12 @@ namespace Powder
 				const TokenList::Node* foundNode = this->ScanTerminalsForMatch(j, terminalArray, subsequence.name);
 				if (!foundNode)
 				{
+					std::string reason = "Failed to find terminal match \"" + subsequence.name + "\" in grammar expansion rule.";
+					parseError.Detail(range, nonTerminal, reason, matchListValue, matchCount, depth);
 					return nullptr;
 				}
 
+				matchCount++;
 				subsequence.range.firstNode = subsequence.range.lastNode = foundNode;
 			}
 
@@ -154,6 +179,8 @@ namespace Powder
 				{
 					if (subsequenceArray[i - 1].range.lastNode->GetNext() == subsequenceArray[i + 1].range.firstNode)
 					{
+						std::string reason = "Failed to find non-terminal match \"" + subsequence.name + "\" in grammar expansion rule.";
+						parseError.Detail(range, nonTerminal, reason, matchListValue, matchCount, depth);
 						return nullptr;
 					}
 				}
@@ -171,6 +198,8 @@ namespace Powder
 				// Again, an expansion rule also doesn't apply if a non-terminal wasn't able to fill any space.
 				if (subsequence.range.firstNode == nullptr || subsequence.range.lastNode == nullptr)
 				{
+					std::string reason = "Failed to find non-terminal match \"" + subsequence.name + "\" in grammar expansion rule.";
+					parseError.Detail(range, nonTerminal, reason, matchListValue, matchCount, depth);
 					return nullptr;
 				}
 			}
@@ -182,6 +211,8 @@ namespace Powder
 			totalSize += subsequenceArray[i].range.CalcSize();
 		if (totalSize != range.CalcSize())
 		{
+			std::string reason = "Grammar expansion rule did not account for all tokens.";
+			parseError.Detail(range, nonTerminal, reason, matchListValue, matchCount, depth);
 			return nullptr;
 		}
 
@@ -192,7 +223,7 @@ namespace Powder
 			Subsequence& subsequence = subsequenceArray[i];
 			if (this->IsNonTerminal(subsequence.name.c_str()))
 			{
-				SyntaxNode* childNode = this->TryGrammarRule(subsequence.name.c_str(), subsequence.range);
+				SyntaxNode* childNode = this->TryGrammarRule(subsequence.name.c_str(), subsequence.range, parseError, depth + 1);
 				if (childNode)
 					parentNode->childList.AddTail(childNode);
 				else
@@ -449,5 +480,45 @@ namespace Powder
 				performedReduction = true;
 
 		return performedReduction;
+	}
+
+	void Parser::ParseError::Detail(const Range& range, const char* nonTerminal, const std::string& reason, const rapidjson::Value& matchListValue, uint32_t matchCount, uint32_t depth)
+	{
+		// The idea here is that the most likely applicable parse error is based
+		// on the grammar-rule and expansion-rule that failed both deepest in the
+		// pase recursion, and that we were closest to match on.  But I'm still not sure.
+		if (depth > this->depth || (depth == this->depth && matchCount > this->matchCount))
+		{
+			this->depth = depth;
+			this->matchCount = matchCount;
+			this->range = range;
+			this->reason = reason;
+			this->grammarRule = nonTerminal;
+			this->expansionRule = "";
+			this->sourceCode = range.Print();
+
+			for (uint32_t i = 0; i < matchListValue.Size(); i++)
+			{
+				if (this->expansionRule.length() > 0)
+					this->expansionRule += " ";
+				this->expansionRule += matchListValue[i].GetString();
+			}
+		}
+	}
+
+	void Parser::ParseError::ThrowException()
+	{
+		std::string errorMsg;
+		errorMsg += "Code: " + this->sourceCode + "\n";
+		errorMsg += "Grammar Rule: " + this->grammarRule + "\n";
+		errorMsg += "Expansion Rule: " + this->expansionRule + "\n";
+		errorMsg += "Reason: " + this->reason + "\n";
+		throw new CompileTimeException(errorMsg, this->range.firstNode->value.lineNumber, this->range.firstNode->value.columnNumber);
+	}
+
+	void Parser::ParseError::Reset()
+	{
+		this->depth = 0;
+		this->matchCount = 0;
 	}
 }

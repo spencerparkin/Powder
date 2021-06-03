@@ -29,7 +29,7 @@ namespace Powder
 
 		Value* result = leftValue->CombineWith(rightValue, mathOp, executor);
 		if (!result)
-			throw new RunTimeException("Failed to combine operands in operation 0x%04x");
+			throw new RunTimeException(FormatString("Failed to combine operands in operation: 0x%04x", uint8_t(mathOp)));
 
 		executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(result);
 

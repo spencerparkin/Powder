@@ -49,7 +49,7 @@ namespace Powder
 	{
 		Value* value = this->LookupValue(identifier, false);
 		if (!value)
-			throw new RunTimeException("Failed to lookup identifier %s.");
+			throw new RunTimeException(FormatString("Failed to lookup identifier: %s", identifier));
 
 		return this->PushValueOntoEvaluationStackTop(value);
 	}
