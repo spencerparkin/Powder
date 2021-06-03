@@ -58,6 +58,11 @@
     [ "identifier" ],
     [ "function-call" ],
     [ "wrapped-expression" ],
+    [ "binary-expression" ],
+    [ "unary-expression" ],
+    [ "look-up-expression" ]
+  ],
+  "binary-expression": [
     [ "operand", "=", "operand" ],
     [ "operand", "==", "operand" ],
     [ "operand", "<", "operand" ],
@@ -71,6 +76,15 @@
     [ "operand", "-", "operand" ],
     [ "operand", "*", "operand" ],
     [ "operand", "/", "operand" ]
+  ],
+  "unary-expression": [
+    [ "-", "operand" ],
+    [ "~", "operand" ],
+    [ "operand", "!" ],
+    [ "!", "operand" ]
+  ],
+  "look-up-expression": [
+    [ "identifier", "[", "expression", "]"]
   ],
   "wrapped-expression": [
     [ "(", "expression", ")" ]
