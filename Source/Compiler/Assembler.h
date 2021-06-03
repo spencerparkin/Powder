@@ -35,12 +35,14 @@ namespace Powder
 			{
 				this->instruction = nullptr;
 				this->number = 0.0;
+				this->jumpDelta = 0L;
 			}
 
 			Instruction* instruction;
 			double number;
 			std::string string;
 			uint8_t code;
+			uint64_t jumpDelta;
 		};
 
 		HashMap<Entry> configMap;

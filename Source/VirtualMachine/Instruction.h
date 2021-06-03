@@ -51,6 +51,14 @@ namespace Powder
 		// assembly to know how to configure and link the instruction.
 		AssemblyData* assemblyData;
 
+		template<typename T>
+		static T* CreateForAssembly()
+		{
+			T* instruction = new T;
+			instruction->assemblyData = new AssemblyData;
+			return instruction;
+		}
+
 	protected:
 
 		std::string ExtractEmbeddedString(const uint8_t* programBuffer, uint64_t programBufferLocation);

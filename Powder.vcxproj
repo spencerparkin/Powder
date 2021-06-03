@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Compiler\Assembler.cpp" />
     <ClCompile Include="Source\Compiler\Compiler.cpp" />
+    <ClCompile Include="Source\Compiler\InstructionGenerator.cpp" />
     <ClCompile Include="Source\Compiler\Parser.cpp" />
     <ClCompile Include="Source\Compiler\Tokenizer.cpp" />
     <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp" />
@@ -54,6 +55,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Compiler\Assembler.h" />
     <ClInclude Include="Source\Compiler\Compiler.h" />
+    <ClInclude Include="Source\Compiler\InstructionGenerator.h" />
     <ClInclude Include="Source\Compiler\Parser.h" />
     <ClInclude Include="Source\Compiler\Tokenizer.h" />
     <ClInclude Include="Source\Defines.h" />

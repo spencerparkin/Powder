@@ -1,8 +1,8 @@
 # MathExpression.pow
 
-a = input();
-b = input();
+#a = input();
+#b = input();
 
 c = (a + 1.5) / (b - 7.0);
 
-output(c);
+#output(c);

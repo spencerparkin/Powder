@@ -118,6 +118,9 @@
     <ClCompile Include="Source\Utilities\StringFormat.cpp">
       <Filter>Source\Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Compiler\InstructionGenerator.cpp">
+      <Filter>Source\Compiler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -227,6 +230,9 @@
     </ClInclude>
     <ClInclude Include="Source\Utilities\StringFormat.h">
       <Filter>Source\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\InstructionGenerator.h">
+      <Filter>Source\Compiler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

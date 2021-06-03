@@ -23,9 +23,9 @@ namespace Powder
 	{
 		Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
 		if (value->AsBoolean())
-			::memcpy_s(&programBufferLocation, sizeof(uint64_t), &programBuffer[programBufferLocation + 1], sizeof(uint64_t));
-		else
 			programBufferLocation += 1 + sizeof(uint64_t);
+		else
+			::memcpy_s(&programBufferLocation, sizeof(uint64_t), &programBuffer[programBufferLocation + 1], sizeof(uint64_t));
 		return Executor::Result::CONTINUE;
 	}
 

@@ -1,6 +1,7 @@
 #include "Compiler.h"
 #include "Tokenizer.h"
 #include "Parser.h"
+#include "InstructionGenerator.h"
 #include "Assembler.h"
 #include "Exceptions.hpp"
 #include <iostream>
@@ -25,22 +26,22 @@ namespace Powder
 		tokenizer.Tokenize(programCode, tokenList);
 
 		Parser parser;
-		Parser::SyntaxNode* syntaxNode = parser.Parse(tokenList);
+		Parser::SyntaxNode* rootSyntaxNode = parser.Parse(tokenList);
 
+#if false
 		if (syntaxNode)
 			syntaxNode->Print(std::cout);
 		else
 			std::cout << "No syntax tree!" << std::endl;
+#endif
 
 		LinkedList<Instruction*> instructionList;
-		
-		// TODO: Generate instruction list as a function of the syntax tree.
-
-		delete syntaxNode;
+		InstructionGenerator instructionGenerator;
+		instructionGenerator.GenerateInstructionList(instructionList, rootSyntaxNode);
+		delete rootSyntaxNode;
 
 		Assembler assembler;
 		programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);
-		
 		return programBuffer;
 	}
 }
