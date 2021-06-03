@@ -32,7 +32,7 @@
     [ "fork", "embedded-statement", "else", "embedded-statement" ]
   ],
   "return-statement": [
-    [ "return", "expression", ";" ]
+    [ "return", "expression" ]
   ],
   "yield-statement": [
     [ "yield" ]
@@ -45,7 +45,8 @@
     [ "identifier" ]
   ],
   "embedded-statement": [
-    [ "expression", ";" ],
+    [ "expression" ],
+    [ "return-statement" ],
     [ "block" ]
   ],
   "block": [

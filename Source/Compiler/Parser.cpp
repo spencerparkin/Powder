@@ -21,15 +21,6 @@ namespace Powder
 
 	// TODO: How do we determine the real point of parse failure?  The praser is designed
 	//       to fail until is succeeds, but even those successes can be false positives.
-	// TODO: The syntactic sugar of allowing no braces when only one embedded statement
-	//       is desired is something that the grammar production rules are supposed to be
-	//       able to handle, but it requires knowing how to have two non-terminals adjacent,
-	//       which I don't yet know how to handle.  Specifically, the statement-list rule
-	//       currently requires all statement to be delineated by the semi-colon, and so
-	//       this is the problem; the parser picks up on the semi-colon of the embedded statement.
-	//       The C# book shows defining the statement-list rule as having two adjacent non-terminals,
-	//       statement-list and statement.  Do I need to expand the rule a bit until I find terminals
-	//       before I try to match the rule against the tokens?
 	Parser::SyntaxNode* Parser::Parse(const TokenList& tokenList)
 	{
 		// TODO: Find a better way to locate this file.
