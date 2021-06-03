@@ -36,9 +36,14 @@ namespace Powder
 
 		struct Range
 		{
+			Range();
+			Range(const TokenList::Node* firstNode, const TokenList::Node* lastNode);
+
+			uint32_t CalcSize() const;
+			std::string Print() const;
+
 			const TokenList::Node* firstNode;
 			const TokenList::Node* lastNode;
-			uint32_t size;
 		};
 
 		SyntaxNode* TryGrammarRule(const char* nonTerminal, const Range& range);

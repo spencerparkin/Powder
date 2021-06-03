@@ -1,99 +1,107 @@
 {
-    "statement-list": [
-        ["statement-list", ";", "statement-list"],
-        ["statement"],
-        ["statement", ";"]
-    ],
-    "statement": [
-        ["if-statement"],
-        ["while-statement"],
-        ["do-while-statment"],
-        ["foreach-statement"],
-        ["fork-statement"],
-        ["return-statement"],
-        ["yield-statement"],
-        ["function-definition"],
-        ["expression"]
-    ],
-    "if-statement": [
-        ["if", "(", "expression", ")", "embedded-statement"],
-        ["if", "(", "expression", ")", "embedded-statement", "else", "embedded-statement"]
-    ],
-    "while-statement": [
-        ["while", "(", "expression", ")", "embedded-statement"]
-    ],
-    "do-while-statement": [
-        ["do", "block", "while", "(", "expression", ")"]
-    ],
-    "foreach-statement": [
-        ["foreach", "(", "identifier", "in", "expression", ")", "embedded-statement"]
-    ],
-    "fork-statement": [
-        ["fork", "embedded-statement", "else", "embedded-statement"]
-    ],
-    "return-statement": [
-        ["return", "expression", ";"]
-    ],
-    "yield-statement": [
-        ["yield"]
-    ],
-    "function-definition": [
-        ["func", "identifier", "(", "identifier-list", ")", "block"]
-    ],
-    "identifier-list": [
-        ["identifier-list", ",", "identifier-list"],
-        ["identifier"]
-    ],
-    "embedded-statement": [
-        ["expression", ";"],
-        ["block"]
-    ],
-    "block": [
-        ["{", "}"],
-        ["{", "statement-list", "}"]
-    ],
-    "expression": [
-        ["literal"],
-        ["identifier"],
-        ["function-call"],
-        ["wrapped-expression"],
-        ["operand", "=", "operand"],
-        ["operand", "+", "operand"],
-        ["operand", "-", "operand"],
-        ["operand", "*", "operand"],
-        ["operand", "/", "operand"]
-    ],
-    "wrapped-expression": [
-        ["(", "expression", ")"]
-    ],
-    "operand": [
-        ["literal"],
-        ["identifier"],
-        ["function-call"],
-        ["expression"]
-    ],
-    "literal": [
-        ["string-literal"],
-        ["number-literal"],
-        ["list-literal"]
-    ],
-    "list-literal": [
-        ["[", "]"],
-        ["[", "list-literal-element-list", "]"]
-    ],
-    "list-literal-element-list": [
-        ["list-literal-element-list", ",", "list-literal-element-list"],
-        ["expression"]
-    ],
-    "function-call": [
-        ["identifier", "(", ")"],
-        ["identifier", "(", "argument-list", ")"]
-    ],
-    "argument-list": [
-        ["argument-list", ",", "argument-list"],
-        ["argument"]
-    ],
-    "argument": [
-        ["expression"]
-    ]
+  "statement-list": [
+    [ "statement-list", ";", "statement-list" ],
+    [ "statement" ],
+    [ "statement", ";" ]
+  ],
+  "statement": [
+    [ "if-statement" ],
+    [ "while-statement" ],
+    [ "do-while-statment" ],
+    [ "foreach-statement" ],
+    [ "fork-statement" ],
+    [ "return-statement" ],
+    [ "yield-statement" ],
+    [ "function-definition" ],
+    [ "expression" ]
+  ],
+  "if-statement": [
+    [ "if", "(", "expression", ")", "embedded-statement" ],
+    [ "if", "(", "expression", ")", "embedded-statement", "else", "embedded-statement" ]
+  ],
+  "while-statement": [
+    [ "while", "(", "expression", ")", "embedded-statement" ]
+  ],
+  "do-while-statement": [
+    [ "do", "block", "while", "(", "expression", ")" ]
+  ],
+  "foreach-statement": [
+    [ "foreach", "(", "identifier", "in", "expression", ")", "embedded-statement" ]
+  ],
+  "fork-statement": [
+    [ "fork", "embedded-statement", "else", "embedded-statement" ]
+  ],
+  "return-statement": [
+    [ "return", "expression", ";" ]
+  ],
+  "yield-statement": [
+    [ "yield" ]
+  ],
+  "function-definition": [
+    [ "func", "identifier", "(", "identifier-list", ")", "block" ]
+  ],
+  "identifier-list": [
+    [ "identifier-list", ",", "identifier-list" ],
+    [ "identifier" ]
+  ],
+  "embedded-statement": [
+    [ "expression", ";" ],
+    [ "block" ]
+  ],
+  "block": [
+    [ "{", "}" ],
+    [ "{", "statement-list", "}" ]
+  ],
+  "expression": [
+    [ "literal" ],
+    [ "identifier" ],
+    [ "function-call" ],
+    [ "wrapped-expression" ],
+    [ "operand", "=", "operand" ],
+    [ "operand", "==", "operand" ],
+    [ "operand", "<", "operand" ],
+    [ "operand", ">", "operand" ],
+    [ "operand", "<=", "operand" ],
+    [ "operand", ">=", "operand" ],
+    [ "operand", "and", "operand" ],
+    [ "operand", "or", "operand" ],
+    [ "operand", "xor", "operand" ],
+    [ "operand", "+", "operand" ],
+    [ "operand", "-", "operand" ],
+    [ "operand", "*", "operand" ],
+    [ "operand", "/", "operand" ]
+  ],
+  "wrapped-expression": [
+    [ "(", "expression", ")" ]
+  ],
+  "operand": [
+    [ "literal" ],
+    [ "identifier" ],
+    [ "function-call" ],
+    [ "expression" ]
+  ],
+  "literal": [
+    [ "string-literal" ],
+    [ "number-literal" ],
+    [ "list-literal" ]
+  ],
+  "list-literal": [
+    [ "[", "]" ],
+    [ "[", "list-literal-element-list", "]" ]
+  ],
+  "list-literal-element-list": [
+    [ "list-literal-element-list", ",", "list-literal-element-list" ],
+    [ "expression" ]
+  ],
+  "function-call": [
+    [ "identifier", "(", ")" ],
+    [ "identifier", "(", "argument-list", ")" ]
+  ],
+  "argument-list": [
+    [ "argument-list", ",", "argument-list" ],
+    [ "argument" ]
+  ],
+  "argument": [
+    [ "expression" ]
+  ]
 }

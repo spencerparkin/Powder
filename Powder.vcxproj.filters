@@ -225,5 +225,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
+    <None Include="Source\Compiler\Grammar.json">
+      <Filter>Source\Compiler</Filter>
+    </None>
   </ItemGroup>
 </Project>

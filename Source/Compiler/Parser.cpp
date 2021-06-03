@@ -19,6 +19,17 @@ namespace Powder
 		delete this->grammarDoc;
 	}
 
+	// TODO: How do we determine the real point of parse failure?  The praser is designed
+	//       to fail until is succeeds, but even those successes can be false positives.
+	// TODO: The syntactic sugar of allowing no braces when only one embedded statement
+	//       is desired is something that the grammar production rules are supposed to be
+	//       able to handle, but it requires knowing how to have two non-terminals adjacent,
+	//       which I don't yet know how to handle.  Specifically, the statement-list rule
+	//       currently requires all statement to be delineated by the semi-colon, and so
+	//       this is the problem; the parser picks up on the semi-colon of the embedded statement.
+	//       The C# book shows defining the statement-list rule as having two adjacent non-terminals,
+	//       statement-list and statement.  Do I need to expand the rule a bit until I find terminals
+	//       before I try to match the rule against the tokens?
 	Parser::SyntaxNode* Parser::Parse(const TokenList& tokenList)
 	{
 		// TODO: Find a better way to locate this file.
@@ -50,7 +61,7 @@ namespace Powder
 			throw new CompileTimeException("Grammar file has JSON parser error on line %d, column %d: %s");
 		}
 
-		Range range = { tokenList.GetHead(), tokenList.GetTail(), tokenList.GetCount() };
+		Range range(tokenList.GetHead(), tokenList.GetTail());
 		SyntaxNode* rootNode = this->TryGrammarRule("statement-list", range);
 		if (rootNode)
 		{
@@ -58,6 +69,10 @@ namespace Powder
 			while (rootNode->PerformReductions())
 			{
 			}
+		}
+		else
+		{
+			//...
 		}
 
 		return rootNode;
@@ -110,9 +125,6 @@ namespace Powder
 
 			Subsequence subsequence;
 			subsequence.name = matchValue.GetString();
-			subsequence.range.firstNode = nullptr;
-			subsequence.range.lastNode = nullptr;
-			subsequence.range.size = 0;
 
 			if (this->IsNonTerminal(subsequence.name.c_str()))
 			{
@@ -130,10 +142,11 @@ namespace Powder
 				// If we don't find the terminal, then this expansion rule does not apply.
 				const TokenList::Node* foundNode = this->ScanTerminalsForMatch(j, terminalArray, subsequence.name);
 				if (!foundNode)
+				{
 					return nullptr;
+				}
 
 				subsequence.range.firstNode = subsequence.range.lastNode = foundNode;
-				subsequence.range.size = 1;
 			}
 
 			subsequenceArray.push_back(subsequence);
@@ -147,8 +160,12 @@ namespace Powder
 			{
 				// An expansion rule also doesn't apply if a non-terminal wasn't able to fill any space.
 				if (i > 0 && i < (signed)subsequenceArray.size() - 1)
+				{
 					if (subsequenceArray[i - 1].range.lastNode->GetNext() == subsequenceArray[i + 1].range.firstNode)
+					{
 						return nullptr;
+					}
+				}
 
 				if (i == 0)
 					subsequence.range.firstNode = range.firstNode;
@@ -162,15 +179,8 @@ namespace Powder
 
 				// Again, an expansion rule also doesn't apply if a non-terminal wasn't able to fill any space.
 				if (subsequence.range.firstNode == nullptr || subsequence.range.lastNode == nullptr)
-					return nullptr;
-
-				const TokenList::Node* node = subsequence.range.firstNode;
-				while (true)
 				{
-					subsequence.range.size++;
-					if (node == subsequence.range.lastNode)
-						break;
-					node = node->GetNext();
+					return nullptr;
 				}
 			}
 		}
@@ -178,9 +188,11 @@ namespace Powder
 		// The last check for expansion rule applicability is to verify that we have completely covered the given range.
 		uint32_t totalSize = 0;
 		for (int i = 0; i < (signed)subsequenceArray.size(); i++)
-			totalSize += subsequenceArray[i].range.size;
-		if (totalSize != range.size)
+			totalSize += subsequenceArray[i].range.CalcSize();
+		if (totalSize != range.CalcSize())
+		{
 			return nullptr;
+		}
 
 		// Lastly, recursively descend on all the non-terminals.
 		SyntaxNode* parentNode = new SyntaxNode(nonTerminal);
@@ -298,6 +310,48 @@ namespace Powder
 				node = node->GetPrev();
 			}
 		}
+	}
+
+	Parser::Range::Range()
+	{
+		this->firstNode = nullptr;
+		this->lastNode = nullptr;
+	}
+
+	Parser::Range::Range(const TokenList::Node* firstNode, const TokenList::Node* lastNode)
+	{
+		this->firstNode = firstNode;
+		this->lastNode = lastNode;
+	}
+
+	uint32_t Parser::Range::CalcSize() const
+	{
+		uint32_t size = 0;
+		const TokenList::Node* node = this->firstNode;
+		while (true)
+		{
+			size++;
+			if (node == this->lastNode)
+				break;
+			node = node->GetNext();
+		}
+		return size;
+	}
+
+	std::string Parser::Range::Print() const
+	{
+		std::string rangeStr;
+		const TokenList::Node* node = this->firstNode;
+		while (true)
+		{
+			if (rangeStr.length() > 0)
+				rangeStr += " ";
+			rangeStr += node->value.text;
+			if (node == this->lastNode)
+				break;
+			node = node->GetNext();
+		}
+		return rangeStr;
 	}
 
 	Parser::SyntaxNode::SyntaxNode(const char* name)
