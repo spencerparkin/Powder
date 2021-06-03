@@ -27,8 +27,6 @@ namespace Powder
 
 				// We simply execute the code for each statement in order.
 				this->GenerateInstructionList(instructionList, node->value);
-
-				// TODO: Patch jump pointers here as necessary.  E.g., resolve all jump hints in the assembly data of the instructions.
 			}
 		}
 		else if (*syntaxNode->name == "statement")
@@ -60,7 +58,8 @@ namespace Powder
 			{
 				// No.  Setup jump-hint on the branch instruction to jump to instruction just after the last condition-pass instruction.
 				entry.jumpDelta = passInstructionList.GetCount();
-				branchInstruction->assemblyData->configMap.Insert("jump-hint", entry);
+				entry.string = "branch";
+				branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 			}
 			else
 			{
@@ -73,7 +72,8 @@ namespace Powder
 				this->GenerateInstructionList(failInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->GetNext()->value);
 				instructionList.Append(failInstructionList);
 				entry.jumpDelta = failInstructionList.GetCount();
-				jumpInstruction->assemblyData->configMap.Insert("jump-hint", entry);
+				entry.string = "jump";
+				jumpInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 
 				// We have enough now to resolve the conditional jump instruction.
 				entry.instruction = failInstructionList.GetHead()->value;

@@ -14,5 +14,7 @@ namespace Powder
 		virtual ~InstructionGenerator();
 
 		void GenerateInstructionList(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode);
+
+	private:
 	};
 }

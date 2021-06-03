@@ -18,6 +18,8 @@ namespace Powder
 		virtual ~Assembler();
 
 		uint8_t* AssembleExecutable(const LinkedList<Instruction*>& instructionList, uint64_t& programBufferSize);
+
+		void ResolveJumpDeltas(const LinkedList<Instruction*>& instructionList);
 	};
 
 	struct POWDER_API AssemblyData
@@ -42,7 +44,7 @@ namespace Powder
 			double number;
 			std::string string;
 			uint8_t code;
-			uint64_t jumpDelta;
+			int64_t jumpDelta;
 		};
 
 		HashMap<Entry> configMap;
