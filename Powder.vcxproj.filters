@@ -23,9 +23,6 @@
     <Filter Include="Source\VirtualMachine\Values">
       <UniqueIdentifier>{58653117-3c49-42ab-b0b0-13fa6df89c0a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Compiler\LanguageConstructs">
-      <UniqueIdentifier>{72c3e365-97b9-4561-a53d-db4df09d5dd9}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\VirtualMachine\Executor.cpp">
@@ -106,32 +103,8 @@
     <ClCompile Include="Source\VirtualMachine\Values\AddressValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstruct.cpp">
-      <Filter>Source\Compiler</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\ProgramConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\BinaryOperationConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\IfThenElseConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionCallConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\WhileLoopConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\UnaryOperationConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Compiler\Tokenizer.cpp">
       <Filter>Source\Compiler</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\ListConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\Values\BooleanValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
@@ -139,11 +112,8 @@
     <ClCompile Include="Source\VirtualMachine\Values\VariableValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\FunctionDefinitionConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Compiler\LanguageConstructs\AtomicConstruct.cpp">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
+    <ClCompile Include="Source\Compiler\Parser.cpp">
+      <Filter>Source\Compiler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -237,32 +207,8 @@
     <ClInclude Include="Source\Utilities\LinkedList.hpp">
       <Filter>Source\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstruct.h">
-      <Filter>Source\Compiler</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Compiler\Tokenizer.h">
       <Filter>Source\Compiler</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\ProgramConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\IfThenElseConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\WhileLoopConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\BinaryOperationConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\UnaryOperationConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionCallConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\ListConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\BooleanValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
@@ -273,14 +219,14 @@
     <ClInclude Include="Source\VirtualMachine\Values\VariableValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\FunctionDefinitionConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\LanguageConstructs\AtomicConstruct.h">
-      <Filter>Source\Compiler\LanguageConstructs</Filter>
+    <ClInclude Include="Source\Compiler\Parser.h">
+      <Filter>Source\Compiler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
+    <None Include="Source\Compiler\Grammar.json">
+      <Filter>Source\Compiler</Filter>
+    </None>
   </ItemGroup>
 </Project>

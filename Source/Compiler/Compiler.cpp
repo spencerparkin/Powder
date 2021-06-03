@@ -1,8 +1,9 @@
 #include "Compiler.h"
 #include "Tokenizer.h"
-#include "ProgramConstruct.h"
+#include "Parser.h"
 #include "Assembler.h"
 #include "Exceptions.hpp"
+#include <iostream>
 
 namespace Powder
 {
@@ -23,14 +24,19 @@ namespace Powder
 		Tokenizer tokenizer;
 		tokenizer.Tokenize(programCode, tokenList);
 
-		ProgramConstruct* programConstruct = new ProgramConstruct();
-		if (!programConstruct->Parse(tokenList))
-			throw new CompileTimeException("Failed to parse program at root level as program construct.", 0);
+		Parser parser;
+		Parser::SyntaxNode* syntaxNode = parser.Parse(tokenList);
+
+		if (syntaxNode)
+			syntaxNode->Print(std::cout);
+		else
+			std::cout << "No syntax tree!" << std::endl;
 
 		LinkedList<Instruction*> instructionList;
-		programConstruct->GenerateInstructionSequence(instructionList);
+		
+		// TODO: Generate instruction list as a function of the syntax tree.
 
-		delete programConstruct;
+		delete syntaxNode;
 
 		Assembler assembler;
 		programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);

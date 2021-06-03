@@ -90,6 +90,7 @@ namespace Powder
 					throw new CompileTimeException("Encountered run-away string.", lineNumber);
 				token.text += programCodeBuffer[i++];
 			}
+			i++;
 		}
 		else
 		{

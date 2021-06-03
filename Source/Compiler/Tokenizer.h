@@ -27,14 +27,6 @@ namespace Powder
 			this->lineNumber = -1;
 		}
 
-		void AdjustLevel(uint32_t& level)
-		{
-			if (this->type == OPENER)
-				level++;
-			else if (this->type == CLOSER)
-				level--;
-		}
-
 		std::string text;
 		Type type;
 		uint16_t lineNumber;
