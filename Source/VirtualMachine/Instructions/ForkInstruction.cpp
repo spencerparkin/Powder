@@ -22,7 +22,11 @@ namespace Powder
 	{
 		uint64_t forkedProgramBufferLocation = 0;
 		::memcpy(&forkedProgramBufferLocation, &programBuffer[programBufferSize + 1], sizeof(uint64_t));
+
+		// TODO: What is the point of this if there is no scope shared by executors?
+		//       And also, don't we need to clone the given executor, then change the clone's program location, rather than create a new one?
 		virtualMachine->CreateExecutorAtLocation(forkedProgramBufferLocation);
+
 		programBufferLocation += sizeof(uint8_t) + sizeof(uint64_t);
 		return Executor::Result::CONTINUE;
 	}
