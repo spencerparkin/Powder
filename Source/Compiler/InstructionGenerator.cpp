@@ -248,6 +248,7 @@ namespace Powder
 			// going to check that, because there's no obvious way I can think of at the moment without
 			// introducing more fluff back into the AST.  Much of the fluff was removed before we were handed the AST.
 			// Of course, identifiers can appear in other contexts, such as a function call for function definition.
+			// Note that we also generate this code in the context of a system call, which is looking for values on the eval stack.
 			const Parser::SyntaxNode* identifierNode = syntaxNode->childList.GetHead()->value;
 			LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>();
 			AssemblyData::Entry entry;
@@ -271,6 +272,25 @@ namespace Powder
 			SysCallInstruction::SysCall sysCall = SysCallInstruction::TranslateAsSysCall(funcName);
 			if (sysCall != SysCallInstruction::SysCall::UNKNOWN)
 			{
+				if (argListNode)
+				{
+					for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
+					{
+						const Parser::SyntaxNode* argNode = node->value;
+						if (*argNode->name != "argument")
+							throw new CompileTimeException("Expected \"argument-list\" in AST to have only \"argument\" children.", &argNode->fileLocation);
+
+						if (!argNode->childList.GetCount() == 1)
+							throw new CompileTimeException("Expected \"argument\" in AST to have exactly one child.", &argNode->fileLocation);
+
+						// We need to check that the code we're about to run will just push a value onto the eval stack, which is where sys-calls take their arguments from.
+						if (*argNode->childList.GetHead()->value->name != "expression" && *argNode->childList.GetHead()->value->name != "function-call")
+							throw new CompileTimeException("Expected \"argument\" of system call to be an \"expression\" or \"function-call\".", &argNode->fileLocation);
+
+						this->GenerateInstructionList(instructionList, argNode->childList.GetHead()->value);
+					}
+				}
+
 				SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
 				AssemblyData::Entry entry;
 				entry.code = sysCall;
