@@ -288,6 +288,17 @@ namespace Powder
 							throw new CompileTimeException("Expected \"argument\" of system call to be an \"expression\" or \"function-call\".", &argNode->fileLocation);
 
 						this->GenerateInstructionList(instructionList, argNode->childList.GetHead()->value);
+
+						// The code generated for a function call does not by default load its return value onto the eval stack, because it's not always used.
+						// TODO: Have the code genreated for a function call look at itself in context, and then load the return value onto the eval stack if necessary.
+						if (*argNode->childList.GetHead()->value->name != "function-call")
+						{
+							LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>();
+							AssemblyData::Entry entry;
+							entry.string = "__return_value__";
+							loadInstruction->assemblyData->configMap.Insert("name", entry);
+							instructionList.AddTail(loadInstruction);
+						}
 					}
 				}
 
