@@ -3,6 +3,7 @@
 #include "Scope.h"
 #include "Value.h"
 #include "Exceptions.hpp"
+#include "Executor.h"
 
 namespace Powder
 {
@@ -19,7 +20,7 @@ namespace Powder
 		return 0x04;
 	}
 
-	/*virtual*/ Executor::Result LoadInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t LoadInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		std::string name = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 1);
 		executor->GetCurrentScope()->LoadAndPushValueOntoEvaluationStackTop(name.c_str());

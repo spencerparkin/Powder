@@ -3,6 +3,7 @@
 #include "AddressValue.h"
 #include "Assembler.h"
 #include "Exceptions.hpp"
+#include "Executor.h"
 
 namespace Powder
 {
@@ -19,7 +20,7 @@ namespace Powder
 		return 0x03;
 	}
 
-	/*virtual*/ Executor::Result JumpInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t JumpInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		Type type = Type(programBuffer[programBufferLocation + 1]);
 		switch (type)

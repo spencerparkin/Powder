@@ -4,6 +4,7 @@
 #include "Value.h"
 #include "VariableValue.h"
 #include "Exceptions.hpp"
+#include "Executor.h"
 
 namespace Powder
 {
@@ -20,7 +21,7 @@ namespace Powder
 		return 0x05;
 	}
 
-	/*virtual*/ Executor::Result MathInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t MathInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		Value* rightValue = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
 		Value* leftValue = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();

@@ -43,9 +43,9 @@ namespace Powder
 		delete this->executorList;
 	}
 
-	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation)
+	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Executor* forkOrigin /*= nullptr*/)
 	{
-		Executor* executor = new Executor(programBufferLocation);
+		Executor* executor = new Executor(programBufferLocation, forkOrigin);
 		this->executorList->AddTail(executor);
 	}
 

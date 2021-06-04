@@ -8,6 +8,7 @@
 #include "VariableValue.h"
 #include "AddressValue.h"
 #include "Exceptions.hpp"
+#include "Executor.h"
 
 namespace Powder
 {
@@ -24,7 +25,7 @@ namespace Powder
 		return 0x07;
 	}
 
-	/*virtual*/ Executor::Result PushInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t PushInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		uint8_t pushType = programBuffer[programBufferLocation + 1];
 		switch (pushType)

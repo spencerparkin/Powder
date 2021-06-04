@@ -2,6 +2,7 @@
 #include "Executor.h"
 #include "Scope.h"
 #include "Value.h"
+#include "Executor.h"
 
 namespace Powder
 {
@@ -18,7 +19,7 @@ namespace Powder
 		return 0x06;
 	}
 
-	/*virtual*/ Executor::Result PopInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t PopInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		// I'm not sure where, if anywhere, this instruction is actually useful, but
 		// I feel compelled to provide it, because it is the symmetric opposite to the

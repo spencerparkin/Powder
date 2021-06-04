@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Executor.h"
+#include "Defines.h"
+#include <cstdint>
 #include <string>
 
 namespace Powder
 {
 	class VirtualMachine;
+	class Executor;
 	struct AssemblyData;
 
 	// Derivatives of this class are responsible for both the decoding
@@ -22,7 +24,7 @@ namespace Powder
 		// Note that for faster execution, implimentations of this virtual
 		// method need not bounds-check their access to the given program
 		// buffer.  An out-of-bounds error here means there is a bug in the compiler.
-		virtual Executor::Result Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) = 0;
+		virtual uint32_t Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) = 0;
 
 		enum AssemblyPass
 		{

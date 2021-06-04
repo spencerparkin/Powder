@@ -1,4 +1,5 @@
 #include "YieldInstruction.h"
+#include "Executor.h"
 
 namespace Powder
 {
@@ -15,7 +16,7 @@ namespace Powder
 		return 0x0B;
 	}
 
-	/*virtual*/ Executor::Result YieldInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t YieldInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		programBufferLocation++;
 		return Executor::Result::YIELD;

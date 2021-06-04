@@ -4,9 +4,8 @@
 
 namespace Powder
 {
-	Scope::Scope(Scope* containingScope)
+	Scope::Scope() : containingScope(this)
 	{
-		this->containingScope = containingScope;
 		this->evaluationStack = new std::vector<GCReference<Value>>();
 	}
 
@@ -14,6 +13,16 @@ namespace Powder
 	{
 		this->valueMap.Clear();
 		delete this->evaluationStack;
+	}
+
+	Scope* Scope::GetContainingScope()
+	{
+		return this->containingScope.Get();
+	}
+
+	void Scope::SetContainingScope(Scope* containingScope)
+	{
+		this->containingScope.Set(containingScope);
 	}
 
 	Value* Scope::LookupValue(const char* identifier, bool canPropagateSearch)

@@ -63,6 +63,7 @@
     <ClInclude Include="Source\GarbageCollector\GarbageCollector.h" />
     <ClInclude Include="Source\GarbageCollector\GCCollectable.h" />
     <ClInclude Include="Source\GarbageCollector\GCObject.h" />
+    <ClInclude Include="Source\GarbageCollector\GCSteward.hpp" />
     <ClInclude Include="Source\GarbageCollector\GCReference.hpp" />
     <ClInclude Include="Source\Utilities\HashMap.hpp" />
     <ClInclude Include="Source\Utilities\LinkedList.hpp" />

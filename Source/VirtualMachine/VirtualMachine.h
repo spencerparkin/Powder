@@ -25,7 +25,7 @@ namespace Powder
 
 		virtual void Execute(uint8_t* programBuffer, uint64_t programBufferSize);
 
-		void CreateExecutorAtLocation(uint64_t programBufferLocation);
+		void CreateExecutorAtLocation(uint64_t programBufferLocation, Executor* forkOrigin = nullptr);
 
 		Instruction* LookupInstruction(uint8_t programOpCode);
 

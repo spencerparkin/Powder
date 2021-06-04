@@ -3,6 +3,7 @@
 #include "Scope.h"
 #include "Value.h"
 #include "Exceptions.hpp"
+#include "Executor.h"
 
 namespace Powder
 {
@@ -19,7 +20,7 @@ namespace Powder
 		return 0x01;
 	}
 
-	/*virtual*/ Executor::Result BranchInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t BranchInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
 		if (value->AsBoolean())

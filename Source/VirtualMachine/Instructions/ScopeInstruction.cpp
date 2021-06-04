@@ -1,6 +1,7 @@
 #include "ScopeInstruction.h"
 #include "Assembler.h"
 #include "Exceptions.hpp"
+#include "Executor.h"
 
 namespace Powder
 {
@@ -17,7 +18,7 @@ namespace Powder
 		return 0x08;
 	}
 
-	/*virtual*/ Executor::Result ScopeInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t ScopeInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		uint8_t scopeOp = programBuffer[programBufferLocation + 1];
 		switch (scopeOp)

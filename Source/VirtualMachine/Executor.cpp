@@ -9,33 +9,35 @@
 
 namespace Powder
 {
-	Executor::Executor(uint64_t programBufferLocation)
+	Executor::Executor(uint64_t programBufferLocation, Executor* forkOrigin)
 	{
+		if (forkOrigin)
+			this->currentScope = forkOrigin->currentScope;
+		else
+			this->currentScope = new Scope();
+
 		this->programBufferLocation = programBufferLocation;
-		this->currentScope = nullptr;
 	}
 
 	/*virtual*/ Executor::~Executor()
 	{
-		while (this->PopScope())
-		{
-		}
 	}
 
 	bool Executor::PushScope()
 	{
-		Scope* newScope = new Scope(this->currentScope);
+		Scope* newScope = new Scope();
+		newScope->SetContainingScope(this->currentScope);
 		this->currentScope = newScope;
 		return true;
 	}
 
 	bool Executor::PopScope()
 	{
-		if (!this->currentScope)
+		if (!this->currentScope->GetContainingScope())
 			return false;
 
 		Scope* containingScope = this->currentScope->GetContainingScope();
-		delete this->currentScope;
+		this->currentScope->SetContainingScope(nullptr);
 		this->currentScope = containingScope;
 		return true;
 	}
@@ -49,7 +51,7 @@ namespace Powder
 			if (!instruction)
 				throw new RunTimeException(FormatString("Encountered unknown opcode 0x%04x", opCode));
 
-			Executor::Result result = instruction->Execute(programBuffer, programBufferSize, this->programBufferLocation, this, virtualMachine);
+			Executor::Result result = (Executor::Result)instruction->Execute(programBuffer, programBufferSize, this->programBufferLocation, this, virtualMachine);
 			if (result != Executor::Result::CONTINUE)
 				return result;
 

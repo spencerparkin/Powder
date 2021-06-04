@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Defines.h"
+#include "Value.h"
+#include "Scope.h"
+#include <GCReference.hpp>
 #include <cinttypes>
 
 namespace Powder
@@ -11,7 +14,7 @@ namespace Powder
 	class POWDER_API Executor
 	{
 	public:
-		Executor(uint64_t programBufferLocation);
+		Executor(uint64_t programBufferLocation, Executor* forkOrigin);
 		virtual ~Executor();
 
 		enum Result
@@ -26,11 +29,11 @@ namespace Powder
 		bool PushScope();
 		bool PopScope();
 
-		Scope* GetCurrentScope() { return this->currentScope; }
+		Scope* GetCurrentScope() { return this->currentScope.Ptr(); }
 
 	protected:
 
 		uint64_t programBufferLocation;
-		Scope* currentScope;
+		GCReference<Scope> currentScope;
 	};
 }

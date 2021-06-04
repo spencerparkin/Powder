@@ -234,6 +234,9 @@
     <ClInclude Include="Source\Compiler\InstructionGenerator.h">
       <Filter>Source\Compiler</Filter>
     </ClInclude>
+    <ClInclude Include="Source\GarbageCollector\GCSteward.hpp">
+      <Filter>Source\GarbageCollector</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />

@@ -2,6 +2,7 @@
 #include "VirtualMachine.h"
 #include "Assembler.h"
 #include "Exceptions.hpp"
+#include "Executor.h"
 
 namespace Powder
 {
@@ -18,15 +19,11 @@ namespace Powder
 		return 0x02;
 	}
 
-	/*virtual*/ Executor::Result ForkInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t ForkInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		uint64_t forkedProgramBufferLocation = 0;
 		::memcpy(&forkedProgramBufferLocation, &programBuffer[programBufferSize + 1], sizeof(uint64_t));
-
-		// TODO: What is the point of this if there is no scope shared by executors?
-		//       And also, don't we need to clone the given executor, then change the clone's program location, rather than create a new one?
 		virtualMachine->CreateExecutorAtLocation(forkedProgramBufferLocation);
-
 		programBufferLocation += sizeof(uint8_t) + sizeof(uint64_t);
 		return Executor::Result::CONTINUE;
 	}

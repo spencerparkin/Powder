@@ -7,6 +7,7 @@
 #include "StringValue.h"
 #include "UndefinedValue.h"
 #include "Exceptions.hpp"
+#include "Executor.h"
 #include <iostream>
 
 namespace Powder
@@ -24,7 +25,7 @@ namespace Powder
 		return 0x0A;
 	}
 
-	/*virtual*/ Executor::Result SysCallInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t SysCallInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		uint8_t sysCallCode = programBuffer[programBufferLocation + 1];
 		switch (sysCallCode)
