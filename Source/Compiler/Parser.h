@@ -23,9 +23,10 @@ namespace Powder
 			virtual ~SyntaxNode();
 
 			void Print(std::ostream& stream, uint32_t indentLevel = 0) const;
-			void FlattenWherePossible(void);
 			bool PerformReductions();
+			void PatchParentPointers();
 
+			SyntaxNode* parentNode;
 			LinkedList<SyntaxNode*> childList;
 			std::string* name;
 		};

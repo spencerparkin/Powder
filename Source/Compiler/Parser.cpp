@@ -54,10 +54,11 @@ namespace Powder
 		SyntaxNode* rootNode = this->TryGrammarRule("statement-list", range, parseError, 1);
 		if (rootNode)
 		{
-			rootNode->FlattenWherePossible();
 			while (rootNode->PerformReductions())
 			{
 			}
+
+			rootNode->PatchParentPointers();
 		}
 		else
 		{
@@ -378,6 +379,7 @@ namespace Powder
 
 	Parser::SyntaxNode::SyntaxNode(const char* name)
 	{
+		this->parentNode = nullptr;
 		this->name = new std::string;
 		*this->name = name;
 	}
@@ -398,12 +400,14 @@ namespace Powder
 			node->value->Print(stream, indentLevel + 1);
 	}
 
-	void Parser::SyntaxNode::FlattenWherePossible(void)
+	bool Parser::SyntaxNode::PerformReductions()
 	{
+		bool performedReduction = false;
+
 		if (*this->name == "statement-list" || *this->name == "argument-list" || *this->name == "identifier-list")
 		{
 			LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead();
-			while(node)
+			while (node)
 			{
 				LinkedList<SyntaxNode*>::Node* nextNode = node->GetNext();
 
@@ -417,19 +421,12 @@ namespace Powder
 
 					nextNode = node->GetNext();
 					this->childList.Remove(node);
+					performedReduction = true;
 				}
-				
+
 				node = nextNode;
 			}
 		}
-
-		for (LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
-			node->value->FlattenWherePossible();
-	}
-
-	bool Parser::SyntaxNode::PerformReductions()
-	{
-		bool performedReduction = false;
 
 		for (LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
 		{
@@ -480,6 +477,16 @@ namespace Powder
 				performedReduction = true;
 
 		return performedReduction;
+	}
+
+	void Parser::SyntaxNode::PatchParentPointers()
+	{
+		for (LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
+		{
+			SyntaxNode* childNode = node->value;
+			childNode->parentNode = this;
+			childNode->PatchParentPointers();
+		}
 	}
 
 	void Parser::ParseError::Detail(const Range& range, const char* nonTerminal, const std::string& reason, const rapidjson::Value& matchListValue, uint32_t matchCount, uint32_t depth)

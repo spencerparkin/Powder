@@ -147,6 +147,8 @@ namespace Powder
 			if (syntaxNode->childList.GetCount() != 1)
 				throw new CompileTimeException("Expected \"identifier\" in AST to have exactly one child.");
 
+			// TODO: Make sure that we're generating code in the context of an expression.  Look up the parent chain.
+
 			const Parser::SyntaxNode* identifierNode = syntaxNode->childList.GetHead()->value;
 			LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>();
 			AssemblyData::Entry entry;
