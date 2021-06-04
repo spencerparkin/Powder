@@ -17,8 +17,7 @@ namespace Powder
 			ADD,
 			SUBTRACT,
 			MULTIPLY,
-			DIVIDE,
-			ASSIGN
+			DIVIDE
 
 			// TODO: Add logic operations here too.
 		};

@@ -18,7 +18,6 @@ namespace Powder
 			NUMBER,
 			STRING,
 			EMPTY_LIST,
-			VARIABLE,
 			ADDRESS
 		};
 

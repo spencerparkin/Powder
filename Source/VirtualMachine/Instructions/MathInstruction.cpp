@@ -2,7 +2,6 @@
 #include "Assembler.h"
 #include "Scope.h"
 #include "Value.h"
-#include "VariableValue.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
 

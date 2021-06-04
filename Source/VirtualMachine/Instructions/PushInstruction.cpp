@@ -5,7 +5,6 @@
 #include "StringValue.h"
 #include "NumberValue.h"
 #include "ListValue.h"
-#include "VariableValue.h"
 #include "AddressValue.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
@@ -37,10 +36,9 @@ namespace Powder
 				break;
 			}
 			case DataType::STRING:
-			case DataType::VARIABLE:
 			{
 				std::string str = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 2);
-				Value* value = (pushType == DataType::STRING) ? (Value*)new StringValue(str) : (Value*)new VariableValue(str);
+				Value* value = new StringValue(str);
 				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(value);
 				programBufferLocation += 2 + str.length() + 1;
 				break;
@@ -91,7 +89,7 @@ namespace Powder
 		{
 			programBuffer[programBufferLocation + 1] = typeEntry->code;
 
-			if (typeEntry->code == DataType::STRING || typeEntry->code == DataType::VARIABLE)
+			if (typeEntry->code == DataType::STRING)
 			{
 				::memcpy_s(&programBuffer[programBufferLocation + 2], dataEntry->string.length(), dataEntry->string.c_str(), dataEntry->string.length());
 				programBuffer[programBufferLocation + 2 + dataEntry->string.length()] = '\0';
@@ -105,7 +103,7 @@ namespace Powder
 		programBufferLocation += 2L;
 		if (typeEntry->code == DataType::UNDEFINED || typeEntry->code == DataType::EMPTY_LIST)
 			programBufferLocation += 0L;
-		else if (typeEntry->code == DataType::STRING || typeEntry->code == DataType::VARIABLE)
+		else if (typeEntry->code == DataType::STRING)
 			programBufferLocation += uint64_t(dataEntry->string.length()) + 1L;
 		else if (typeEntry->code == DataType::NUMBER)
 			programBufferLocation += sizeof(double);
