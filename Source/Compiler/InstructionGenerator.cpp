@@ -7,6 +7,7 @@
 #include "PushInstruction.h"
 #include "PopInstruction.h"
 #include "MathInstruction.h"
+#include "SysCallInstruction.h"
 #include "Exceptions.hpp"
 
 namespace Powder
@@ -257,6 +258,29 @@ namespace Powder
 		else if (*syntaxNode->name == "list-literal")
 		{
 			// TODO: Here we need to generate the instructions that populate the list literal.
+		}
+		else if (*syntaxNode->name == "function-call")
+		{
+			const Parser::SyntaxNode* identifierNode = syntaxNode->FindChild("identifier", 1);
+			if (!identifierNode)
+				throw new CompileTimeException("Expected \"function-call\" in AST to have a child with name \"identifier\".", &syntaxNode->fileLocation);
+
+			const Parser::SyntaxNode* argListNode = syntaxNode->FindChild("argument-list", 1);
+
+			std::string funcName = *identifierNode->name;
+			SysCallInstruction::SysCall sysCall = SysCallInstruction::TranslateAsSysCall(funcName);
+			if (sysCall != SysCallInstruction::SysCall::UNKNOWN)
+			{
+				SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
+				AssemblyData::Entry entry;
+				entry.code = sysCall;
+				sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
+				instructionList.AddTail(sysCallInstruction);
+			}
+			else
+			{
+				// TODO: This is where we call a user-defined function.
+			}
 		}
 	}
 }

@@ -25,6 +25,20 @@ namespace Powder
 		return 0x0A;
 	}
 
+	/*static*/ SysCallInstruction::SysCall SysCallInstruction::TranslateAsSysCall(const std::string& funcName)
+	{
+		if (funcName == "exit")
+			return SysCall::EXIT;
+		else if (funcName == "gc")
+			return SysCall::GC;
+		else if (funcName == "input")
+			return SysCall::INPUT;
+		else if (funcName == "output")
+			return SysCall::OUTPUT;
+
+		return SysCall::UNKNOWN;
+	}
+
 	/*virtual*/ uint32_t SysCallInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		uint8_t sysCallCode = programBuffer[programBufferLocation + 1];

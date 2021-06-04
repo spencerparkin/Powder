@@ -29,8 +29,8 @@ namespace Powder
 		Parser::SyntaxNode* rootSyntaxNode = parser.Parse(tokenList);
 
 #if false
-		if (syntaxNode)
-			syntaxNode->Print(std::cout);
+		if (rootSyntaxNode)
+			rootSyntaxNode->Print(std::cout);
 		else
 			std::cout << "No syntax tree!" << std::endl;
 #endif

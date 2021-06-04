@@ -494,6 +494,42 @@ namespace Powder
 		}
 	}
 
+	const Parser::SyntaxNode* Parser::SyntaxNode::FindChild(const std::string& name, uint32_t maxRecurseDepth, uint32_t depth /*= 1*/) const
+	{
+		for (const LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
+		{
+			if (*node->value->name == name)
+				return node->value;
+
+			if (depth < maxRecurseDepth)
+			{
+				const SyntaxNode* foundNode = node->value->FindChild(name, maxRecurseDepth, depth + 1);
+				if (foundNode)
+					return foundNode;
+			}
+		}
+
+		return nullptr;
+	}
+
+	const Parser::SyntaxNode* Parser::SyntaxNode::FindParent(const std::string& name, uint32_t maxRecurseDepth, uint32_t depth /*= 1*/) const
+	{
+		if (!this->parentNode)
+			return nullptr;
+
+		if (*this->parentNode->name == name)
+			return this->parentNode;
+
+		if (depth < maxRecurseDepth)
+		{
+			const SyntaxNode* foundNode = this->parentNode->FindParent(name, maxRecurseDepth, depth + 1);
+			if (foundNode)
+				return foundNode;
+		}
+
+		return nullptr;
+	}
+
 	void Parser::ParseError::Detail(const Range& range, const char* nonTerminal, const std::string& reason, const rapidjson::Value& matchListValue, uint32_t matchCount, uint32_t depth)
 	{
 		// The idea here is that the most likely applicable parse error is based

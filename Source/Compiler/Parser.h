@@ -26,6 +26,9 @@ namespace Powder
 			bool PerformReductions();
 			void PatchParentPointers();
 
+			const SyntaxNode* FindChild(const std::string& name, uint32_t maxRecurseDepth, uint32_t depth = 1) const;
+			const SyntaxNode* FindParent(const std::string& name, uint32_t maxRecurseDepth, uint32_t depth = 1) const;
+
 			SyntaxNode* parentNode;
 			LinkedList<SyntaxNode*> childList;
 			std::string* name;
