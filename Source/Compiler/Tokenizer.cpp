@@ -16,27 +16,27 @@ namespace Powder
 	void Tokenizer::Tokenize(const char* programCodeBuffer, TokenList& tokenList)
 	{
 		uint64_t programCodeBufferLocation = 0;
-		uint16_t lineNumber = 1;
-		uint16_t columnNumber = 1;
+		FileLocation fileLocation;
+		fileLocation.lineNumber = 1;
+		fileLocation.columnNumber = 1;
 		while (programCodeBuffer[programCodeBufferLocation] != '\0')
 		{
-			Token token = this->GenerateToken(programCodeBuffer, programCodeBufferLocation, lineNumber, columnNumber);
+			Token token = this->GenerateToken(programCodeBuffer, programCodeBufferLocation, fileLocation);
 			if (token.type != Token::UNKNOWN)
 				tokenList.AddTail(token);
 		}
 	}
 
-	Token Tokenizer::GenerateToken(const char* programCodeBuffer, uint64_t& programCodeBufferLocation, uint16_t& lineNumber, uint16_t& columnNumber)
+	Token Tokenizer::GenerateToken(const char* programCodeBuffer, uint64_t& programCodeBufferLocation, FileLocation& fileLocation)
 	{
 		Token token;
-		token.lineNumber = lineNumber;
-		token.columnNumber = columnNumber;
+		token.fileLocation = fileLocation;
 		uint64_t i = programCodeBufferLocation;
 
 		if (programCodeBuffer[i] == '\n')
 		{
-			lineNumber++;
-			columnNumber = 1;
+			fileLocation.lineNumber++;
+			fileLocation.columnNumber = 1;
 			i++;
 		}
 		else if (programCodeBuffer[i] == '#')
@@ -44,7 +44,7 @@ namespace Powder
 			while (programCodeBuffer[i] != '\0' && programCodeBuffer[i] != '\n')
 			{
 				i++;
-				columnNumber++;
+				fileLocation.columnNumber++;
 			}
 		}
 		else if (::isspace(programCodeBuffer[i]))
@@ -52,7 +52,7 @@ namespace Powder
 			while (::isspace(programCodeBuffer[i]) && programCodeBuffer[i] != '\0' && programCodeBuffer[i] != '\n')
 			{
 				i++;
-				columnNumber++;
+				fileLocation.columnNumber++;
 			}
 		}
 		else if (::isalpha(programCodeBuffer[i]))
@@ -61,7 +61,7 @@ namespace Powder
 			while ((::isalpha(programCodeBuffer[i]) || ::isdigit(programCodeBuffer[i]) || programCodeBuffer[i] == '_') && programCodeBuffer[i] != '\0' && programCodeBuffer[i] != '\n')
 			{
 				token.text += programCodeBuffer[i++];
-				columnNumber++;
+				fileLocation.columnNumber++;
 			}
 		}
 		else if (::isdigit(programCodeBuffer[i]))
@@ -70,56 +70,56 @@ namespace Powder
 			while ((::isdigit(programCodeBuffer[i]) || programCodeBuffer[i] == '.') && programCodeBuffer[i] != '\0' && programCodeBuffer[i] != '\n')
 			{
 				token.text += programCodeBuffer[i++];
-				columnNumber++;
+				fileLocation.columnNumber++;
 			}
 		}
 		else if (this->IsAnyChar(programCodeBuffer[i], "=~!%*/-+<>"))
 		{
 			token.type = Token::OPERATOR;
 			token.text = programCodeBuffer[i++];
-			columnNumber++;
+			fileLocation.columnNumber++;
 			if (this->IsAnyChar(token.text.c_str()[0], "%*/-+<>") && programCodeBuffer[i] == '=')
 			{
 				token.text += programCodeBuffer[i++];
-				columnNumber++;
+				fileLocation.columnNumber++;
 			}
 		}
 		else if (this->IsAnyChar(programCodeBuffer[i], ",;"))
 		{
 			token.type = Token::DELIMETER;
 			token.text = programCodeBuffer[i++];
-			columnNumber++;
+			fileLocation.columnNumber++;
 		}
 		else if (this->IsAnyChar(programCodeBuffer[i], "{(["))
 		{
 			token.type = Token::OPENER;
 			token.text = programCodeBuffer[i++];
-			columnNumber++;
+			fileLocation.columnNumber++;
 		}
 		else if (this->IsAnyChar(programCodeBuffer[i], "})]"))
 		{
 			token.type = Token::CLOSER;
 			token.text = programCodeBuffer[i++];
-			columnNumber++;
+			fileLocation.columnNumber++;
 		}
 		else if (programCodeBuffer[i] == '"')
 		{
 			token.type = Token::STRING;
 			i++;
-			columnNumber++;
+			fileLocation.columnNumber++;
 			while (programCodeBuffer[i] != '"')
 			{
 				if (programCodeBuffer[i] == '\0' || programCodeBuffer[i] == '\n')
-					throw new CompileTimeException("Encountered run-away string.", lineNumber, columnNumber);
+					throw new CompileTimeException("Encountered run-away string.", &fileLocation);
 				token.text += programCodeBuffer[i++];
-				columnNumber++;
+				fileLocation.columnNumber++;
 			}
 			i++;
-			columnNumber++;
+			fileLocation.columnNumber++;
 		}
 		else
 		{
-			throw new CompileTimeException(FormatString("Unrecognized token \"%c\".", programCodeBuffer[i]), lineNumber, columnNumber);
+			throw new CompileTimeException(FormatString("Unrecognized token \"%c\".", programCodeBuffer[i]), &fileLocation);
 		}
 
 		programCodeBufferLocation = i;

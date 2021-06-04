@@ -3,7 +3,10 @@
 #include "BranchInstruction.h"
 #include "JumpInstruction.h"
 #include "LoadInstruction.h"
+#include "StoreInstruction.h"
 #include "PushInstruction.h"
+#include "PopInstruction.h"
+#include "MathInstruction.h"
 #include "Exceptions.hpp"
 
 namespace Powder
@@ -23,7 +26,7 @@ namespace Powder
 			for (const LinkedList<Parser::SyntaxNode*>::Node* node = syntaxNode->childList.GetHead(); node; node = node->GetNext())
 			{
 				if (*node->value->name != "statement")
-					throw new CompileTimeException("Expected \"statement\" under \"statement-list\" in AST");
+					throw new CompileTimeException("Expected \"statement\" under \"statement-list\" in AST", &node->value->fileLocation);
 
 				// We simply execute the code for each statement in order.
 				this->GenerateInstructionList(instructionList, node->value);
@@ -32,14 +35,14 @@ namespace Powder
 		else if (*syntaxNode->name == "statement")
 		{
 			if (syntaxNode->childList.GetCount() != 1)
-				throw new CompileTimeException("Expected \"statement\" in AST to have exactly one child.");
+				throw new CompileTimeException("Expected \"statement\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
 			this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->value);
 		}
 		else if (*syntaxNode->name == "if-statement")
 		{
 			if (syntaxNode->childList.GetCount() != 3 && syntaxNode->childList.GetCount() != 5)
-				throw new CompileTimeException("Expected \"if-statement\" in AST to have exactly 3 or 5 children.");
+				throw new CompileTimeException("Expected \"if-statement\" in AST to have exactly 3 or 5 children.", &syntaxNode->fileLocation);
 
 			AssemblyData::Entry entry;
 
@@ -85,25 +88,118 @@ namespace Powder
 		else if (*syntaxNode->name == "expression")
 		{
 			if (syntaxNode->childList.GetCount() != 1)
-				throw new CompileTimeException("Expected \"expression\" in AST to have exactly one child.");
+				throw new CompileTimeException("Expected \"expression\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
 			this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->value);
 		}
 		else if (*syntaxNode->name == "binary-expression")
 		{
-			//...
+			if(syntaxNode->childList.GetCount() != 3)
+				throw new CompileTimeException("Expected \"binary-expression\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
+
+			// We treat assignment as a special case here, because it is not supported by the math instruction.
+			// Rather, it is supported by the store instruction.  The math instruction only operates on concrete values.
+			// Yes, we could introduce variable values as another type of value floating around in the VM, and have the
+			// math instruction store variables when given an assignment operation to perform, or load concrete values
+			// when it encounters a variable value, but I think that starts to violate a clear separation of concerns,
+			// and furthermore, it makes one instruction (in this case, the math instruction), more complicated than it needs to be.
+			const Parser::SyntaxNode* operationNode = syntaxNode->childList.GetHead()->GetNext()->value;
+			if (*operationNode->name == "=")
+			{
+				const Parser::SyntaxNode* storeLocationNode = operationNode->childList.GetHead()->value;
+				if (*storeLocationNode->name != "identifier")
+					throw new CompileTimeException(FormatString("Expected left operand of \"binary-expression\" in AST to be an identifier (not \"%s\") when the operation is assignment.", storeLocationNode->name->c_str()), &storeLocationNode->fileLocation);
+
+				// Lay down the instructions that will generate the value to be stored on top of the evaluation stack.
+				this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+
+				// Now issue a store instruction.  Note that this also pops the value off the stack, which is
+				// symmetrically consistent with its counter-part, the load instruction.
+				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+				AssemblyData::Entry entry;
+				entry.string = *storeLocationNode->name;
+				storeInstruction->assemblyData->configMap.Insert("name", entry);
+				instructionList.AddTail(storeInstruction);
+
+				// TODO: We might try to handle the case: a = b = 1 here.  Maybe add a config byte to the store
+				//       instruction to tell it to not pop the value?  That would probably be the right way.
+				//       Here we would look up the AST parent line to see if we find another assignment, and
+				//       if we do, forgo the pop in the store.
+			}
+			else
+			{
+				// We first lay down the instruction that generate the left operand on top of the evaluation stack.
+				this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->value);
+
+				// Then we lay down the instructions that will generate the right operand on top of the evaluation stack.
+				this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+
+				// At this point, we should have our left and right operands as the two top values of the evaluation stack.
+				// So here we simply issue the appropriate math instruction to pop both those off, combine them, and then push the result.
+				AssemblyData::Entry entry;
+				if (*operationNode->name == "+")
+					entry.code = MathInstruction::MathOp::ADD;
+				else if (*operationNode->name == "-")
+					entry.code = MathInstruction::MathOp::SUBTRACT;
+				else if (*operationNode->name == "*")
+					entry.code = MathInstruction::MathOp::MULTIPLY;
+				else if (*operationNode->name == "/")
+					entry.code = MathInstruction::MathOp::DIVIDE;
+				else
+					throw new CompileTimeException(FormatString("Failed to recognize math operation \"%s\" for \"binary-expression\" in AST.", operationNode->name->c_str()), &operationNode->fileLocation);
+
+				MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+				mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
+				instructionList.AddTail(mathInstruction);
+			}
 		}
 		else if (*syntaxNode->name == "unary-expression")
 		{
-			//...
+			if (syntaxNode->childList.GetCount() != 2)
+				throw new CompileTimeException("Expected \"unary-expression\" in AST to have exactly 1 child.", &syntaxNode->fileLocation);
+
+			this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->value);
+		}
+		else if (*syntaxNode->name == "left-unary-expression" || *syntaxNode->name == "right-unary-expression")
+		{
+			const Parser::SyntaxNode* operationNode = nullptr;
+			const Parser::SyntaxNode* operandNode = nullptr;
+
+			if (*syntaxNode->name == "left-unary-expression")
+			{
+				operationNode = syntaxNode->childList.GetHead()->value;
+				operandNode = syntaxNode->childList.GetHead()->GetNext()->value;
+			}
+			else if (*syntaxNode->name == "right-unary-expression")
+			{
+				operationNode = syntaxNode->childList.GetHead()->GetNext()->value;
+				operandNode = syntaxNode->childList.GetHead()->value;
+			}
+
+			AssemblyData::Entry entry;
+			if (*operationNode->name == "-")
+				entry.code = MathInstruction::MathOp::NEGATE;
+			else if (*operationNode->name == "!" && *syntaxNode->name == "left-unary-expression")
+				entry.code = MathInstruction::MathOp::NOT;
+			else if (*operationNode->name == "!" && *syntaxNode->name == "right-unary-expression")
+				entry.code = MathInstruction::MathOp::FACTORIAL;
+			else
+				throw new CompileTimeException(FormatString("Failed to recognize math operation \"%s\" for \"unary-expression\" in AST.", operationNode->name->c_str()), &operationNode->fileLocation);
+
+			this->GenerateInstructionList(instructionList, operandNode);
+
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
+			instructionList.AddTail(mathInstruction);
+
 		}
 		else if (*syntaxNode->name == "literal")
 		{
 			if (syntaxNode->childList.GetCount() != 1)
-				throw new CompileTimeException("Expected \"literal\" in AST to have exactly one child.");
+				throw new CompileTimeException("Expected \"literal\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
 			if (syntaxNode->childList.GetHead()->value->childList.GetCount() != 1)
-				throw new CompileTimeException("Expected \"literal\" in AST to have exactly one grandchild.");
+				throw new CompileTimeException("Expected \"literal\" in AST to have exactly one grandchild.", &syntaxNode->fileLocation);
 
 			PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
 			instructionList.AddTail(pushInstruction);
@@ -130,7 +226,7 @@ namespace Powder
 			}
 			else
 			{
-				throw new CompileTimeException(FormatString("Did not recognize \"%s\" data-type under \"literal\" in AST.", literalTypeNode->name->c_str()));
+				throw new CompileTimeException(FormatString("Did not recognize \"%s\" data-type under \"literal\" in AST.", literalTypeNode->name->c_str()), &literalTypeNode->fileLocation);
 			}
 
 			pushInstruction->assemblyData->configMap.Insert("type", typeEntry);
@@ -145,10 +241,12 @@ namespace Powder
 		else if (*syntaxNode->name == "identifier")
 		{
 			if (syntaxNode->childList.GetCount() != 1)
-				throw new CompileTimeException("Expected \"identifier\" in AST to have exactly one child.");
+				throw new CompileTimeException("Expected \"identifier\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
-			// TODO: Make sure that we're generating code in the context of an expression.  Look up the parent chain.
-
+			// Note that we assume we're generating code here in the context of an expression, but we're not
+			// going to check that, because there's no obvious way I can think of at the moment without
+			// introducing more fluff back into the AST.  Much of the fluff was removed before we were handed the AST.
+			// Of course, identifiers can appear in other contexts, such as a function call for function definition.
 			const Parser::SyntaxNode* identifierNode = syntaxNode->childList.GetHead()->value;
 			LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>();
 			AssemblyData::Entry entry;
@@ -158,7 +256,7 @@ namespace Powder
 		}
 		else if (*syntaxNode->name == "list-literal")
 		{
-			//...
+			// TODO: Here we need to generate the instructions that populate the list literal.
 		}
 	}
 }

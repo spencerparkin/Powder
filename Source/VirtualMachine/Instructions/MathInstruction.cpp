@@ -22,19 +22,28 @@ namespace Powder
 
 	/*virtual*/ uint32_t MathInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
-		Value* rightValue = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
-		Value* leftValue = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+		Value* result = nullptr;
 
-		MathOp mathOp = MathOp(programBuffer[programBufferLocation + 1]);
+		uint8_t mathOp = programBuffer[programBufferLocation + 1];
+		bool unary = (mathOp & 0x800) != 0;
+		mathOp &= ~0x800;
+		if (unary)
+		{
+			Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+			result = value->CombineWith(nullptr, (MathOp)mathOp, executor);
+		}
+		else
+		{
+			Value* rightValue = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+			Value* leftValue = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+			result = leftValue->CombineWith(rightValue, (MathOp)mathOp, executor);
+		}
 
-		Value* result = leftValue->CombineWith(rightValue, mathOp, executor);
 		if (!result)
-			throw new RunTimeException(FormatString("Failed to combine operands in operation: 0x%04x", uint8_t(mathOp)));
+			throw new RunTimeException(FormatString("Failed to combine operands in operation: 0x%04x", mathOp));
 
 		executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(result);
-
 		programBufferLocation += 2;
-
 		return Executor::Result::CONTINUE;
 	}
 
@@ -46,7 +55,19 @@ namespace Powder
 			if (!mathOpEntry)
 				throw new CompileTimeException("Can't assemble math instruction if not given math operation code.");
 
-			programBuffer[programBufferLocation + 1] = mathOpEntry->code;
+			uint8_t mathOp = mathOpEntry->code;
+			switch (mathOp)
+			{
+				case MathOp::NEGATE:
+				case MathOp::FACTORIAL:
+				case MathOp::NOT:
+				{
+					mathOp |= 0x800;
+					break;
+				}
+			}
+
+			programBuffer[programBufferLocation + 1] = mathOp;
 		}
 
 		programBufferLocation += 2L;

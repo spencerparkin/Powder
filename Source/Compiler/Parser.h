@@ -19,7 +19,7 @@ namespace Powder
 		class SyntaxNode
 		{
 		public:
-			SyntaxNode(const char* name);
+			SyntaxNode(const char* name, const FileLocation& fileLocation);
 			virtual ~SyntaxNode();
 
 			void Print(std::ostream& stream, uint32_t indentLevel = 0) const;
@@ -29,6 +29,7 @@ namespace Powder
 			SyntaxNode* parentNode;
 			LinkedList<SyntaxNode*> childList;
 			std::string* name;
+			FileLocation fileLocation;
 		};
 
 		SyntaxNode* Parse(const TokenList& tokenList);

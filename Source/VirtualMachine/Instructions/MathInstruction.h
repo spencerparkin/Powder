@@ -14,12 +14,23 @@ namespace Powder
 
 		enum MathOp
 		{
+			// Binary arithmetic operations:
 			ADD,
 			SUBTRACT,
 			MULTIPLY,
-			DIVIDE
+			DIVIDE,
 
-			// TODO: Add logic operations here too.
+			// Unary arithmetic operations:
+			NEGATE,
+			FACTORIAL,
+
+			// Binary logic operations:
+			AND,
+			OR,
+			XOR,
+
+			// Unary logic operations:
+			NOT
 		};
 
 		virtual uint32_t Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;

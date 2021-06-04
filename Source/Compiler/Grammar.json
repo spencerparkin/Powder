@@ -78,10 +78,16 @@
     [ "operand", "/", "operand" ]
   ],
   "unary-expression": [
+    [ "left-unary-expression" ],
+    [ "right-unary-expression" ]
+  ],
+  "left-unary-expression": [
     [ "-", "operand" ],
     [ "~", "operand" ],
-    [ "operand", "!" ],
     [ "!", "operand" ]
+  ],
+  "right-unary-expression": [
+    [ "operand", "!" ]
   ],
   "look-up-expression": [
     [ "identifier", "[", "expression", "]"]

@@ -218,10 +218,11 @@ namespace Powder
 		}
 
 		// Lastly, recursively descend on all the non-terminals.
-		SyntaxNode* parentNode = new SyntaxNode(nonTerminal);
+		SyntaxNode* parentNode = new SyntaxNode(nonTerminal, range.firstNode->value.fileLocation);
 		for (int i = 0; i < (signed)subsequenceArray.size(); i++)
 		{
 			Subsequence& subsequence = subsequenceArray[i];
+			FileLocation fileLocation = subsequence.range.firstNode->value.fileLocation;
 			if (this->IsNonTerminal(subsequence.name.c_str()))
 			{
 				SyntaxNode* childNode = this->TryGrammarRule(subsequence.name.c_str(), subsequence.range, parseError, depth + 1);
@@ -237,12 +238,15 @@ namespace Powder
 			}
 			else
 			{
-				SyntaxNode* childNode = new SyntaxNode(subsequence.name.c_str());
+				SyntaxNode* childNode = new SyntaxNode(subsequence.name.c_str(), fileLocation);
 				parentNode->childList.AddTail(childNode);
 
 				// Terminals should always take up just one node in the token list.
 				if (subsequence.name == "identifier" || subsequence.name == "string-literal" || subsequence.name == "number-literal")
-					childNode->childList.AddTail(new SyntaxNode(subsequence.range.firstNode->value.text.c_str()));
+				{
+					SyntaxNode* grandChildNode = new SyntaxNode(subsequence.range.firstNode->value.text.c_str(), fileLocation);
+					childNode->childList.AddTail(grandChildNode);
+				}
 			}
 		}
 
@@ -377,11 +381,12 @@ namespace Powder
 		return rangeStr;
 	}
 
-	Parser::SyntaxNode::SyntaxNode(const char* name)
+	Parser::SyntaxNode::SyntaxNode(const char* name, const FileLocation& fileLocation)
 	{
 		this->parentNode = nullptr;
 		this->name = new std::string;
 		*this->name = name;
+		this->fileLocation = fileLocation;
 	}
 
 	/*virtual*/ Parser::SyntaxNode::~SyntaxNode()
@@ -520,7 +525,7 @@ namespace Powder
 		errorMsg += "Grammar Rule: " + this->grammarRule + "\n";
 		errorMsg += "Expansion Rule: " + this->expansionRule + "\n";
 		errorMsg += "Reason: " + this->reason + "\n";
-		throw new CompileTimeException(errorMsg, this->range.firstNode->value.lineNumber, this->range.firstNode->value.columnNumber);
+		throw new CompileTimeException(errorMsg, &this->range.firstNode->value.fileLocation);
 	}
 
 	void Parser::ParseError::Reset()
