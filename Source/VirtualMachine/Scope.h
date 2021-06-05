@@ -26,19 +26,11 @@ namespace Powder
 		Scope* GetContainingScope();
 		void SetContainingScope(Scope* containingScope);
 
-		void LoadAndPushValueOntoEvaluationStackTop(const char* identifier);
-		void StoreAndPopValueFromEvaluationStackTop(const char* identifier);
-
-		void PushValueOntoEvaluationStackTop(Value* value);
-		Value* PopValueFromEvaluationStackTop();
-
 	private:
 
 		GCSteward<Scope> containingScope;
 
 		typedef HashMap<GCReference<Value>> ValueMap;
 		ValueMap valueMap;
-
-		std::vector<GCReference<Value>>* evaluationStack;
 	};
 }

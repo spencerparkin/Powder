@@ -17,10 +17,12 @@ namespace Powder
 			this->currentScope = new Scope();
 
 		this->programBufferLocation = programBufferLocation;
+		this->evaluationStack = new std::vector<GCReference<Value>>();
 	}
 
 	/*virtual*/ Executor::~Executor()
 	{
+		delete this->evaluationStack;
 	}
 
 	bool Executor::PushScope()
@@ -59,5 +61,35 @@ namespace Powder
 		}
 
 		return Result::HALT;
+	}
+
+	void Executor::LoadAndPushValueOntoEvaluationStackTop(const char* identifier)
+	{
+		Value* value = this->currentScope->LookupValue(identifier, false);
+		if (!value)
+			throw new RunTimeException(FormatString("Failed to lookup identifier: %s", identifier));
+
+		return this->PushValueOntoEvaluationStackTop(value);
+	}
+
+	void Executor::StoreAndPopValueFromEvaluationStackTop(const char* identifier)
+	{
+		Value* value = this->PopValueFromEvaluationStackTop();
+		this->currentScope->StoreValue(identifier, value);
+	}
+
+	void Executor::PushValueOntoEvaluationStackTop(Value* value)
+	{
+		this->evaluationStack->push_back(value);
+	}
+
+	Value* Executor::PopValueFromEvaluationStackTop()
+	{
+		Value* value = nullptr;
+		if (this->evaluationStack->size() == 0)
+			throw new RunTimeException("Evaluation stack underflow!");
+		value = (*this->evaluationStack)[this->evaluationStack->size() - 1];
+		this->evaluationStack->pop_back();
+		return value;
 	}
 }

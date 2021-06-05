@@ -31,7 +31,7 @@ namespace Powder
 		{
 			case DataType::UNDEFINED:
 			{
-				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				programBufferLocation += 2;
 				break;
 			}
@@ -39,7 +39,7 @@ namespace Powder
 			{
 				std::string str = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 2);
 				Value* value = new StringValue(str);
-				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(value);
+				executor->PushValueOntoEvaluationStackTop(value);
 				programBufferLocation += 2 + str.length() + 1;
 				break;
 			}
@@ -47,13 +47,13 @@ namespace Powder
 			{
 				double number = 0.0f;
 				::memcpy_s(&number, sizeof(double), &programBuffer[programBufferLocation + 2], sizeof(double));
-				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(new NumberValue(number));
+				executor->PushValueOntoEvaluationStackTop(new NumberValue(number));
 				programBufferLocation += 2 + sizeof(double);
 				break;
 			}
 			case DataType::EMPTY_LIST:
 			{
-				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(new ListValue());
+				executor->PushValueOntoEvaluationStackTop(new ListValue());
 				programBufferLocation += 2;
 				break;
 			}
@@ -61,7 +61,7 @@ namespace Powder
 			{
 				uint64_t programBufferAddress = 0L;
 				::memcpy_s(&programBufferAddress, sizeof(uint64_t), &programBuffer[programBufferLocation + 2], sizeof(uint64_t));
-				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(new AddressValue(programBufferAddress));
+				executor->PushValueOntoEvaluationStackTop(new AddressValue(programBufferAddress));
 				programBufferLocation += 2 + sizeof(uint64_t);
 				break;
 			}

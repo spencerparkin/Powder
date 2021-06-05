@@ -32,7 +32,7 @@ namespace Powder
 			}
 			case Type::JUMP_TO_LOADED_ADDRESS:
 			{
-				Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+				Value* value = executor->PopValueFromEvaluationStackTop();
 				AddressValue* addressValue = dynamic_cast<AddressValue*>(value);
 				if (!addressValue)
 					throw new RunTimeException("Cannot jump to location indicated by anything other than an address value.");

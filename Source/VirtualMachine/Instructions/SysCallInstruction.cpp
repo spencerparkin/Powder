@@ -73,14 +73,14 @@ namespace Powder
 					}
 				}
 
-				executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(value);
+				executor->PushValueOntoEvaluationStackTop(value);
 
 				programBufferLocation += 2;
 				break;
 			}
 			case SysCall::OUTPUT:
 			{
-				Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::cout << value->ToString() << std::endl;
 				programBufferLocation += 2;
 				break;

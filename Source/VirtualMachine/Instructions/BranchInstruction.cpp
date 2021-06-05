@@ -22,7 +22,7 @@ namespace Powder
 
 	/*virtual*/ uint32_t BranchInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
-		Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+		Value* value = executor->PopValueFromEvaluationStackTop();
 		if (value->AsBoolean())
 			programBufferLocation += 1 + sizeof(uint64_t);
 		else

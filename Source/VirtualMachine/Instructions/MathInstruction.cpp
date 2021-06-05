@@ -29,20 +29,20 @@ namespace Powder
 		mathOp &= ~0x800;
 		if (unary)
 		{
-			Value* value = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+			Value* value = executor->PopValueFromEvaluationStackTop();
 			result = value->CombineWith(nullptr, (MathOp)mathOp, executor);
 		}
 		else
 		{
-			Value* rightValue = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
-			Value* leftValue = executor->GetCurrentScope()->PopValueFromEvaluationStackTop();
+			Value* rightValue = executor->PopValueFromEvaluationStackTop();
+			Value* leftValue = executor->PopValueFromEvaluationStackTop();
 			result = leftValue->CombineWith(rightValue, (MathOp)mathOp, executor);
 		}
 
 		if (!result)
 			throw new RunTimeException(FormatString("Failed to combine operands in operation: 0x%04x", mathOp));
 
-		executor->GetCurrentScope()->PushValueOntoEvaluationStackTop(result);
+		executor->PushValueOntoEvaluationStackTop(result);
 		programBufferLocation += 2;
 		return Executor::Result::CONTINUE;
 	}

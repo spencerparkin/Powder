@@ -23,7 +23,7 @@ namespace Powder
 	/*virtual*/ uint32_t StoreInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		std::string name = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 1);
-		executor->GetCurrentScope()->StoreAndPopValueFromEvaluationStackTop(name.c_str());
+		executor->StoreAndPopValueFromEvaluationStackTop(name.c_str());
 		programBufferLocation += 1 + name.length() + 1;
 		return Executor::Result::CONTINUE;
 	}
