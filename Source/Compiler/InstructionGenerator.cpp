@@ -10,6 +10,7 @@
 #include "SysCallInstruction.h"
 #include "ScopeInstruction.h"
 #include "Exceptions.hpp"
+#include "HashMap.hpp"
 
 namespace Powder
 {
@@ -19,9 +20,58 @@ namespace Powder
 
 	/*virtual*/ InstructionGenerator::~InstructionGenerator()
 	{
+		this->functionSignatureMap.DeleteAndClear();
 	}
 
-	void InstructionGenerator::GenerateInstructionList(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode)
+	void InstructionGenerator::GenerateInstructionList(LinkedList<Instruction*>& instructionList, HashMap<Instruction*>& functionMap, const Parser::SyntaxNode* rootSyntaxNode)
+	{
+		this->GatherAllFunctionSignatures(rootSyntaxNode);
+
+		this->GenerateInstructionListRecursively(instructionList, rootSyntaxNode);
+
+		if (this->functionDefinitionList.GetCount() > 0)
+		{
+			// Issue a halt instruction here so that we don't crash into the first subroutine of the program.
+			SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
+			AssemblyData::Entry entry;
+			entry.code = SysCallInstruction::SysCall::EXIT;
+			sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
+			instructionList.AddTail(sysCallInstruction);
+
+			for (LinkedList<const Parser::SyntaxNode*>::Node* node = this->functionDefinitionList.GetHead(); node; node = node->GetNext())
+			{
+				const Parser::SyntaxNode* functionDefNode = node->value;
+				const Parser::SyntaxNode* functionStatementListNode = functionDefNode->FindChild("statement-list", 2);
+				if (!functionStatementListNode)
+					throw new CompileTimeException("Expected \"function-definition\" to have \"statement-list\" in AST.", &functionDefNode->fileLocation);
+
+				const Parser::SyntaxNode* identifierNode = functionDefNode->FindChild("identifier", 1);
+				if (!identifierNode)
+					throw new CompileTimeException("Expected \"function-definition\" in AST to have \"identifier\" child.", &functionDefNode->fileLocation);
+
+				std::string funcName = *identifierNode->childList.GetHead()->value->name;
+
+				LinkedList<Instruction*> functionInstructionList;
+				this->GenerateInstructionListRecursively(functionInstructionList, node->value);
+
+				// Populate a map we'll use later to resolve function call jumps.
+				functionMap.Insert(funcName.c_str(), functionInstructionList.GetHead()->value);
+
+				// The end of the function might already have a return, but if it doesn't, this doesn't hurt.
+				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+				AssemblyData::Entry entry;
+				entry.code = PushInstruction::DataType::UNDEFINED;
+				pushInstruction->assemblyData->configMap.Insert("type", entry);
+				instructionList.AddTail(pushInstruction);
+				this->GenerateFunctionReturnInstructions(instructionList);
+
+				// Finally, lay down the instructions for the function.
+				instructionList.Append(functionInstructionList);
+			}
+		}
+	}
+
+	void InstructionGenerator::GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode)
 	{
 		if (*syntaxNode->name == "statement-list")
 		{
@@ -31,7 +81,7 @@ namespace Powder
 					throw new CompileTimeException("Expected \"statement\" under \"statement-list\" in AST", &node->value->fileLocation);
 
 				// We simply execute the code for each statement in order.
-				this->GenerateInstructionList(instructionList, node->value);
+				this->GenerateInstructionListRecursively(instructionList, node->value);
 			}
 		}
 		else if (*syntaxNode->name == "statement")
@@ -39,7 +89,7 @@ namespace Powder
 			if (syntaxNode->childList.GetCount() != 1)
 				throw new CompileTimeException("Expected \"statement\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
-			this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->value);
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
 		}
 		else if (*syntaxNode->name == "if-statement")
 		{
@@ -49,7 +99,7 @@ namespace Powder
 			AssemblyData::Entry entry;
 
 			// Execute conditional instructions.  What remains on the evaluation stack top gets consumed by the branch instruction.
-			this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
 			
 			// The branch instruction falls through if the condition passes, and jumps if the condition fails.
 			BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>();
@@ -57,7 +107,7 @@ namespace Powder
 			
 			// Lay down condition-pass instructions.
 			LinkedList<Instruction*> passInstructionList;
-			this->GenerateInstructionList(passInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+			this->GenerateInstructionListRecursively(passInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
 			instructionList.Append(passInstructionList);
 
 			// Else clause?
@@ -76,7 +126,7 @@ namespace Powder
 
 				// Okay, now lay down the condition-fail instructions.
 				LinkedList<Instruction*> failInstructionList;
-				this->GenerateInstructionList(failInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->GetNext()->value);
+				this->GenerateInstructionListRecursively(failInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->GetNext()->value);
 				instructionList.Append(failInstructionList);
 				entry.jumpDelta = failInstructionList.GetCount();
 				entry.string = "jump";
@@ -92,7 +142,7 @@ namespace Powder
 			if (syntaxNode->childList.GetCount() != 1)
 				throw new CompileTimeException("Expected \"expression\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
-			this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->value);
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
 		}
 		else if (*syntaxNode->name == "binary-expression")
 		{
@@ -113,7 +163,7 @@ namespace Powder
 					throw new CompileTimeException(FormatString("Expected left operand of \"binary-expression\" in AST to be an identifier (not \"%s\") when the operation is assignment.", storeLocationNode->name->c_str()), &storeLocationNode->fileLocation);
 
 				// Lay down the instructions that will generate the value to be stored on top of the evaluation stack.
-				this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+				this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
 
 				// Now issue a store instruction.  Note that this also pops the value off the stack, which is
 				// symmetrically consistent with its counter-part, the load instruction.
@@ -131,10 +181,10 @@ namespace Powder
 			else
 			{
 				// We first lay down the instruction that generate the left operand on top of the evaluation stack.
-				this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->value);
+				this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
 
 				// Then we lay down the instructions that will generate the right operand on top of the evaluation stack.
-				this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+				this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
 
 				// At this point, we should have our left and right operands as the two top values of the evaluation stack.
 				// So here we simply issue the appropriate math instruction to pop both those off, combine them, and then push the result.
@@ -160,7 +210,7 @@ namespace Powder
 			if (syntaxNode->childList.GetCount() != 2)
 				throw new CompileTimeException("Expected \"unary-expression\" in AST to have exactly 1 child.", &syntaxNode->fileLocation);
 
-			this->GenerateInstructionList(instructionList, syntaxNode->childList.GetHead()->value);
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
 		}
 		else if (*syntaxNode->name == "left-unary-expression" || *syntaxNode->name == "right-unary-expression")
 		{
@@ -188,7 +238,7 @@ namespace Powder
 			else
 				throw new CompileTimeException(FormatString("Failed to recognize math operation \"%s\" for \"unary-expression\" in AST.", operationNode->name->c_str()), &operationNode->fileLocation);
 
-			this->GenerateInstructionList(instructionList, operandNode);
+			this->GenerateInstructionListRecursively(instructionList, operandNode);
 
 			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
 			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
@@ -237,7 +287,7 @@ namespace Powder
 			if (*literalTypeNode->name == "list-literal")
 			{
 				// In this case, next come the instructions that populate the list.
-				this->GenerateInstructionList(instructionList, literalTypeNode);
+				this->GenerateInstructionListRecursively(instructionList, literalTypeNode);
 			}
 		}
 		else if (*syntaxNode->name == "identifier")
@@ -270,6 +320,8 @@ namespace Powder
 			std::string funcName = *identifierNode->name;
 			SysCallInstruction::SysCall sysCall = SysCallInstruction::TranslateAsSysCall(funcName);
 
+			const FunctionSignature* functionSignature = nullptr;
+
 			if (sysCall == SysCallInstruction::UNKNOWN)
 			{
 				ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>();
@@ -277,7 +329,13 @@ namespace Powder
 				entry.code = ScopeInstruction::ScopeOp::PUSH;
 				scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
 				instructionList.AddTail(scopeInstruction);
+
+				functionSignature = this->functionSignatureMap.Lookup(funcName.c_str());
+				if (!functionSignature)
+					throw new CompileTimeException(FormatString("Failed to look-up function signature for function \"%s\".", funcName.c_str()), &identifierNode->fileLocation);
 			}
+
+			uint32_t argCount = 0;
 
 			const Parser::SyntaxNode* argListNode = syntaxNode->FindChild("argument-list", 1);
 			if (argListNode)
@@ -294,23 +352,22 @@ namespace Powder
 					if (*argNode->childList.GetHead()->value->name != "expression" && *argNode->childList.GetHead()->value->name != "function-call")
 						throw new CompileTimeException("Expected \"argument\" of system call to be an \"expression\" or \"function-call\".", &argNode->fileLocation);
 
-					this->GenerateInstructionList(instructionList, argNode->childList.GetHead()->value);
+					this->GenerateInstructionListRecursively(instructionList, argNode->childList.GetHead()->value);
 
 					// System calls are passed their arguments on the eval stack, but user-defined functions are passed named arguments by scope stack.
-					if (sysCall == SysCallInstruction::UNKNOWN)
+					if (sysCall == SysCallInstruction::UNKNOWN && argCount < functionSignature->namedArgsArray.size())
 					{
-						const Parser::SyntaxNode* identifierNode = argNode->FindChild("identifier", 2);
-						if (!identifierNode)
-							throw new CompileTimeException("Expected \"argument\" to have \"identifier\" descendant in AST when calling user-defined functions.", &argNode->fileLocation);
-
 						StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
 						AssemblyData::Entry entry;
-						entry.string = *identifierNode->name;
+						entry.string = functionSignature->namedArgsArray[argCount++];
 						storeInstruction->assemblyData->configMap.Insert("name", entry);
 						instructionList.AddTail(storeInstruction);
 					}
 				}
 			}
+
+			if (functionSignature && functionSignature->namedArgsArray.size() != argCount)
+				throw new CompileTimeException(FormatString("Function \"%s\" takes %d arguments, but %d were given.", funcName.c_str(), functionSignature->namedArgsArray.size(), argCount), &syntaxNode->fileLocation);
 
 			if (sysCall != SysCallInstruction::SysCall::UNKNOWN)
 			{
@@ -339,12 +396,13 @@ namespace Powder
 				storeInstruction->assemblyData->configMap.Insert("name", entry);
 				instructionList.AddTail(storeInstruction);
 
-				// We will resolve the jump address in a sepparate pass, once we've become aware of all user-defined functions.
+				// We will resolve the jump address in a separate pass, once we've become aware of all user-defined functions.
 				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
 				entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 				jumpInstruction->assemblyData->configMap.Insert("type", entry);
 				entry.string = funcName;
 				jumpInstruction->assemblyData->configMap.Insert("jump-func", entry);
+				jumpInstruction->assemblyData->fileLocation = identifierNode->fileLocation;
 				instructionList.AddTail(jumpInstruction);
 
 				// We now look at the call in context to see if we need to leave the return result or clean it up.
@@ -358,7 +416,73 @@ namespace Powder
 		}
 		else if (*syntaxNode->name == "function-definition")
 		{
-			
+			// I may revisit the idea of functions and try to make a variety of them (lambdas?) that are first-class
+			// citizens of the language (i.e., a type of value that can float around the VM and be manipulated or calculated with, etc.)
+
+			// Note that there is no real reason to enforce that function definitions appear at the root level.  We could allow them
+			// to be defined anywhere, oddly.  But that's just it.  I don't want to create a false expectation that it matters where
+			// a function definition is defined when in reality, it doesn't matter.  So just require them to always be at the root level.
+			if (syntaxNode->parentNode->parentNode->parentNode != nullptr)
+				throw new CompileTimeException("Function definitions cannot appear anywhere but at the root level of a source file.", &syntaxNode->fileLocation);
+
+			// For now we just collect the function definitions, because we want them to
+			// appear at the end of the executable.  Otherwise, if we just layed them down
+			// wherever they were, we'd have to jump over them.
+			this->functionDefinitionList.AddTail(syntaxNode);
 		}
+		else if (*syntaxNode->name == "return-statement")
+		{
+			if (syntaxNode->childList.GetCount() == 2 && *syntaxNode->childList.GetHead()->GetNext()->value->name == "expression")
+				this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+			else
+			{
+				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+				AssemblyData::Entry entry;
+				entry.code = PushInstruction::DataType::UNDEFINED;
+				pushInstruction->assemblyData->configMap.Insert("type", entry);
+				instructionList.AddTail(pushInstruction);
+			}
+
+			this->GenerateFunctionReturnInstructions(instructionList);
+		}
+	}
+
+	void InstructionGenerator::GenerateFunctionReturnInstructions(LinkedList<Instruction*>& instructionList)
+	{
+		LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>();
+		AssemblyData::Entry entry;
+		entry.string = "__return_address__";
+		loadInstruction->assemblyData->configMap.Insert("name", entry);
+		instructionList.AddTail(loadInstruction);
+
+		JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+		entry.code = JumpInstruction::JUMP_TO_LOADED_ADDRESS;
+		jumpInstruction->assemblyData->configMap.Insert("type", entry);
+		instructionList.AddTail(jumpInstruction);
+	}
+
+	void InstructionGenerator::GatherAllFunctionSignatures(const Parser::SyntaxNode* syntaxNode)
+	{
+		if (*syntaxNode->name == "function-definition")
+		{
+			const Parser::SyntaxNode* identifierNode = syntaxNode->FindChild("identifier", 1);
+			if (!identifierNode)
+				throw new CompileTimeException("Expected \"function-definition\" in AST to have \"identifier\" child.", &syntaxNode->fileLocation);
+
+			std::string funcName = *identifierNode->childList.GetHead()->value->name;
+			FunctionSignature* functionSignature = new FunctionSignature();
+
+			const Parser::SyntaxNode* identifierListNode = syntaxNode->FindChild("identifier-list", 2);
+			if (identifierListNode)
+			{
+				for (const LinkedList<Parser::SyntaxNode*>::Node* node = identifierListNode->childList.GetHead(); node; node = node->GetNext())
+					functionSignature->namedArgsArray.push_back(*node->value->name);
+			}
+
+			this->functionSignatureMap.Insert(funcName.c_str(), functionSignature);
+		}
+
+		for (const LinkedList<Parser::SyntaxNode*>::Node* node = syntaxNode->childList.GetHead(); node; node = node->GetNext())
+			this->GatherAllFunctionSignatures(node->value);
 	}
 }

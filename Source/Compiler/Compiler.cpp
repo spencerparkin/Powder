@@ -36,12 +36,13 @@ namespace Powder
 #endif
 
 		LinkedList<Instruction*> instructionList;
+		HashMap<Instruction*> functionMap;
 		InstructionGenerator instructionGenerator;
-		instructionGenerator.GenerateInstructionList(instructionList, rootSyntaxNode);
+		instructionGenerator.GenerateInstructionList(instructionList, functionMap, rootSyntaxNode);
 		delete rootSyntaxNode;
 
 		Assembler assembler;
-		programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);
+		programBuffer = assembler.AssembleExecutable(instructionList, functionMap, programBufferSize);
 		return programBuffer;
 	}
 }

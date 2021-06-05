@@ -6,6 +6,7 @@
 #include <string>
 #include "HashMap.hpp"
 #include "LinkedList.hpp"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -17,9 +18,11 @@ namespace Powder
 		Assembler();
 		virtual ~Assembler();
 
-		uint8_t* AssembleExecutable(const LinkedList<Instruction*>& instructionList, uint64_t& programBufferSize);
+		uint8_t* AssembleExecutable(const LinkedList<Instruction*>& instructionList, const HashMap<Instruction*>& functionMap, uint64_t& programBufferSize);
 
-		void ResolveJumpDeltas(const LinkedList<Instruction*>& instructionList);
+	private:
+
+		void ResolveJumps(const LinkedList<Instruction*>& instructionList, const HashMap<Instruction*>& functionMap);
 	};
 
 	struct POWDER_API AssemblyData
@@ -27,6 +30,8 @@ namespace Powder
 		AssemblyData()
 		{
 			this->programBufferLocation = 0L;
+			this->fileLocation.lineNumber = -1;
+			this->fileLocation.columnNumber = -1;
 		}
 
 		uint64_t programBufferLocation;
@@ -48,5 +53,7 @@ namespace Powder
 		};
 
 		HashMap<Entry> configMap;
+
+		FileLocation fileLocation;
 	};
 }
