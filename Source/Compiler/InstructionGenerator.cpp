@@ -8,6 +8,7 @@
 #include "PopInstruction.h"
 #include "MathInstruction.h"
 #include "SysCallInstruction.h"
+#include "ScopeInstruction.h"
 #include "Exceptions.hpp"
 
 namespace Powder
@@ -266,42 +267,54 @@ namespace Powder
 			if (!identifierNode)
 				throw new CompileTimeException("Expected \"function-call\" in AST to have a child with name \"identifier\".", &syntaxNode->fileLocation);
 
-			const Parser::SyntaxNode* argListNode = syntaxNode->FindChild("argument-list", 1);
-
 			std::string funcName = *identifierNode->name;
 			SysCallInstruction::SysCall sysCall = SysCallInstruction::TranslateAsSysCall(funcName);
-			if (sysCall != SysCallInstruction::SysCall::UNKNOWN)
+
+			if (sysCall == SysCallInstruction::UNKNOWN)
 			{
-				if (argListNode)
+				ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>();
+				AssemblyData::Entry entry;
+				entry.code = ScopeInstruction::ScopeOp::PUSH;
+				scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
+				instructionList.AddTail(scopeInstruction);
+			}
+
+			const Parser::SyntaxNode* argListNode = syntaxNode->FindChild("argument-list", 1);
+			if (argListNode)
+			{
+				for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
 				{
-					for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
+					const Parser::SyntaxNode* argNode = node->value;
+					if (*argNode->name != "argument")
+						throw new CompileTimeException("Expected \"argument-list\" in AST to have only \"argument\" children.", &argNode->fileLocation);
+
+					if (!argNode->childList.GetCount() == 1)
+						throw new CompileTimeException("Expected \"argument\" in AST to have exactly one child.", &argNode->fileLocation);
+
+					if (*argNode->childList.GetHead()->value->name != "expression" && *argNode->childList.GetHead()->value->name != "function-call")
+						throw new CompileTimeException("Expected \"argument\" of system call to be an \"expression\" or \"function-call\".", &argNode->fileLocation);
+
+					this->GenerateInstructionList(instructionList, argNode->childList.GetHead()->value);
+
+					// System calls are passed their arguments on the eval stack, but user-defined functions are passed named arguments by scope stack.
+					if (sysCall == SysCallInstruction::UNKNOWN)
 					{
-						const Parser::SyntaxNode* argNode = node->value;
-						if (*argNode->name != "argument")
-							throw new CompileTimeException("Expected \"argument-list\" in AST to have only \"argument\" children.", &argNode->fileLocation);
+						const Parser::SyntaxNode* identifierNode = argNode->FindChild("identifier", 2);
+						if (!identifierNode)
+							throw new CompileTimeException("Expected \"argument\" to have \"identifier\" descendant in AST when calling user-defined functions.", &argNode->fileLocation);
 
-						if (!argNode->childList.GetCount() == 1)
-							throw new CompileTimeException("Expected \"argument\" in AST to have exactly one child.", &argNode->fileLocation);
-
-						// We need to check that the code we're about to run will just push a value onto the eval stack, which is where sys-calls take their arguments from.
-						if (*argNode->childList.GetHead()->value->name != "expression" && *argNode->childList.GetHead()->value->name != "function-call")
-							throw new CompileTimeException("Expected \"argument\" of system call to be an \"expression\" or \"function-call\".", &argNode->fileLocation);
-
-						this->GenerateInstructionList(instructionList, argNode->childList.GetHead()->value);
-
-						// The code generated for a function call does not by default load its return value onto the eval stack, because it's not always used.
-						// TODO: Have the code genreated for a function call look at itself in context, and then load the return value onto the eval stack if necessary.
-						if (*argNode->childList.GetHead()->value->name != "function-call")
-						{
-							LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>();
-							AssemblyData::Entry entry;
-							entry.string = "__return_value__";
-							loadInstruction->assemblyData->configMap.Insert("name", entry);
-							instructionList.AddTail(loadInstruction);
-						}
+						StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+						AssemblyData::Entry entry;
+						entry.string = *identifierNode->name;
+						storeInstruction->assemblyData->configMap.Insert("name", entry);
+						instructionList.AddTail(storeInstruction);
 					}
 				}
+			}
 
+			if (sysCall != SysCallInstruction::SysCall::UNKNOWN)
+			{
+				// The system call should pop all its arguments off the evaluation stack.
 				SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
 				AssemblyData::Entry entry;
 				entry.code = sysCall;
@@ -310,8 +323,42 @@ namespace Powder
 			}
 			else
 			{
-				// TODO: This is where we call a user-defined function.
+				// Jump to whatever instruction will end-up after the jump instruction we make to actually call the function.
+				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+				AssemblyData::Entry entry;
+				entry.code = PushInstruction::DataType::ADDRESS;
+				pushInstruction->assemblyData->configMap.Insert("type", entry);
+				entry.jumpDelta = 3;
+				entry.string = "data";
+				pushInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+				instructionList.AddTail(pushInstruction);
+
+				// Yes, this value could get poked by the calling function, but whatever, I can find a solution to that later.
+				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+				entry.string = "__return_address__";
+				storeInstruction->assemblyData->configMap.Insert("name", entry);
+				instructionList.AddTail(storeInstruction);
+
+				// We will resolve the jump address in a sepparate pass, once we've become aware of all user-defined functions.
+				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+				entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
+				jumpInstruction->assemblyData->configMap.Insert("type", entry);
+				entry.string = funcName;
+				jumpInstruction->assemblyData->configMap.Insert("jump-func", entry);
+				instructionList.AddTail(jumpInstruction);
+
+				// We now look at the call in context to see if we need to leave the return result or clean it up.
+				// For now, the only case I can see is when we make the call as the entirety of a program statement.
+				if (syntaxNode->FindParent("statement", 2) != nullptr)
+				{
+					PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+					instructionList.AddTail(popInstruction);
+				}
 			}
+		}
+		else if (*syntaxNode->name == "function-definition")
+		{
+			
 		}
 	}
 }
