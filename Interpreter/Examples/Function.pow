@@ -2,4 +2,9 @@
 
 func poopers(a, b, c)
 {
-}
+    output("a = " + a);
+    output("b = " + b);
+    output("c = " + c);
+};
+
+poopers(1, "2", 3)

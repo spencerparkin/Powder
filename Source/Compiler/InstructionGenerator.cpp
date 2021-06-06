@@ -52,7 +52,7 @@ namespace Powder
 				std::string funcName = *identifierNode->childList.GetHead()->value->name;
 
 				LinkedList<Instruction*> functionInstructionList;
-				this->GenerateInstructionListRecursively(functionInstructionList, node->value);
+				this->GenerateInstructionListRecursively(functionInstructionList, functionStatementListNode);
 
 				// Populate a map we'll use later to resolve function call jumps.
 				functionMap.Insert(funcName.c_str(), functionInstructionList.GetHead()->value);
@@ -62,8 +62,8 @@ namespace Powder
 				AssemblyData::Entry entry;
 				entry.code = PushInstruction::DataType::UNDEFINED;
 				pushInstruction->assemblyData->configMap.Insert("type", entry);
-				instructionList.AddTail(pushInstruction);
-				this->GenerateFunctionReturnInstructions(instructionList);
+				functionInstructionList.AddTail(pushInstruction);
+				this->GenerateFunctionReturnInstructions(functionInstructionList);
 
 				// Finally, lay down the instructions for the function.
 				instructionList.Append(functionInstructionList);
@@ -354,7 +354,7 @@ namespace Powder
 				if (functionSignature->namedArgsArray.size() != argCount)
 					throw new CompileTimeException(FormatString("Function \"%s\" takes %d arguments, but %d were given.", funcName.c_str(), functionSignature->namedArgsArray.size(), argCount), &syntaxNode->fileLocation);
 
-				// Jump to whatever instruction will end-up after the jump instruction we make to actually call the function.
+				// Jump to whatever instruction will end-up immediately after the jump instruction we make to actually call the function.
 				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
 				AssemblyData::Entry entry;
 				entry.code = PushInstruction::DataType::ADDRESS;
@@ -379,9 +379,15 @@ namespace Powder
 				jumpInstruction->assemblyData->fileLocation = identifierNode->fileLocation;
 				instructionList.AddTail(jumpInstruction);
 
+				// The first thing we always do after returning from a call is to pop scope.
+				ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>();
+				entry.code = ScopeInstruction::ScopeOp::POP;
+				scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
+				instructionList.AddTail(scopeInstruction);
+
 				// We now look at the call in context to see if we need to leave the return result or clean it up.
-				// For now, the only case I can see is when we make the call as the entirety of a program statement.
-				if (syntaxNode->FindParent("statement", 2) != nullptr)
+				// For now, the only case I can see is when we make the call as the entirety of a single program statement.
+				if (syntaxNode->FindParent("statement-list", 1) != nullptr)
 				{
 					PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
 					instructionList.AddTail(popInstruction);
@@ -396,7 +402,7 @@ namespace Powder
 			// Note that there is no real reason to enforce that function definitions appear at the root level.  We could allow them
 			// to be defined anywhere, oddly.  But that's just it.  I don't want to create a false expectation that it matters where
 			// a function definition is defined when in reality, it doesn't matter.  So just require them to always be at the root level.
-			if (syntaxNode->parentNode->parentNode->parentNode != nullptr)
+			if (!syntaxNode->parentNode || *syntaxNode->parentNode->name != "statement-list")
 				throw new CompileTimeException("Function definitions cannot appear anywhere but at the root level of a source file.", &syntaxNode->fileLocation);
 
 			// For now we just collect the function definitions, because we want them to
@@ -450,7 +456,7 @@ namespace Powder
 			if (identifierListNode)
 			{
 				for (const LinkedList<Parser::SyntaxNode*>::Node* node = identifierListNode->childList.GetHead(); node; node = node->GetNext())
-					functionSignature->namedArgsArray.push_back(*node->value->name);
+					functionSignature->namedArgsArray.push_back(*node->value->childList.GetHead()->value->name);
 			}
 
 			this->functionSignatureMap.Insert(funcName.c_str(), functionSignature);
