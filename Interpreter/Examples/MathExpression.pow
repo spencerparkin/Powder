@@ -1,6 +1,9 @@
 # MathExpression.pow
 
+output("Enter a: ");
 a = input();
+
+output("Enter b: ");
 b = input();
 
 c = (a + 1.5) / (b - 7.0);

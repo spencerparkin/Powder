@@ -52,17 +52,22 @@ namespace Powder
 		ParseError parseError;
 		Range range(tokenList.GetHead(), tokenList.GetTail());
 		SyntaxNode* rootNode = this->TryGrammarRule("statement-list", range, parseError, 1);
-		if (rootNode)
+		if (!rootNode)
+			parseError.ThrowException();
+		else
 		{
+			// TODO: Before running reductions on the AST, we might perform some sort of
+			//       analysis to make sure that it all makes sense.  For example, we wouldn't
+			//       want a statement-list to appear as the conditional part of an if-statement,
+			//       or for a function-definition to appear as an argument to a function.
+			//       The grammar production rules prevent such a thing from ever happening,
+			//       but there might be other cases to account for.
+
 			while (rootNode->PerformReductions())
 			{
 			}
 
 			rootNode->PatchParentPointers();
-		}
-		else
-		{
-			parseError.ThrowException();
 		}
 
 		return rootNode;
@@ -436,7 +441,12 @@ namespace Powder
 		for (LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
 		{
 			SyntaxNode* childNode = node->value;
-			if (childNode->childList.GetCount() == 1 && (*childNode->childList.GetHead()->value->name == *this->name || *childNode->name == "operand"))
+			if (childNode->childList.GetCount() == 1 &&
+				(*childNode->childList.GetHead()->value->name == *this->name ||
+					*childNode->name == "operand" ||
+					*childNode->name == "expression" ||
+					*childNode->name == "statement" ||
+					*childNode->name == "argument"))
 			{
 				SyntaxNode* newChildNode = childNode->childList.GetHead()->value;
 				childNode->childList.RemoveAll();

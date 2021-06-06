@@ -1,5 +1,6 @@
 #include "NumberValue.h"
 #include "UndefinedValue.h"
+#include "StringFormat.h"
 
 namespace Powder
 {
@@ -49,5 +50,19 @@ namespace Powder
 		}
 
 		return new UndefinedValue();
+	}
+
+	/*virtual*/ std::string NumberValue::ToString() const
+	{
+		return FormatString("%f", this->number);
+	}
+
+	/*virtual*/ bool NumberValue::FromString(const std::string& str)
+	{
+		char* endPtr = nullptr;
+		this->number = ::strtod(str.c_str(), &endPtr);
+		if (endPtr == str.c_str())
+			return false;
+		return true;
 	}
 }

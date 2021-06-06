@@ -98,7 +98,7 @@ namespace Powder
 			case SysCall::OUTPUT:
 			{
 				Value* value = executor->PopValueFromEvaluationStackTop();
-				std::cout << value->ToString() << std::endl;
+				std::cout << value->ToString();
 				programBufferLocation += 2;
 				break;
 			}

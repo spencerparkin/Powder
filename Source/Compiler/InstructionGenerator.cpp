@@ -77,19 +77,9 @@ namespace Powder
 		{
 			for (const LinkedList<Parser::SyntaxNode*>::Node* node = syntaxNode->childList.GetHead(); node; node = node->GetNext())
 			{
-				if (*node->value->name != "statement")
-					throw new CompileTimeException("Expected \"statement\" under \"statement-list\" in AST", &node->value->fileLocation);
-
 				// We simply execute the code for each statement in order.
 				this->GenerateInstructionListRecursively(instructionList, node->value);
 			}
-		}
-		else if (*syntaxNode->name == "statement")
-		{
-			if (syntaxNode->childList.GetCount() != 1)
-				throw new CompileTimeException("Expected \"statement\" in AST to have exactly one child.", &syntaxNode->fileLocation);
-
-			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
 		}
 		else if (*syntaxNode->name == "if-statement")
 		{
@@ -137,13 +127,6 @@ namespace Powder
 				branchInstruction->assemblyData->configMap.Insert("branch", entry);
 			}
 		}
-		else if (*syntaxNode->name == "expression")
-		{
-			if (syntaxNode->childList.GetCount() != 1)
-				throw new CompileTimeException("Expected \"expression\" in AST to have exactly one child.", &syntaxNode->fileLocation);
-
-			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
-		}
 		else if (*syntaxNode->name == "binary-expression")
 		{
 			if(syntaxNode->childList.GetCount() != 3)
@@ -158,9 +141,14 @@ namespace Powder
 			const Parser::SyntaxNode* operationNode = syntaxNode->childList.GetHead()->GetNext()->value;
 			if (*operationNode->name == "=")
 			{
-				const Parser::SyntaxNode* storeLocationNode = operationNode->childList.GetHead()->value;
+				const Parser::SyntaxNode* storeLocationNode = syntaxNode->childList.GetHead()->value;
 				if (*storeLocationNode->name != "identifier")
 					throw new CompileTimeException(FormatString("Expected left operand of \"binary-expression\" in AST to be an identifier (not \"%s\") when the operation is assignment.", storeLocationNode->name->c_str()), &storeLocationNode->fileLocation);
+
+				if (storeLocationNode->childList.GetCount() != 1)
+					throw new CompileTimeException("Expected \"identifier\" in AST to have exactly 1 child.", &storeLocationNode->fileLocation);
+
+				const Parser::SyntaxNode* storeLocationNameNode = storeLocationNode->childList.GetHead()->value;
 
 				// Lay down the instructions that will generate the value to be stored on top of the evaluation stack.
 				this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
@@ -169,14 +157,12 @@ namespace Powder
 				// symmetrically consistent with its counter-part, the load instruction.
 				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
 				AssemblyData::Entry entry;
-				entry.string = *storeLocationNode->name;
+				entry.string = *storeLocationNameNode->name;
 				storeInstruction->assemblyData->configMap.Insert("name", entry);
 				instructionList.AddTail(storeInstruction);
 
-				// TODO: We might try to handle the case: a = b = 1 here.  Maybe add a config byte to the store
-				//       instruction to tell it to not pop the value?  That would probably be the right way.
-				//       Here we would look up the AST parent line to see if we find another assignment, and
-				//       if we do, forgo the pop in the store.
+				// TODO: For the case a = b = 1, look at our parent syntax nodes to see if we should issue
+				//       a load instruction here for the next store instruction.
 			}
 			else
 			{
@@ -259,7 +245,7 @@ namespace Powder
 			else if (*literalTypeNode->name == "number-literal")
 			{
 				typeEntry.code = PushInstruction::DataType::NUMBER;
-				dataEntry.number = ::strtol(literalDataNode->name->c_str(), nullptr, 10);
+				dataEntry.number = ::strtod(literalDataNode->name->c_str(), nullptr);
 			}
 			else if (*literalTypeNode->name == "list-literal")
 			{
@@ -335,16 +321,7 @@ namespace Powder
 				for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
 				{
 					const Parser::SyntaxNode* argNode = node->value;
-					if (*argNode->name != "argument")
-						throw new CompileTimeException("Expected \"argument-list\" in AST to have only \"argument\" children.", &argNode->fileLocation);
-
-					if (!argNode->childList.GetCount() == 1)
-						throw new CompileTimeException("Expected \"argument\" in AST to have exactly one child.", &argNode->fileLocation);
-
-					if (*argNode->childList.GetHead()->value->name != "expression" && *argNode->childList.GetHead()->value->name != "function-call")
-						throw new CompileTimeException("Expected \"argument\" of system call to be an \"expression\" or \"function-call\".", &argNode->fileLocation);
-
-					this->GenerateInstructionListRecursively(instructionList, argNode->childList.GetHead()->value);
+					this->GenerateInstructionListRecursively(instructionList, argNode);
 
 					// System calls are passed their arguments on the eval stack, but user-defined functions are passed named arguments by scope stack.
 					if (sysCall == SysCallInstruction::UNKNOWN && argCount < functionSignature->namedArgsArray.size())
