@@ -2,9 +2,9 @@
 
 a = 1;
 
-func blah(b)
+func blah(a)
 {
-    b = 2;
+    a = 2;
 };
 
 blah(a);
