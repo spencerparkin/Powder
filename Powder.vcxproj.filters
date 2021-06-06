@@ -231,6 +231,9 @@
     <ClInclude Include="Source\GarbageCollector\GCSteward.hpp">
       <Filter>Source\GarbageCollector</Filter>
     </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Values\MapValue.h">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />

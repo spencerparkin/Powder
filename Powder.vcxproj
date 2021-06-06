@@ -85,6 +85,7 @@
     <ClInclude Include="Source\VirtualMachine\Values\AddressValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\BooleanValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\ListValue.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\MapValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\NumberValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\StringValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\UndefinedValue.h" />

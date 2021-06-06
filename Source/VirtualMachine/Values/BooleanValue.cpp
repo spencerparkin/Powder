@@ -1,4 +1,5 @@
 #include "BooleanValue.h"
+#include "UndefinedValue.h"
 
 namespace Powder
 {
@@ -19,6 +20,42 @@ namespace Powder
 	/*virtual*/ Value* BooleanValue::Copy() const
 	{
 		return new BooleanValue(this->boolValue);
+	}
+
+	/*virtual*/ Value* BooleanValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
+	{
+		if (!value)
+		{
+			switch (mathOp)
+			{
+				case MathInstruction::MathOp::NOT:
+				{
+					return new BooleanValue(!this->boolValue);
+				}
+			}
+		}
+
+		const BooleanValue* booleanValue = dynamic_cast<const BooleanValue*>(value);
+		if (booleanValue)
+		{
+			switch (mathOp)
+			{
+				case MathInstruction::MathOp::AND:
+				{
+					return new BooleanValue(this->boolValue && booleanValue->boolValue);
+				}
+				case MathInstruction::MathOp::OR:
+				{
+					return new BooleanValue(this->boolValue || booleanValue->boolValue);
+				}
+				case MathInstruction::MathOp::XOR:
+				{
+					return new BooleanValue((this->boolValue || booleanValue->boolValue) && this->boolValue != booleanValue->boolValue);
+				}
+			}
+		}
+
+		return new UndefinedValue();
 	}
 
 	/*virtual*/ bool BooleanValue::AsBoolean() const

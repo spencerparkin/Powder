@@ -446,6 +446,7 @@ namespace Powder
 					*childNode->name == "operand" ||
 					*childNode->name == "expression" ||
 					*childNode->name == "statement" ||
+					*childNode->name == "embedded-statement" ||
 					*childNode->name == "argument"))
 			{
 				SyntaxNode* newChildNode = childNode->childList.GetHead()->value;

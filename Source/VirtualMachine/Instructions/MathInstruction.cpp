@@ -30,6 +30,16 @@ namespace Powder
 			return MathOp::MULTIPLY;
 		else if (tokenText == "/")
 			return MathOp::DIVIDE;
+		else if (tokenText == "==")
+			return MathOp::EQUAL;
+		else if (tokenText == "<")
+			return MathOp::LESS_THAN;
+		else if (tokenText == "<=")
+			return MathOp::LESS_THAN_OR_EQUAL;
+		else if (tokenText == ">")
+			return MathOp::GREATER_THAN;
+		else if (tokenText == ">=")
+			return MathOp::GREATER_THAN_OR_EQUAL;
 
 		return MathOp::UNKNOWN;
 	}

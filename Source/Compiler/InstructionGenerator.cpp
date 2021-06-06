@@ -112,12 +112,16 @@ namespace Powder
 			{
 				// Yes.  Before laying down the condition-fail instructions, we want an unconditional jump that goes over them if the condition passed.
 				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+				entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
+				jumpInstruction->assemblyData->configMap.Insert("type", entry);
 				instructionList.AddTail(jumpInstruction);
 
 				// Okay, now lay down the condition-fail instructions.
 				LinkedList<Instruction*> failInstructionList;
 				this->GenerateInstructionListRecursively(failInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->GetNext()->value);
 				instructionList.Append(failInstructionList);
+
+				// We have enough now to resolve the jump-delta for getting over the else-clause.
 				entry.jumpDelta = failInstructionList.GetCount();
 				entry.string = "jump";
 				jumpInstruction->assemblyData->configMap.Insert("jump-delta", entry);
@@ -412,7 +416,7 @@ namespace Powder
 		}
 		else if (*syntaxNode->name == "return-statement")
 		{
-			if (syntaxNode->childList.GetCount() == 2 && *syntaxNode->childList.GetHead()->GetNext()->value->name == "expression")
+			if (syntaxNode->childList.GetCount() == 2)
 				this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
 			else
 			{

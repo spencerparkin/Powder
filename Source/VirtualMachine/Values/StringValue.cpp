@@ -42,4 +42,9 @@ namespace Powder
 		*this->str = str;
 		return true;
 	}
+
+	/*virtual*/ bool StringValue::AsBoolean() const
+	{
+		return this->str->length() > 0;
+	}
 }

@@ -1,14 +1,14 @@
 # Fibbonacci.pow
 
-func calc_fib(i)
+func calc_fib(x)
 {
-    if(i < 3)
+    if(x < 3)
         return 1
     else
-        return calc_fib(i - 2) + calc_fib(i - 1)
+        return calc_fib(x - 2) + calc_fib(x - 1)
 };
 
-i = 5;
+i = 7;
 j = calc_fib(i);
 message = "Fibbonacci's " + i + "(th) number is " + j;
-print(message);
+output(message);
