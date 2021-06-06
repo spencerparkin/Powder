@@ -20,6 +20,38 @@ namespace Powder
 		return 0x05;
 	}
 
+	/*static*/ MathInstruction::MathOp MathInstruction::TranslateBinaryOperatorInfixToken(const std::string& tokenText)
+	{
+		if (tokenText == "+")
+			return MathOp::ADD;
+		else if (tokenText == "-")
+			return MathOp::SUBTRACT;
+		else if (tokenText == "*")
+			return MathOp::MULTIPLY;
+		else if (tokenText == "/")
+			return MathOp::DIVIDE;
+
+		return MathOp::UNKNOWN;
+	}
+
+	/*static*/ MathInstruction::MathOp MathInstruction::TranslateUnaryLeftOperatorToken(const std::string& tokenText)
+	{
+		if (tokenText == "-")
+			return MathInstruction::MathOp::NEGATE;
+		else if (tokenText == "!")
+			return MathInstruction::MathOp::NOT;
+
+		return MathOp::UNKNOWN;
+	}
+
+	/*static*/ MathInstruction::MathOp MathInstruction::TranslateUnaryRightOperatorToken(const std::string& tokenText)
+	{
+		if (tokenText == "!")
+			return MathInstruction::MathOp::FACTORIAL;
+
+		return MathOp::UNKNOWN;
+	}
+
 	/*virtual*/ uint32_t MathInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		Value* result = nullptr;
@@ -56,6 +88,9 @@ namespace Powder
 				throw new CompileTimeException("Can't assemble math instruction if not given math operation code.");
 
 			uint8_t mathOp = mathOpEntry->code;
+			if (mathOp == MathOp::UNKNOWN)
+				throw new CompileTimeException("Can't assemble math instruction with unknown math operation code.");
+
 			switch (mathOp)
 			{
 				case MathOp::NEGATE:

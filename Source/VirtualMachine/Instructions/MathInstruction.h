@@ -14,6 +14,8 @@ namespace Powder
 
 		enum MathOp
 		{
+			UNKNOWN,
+
 			// Binary arithmetic operations:
 			ADD,
 			SUBTRACT,
@@ -32,6 +34,10 @@ namespace Powder
 			// Unary logic operations:
 			NOT
 		};
+
+		static MathOp TranslateBinaryOperatorInfixToken(const std::string& tokenText);
+		static MathOp TranslateUnaryLeftOperatorToken(const std::string& tokenText);
+		static MathOp TranslateUnaryRightOperatorToken(const std::string& tokenText);
 
 		virtual uint32_t Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;
 		virtual void Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const override;

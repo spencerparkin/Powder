@@ -189,15 +189,8 @@ namespace Powder
 				// At this point, we should have our left and right operands as the two top values of the evaluation stack.
 				// So here we simply issue the appropriate math instruction to pop both those off, combine them, and then push the result.
 				AssemblyData::Entry entry;
-				if (*operationNode->name == "+")
-					entry.code = MathInstruction::MathOp::ADD;
-				else if (*operationNode->name == "-")
-					entry.code = MathInstruction::MathOp::SUBTRACT;
-				else if (*operationNode->name == "*")
-					entry.code = MathInstruction::MathOp::MULTIPLY;
-				else if (*operationNode->name == "/")
-					entry.code = MathInstruction::MathOp::DIVIDE;
-				else
+				entry.code = MathInstruction::TranslateBinaryOperatorInfixToken(*operationNode->name);
+				if (entry.code == MathInstruction::MathOp::UNKNOWN)
 					throw new CompileTimeException(FormatString("Failed to recognize math operation \"%s\" for \"binary-expression\" in AST.", operationNode->name->c_str()), &operationNode->fileLocation);
 
 				MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
@@ -217,25 +210,22 @@ namespace Powder
 			const Parser::SyntaxNode* operationNode = nullptr;
 			const Parser::SyntaxNode* operandNode = nullptr;
 
+			AssemblyData::Entry entry;
+
 			if (*syntaxNode->name == "left-unary-expression")
 			{
 				operationNode = syntaxNode->childList.GetHead()->value;
 				operandNode = syntaxNode->childList.GetHead()->GetNext()->value;
+				entry.code = MathInstruction::TranslateUnaryLeftOperatorToken(*operationNode->name);
 			}
 			else if (*syntaxNode->name == "right-unary-expression")
 			{
 				operationNode = syntaxNode->childList.GetHead()->GetNext()->value;
 				operandNode = syntaxNode->childList.GetHead()->value;
+				entry.code = MathInstruction::TranslateUnaryRightOperatorToken(*operationNode->name);
 			}
 
-			AssemblyData::Entry entry;
-			if (*operationNode->name == "-")
-				entry.code = MathInstruction::MathOp::NEGATE;
-			else if (*operationNode->name == "!" && *syntaxNode->name == "left-unary-expression")
-				entry.code = MathInstruction::MathOp::NOT;
-			else if (*operationNode->name == "!" && *syntaxNode->name == "right-unary-expression")
-				entry.code = MathInstruction::MathOp::FACTORIAL;
-			else
+			if (entry.code == MathInstruction::MathOp::UNKNOWN)
 				throw new CompileTimeException(FormatString("Failed to recognize math operation \"%s\" for \"unary-expression\" in AST.", operationNode->name->c_str()), &operationNode->fileLocation);
 
 			this->GenerateInstructionListRecursively(instructionList, operandNode);
@@ -243,7 +233,6 @@ namespace Powder
 			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
 			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
 			instructionList.AddTail(mathInstruction);
-
 		}
 		else if (*syntaxNode->name == "literal")
 		{
@@ -364,13 +353,15 @@ namespace Powder
 						instructionList.AddTail(storeInstruction);
 					}
 				}
-			}
-
-			if (functionSignature && functionSignature->namedArgsArray.size() != argCount)
-				throw new CompileTimeException(FormatString("Function \"%s\" takes %d arguments, but %d were given.", funcName.c_str(), functionSignature->namedArgsArray.size(), argCount), &syntaxNode->fileLocation);
+			}			
 
 			if (sysCall != SysCallInstruction::SysCall::UNKNOWN)
 			{
+				argCount = (argListNode ? argListNode->childList.GetCount() : 0);
+				int sysCallArgCount = SysCallInstruction::ArgumentCount(sysCall);
+				if (argCount != sysCallArgCount)
+					throw new CompileTimeException(FormatString("System call 0x%04x takes %d arguments, not %d.", uint8_t(sysCall), sysCallArgCount, argCount), &identifierNode->fileLocation);
+
 				// The system call should pop all its arguments off the evaluation stack.
 				SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
 				AssemblyData::Entry entry;
@@ -380,6 +371,9 @@ namespace Powder
 			}
 			else
 			{
+				if (functionSignature->namedArgsArray.size() != argCount)
+					throw new CompileTimeException(FormatString("Function \"%s\" takes %d arguments, but %d were given.", funcName.c_str(), functionSignature->namedArgsArray.size(), argCount), &syntaxNode->fileLocation);
+
 				// Jump to whatever instruction will end-up after the jump instruction we make to actually call the function.
 				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
 				AssemblyData::Entry entry;

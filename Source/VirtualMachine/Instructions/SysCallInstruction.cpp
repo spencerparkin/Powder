@@ -39,6 +39,23 @@ namespace Powder
 		return SysCall::UNKNOWN;
 	}
 
+	/*static*/ uint32_t SysCallInstruction::ArgumentCount(SysCall sysCall)
+	{
+		switch (sysCall)
+		{
+			case SysCall::EXIT:
+				return 0;
+			case SysCall::GC:
+				return 0;
+			case SysCall::INPUT:
+				return 0;
+			case SysCall::OUTPUT:
+				return 1;
+		}
+
+		return -1;
+	}
+
 	/*virtual*/ uint32_t SysCallInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		uint8_t sysCallCode = programBuffer[programBufferLocation + 1];
