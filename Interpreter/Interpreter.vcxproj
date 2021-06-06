@@ -26,6 +26,7 @@
     <None Include="Examples\Fork.pow" />
     <None Include="Examples\HelloWorld.pow" />
     <None Include="Examples\MathExpression.pow" />
+    <None Include="Examples\ScopeTest.pow" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Examples\Function.pow" />

@@ -65,7 +65,7 @@ namespace Powder
 
 	void Executor::LoadAndPushValueOntoEvaluationStackTop(const char* identifier)
 	{
-		Value* value = this->currentScope->LookupValue(identifier, false);
+		Value* value = this->currentScope->LookupValue(identifier, true);
 		if (!value)
 			throw new RunTimeException(FormatString("Failed to lookup identifier: %s", identifier));
 

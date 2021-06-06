@@ -27,6 +27,9 @@
     <None Include="Examples\MathExpression.pow">
       <Filter>Examples</Filter>
     </None>
+    <None Include="Examples\ScopeTest.pow">
+      <Filter>Examples</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Examples\Function.pow">

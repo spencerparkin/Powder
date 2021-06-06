@@ -1,0 +1,12 @@
+# ScopeTest.pow
+
+a = 1;
+
+func blah(b)
+{
+    b = 2;
+};
+
+blah(a);
+
+output("a = " + a);
