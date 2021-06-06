@@ -8,4 +8,4 @@ b = input();
 
 c = (a + 1.5) / (b - 7.0);
 
-output(c);
+output("c = " + c);

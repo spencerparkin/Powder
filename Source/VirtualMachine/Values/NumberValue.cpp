@@ -1,5 +1,6 @@
 #include "NumberValue.h"
 #include "UndefinedValue.h"
+#include "StringValue.h"
 #include "StringFormat.h"
 
 namespace Powder
@@ -47,6 +48,15 @@ namespace Powder
 					return new NumberValue(this->number / numberValue->number);
 				}
 			}
+
+			return new UndefinedValue();
+		}
+		
+		if (mathOp == MathInstruction::MathOp::ADD)
+		{
+			const StringValue* stringValue = dynamic_cast<const StringValue*>(value);
+			if (stringValue)
+				return new StringValue(this->ToString() + stringValue->ToString());
 		}
 
 		return new UndefinedValue();
