@@ -306,7 +306,10 @@ namespace Powder
 			if (!identifierNode)
 				throw new CompileTimeException("Expected \"function-call\" in AST to have a child with name \"identifier\".", &syntaxNode->fileLocation);
 
-			std::string funcName = *identifierNode->name;
+			if (identifierNode->childList.GetCount() != 1)
+				throw new CompileTimeException("Expected \"identifier\" node of \"function-call\" node in AST to have exactly 1 child.", &identifierNode->fileLocation);
+
+			std::string funcName = *identifierNode->childList.GetHead()->value->name;
 			SysCallInstruction::SysCall sysCall = SysCallInstruction::TranslateAsSysCall(funcName);
 
 			const FunctionSignature* functionSignature = nullptr;
