@@ -116,6 +116,8 @@ namespace Powder
 			}
 			i++;
 			fileLocation.columnNumber++;
+
+			// TODO: Support escape sequences in strings here.
 		}
 		else
 		{
