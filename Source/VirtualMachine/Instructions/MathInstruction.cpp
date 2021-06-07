@@ -67,8 +67,8 @@ namespace Powder
 		Value* result = nullptr;
 
 		uint8_t mathOp = programBuffer[programBufferLocation + 1];
-		bool unary = (mathOp & 0x800) != 0;
-		mathOp &= ~0x800;
+		bool unary = (mathOp & 0x80) != 0;
+		mathOp &= ~0x80;
 		if (unary)
 		{
 			Value* value = executor->PopValueFromEvaluationStackTop();
@@ -107,7 +107,7 @@ namespace Powder
 				case MathOp::FACTORIAL:
 				case MathOp::NOT:
 				{
-					mathOp |= 0x800;
+					mathOp |= 0x80;
 					break;
 				}
 			}

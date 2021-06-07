@@ -48,5 +48,6 @@ namespace Powder
 		Token GenerateToken(const char* programCodeBuffer, uint64_t& programCodeBufferLocation, FileLocation& fileLocation);
 
 		bool IsAnyChar(char givenChar, const char* charSet);
+		void Replace(std::string& string, const std::string& oldSubString, const std::string& newSubString);
 	};
 }

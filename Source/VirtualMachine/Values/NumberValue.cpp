@@ -27,14 +27,21 @@ namespace Powder
 
 	/*virtual*/ Value* NumberValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
-		if (mathOp == MathInstruction::MathOp::FACTORIAL)
+		switch (mathOp)
 		{
-			// TODO: There is actually a factorial for non-integers, and why not support it?  It might not be trivial to calculate, though.
-			double rounded = double(uint32_t(this->number));
-			double factorial = 1.0;
-			while (rounded-- > 0.0)
-				factorial *= rounded;
-			return new NumberValue(factorial);
+			case MathInstruction::MathOp::FACTORIAL:
+			{
+				// TODO: There is actually a factorial for non-integers, and why not support it?  It might not be trivial to calculate, though.
+				double rounded = double(uint32_t(this->number));
+				double factorial = 1.0;
+				while (rounded-- > 0.0)
+					factorial *= rounded;
+				return new NumberValue(factorial);
+			}
+			case MathInstruction::MathOp::NEGATE:
+			{
+				return new NumberValue(-this->number);
+			}
 		}
 
 		const NumberValue* numberValue = dynamic_cast<const NumberValue*>(value);

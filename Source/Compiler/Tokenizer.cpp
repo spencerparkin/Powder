@@ -116,8 +116,9 @@ namespace Powder
 			}
 			i++;
 			fileLocation.columnNumber++;
-
-			// TODO: Support escape sequences in strings here.
+			this->Replace(token.text, "\\n", "\n");
+			this->Replace(token.text, "\\r", "\r");
+			this->Replace(token.text, "\\t", "\t");
 		}
 		else
 		{
@@ -135,5 +136,14 @@ namespace Powder
 				return true;
 
 		return false;
+	}
+
+	void Tokenizer::Replace(std::string& string, const std::string& oldSubString, const std::string& newSubString)
+	{
+		std::size_t pos = string.find(oldSubString);
+		if (pos != std::string::npos)
+		{
+			string.replace(pos, oldSubString.length(), newSubString);
+		}
 	}
 }

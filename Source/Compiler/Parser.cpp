@@ -448,6 +448,7 @@ namespace Powder
 					*childNode->name == "statement" ||
 					*childNode->name == "embedded-statement" ||
 					*childNode->name == "block" ||
+					*childNode->name == "unary-expression" ||
 					*childNode->name == "argument"))
 			{
 				SyntaxNode* newChildNode = childNode->childList.GetHead()->value;

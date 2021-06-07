@@ -10,6 +10,7 @@
 #include "SysCallInstruction.h"
 #include "ScopeInstruction.h"
 #include "ForkInstruction.h"
+#include "YieldInstruction.h"
 #include "Exceptions.hpp"
 #include "HashMap.hpp"
 
@@ -30,15 +31,17 @@ namespace Powder
 
 		this->GenerateInstructionListRecursively(instructionList, rootSyntaxNode);
 
+		// Issue a halt instruction here so that we don't crash into the first subroutine of the program.
+		// This isn't a problem if there aren't any subroutines.  However, we also want this instruction
+		// here in the case that we need to resolve a jump that goes beyond the last program construct.
+		SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
+		AssemblyData::Entry entry;
+		entry.code = SysCallInstruction::SysCall::EXIT;
+		sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
+		instructionList.AddTail(sysCallInstruction);
+
 		if (this->functionDefinitionList.GetCount() > 0)
 		{
-			// Issue a halt instruction here so that we don't crash into the first subroutine of the program.
-			SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
-			AssemblyData::Entry entry;
-			entry.code = SysCallInstruction::SysCall::EXIT;
-			sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
-			instructionList.AddTail(sysCallInstruction);
-
 			for (LinkedList<const Parser::SyntaxNode*>::Node* node = this->functionDefinitionList.GetHead(); node; node = node->GetNext())
 			{
 				const Parser::SyntaxNode* functionDefNode = node->value;
@@ -159,10 +162,11 @@ namespace Powder
 			jumpInstruction->assemblyData->configMap.Insert("type", entry);
 			entry.instruction = conditionalInstructionList.GetHead()->value;
 			jumpInstruction->assemblyData->configMap.Insert("jump", entry);
-			instructionList.Append(instructionList);
+			instructionList.AddTail(jumpInstruction);
 
 			// We now know enough to resolve the branch jump delta.  It's the size of the body plus the unconditional jump.
-			entry.jumpDelta = whileLoopBodyInstructionList.GetCount() + 1;
+			entry.jumpDelta = whileLoopBodyInstructionList.GetCount() + 2;
+			entry.string = "branch";
 			branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 		}
 		else if (*syntaxNode->name == "do-while-statement")
@@ -203,8 +207,14 @@ namespace Powder
 			instructionList.AddTail(jumpInstruction);
 
 			// We now know enough to resolve the branch jump delta.
-			entry.jumpDelta = finalLoopInstructionList.GetCount() + 1;
+			entry.jumpDelta = finalLoopInstructionList.GetCount() + 2;
+			entry.string = "branch";
 			branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+		}
+		else if (*syntaxNode->name == "yield-statement")
+		{
+			YieldInstruction* yeildInstruction = Instruction::CreateForAssembly<YieldInstruction>();
+			instructionList.AddTail(yeildInstruction);
 		}
 		else if (*syntaxNode->name == "fork-statement")
 		{
@@ -223,13 +233,13 @@ namespace Powder
 
 			if (syntaxNode->childList.GetCount() == 2)
 			{
-				entry.jumpDelta = forkedInstructionList.GetCount();
+				entry.jumpDelta = forkedInstructionList.GetCount() + 1;
 				entry.string = "fork";
 				forkInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 			}
 			else if (syntaxNode->childList.GetCount() == 4)
 			{
-				entry.jumpDelta = forkedInstructionList.GetCount() + 1;
+				entry.jumpDelta = forkedInstructionList.GetCount() + 2;
 				entry.string = "fork";
 				forkInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 
@@ -242,7 +252,7 @@ namespace Powder
 				this->GenerateInstructionListRecursively(elseInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->value);
 				instructionList.Append(elseInstructionList);
 
-				entry.jumpDelta = elseInstructionList.GetCount();
+				entry.jumpDelta = elseInstructionList.GetCount() + 1;
 				entry.string = "jump";
 				jumpInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 			}
@@ -303,13 +313,6 @@ namespace Powder
 				mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
 				instructionList.AddTail(mathInstruction);
 			}
-		}
-		else if (*syntaxNode->name == "unary-expression")
-		{
-			if (syntaxNode->childList.GetCount() != 2)
-				throw new CompileTimeException("Expected \"unary-expression\" in AST to have exactly 1 child.", &syntaxNode->fileLocation);
-
-			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
 		}
 		else if (*syntaxNode->name == "left-unary-expression" || *syntaxNode->name == "right-unary-expression")
 		{
@@ -544,6 +547,10 @@ namespace Powder
 			}
 
 			this->GenerateFunctionReturnInstructions(instructionList);
+		}
+		else
+		{
+			throw new CompileTimeException(FormatString("Instruction generator does not yet handle case \"%s\".", syntaxNode->name->c_str()), &syntaxNode->fileLocation);
 		}
 	}
 
