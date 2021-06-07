@@ -41,4 +41,15 @@ namespace Powder
 
 		programBufferLocation += 1 + sizeof(uint64_t);
 	}
+
+#if defined POWDER_DEBUG
+	/*virtual*/ std::string ForkInstruction::Print(void) const
+	{
+		std::string detail;
+		detail += "fork: ";
+		const AssemblyData::Entry* forkEntry = this->assemblyData->configMap.LookupPtr("fork");
+		detail += FormatString("%04d", (forkEntry ? forkEntry->instruction->assemblyData->programBufferLocation : -1));
+		return detail;
+	}
+#endif
 }

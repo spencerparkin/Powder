@@ -40,8 +40,15 @@ namespace Powder
 		{
 			Entry()
 			{
+				this->Reset();
+			}
+
+			void Reset()
+			{
 				this->instruction = nullptr;
 				this->number = 0.0;
+				this->string = "";
+				this->code = 0;
 				this->jumpDelta = 0L;
 			}
 

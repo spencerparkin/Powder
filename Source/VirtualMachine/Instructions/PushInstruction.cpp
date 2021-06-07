@@ -110,4 +110,32 @@ namespace Powder
 		else if (typeEntry->code == DataType::ADDRESS)
 			programBufferLocation += sizeof(uint64_t);
 	}
+
+#if defined POWDER_DEBUG
+	/*virtual*/ std::string PushInstruction::Print(void) const
+	{
+		std::string detail;
+		detail += "push: ";
+		const AssemblyData::Entry* typeEntry = this->assemblyData->configMap.LookupPtr("type");
+		detail += typeEntry ? FormatString("type: %04d", typeEntry->code) : "type: ????";
+		const AssemblyData::Entry* dataEntry = this->assemblyData->configMap.LookupPtr("data");
+		if (dataEntry)
+		{
+			detail += "; data: ";
+			if (typeEntry->code == DataType::STRING)
+				detail += dataEntry->string;
+			else if (typeEntry->code == DataType::NUMBER)
+				detail += FormatString("%f", dataEntry->number);
+			else if (typeEntry->code == ADDRESS)
+				detail += FormatString("%04d", dataEntry->instruction->assemblyData->programBufferLocation);
+			else if (typeEntry->code == UNDEFINED)
+				detail += "undef";
+			else if (typeEntry->code == DataType::EMPTY_LIST)
+				detail += "[]";
+			else
+				detail += "?";
+		}
+		return detail;
+	}
+#endif
 }

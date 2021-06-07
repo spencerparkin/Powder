@@ -3,6 +3,7 @@
 #include "StringFormat.h"
 #include "JumpInstruction.h"
 #include "Exceptions.hpp"
+#include <iostream>
 
 namespace Powder
 {
@@ -80,6 +81,9 @@ namespace Powder
 		{
 			const Instruction* instruction = node->value;
 			programBuffer[programBufferLocation] = instruction->OpCode();
+#if defined POWDER_DEBUG
+			std::cout << FormatString("%04d: ", programBufferLocation) << instruction->Print() << std::endl;
+#endif
 			instruction->Assemble(programBuffer, programBufferSize, programBufferLocation, Instruction::AssemblyPass::RENDER);
 		}
 

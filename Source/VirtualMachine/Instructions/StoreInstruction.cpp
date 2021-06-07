@@ -42,4 +42,18 @@ namespace Powder
 
 		programBufferLocation += 1 + nameEntry->string.length() + 1;
 	}
+
+#if defined POWDER_DEBUG
+	/*virtual*/ std::string StoreInstruction::Print(void) const
+	{
+		std::string detail;
+		detail += "store: ";
+		const AssemblyData::Entry* nameEntry = this->assemblyData->configMap.LookupPtr("name");
+		if (!nameEntry)
+			detail += "?";
+		else
+			detail += nameEntry->string;
+		return detail;
+	}
+#endif
 }

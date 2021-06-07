@@ -31,4 +31,13 @@ namespace Powder
 		// TODO: Add byte for count of how many pops to do?
 		programBufferLocation += 1;
 	}
+
+#if defined POWDER_DEBUG
+	/*virtual*/ std::string PopInstruction::Print(void) const
+	{
+		std::string detail;
+		detail += "pop";
+		return detail;
+	}
+#endif
 }

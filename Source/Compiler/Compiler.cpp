@@ -28,7 +28,7 @@ namespace Powder
 		Parser parser;
 		Parser::SyntaxNode* rootSyntaxNode = parser.Parse(tokenList);
 
-#if false
+#if defined POWDER_DEBUG
 		if (rootSyntaxNode)
 			rootSyntaxNode->Print(std::cout);
 		else

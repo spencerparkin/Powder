@@ -117,4 +117,15 @@ namespace Powder
 
 		programBufferLocation += 2L;
 	}
+
+#if defined POWDER_DEBUG
+	/*virtual*/ std::string MathInstruction::Print(void) const
+	{
+		std::string detail;
+		detail += "math: ";
+		const AssemblyData::Entry* mathOpEntry = this->assemblyData->configMap.LookupPtr("mathOp");
+		detail += FormatString("%04d", (mathOpEntry ? mathOpEntry->code : -1));
+		return detail;
+	}
+#endif
 }

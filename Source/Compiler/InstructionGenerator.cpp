@@ -63,7 +63,7 @@ namespace Powder
 
 				// The end of the function might already have a return, but if it doesn't, this doesn't hurt.
 				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
-				AssemblyData::Entry entry;
+				entry.Reset();
 				entry.code = PushInstruction::DataType::UNDEFINED;
 				pushInstruction->assemblyData->configMap.Insert("type", entry);
 				functionInstructionList.AddTail(pushInstruction);
@@ -108,7 +108,8 @@ namespace Powder
 			if (syntaxNode->childList.GetCount() != 5)
 			{
 				// No.  Setup jump-hint on the branch instruction to jump to instruction just after the last condition-pass instruction.
-				entry.jumpDelta = passInstructionList.GetCount();
+				entry.Reset();
+				entry.jumpDelta = passInstructionList.GetCount() + 1;
 				entry.string = "branch";
 				branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 			}
@@ -116,6 +117,7 @@ namespace Powder
 			{
 				// Yes.  Before laying down the condition-fail instructions, we want an unconditional jump that goes over them if the condition passed.
 				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+				entry.Reset();
 				entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 				jumpInstruction->assemblyData->configMap.Insert("type", entry);
 				instructionList.AddTail(jumpInstruction);
@@ -126,11 +128,13 @@ namespace Powder
 				instructionList.Append(failInstructionList);
 
 				// We have enough now to resolve the jump-delta for getting over the else-clause.
-				entry.jumpDelta = failInstructionList.GetCount();
+				entry.Reset();
+				entry.jumpDelta = failInstructionList.GetCount() + 1;
 				entry.string = "jump";
 				jumpInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 
 				// We have enough now to resolve the conditional jump instruction.
+				entry.Reset();
 				entry.instruction = failInstructionList.GetHead()->value;
 				branchInstruction->assemblyData->configMap.Insert("branch", entry);
 			}
@@ -158,6 +162,7 @@ namespace Powder
 
 			// Unconditionally jump back to the top of the while-loop where the conditional is evaluated.
 			JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+			entry.Reset();
 			entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 			jumpInstruction->assemblyData->configMap.Insert("type", entry);
 			entry.instruction = conditionalInstructionList.GetHead()->value;
@@ -165,6 +170,7 @@ namespace Powder
 			instructionList.AddTail(jumpInstruction);
 
 			// We now know enough to resolve the branch jump delta.  It's the size of the body plus the unconditional jump.
+			entry.Reset();
 			entry.jumpDelta = whileLoopBodyInstructionList.GetCount() + 2;
 			entry.string = "branch";
 			branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
@@ -200,6 +206,7 @@ namespace Powder
 
 			// Unconditionally jump back up to the top of the do-while-loop.
 			JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+			entry.Reset();
 			entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 			jumpInstruction->assemblyData->configMap.Insert("type", entry);
 			entry.instruction = initialLoopInstructionList.GetHead()->value;
@@ -207,6 +214,7 @@ namespace Powder
 			instructionList.AddTail(jumpInstruction);
 
 			// We now know enough to resolve the branch jump delta.
+			entry.Reset();
 			entry.jumpDelta = finalLoopInstructionList.GetCount() + 2;
 			entry.string = "branch";
 			branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
@@ -233,17 +241,20 @@ namespace Powder
 
 			if (syntaxNode->childList.GetCount() == 2)
 			{
+				entry.Reset();
 				entry.jumpDelta = forkedInstructionList.GetCount() + 1;
 				entry.string = "fork";
 				forkInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 			}
 			else if (syntaxNode->childList.GetCount() == 4)
 			{
+				entry.Reset();
 				entry.jumpDelta = forkedInstructionList.GetCount() + 2;
 				entry.string = "fork";
 				forkInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 
 				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+				entry.Reset();
 				entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 				jumpInstruction->assemblyData->configMap.Insert("type", entry);
 				instructionList.AddTail(jumpInstruction);
@@ -252,6 +263,7 @@ namespace Powder
 				this->GenerateInstructionListRecursively(elseInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->value);
 				instructionList.Append(elseInstructionList);
 
+				entry.Reset();
 				entry.jumpDelta = elseInstructionList.GetCount() + 1;
 				entry.string = "jump";
 				jumpInstruction->assemblyData->configMap.Insert("jump-delta", entry);
@@ -489,12 +501,14 @@ namespace Powder
 
 				// Yes, this value could get poked by the calling function, but whatever, I can find a solution to that later.
 				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+				entry.Reset();
 				entry.string = "__return_address__";
 				storeInstruction->assemblyData->configMap.Insert("name", entry);
 				instructionList.AddTail(storeInstruction);
 
 				// We will resolve the jump address in a separate pass, once we've become aware of all user-defined functions.
 				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+				entry.Reset();
 				entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 				jumpInstruction->assemblyData->configMap.Insert("type", entry);
 				entry.string = funcName;
@@ -504,6 +518,7 @@ namespace Powder
 
 				// The first thing we always do after returning from a call is to pop scope.
 				ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>();
+				entry.Reset();
 				entry.code = ScopeInstruction::ScopeOp::POP;
 				scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
 				instructionList.AddTail(scopeInstruction);
@@ -563,6 +578,7 @@ namespace Powder
 		instructionList.AddTail(loadInstruction);
 
 		JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+		entry.Reset();
 		entry.code = JumpInstruction::JUMP_TO_LOADED_ADDRESS;
 		jumpInstruction->assemblyData->configMap.Insert("type", entry);
 		instructionList.AddTail(jumpInstruction);

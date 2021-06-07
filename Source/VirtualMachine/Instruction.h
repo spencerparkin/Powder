@@ -49,6 +49,10 @@ namespace Powder
 		// the buffer; the assemlber does that for you.
 		virtual void Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const = 0;
 
+#if defined POWDER_DEBUG
+		virtual std::string Print(void) const = 0;
+#endif
+
 		// This pointer is setup by the compiler and used during
 		// assembly to know how to configure and link the instruction.
 		AssemblyData* assemblyData;

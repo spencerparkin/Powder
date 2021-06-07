@@ -69,4 +69,31 @@ namespace Powder
 		if (typeEntry->code == Type::JUMP_TO_EMBEDDED_ADDRESS)
 			programBufferLocation += sizeof(uint64_t);
 	}
+
+#if defined POWDER_DEBUG
+	/*virtual*/ std::string JumpInstruction::Print(void) const
+	{
+		std::string detail;
+		detail += "jump: ";
+		const AssemblyData::Entry* typeEntry = this->assemblyData->configMap.LookupPtr("type");
+		if (!typeEntry)
+			detail += "?";
+		else
+		{
+			if (typeEntry->code == Type::JUMP_TO_EMBEDDED_ADDRESS)
+			{
+				const AssemblyData::Entry* jumpEntry = this->assemblyData->configMap.LookupPtr("jump");
+				if (jumpEntry)
+					detail += FormatString("%04d", jumpEntry->instruction->assemblyData->programBufferLocation);
+				else
+					detail += "?";
+			}
+			else if (typeEntry->code == Type::JUMP_TO_LOADED_ADDRESS)
+				detail += "loaded address";
+			else
+				detail += "?";
+		}
+		return detail;
+	}
+#endif
 }

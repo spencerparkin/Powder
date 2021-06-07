@@ -33,6 +33,9 @@
     <None Include="Examples\DoWhile.pow">
       <Filter>Examples</Filter>
     </None>
+    <None Include="Examples\IfThenElse.pow">
+      <Filter>Examples</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Examples\Function.pow">

@@ -43,4 +43,15 @@ namespace Powder
 
 		programBufferLocation += 1 + sizeof(uint64_t);
 	}
+
+#if defined POWDER_DEBUG
+	/*virtual*/ std::string BranchInstruction::Print(void) const
+	{
+		std::string detail;
+		detail += "branch: ";
+		const AssemblyData::Entry* branchEntry = this->assemblyData->configMap.LookupPtr("branch");
+		detail += FormatString("%04d", (branchEntry ? branchEntry->instruction->assemblyData->programBufferLocation : -1));
+		return detail;
+	}
+#endif
 }

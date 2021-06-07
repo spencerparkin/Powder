@@ -400,15 +400,16 @@ namespace Powder
 		DeleteList<SyntaxNode*>(this->childList);
 	}
 
+#if defined POWDER_DEBUG
 	void Parser::SyntaxNode::Print(std::ostream& stream, uint32_t indentLevel /*= 0*/) const
 	{
 		for (uint32_t i = 0; i < indentLevel; i++)
 			stream << "  ";
 		stream << *this->name << std::endl;
-
 		for (const LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
 			node->value->Print(stream, indentLevel + 1);
 	}
+#endif //POWDER_DEBUG
 
 	bool Parser::SyntaxNode::PerformReductions()
 	{

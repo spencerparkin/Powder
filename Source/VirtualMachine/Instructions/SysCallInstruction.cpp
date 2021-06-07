@@ -124,4 +124,18 @@ namespace Powder
 
 		programBufferLocation += 2;
 	}
+
+#if defined POWDER_DEBUG
+	/*virtual*/ std::string SysCallInstruction::Print(void) const
+	{
+		std::string detail;
+		detail += "sys-call: ";
+		const AssemblyData::Entry* sysCallEntry = this->assemblyData->configMap.LookupPtr("sysCall");
+		if (!sysCallEntry)
+			detail += "?";
+		else
+			detail += FormatString("%04d", sysCallEntry->code);
+		return detail;
+	}
+#endif
 }

@@ -26,6 +26,7 @@
     <None Include="Examples\Fibbonacci.pow" />
     <None Include="Examples\Fork.pow" />
     <None Include="Examples\HelloWorld.pow" />
+    <None Include="Examples\IfThenElse.pow" />
     <None Include="Examples\MathExpression.pow" />
     <None Include="Examples\ScopeTest.pow" />
   </ItemGroup>
@@ -100,7 +101,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;POWDER_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values</AdditionalIncludeDirectories>
     </ClCompile>

@@ -1,0 +1,18 @@
+# IfThenElse.pow
+
+output("Enter number: ");
+number = input();
+
+if(number > 10)
+    output(number + " is greater than 10.\n")
+else
+    output(number + " is not greater than 10.\n");
+
+if(number < 5) {
+    output(number + " is less than 5.\n")
+} else {
+    output(number + " is not less than 5.\n")
+};
+
+if(number > 100)
+    output(number + " is greater than 100.\n")

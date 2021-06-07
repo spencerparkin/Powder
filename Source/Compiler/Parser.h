@@ -22,7 +22,9 @@ namespace Powder
 			SyntaxNode(const char* name, const FileLocation& fileLocation);
 			virtual ~SyntaxNode();
 
+#if defined POWDER_DEBUG
 			void Print(std::ostream& stream, uint32_t indentLevel = 0) const;
+#endif
 			bool PerformReductions();
 			void PatchParentPointers();
 

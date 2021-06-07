@@ -58,4 +58,18 @@ namespace Powder
 
 		programBufferLocation += 2;
 	}
+
+#if defined POWDER_DEBUG
+	/*virtual*/ std::string ScopeInstruction::Print(void) const
+	{
+		std::string detail;
+		detail += "scope: ";
+		const AssemblyData::Entry* scopeOpEntry = this->assemblyData->configMap.LookupPtr("scopeOp");
+		if (!scopeOpEntry)
+			detail += "?";
+		else
+			detail += (scopeOpEntry->code == ScopeOp::PUSH) ? "push" : "pop";
+		return detail;
+	}
+#endif
 }
