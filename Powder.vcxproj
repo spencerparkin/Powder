@@ -68,6 +68,7 @@
     <ClInclude Include="Source\Utilities\LinkedList.hpp" />
     <ClInclude Include="Source\Utilities\StringFormat.h" />
     <ClInclude Include="Source\VirtualMachine\Executor.h" />
+    <ClInclude Include="Source\VirtualMachine\Extension.h" />
     <ClInclude Include="Source\VirtualMachine\Instruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\BranchInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\ForkInstruction.h" />

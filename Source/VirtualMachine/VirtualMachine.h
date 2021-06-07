@@ -9,6 +9,7 @@ namespace Powder
 	class Executor;
 	class Instruction;
 	class Scope;
+	class ExtensionFunction;
 
 	// The goal here is to facilitate a basic procedural-style programming language.
 	// Nothing dictates the syntax of that language here.  Rather, a compiler will
@@ -24,6 +25,8 @@ namespace Powder
 		virtual ~VirtualMachine();
 
 		virtual void Execute(uint8_t* programBuffer, uint64_t programBufferSize);
+
+		void LoadExtensionFunctions(void);
 
 		void CreateExecutorAtLocation(uint64_t programBufferLocation, Executor* forkOrigin = nullptr);
 
@@ -47,5 +50,8 @@ namespace Powder
 
 		typedef HashMap<Instruction*> InstructionMap;
 		InstructionMap* instructionMap;
+
+		typedef HashMap<ExtensionFunction*> ExtensionFunctionMap;
+		ExtensionFunctionMap* extensionFunctionMap;
 	};
 }

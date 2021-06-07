@@ -2,6 +2,7 @@
 #include "Executor.h"
 #include "Scope.h"
 #include "Value.h"
+#include "Extension.h"
 #include "GarbageCollector.h"
 #include "BranchInstruction.h"
 #include "ForkInstruction.h"
@@ -14,6 +15,7 @@
 #include "StoreInstruction.h"
 #include "SysCallInstruction.h"
 #include "YieldInstruction.h"
+#include <Windows.h>
 
 namespace Powder
 {
@@ -21,6 +23,7 @@ namespace Powder
 	{
 		this->executorList = new ExecutorList();
 		this->instructionMap = new InstructionMap();
+		this->extensionFunctionMap = new ExtensionFunctionMap();
 
 		this->RegisterInstruction<BranchInstruction>();
 		this->RegisterInstruction<ForkInstruction>();
@@ -41,6 +44,7 @@ namespace Powder
 		DeleteList<Executor*>(*this->executorList);
 		delete this->instructionMap;
 		delete this->executorList;
+		delete this->extensionFunctionMap;
 	}
 
 	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Executor* forkOrigin /*= nullptr*/)
@@ -79,5 +83,16 @@ namespace Powder
 	{
 		char key[2] = { (char)programOpCode, '\0' };
 		return this->instructionMap->Lookup(key);
+	}
+
+	void VirtualMachine::LoadExtensionFunctions(void)
+	{
+		//::LoadLibraryA()
+
+		//::GetProcAddress()
+
+		//RegisterExtensionFunctionsProc registrationFunc = nullptr;
+
+		//registrationFunc(*this->extensionFunctionMap);
 	}
 }

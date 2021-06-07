@@ -234,6 +234,9 @@
     <ClInclude Include="Source\VirtualMachine\Values\MapValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Extension.h">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />

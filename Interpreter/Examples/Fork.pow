@@ -1,22 +1,26 @@
 # Fork.pow
 
+output("Hello!\n");
+
 fork
 {
     i = 0;
-    while(true)
+    while(i < 10)
     {
-        print("fork A: " + i);
+        output("fork A: " + i + "\n");
         yield;
         i = i + 1;
     }
 }
 else
 {
-    i = 0;
-    while(true)
+    j = 0;
+    while(j > -10)
     {
-        print("fork B: " + i);
+        output("fork B: " + j + "\n");
         yield;
-        i = i - 1;
+        j = j - 1;
     }
-}
+};
+
+output("Good-bye!\n");

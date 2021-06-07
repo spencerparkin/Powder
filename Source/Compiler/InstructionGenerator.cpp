@@ -9,6 +9,7 @@
 #include "MathInstruction.h"
 #include "SysCallInstruction.h"
 #include "ScopeInstruction.h"
+#include "ForkInstruction.h"
 #include "Exceptions.hpp"
 #include "HashMap.hpp"
 
@@ -129,6 +130,121 @@ namespace Powder
 				// We have enough now to resolve the conditional jump instruction.
 				entry.instruction = failInstructionList.GetHead()->value;
 				branchInstruction->assemblyData->configMap.Insert("branch", entry);
+			}
+		}
+		else if (*syntaxNode->name == "while-statement")
+		{
+			if (syntaxNode->childList.GetCount() != 3)
+				throw new CompileTimeException("Expected \"while-statement\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
+
+			AssemblyData::Entry entry;
+
+			// Lay down the conditional instructions first.  What remains is a value on the eval stack who's truthiness we'll use in a branch instruction.
+			LinkedList<Instruction*> conditionalInstructionList;
+			this->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+			instructionList.Append(conditionalInstructionList);
+
+			// The branch falls through if the bool is true, or jumps in the bool is false.  We don't yet know how far to jump to get over the while-loop body.
+			BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>();
+			instructionList.AddTail(branchInstruction);
+
+			// Lay down while-loop body instructions.
+			LinkedList<Instruction*> whileLoopBodyInstructionList;
+			this->GenerateInstructionListRecursively(whileLoopBodyInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+			instructionList.Append(whileLoopBodyInstructionList);
+
+			// Unconditionally jump back to the top of the while-loop where the conditional is evaluated.
+			JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+			entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
+			jumpInstruction->assemblyData->configMap.Insert("type", entry);
+			entry.instruction = conditionalInstructionList.GetHead()->value;
+			jumpInstruction->assemblyData->configMap.Insert("jump", entry);
+			instructionList.Append(instructionList);
+
+			// We now know enough to resolve the branch jump delta.  It's the size of the body plus the unconditional jump.
+			entry.jumpDelta = whileLoopBodyInstructionList.GetCount() + 1;
+			branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+		}
+		else if (*syntaxNode->name == "do-while-statement")
+		{
+			if(syntaxNode->childList.GetCount() != 4 && syntaxNode->childList.GetCount() != 5)
+				throw new CompileTimeException("Expected \"do-while-statement\" in AST to have exactly 4 or 5 children.", &syntaxNode->fileLocation);
+
+			AssemblyData::Entry entry;
+
+			// Lay down the first half of the loop instructions.
+			LinkedList<Instruction*> initialLoopInstructionList;
+			this->GenerateInstructionListRecursively(initialLoopInstructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+			instructionList.Append(initialLoopInstructionList);
+
+			// Now lay down the conditional instructions of the loop.  What should remain is a single value on the eval stack for our branch instruction.
+			LinkedList<Instruction*> conditionalInstructionList;
+			this->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->value);
+			instructionList.Append(conditionalInstructionList);
+
+			// Condition failure means we jump; success, we fall through.
+			BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>();
+			instructionList.AddTail(branchInstruction);
+
+			// Now lay down the last half of the loop instructions, if given.
+			LinkedList<Instruction*> finalLoopInstructionList;
+			if (syntaxNode->childList.GetCount() == 5)
+			{
+				this->GenerateInstructionListRecursively(finalLoopInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->GetNext()->value);
+				instructionList.Append(finalLoopInstructionList);
+			}
+
+			// Unconditionally jump back up to the top of the do-while-loop.
+			JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+			entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
+			jumpInstruction->assemblyData->configMap.Insert("type", entry);
+			entry.instruction = initialLoopInstructionList.GetHead()->value;
+			jumpInstruction->assemblyData->configMap.Insert("jump", entry);
+			instructionList.AddTail(jumpInstruction);
+
+			// We now know enough to resolve the branch jump delta.
+			entry.jumpDelta = finalLoopInstructionList.GetCount() + 1;
+			branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+		}
+		else if (*syntaxNode->name == "fork-statement")
+		{
+			if (syntaxNode->childList.GetCount() != 2 && syntaxNode->childList.GetCount() != 4)
+				throw new CompileTimeException("Expected \"fork-statement\" in AST to have exactly 2 or 4 children.", &syntaxNode->fileLocation);
+
+			AssemblyData::Entry entry;
+
+			// A fork is like an unconditional jump, but it both does and doesn't jump.
+			ForkInstruction* forkInstruction = Instruction::CreateForAssembly<ForkInstruction>();
+			instructionList.AddTail(forkInstruction);
+
+			LinkedList<Instruction*> forkedInstructionList;
+			this->GenerateInstructionListRecursively(forkedInstructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+			instructionList.Append(forkedInstructionList);
+
+			if (syntaxNode->childList.GetCount() == 2)
+			{
+				entry.jumpDelta = forkedInstructionList.GetCount();
+				entry.string = "fork";
+				forkInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+			}
+			else if (syntaxNode->childList.GetCount() == 4)
+			{
+				entry.jumpDelta = forkedInstructionList.GetCount() + 1;
+				entry.string = "fork";
+				forkInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+
+				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+				entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
+				jumpInstruction->assemblyData->configMap.Insert("type", entry);
+				instructionList.AddTail(jumpInstruction);
+
+				LinkedList<Instruction*> elseInstructionList;
+				this->GenerateInstructionListRecursively(elseInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->value);
+				instructionList.Append(elseInstructionList);
+
+				entry.jumpDelta = elseInstructionList.GetCount();
+				entry.string = "jump";
+				jumpInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 			}
 		}
 		else if (*syntaxNode->name == "binary-expression")

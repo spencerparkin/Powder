@@ -447,6 +447,7 @@ namespace Powder
 					*childNode->name == "expression" ||
 					*childNode->name == "statement" ||
 					*childNode->name == "embedded-statement" ||
+					*childNode->name == "block" ||
 					*childNode->name == "argument"))
 			{
 				SyntaxNode* newChildNode = childNode->childList.GetHead()->value;
@@ -545,11 +546,11 @@ namespace Powder
 	{
 		// The idea here is that the most likely applicable parse error is based
 		// on the grammar-rule and expansion-rule that failed both deepest in the
-		// pase recursion, and that we were closest to match on.  But I'm still not sure.
-		if (depth > this->depth || (depth == this->depth && matchCount > this->matchCount))
+		// parse recursion, and that we were closest to match on.  But I'm still not sure.
+		if(matchCount > this->matchCount || (matchCount == this->matchCount && depth > this->depth))
 		{
-			this->depth = depth;
 			this->matchCount = matchCount;
+			this->depth = depth;
 			this->range = range;
 			this->reason = reason;
 			this->grammarRule = nonTerminal;
