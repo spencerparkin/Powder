@@ -22,5 +22,6 @@ namespace Powder
 		virtual std::string ToString() const;
 		virtual bool FromString(const std::string& str);
 		virtual bool AsBoolean() const;
+		virtual double AsNumber() const;
 	};
 }

@@ -42,6 +42,12 @@
   "function-definition": [
     [ "func", "identifier", "(", "identifier-list", ")", "block" ]
   ],
+  "list-manipulation-expression": [
+    [ "rpush", "(", "identifier", ",", "expression", ")" ],
+    [ "lpush", "(", "identifier", ",", "expression", ")" ],
+    [ "rpop", "(", "identifier", ")" ],
+    [ "lpop", "(", "identifier", ")" ]
+  ],
   "identifier-list": [
     [ "identifier-list", ",", "identifier-list" ],
     [ "identifier" ]
@@ -58,11 +64,23 @@
   "expression": [
     [ "literal" ],
     [ "identifier" ],
+    [ "list-manipulation-expression" ],
     [ "function-call" ],
     [ "wrapped-expression" ],
     [ "binary-expression" ],
     [ "unary-expression" ],
-    [ "look-up-expression" ]
+    [ "get-field-expression" ],
+    [ "set-field-expression" ],
+    [ "del-field-expression" ]
+  ],
+  "get-field-expression": [
+    [ "identifier", "[", "expression", "]"]
+  ],
+  "set-field-expression": [
+    [ "identifier", "[", "expression", "]", "=", "expression" ]
+  ],
+  "del-field-expression": [
+    [ "del", "identifier", "[", "expression", "]"]
   ],
   "binary-expression": [
     [ "operand", "=", "operand" ],
@@ -90,9 +108,6 @@
   ],
   "right-unary-expression": [
     [ "operand", "!" ]
-  ],
-  "look-up-expression": [
-    [ "identifier", "[", "expression", "]"]
   ],
   "wrapped-expression": [
     [ "(", "expression", ")" ]

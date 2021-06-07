@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Value.h"
+#include "ContainerValue.h"
+#include "LinkedList.hpp"
 #include <vector>
 
 namespace Powder
 {
-	class POWDER_API ListValue : public Value
+	class POWDER_API ListValue : public ContainerValue
 	{
 	public:
 		ListValue();
@@ -13,19 +14,15 @@ namespace Powder
 
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
-
-		void Clear();
-
-		//void LPush();
-		//void LPop();
-		//void RPush();
-		//void RPop();
-		
-		Value* GetValueAt(uint64_t i);
-		bool SetValueAt(uint64_t i, Value* value);
+		virtual void SetField(Value* fieldValue, Value* dataValue) override;
+		virtual Value* GetField(Value* fieldValue) override;
+		virtual Value* DelField(Value* fieldValue) override;
 
 	private:
+		LinkedList<Value*> valueList;
+		std::vector<LinkedList<Value*>::Node*>* valueListIndex;
+		bool valueListIndexValid;
 
-		std::vector<Value*>* valueArray;
+		void RebuildIndexIfNeeded(void);
 	};
 }

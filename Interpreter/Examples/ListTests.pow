@@ -1,0 +1,19 @@
+# ListTests.pow
+
+list = [1, 1 + 1, 1 + 1 + 1];
+
+func blah(given_list)
+{
+    rpush(given_list, 4);
+};
+
+blah(list);
+i = rpop(list);
+output("i = " + i);
+
+lpush(list, 0);
+output("list[0] = " + list[0] + "\n");
+
+lpop(list);     # Are we going to leak on the eval stack here?  We shouldn't.  We should generate a regular pop instruction.
+list[0] = -1.0;
+output("list[0] = " + list[0] + "\n");

@@ -34,4 +34,9 @@ namespace Powder
 	{
 		return false;
 	}
+
+	/*virtual*/ double Value::AsNumber() const
+	{
+		return 0.0f;
+	}
 }

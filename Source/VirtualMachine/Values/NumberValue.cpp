@@ -118,4 +118,9 @@ namespace Powder
 	{
 		return this->number != 0.0;
 	}
+
+	/*virtual*/ double NumberValue::AsNumber() const
+	{
+		return this->number;
+	}
 }

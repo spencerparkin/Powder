@@ -45,7 +45,9 @@
     <ClCompile Include="Source\VirtualMachine\Value.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\AddressValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\BooleanValue.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\ContainerValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\ListValue.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\MapValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\NumberValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\StringValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\UndefinedValue.cpp" />
@@ -85,6 +87,7 @@
     <ClInclude Include="Source\VirtualMachine\Value.h" />
     <ClInclude Include="Source\VirtualMachine\Values\AddressValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\BooleanValue.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\ContainerValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\ListValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\MapValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\NumberValue.h" />

@@ -1,22 +1,24 @@
 #include "ListValue.h"
 #include "UndefinedValue.h"
 #include "NumberValue.h"
+#include "Exceptions.hpp"
+#include "StringFormat.h"
 
 namespace Powder
 {
 	ListValue::ListValue()
 	{
-		this->valueArray = new std::vector<Value*>();
+		this->valueListIndexValid = false;
+		this->valueListIndex = new std::vector<LinkedList<Value*>::Node*>;
 	}
 
 	/*virtual*/ ListValue::~ListValue()
 	{
-		delete this->valueArray;
+		delete this->valueListIndex;
 	}
 
 	/*virtual*/ Value* ListValue::Copy() const
 	{
-		//...
 		return nullptr;
 	}
 
@@ -29,51 +31,74 @@ namespace Powder
 			{
 				case MathInstruction::MathOp::ADD:
 				{
-					// TODO: Return new list value that is concatination of the list values.
-					break;
+					ListValue* newListValue = new ListValue();
+					newListValue->valueList.Append(this->valueList);
+					newListValue->valueList.Append(listValue->valueList);
+					for (LinkedList<Value*>::Node* node = newListValue->valueList.GetHead(); node; node = node->GetNext())
+						newListValue->OwnObject(node->value);
+					return newListValue;
 				}
 			}
-		}
-
-		const NumberValue* numberValue = dynamic_cast<const NumberValue*>(value);
-		if (numberValue)
-		{
-			// TODO: Add math operation for indexing into the list.
 		}
 
 		return new UndefinedValue();
 	}
 
-	void ListValue::Clear()
+	/*virtual*/ void ListValue::SetField(Value* fieldValue, Value* dataValue)
 	{
-		//...
+		NumberValue* numberValue = dynamic_cast<NumberValue*>(fieldValue);
+		if (!numberValue)
+			throw new RunTimeException("Can't set field on list with something other than a number value.");
+
+		int32_t i = int32_t(numberValue->AsNumber());
+		if (i < 0 || i >= (signed)this->valueList.GetCount())
+			throw new RunTimeException(FormatString("Can't set element %d of list with %d elements.", i, this->valueList.GetCount()));
+
+		this->RebuildIndexIfNeeded();
+		(*this->valueListIndex)[i]->value = dataValue;
+		this->OwnObject(dataValue);
 	}
 
-	Value* ListValue::GetValueAt(uint64_t i)
+	/*virtual*/ Value* ListValue::GetField(Value* fieldValue)
 	{
-		if (this->valueArray->size() == 0)
-			return nullptr;
+		NumberValue* numberValue = dynamic_cast<NumberValue*>(fieldValue);
+		if (!numberValue)
+			throw new RunTimeException("Can't get field on list with something other than a number value.");
 
-		i = i % uint64_t(this->valueArray->size());
-		return (*this->valueArray)[(unsigned int)i];
+		int32_t i = int32_t(numberValue->AsNumber());
+		if (i < 0 || i >= (signed)this->valueList.GetCount())
+			throw new RunTimeException(FormatString("Can't get element %d of list with %d elements.", i, this->valueList.GetCount()));
+
+		this->RebuildIndexIfNeeded();
+		Value* dataValue = (*this->valueListIndex)[i]->value;
+		return dataValue;
 	}
 
-	bool ListValue::SetValueAt(uint64_t i, Value* value)
+	/*virtual*/ Value* ListValue::DelField(Value* fieldValue)
 	{
-		if (valueArray->size() == 0)
-			return false;
+		NumberValue* numberValue = dynamic_cast<NumberValue*>(fieldValue);
+		if (!numberValue)
+			throw new RunTimeException("Can't delete field on list with something other than a number value.");
 
-		i = i % uint64_t(this->valueArray->size());
+		int32_t i = int32_t(numberValue->AsNumber());
+		if (i < 0 || i >= (signed)this->valueList.GetCount())
+			throw new RunTimeException(FormatString("Can't delete element %d of list with %d elements.", i, this->valueList.GetCount()));
 
-		Value* existingValue = (*this->valueArray)[(unsigned int)i];
-		if (existingValue)
-			this->DisownObject(existingValue);
+		this->RebuildIndexIfNeeded();
+		Value* dataValue = (*this->valueListIndex)[i]->value;
+		this->valueList.Remove((*this->valueListIndex)[i]);
+		this->valueListIndexValid = false;
+		return dataValue;
+	}
 
-		(*this->valueArray)[(unsigned int)i] = value;
-
-		if (value)
-			this->OwnObject(value);
-
-		return true;
+	void ListValue::RebuildIndexIfNeeded(void)
+	{
+		if (!this->valueListIndexValid)
+		{
+			this->valueListIndexValid = true;
+			this->valueListIndex->clear();
+			for (LinkedList<Value*>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
+				this->valueListIndex->push_back(node);
+		}
 	}
 }

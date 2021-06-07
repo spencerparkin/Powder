@@ -1,0 +1,57 @@
+# TowersOfHanoi.pow
+
+towers = [
+    [5, 4, 3, 2, 1],
+    [],
+    []
+];
+
+tower_bases = [0, 0, 0];
+
+func other_tower(src_tower, dst_tower)
+{
+    i = 0;
+    while(i == src_tower or i == dst_tower)
+        i = (i + 1) % 3;
+    return i;
+};
+
+func move_disks(towers, tower_bases, src_tower, dst_tower)
+{
+    src_tower_height = length(towers[src_tower]) - tower_bases[src_tower];
+    if(src_tower_height > 1)
+    {
+        tower_bases[src_tower] = tower_bases[src_tower] + 1;
+        move_disks(towers, tower_bases, src_tower, other_tower(src_tower, dst_tower));
+        tower_bases[src_tower] = tower_bases[src_tower] - 1;
+    }
+    
+    disk = rpop(towers[src_tower]);
+    rpush(towers[dst_tower], disk);
+    print_towers(towers);
+
+    if(src_tower_height > 1)
+    {
+        move_disks(towers, tower_bases, other_tower(src_tower, dst_tower), dst_tower);
+    }
+};
+
+func print_towers(towers)
+{
+    output("----------------------------------------\n");
+    i = 0;
+    while(i < 3)
+    {
+        j = 0;
+        while(j < length(towers[i]))
+        {
+            output("(" + i + ")");
+            j = j + 1;
+        }
+        output("\n");
+        i = i + 1;
+    }
+};
+
+print_towers(towers);
+move_disks(towers, tower_bases, 0, 2);

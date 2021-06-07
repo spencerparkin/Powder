@@ -27,8 +27,10 @@
     <None Include="Examples\Fork.pow" />
     <None Include="Examples\HelloWorld.pow" />
     <None Include="Examples\IfThenElse.pow" />
+    <None Include="Examples\ListTests.pow" />
     <None Include="Examples\MathExpression.pow" />
     <None Include="Examples\ScopeTest.pow" />
+    <None Include="Examples\TowersOfHanoi.pow" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Examples\Function.pow" />

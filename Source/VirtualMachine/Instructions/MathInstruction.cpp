@@ -2,6 +2,7 @@
 #include "Assembler.h"
 #include "Scope.h"
 #include "Value.h"
+#include "ContainerValue.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
 
@@ -66,19 +67,61 @@ namespace Powder
 	{
 		Value* result = nullptr;
 
+		// It was decided that loading and storing (assignment), to and from scope,
+		// would not be a math operation, and so it seems contradictory here to support
+		// container setting and getting.  The reason I think there is no contradiction,
+		// and that this choice keeps the system consistent, is because the math operation
+		// only deals with concrete (rather than symbolic) values on the evaluation stack.
+		// A list (or map) is itself a concrete value.
 		uint8_t mathOp = programBuffer[programBufferLocation + 1];
-		bool unary = (mathOp & 0x80) != 0;
-		mathOp &= ~0x80;
-		if (unary)
+		switch (mathOp)
 		{
-			Value* value = executor->PopValueFromEvaluationStackTop();
-			result = value->CombineWith(nullptr, (MathOp)mathOp, executor);
-		}
-		else
-		{
-			Value* rightValue = executor->PopValueFromEvaluationStackTop();
-			Value* leftValue = executor->PopValueFromEvaluationStackTop();
-			result = leftValue->CombineWith(rightValue, (MathOp)mathOp, executor);
+			case MathOp::GET_FIELD:
+			{
+				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				if (!containerValue)
+					throw new RunTimeException("Get field math operation expected a container value on the evaluation stack.");
+				result = containerValue->GetField(fieldValue);
+				break;
+			}
+			case MathOp::SET_FIELD:
+			{
+				result = executor->PopValueFromEvaluationStackTop();
+				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				if (!containerValue)
+					throw new RunTimeException("Set field math operation expected a container value on the evaluation stack.");
+				containerValue->SetField(fieldValue, result);
+				break;
+			}
+			case MathOp::DEL_FIELD:
+			{
+				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				if (!containerValue)
+					throw new RunTimeException("Delete field math operation expected a container value on the evaluation stack.");
+				result = containerValue->DelField(fieldValue);
+				break;
+			}
+			default:
+			{
+				bool unary = (mathOp & 0x80) != 0;
+				mathOp &= ~0x80;
+				if (unary)
+				{
+					Value* value = executor->PopValueFromEvaluationStackTop();
+					result = value->CombineWith(nullptr, (MathOp)mathOp, executor);
+				}
+				else
+				{
+					Value* rightValue = executor->PopValueFromEvaluationStackTop();
+					Value* leftValue = executor->PopValueFromEvaluationStackTop();
+					result = leftValue->CombineWith(rightValue, (MathOp)mathOp, executor);
+				}
+
+				break;
+			}
 		}
 
 		if (!result)

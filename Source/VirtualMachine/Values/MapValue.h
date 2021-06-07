@@ -1,12 +1,23 @@
 #pragma once
 
-#include "Value.h"
+#include "ContainerValue.h"
+#include "HashMap.hpp"
 
 namespace Powder
 {
-	// TODO: I want the syntax blah.key to be short-hand for blah[key], where key is a string value.  This is taken from Lua, I think.
-	class MapValue : public Value
+	class MapValue : public ContainerValue
 	{
 	public:
+		MapValue();
+		virtual ~MapValue();
+
+		virtual Value* Copy() const override;
+		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
+		virtual void SetField(Value* fieldValue, Value* dataValue) override;
+		virtual Value* GetField(Value* fieldValue) override;
+		virtual Value* DelField(Value* fieldValue) override;
+
+	private:
+		HashMap<Value*> valueMap;
 	};
 }

@@ -36,6 +36,12 @@
     <None Include="Examples\IfThenElse.pow">
       <Filter>Examples</Filter>
     </None>
+    <None Include="Examples\TowersOfHanoi.pow">
+      <Filter>Examples</Filter>
+    </None>
+    <None Include="Examples\ListTests.pow">
+      <Filter>Examples</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Examples\Function.pow">
