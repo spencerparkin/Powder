@@ -22,6 +22,9 @@ namespace Powder
 
 	// TODO: How do we determine the real point of parse failure?  The praser is designed
 	//       to fail until is succeeds, but even those successes can be false positives.
+	//       This needs a lot of work.  Presently, parse failure errors that are given are
+	//       just not helpful at all.  Even if they show that the parser doesn't know what
+	//       the programmer is trying to say, they should at least fail at the right location.
 	Parser::SyntaxNode* Parser::Parse(const TokenList& tokenList)
 	{
 		// TODO: Find a better way to locate this file.
@@ -415,7 +418,11 @@ namespace Powder
 	{
 		bool performedReduction = false;
 
-		if (*this->name == "statement-list" || *this->name == "argument-list" || *this->name == "identifier-list")
+		if (*this->name == "statement-list" ||
+			*this->name == "argument-list" ||
+			*this->name == "identifier-list" ||
+			*this->name == "list-element-list" ||
+			*this->name == "map-pair-list")
 		{
 			LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead();
 			while (node)
@@ -444,7 +451,6 @@ namespace Powder
 			SyntaxNode* childNode = node->value;
 			if (childNode->childList.GetCount() == 1 &&
 				(*childNode->childList.GetHead()->value->name == *this->name ||
-					*childNode->name == "operand" ||
 					*childNode->name == "expression" ||
 					*childNode->name == "statement" ||
 					*childNode->name == "embedded-statement" ||

@@ -5,6 +5,7 @@
 #include "LinkedList.hpp"
 #include "Exceptions.hpp"
 #include <string>
+#include <vector>
 
 namespace Powder
 {
@@ -44,10 +45,14 @@ namespace Powder
 
 		void Tokenize(const char* programCodeBuffer, TokenList& tokenList);
 
+		static void Replace(std::string& string, const std::string& oldSubString, const std::string& newSubString);
+		static bool IsAnyChar(char givenChar, const char* charSet);
+
 	private:
 		Token GenerateToken(const char* programCodeBuffer, uint64_t& programCodeBufferLocation, FileLocation& fileLocation);
 
-		bool IsAnyChar(char givenChar, const char* charSet);
-		void Replace(std::string& string, const std::string& oldSubString, const std::string& newSubString);
+		std::string SoakUpToken(const char* programCodeBuffer, uint64_t& programCodeBufferLocation, const std::vector<std::string>& optionsArray);
+
+		std::vector<std::string>* operatorArray;
 	};
 }

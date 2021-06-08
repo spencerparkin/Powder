@@ -5,6 +5,7 @@
 
 namespace Powder
 {
+	// TODO: Derive from ContainerValue class.
 	class POWDER_API StringValue : public Value
 	{
 	public:

@@ -4,16 +4,27 @@ list = [1, 1 + 1, 1 + 1 + 1];
 
 func blah(given_list)
 {
-    rpush(given_list, 4);
+    given_list --< 4;
+    0 >-- given_list;
 };
 
 blah(list);
-i = rpop(list);
-output("i = " + i);
 
-lpush(list, 0);
-output("list[0] = " + list[0] + "\n");
+i <-- list;
+list --> j;
 
-lpop(list);     # Are we going to leak on the eval stack here?  We shouldn't.  We should generate a regular pop instruction.
-list[0] = -1.0;
-output("list[0] = " + list[0] + "\n");
+output("i = " + i + "\n");
+output("j = " + j + "\n");
+
+func print_list(given_list)
+{
+    i = 0;
+    while(i < len(given_list))
+    {
+        output(i + ": " + given_list[i] + "\n");
+        i = i + 1;
+    }
+};
+
+output("len(list) = " + len(list) + "\n");
+print_list(list);

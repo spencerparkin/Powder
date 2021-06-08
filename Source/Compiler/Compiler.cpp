@@ -27,13 +27,16 @@ namespace Powder
 
 		Parser parser;
 		Parser::SyntaxNode* rootSyntaxNode = parser.Parse(tokenList);
-
+		
 #if defined POWDER_DEBUG
 		if (rootSyntaxNode)
 			rootSyntaxNode->Print(std::cout);
 		else
 			std::cout << "No syntax tree!" << std::endl;
 #endif
+
+		if (!rootSyntaxNode)
+			throw new CompileTimeException("Failed to generate AST from tokenization of the source code.");
 
 		LinkedList<Instruction*> instructionList;
 		HashMap<Instruction*> functionMap;

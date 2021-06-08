@@ -6,6 +6,7 @@
 #include "NumberValue.h"
 #include "ListValue.h"
 #include "AddressValue.h"
+#include "Tokenizer.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
 
@@ -123,7 +124,13 @@ namespace Powder
 		{
 			detail += "; data: ";
 			if (typeEntry->code == DataType::STRING)
-				detail += dataEntry->string;
+			{
+				std::string str = dataEntry->string;
+				Tokenizer::Replace(str, "\n", "\\n");
+				Tokenizer::Replace(str, "\r", "\\r");
+				Tokenizer::Replace(str, "\t", "\\t");
+				detail += str;
+			}
 			else if (typeEntry->code == DataType::NUMBER)
 				detail += FormatString("%f", dataEntry->number);
 			else if (typeEntry->code == ADDRESS)

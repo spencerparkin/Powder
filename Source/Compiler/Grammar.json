@@ -42,12 +42,6 @@
   "function-definition": [
     [ "func", "identifier", "(", "identifier-list", ")", "block" ]
   ],
-  "list-manipulation-expression": [
-    [ "rpush", "(", "identifier", ",", "expression", ")" ],
-    [ "lpush", "(", "identifier", ",", "expression", ")" ],
-    [ "rpop", "(", "identifier", ")" ],
-    [ "lpop", "(", "identifier", ")" ]
-  ],
   "identifier-list": [
     [ "identifier-list", ",", "identifier-list" ],
     [ "identifier" ]
@@ -64,72 +58,94 @@
   "expression": [
     [ "literal" ],
     [ "identifier" ],
-    [ "list-manipulation-expression" ],
-    [ "function-call" ],
     [ "wrapped-expression" ],
+    [ "membership-expression" ],
+    [ "container-size-expression" ],
+    [ "list-manipulation-expression" ],
     [ "binary-expression" ],
     [ "unary-expression" ],
     [ "get-field-expression" ],
     [ "set-field-expression" ],
-    [ "del-field-expression" ]
+    [ "del-field-expression" ],
+    [ "function-call" ]
+  ],
+  "membership-expression": [
+    [ "expression", "in", "expression" ]
+  ],
+  "list-manipulation-expression": [
+    [ "expression", "-->", "expression" ],
+    [ "expression", "<--", "expression" ],
+    [ "expression", "--<", "expression" ],
+    [ "expression", ">--", "expression" ]
+  ],
+  "container-size-expression": [
+    [ "len", "(", "expression", ")" ]
+  ],
+  "map-keys-expression": [
+    [ "keys", "(", "expression", ")" ]
   ],
   "get-field-expression": [
-    [ "identifier", "[", "expression", "]"]
+    [ "identifier", "[", "expression", "]" ]
   ],
   "set-field-expression": [
     [ "identifier", "[", "expression", "]", "=", "expression" ]
   ],
   "del-field-expression": [
-    [ "del", "identifier", "[", "expression", "]"]
+    [ "del", "identifier", "[", "expression", "]" ]
   ],
   "binary-expression": [
-    [ "operand", "=", "operand" ],
-    [ "operand", "==", "operand" ],
-    [ "operand", "<", "operand" ],
-    [ "operand", ">", "operand" ],
-    [ "operand", "<=", "operand" ],
-    [ "operand", ">=", "operand" ],
-    [ "operand", "and", "operand" ],
-    [ "operand", "or", "operand" ],
-    [ "operand", "xor", "operand" ],
-    [ "operand", "+", "operand" ],
-    [ "operand", "-", "operand" ],
-    [ "operand", "*", "operand" ],
-    [ "operand", "/", "operand" ]
+    [ "expression", "=", "expression" ],
+    [ "expression", "==", "expression" ],
+    [ "expression", "<", "expression" ],
+    [ "expression", ">", "expression" ],
+    [ "expression", "<=", "expression" ],
+    [ "expression", ">=", "expression" ],
+    [ "expression", "&&", "expression" ],
+    [ "expression", "||", "expression" ],
+    [ "expression", "+", "expression" ],
+    [ "expression", "-", "expression" ],
+    [ "expression", "*", "expression" ],
+    [ "expression", "/", "expression" ]
   ],
   "unary-expression": [
     [ "left-unary-expression" ],
     [ "right-unary-expression" ]
   ],
   "left-unary-expression": [
-    [ "-", "operand" ],
-    [ "~", "operand" ],
-    [ "!", "operand" ]
+    [ "-", "expression" ],
+    [ "~", "expression" ],
+    [ "!", "expression" ]
   ],
   "right-unary-expression": [
-    [ "operand", "!" ]
+    [ "expression", "!" ]
   ],
   "wrapped-expression": [
     [ "(", "expression", ")" ]
   ],
-  "operand": [
-    [ "literal" ],
-    [ "identifier" ],
-    [ "function-call" ],
-    [ "expression" ]
-  ],
   "literal": [
     [ "string-literal" ],
     [ "number-literal" ],
-    [ "list-literal" ]
+    [ "list-literal" ],
+    [ "map-literal" ]
   ],
   "list-literal": [
     [ "[", "]" ],
-    [ "[", "list-literal-element-list", "]" ]
+    [ "[", "list-element-list", "]" ]
   ],
-  "list-literal-element-list": [
-    [ "list-literal-element-list", ",", "list-literal-element-list" ],
+  "list-element-list": [
+    [ "list-element-list", ",", "list-element-list" ],
     [ "expression" ]
+  ],
+  "map-literal": [
+    [ "{", "}" ],
+    [ "{", "map-pair-list", "}" ]
+  ],
+  "map-pair-list": [
+    [ "map-pair-list", ",", "map-pair-list" ],
+    [ "map-pair" ]
+  ],
+  "map-pair": [
+    [ "expression", ":", "expression" ]
   ],
   "function-call": [
     [ "identifier", "(", ")" ],

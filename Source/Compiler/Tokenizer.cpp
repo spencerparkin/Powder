@@ -7,10 +7,29 @@ namespace Powder
 {
 	Tokenizer::Tokenizer()
 	{
+		this->operatorArray = new std::vector<std::string>();
+		this->operatorArray->push_back("=");
+		this->operatorArray->push_back("+");
+		this->operatorArray->push_back("-");
+		this->operatorArray->push_back("*");
+		this->operatorArray->push_back("/");
+		this->operatorArray->push_back("%");
+		this->operatorArray->push_back(":");
+		this->operatorArray->push_back("<");
+		this->operatorArray->push_back("<=");
+		this->operatorArray->push_back(">");
+		this->operatorArray->push_back(">=");
+		this->operatorArray->push_back("-->");
+		this->operatorArray->push_back("--<");
+		this->operatorArray->push_back("<--");
+		this->operatorArray->push_back(">--");
+		this->operatorArray->push_back("&&");
+		this->operatorArray->push_back("||");
 	}
 
 	/*virtual*/ Tokenizer::~Tokenizer()
 	{
+		delete this->operatorArray;
 	}
 
 	void Tokenizer::Tokenize(const char* programCodeBuffer, TokenList& tokenList)
@@ -57,6 +76,7 @@ namespace Powder
 		}
 		else if (::isalpha(programCodeBuffer[i]))
 		{
+			// Note that we make no distinction here between keywords and variable names.  The instruction generator knows about the keywords and looks for them in the AST.
 			token.type = Token::IDENTIFIER;
 			while ((::isalpha(programCodeBuffer[i]) || ::isdigit(programCodeBuffer[i]) || programCodeBuffer[i] == '_') && programCodeBuffer[i] != '\0' && programCodeBuffer[i] != '\n')
 			{
@@ -73,16 +93,13 @@ namespace Powder
 				fileLocation.columnNumber++;
 			}
 		}
-		else if (this->IsAnyChar(programCodeBuffer[i], "=~!%*/-+<>"))
+		else if (this->IsAnyChar(programCodeBuffer[i], "=~!%*/-+<>&|:"))
 		{
 			token.type = Token::OPERATOR;
-			token.text = programCodeBuffer[i++];
-			fileLocation.columnNumber++;
-			if (this->IsAnyChar(token.text.c_str()[0], "%*/-+<>") && programCodeBuffer[i] == '=')
-			{
-				token.text += programCodeBuffer[i++];
-				fileLocation.columnNumber++;
-			}
+			token.text = this->SoakUpToken(programCodeBuffer, i, *this->operatorArray);
+			if (token.text.length() == 0)
+				throw new CompileTimeException("Failed to parse operator token.", &fileLocation);
+			fileLocation.columnNumber += (uint16_t)token.text.length();
 		}
 		else if (this->IsAnyChar(programCodeBuffer[i], ",;"))
 		{
@@ -129,7 +146,31 @@ namespace Powder
 		return token;
 	}
 
-	bool Tokenizer::IsAnyChar(char givenChar, const char* charSet)
+	std::string Tokenizer::SoakUpToken(const char* programCodeBuffer, uint64_t& programCodeBufferLocation, const std::vector<std::string>& optionsArray)
+	{
+		std::string bestTokenText;
+		for (int i = 0; i < (signed)optionsArray.size(); i++)
+		{
+			const std::string& optionText = optionsArray[i];
+			uint64_t j = programCodeBufferLocation;
+			std::string tokenText = "";
+			while (programCodeBuffer[j] != '\0' && programCodeBuffer[j] != '\n')
+			{
+				uint64_t k = j - programCodeBufferLocation;
+				if (k >= optionText.length())
+					break;
+				if (programCodeBuffer[j] != optionText.c_str()[k])
+					break;
+				tokenText += programCodeBuffer[j++];
+			}
+			if (tokenText == optionText && tokenText.length() > bestTokenText.length())
+				bestTokenText = tokenText;
+		}
+		programCodeBufferLocation += bestTokenText.length();
+		return bestTokenText;
+	}
+
+	/*static*/ bool Tokenizer::IsAnyChar(char givenChar, const char* charSet)
 	{
 		for (int i = 0; charSet[i] != '\0'; i++)
 			if (givenChar == charSet[i])
@@ -138,7 +179,7 @@ namespace Powder
 		return false;
 	}
 
-	void Tokenizer::Replace(std::string& string, const std::string& oldSubString, const std::string& newSubString)
+	/*static*/ void Tokenizer::Replace(std::string& string, const std::string& oldSubString, const std::string& newSubString)
 	{
 		std::size_t pos = string.find(oldSubString);
 		if (pos != std::string::npos)
