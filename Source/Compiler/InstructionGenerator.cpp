@@ -2,6 +2,7 @@
 #include "Assembler.h"
 #include "BranchInstruction.h"
 #include "JumpInstruction.h"
+#include "ListInstruction.h"
 #include "LoadInstruction.h"
 #include "StoreInstruction.h"
 #include "PushInstruction.h"
@@ -399,6 +400,14 @@ namespace Powder
 				// In this case, next come the instructions that populate the list.
 				this->GenerateInstructionListRecursively(instructionList, literalTypeNode);
 			}
+
+			// If the literal is not in the context of an assignment or expression of some kind, then we
+			// need to issue a pop instruction here in order to not leak a value on the eval stack.
+			if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
+			{
+				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+				instructionList.AddTail(popInstruction);
+			}
 		}
 		else if (*syntaxNode->name == "identifier")
 		{
@@ -419,7 +428,89 @@ namespace Powder
 		}
 		else if (*syntaxNode->name == "list-literal")
 		{
-			// TODO: Here we need to generate the instructions that populate the list literal.
+			const Parser::SyntaxNode* elementListNode = syntaxNode->FindChild("list-element-list", 1);
+			if (!elementListNode)
+				throw new CompileTimeException("Expected to find \"list-element-list\" child of \"list-literal\" in AST.", &syntaxNode->fileLocation);
+
+			// We assume here that the list in question is already on the eval-stack.
+			for (const LinkedList<Parser::SyntaxNode*>::Node* node = elementListNode->childList.GetHead(); node; node = node->GetNext())
+			{
+				// Push the element onto the eval stack.
+				this->GenerateInstructionListRecursively(instructionList, node->value);
+
+				// Now add the element to the list.  The element gets removed from the stack, but the list should remain.
+				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+				AssemblyData::Entry entry;
+				entry.code = ListInstruction::PUSH_RIGHT;
+				listInstruction->assemblyData->configMap.Insert("action", entry);
+				instructionList.AddTail(listInstruction);
+			}
+		}
+		else if (*syntaxNode->name == "list-push-pop-expression")
+		{
+			if (syntaxNode->childList.GetCount() != 3)
+				throw new CompileTimeException("Expected \"list-push-pop-expression\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
+
+			const Parser::SyntaxNode* actionNode = syntaxNode->childList.GetHead()->GetNext()->value;
+			if (*actionNode->name == "-->" || *actionNode->name == "<--")
+			{
+				// Push the list onto the eval stack.  Note that if it's not a list, we'll only know at run-time.
+				const Parser::SyntaxNode* listNode = (*actionNode->name == "-->") ? syntaxNode->childList.GetHead()->value : syntaxNode->childList.GetHead()->GetNext()->GetNext()->value;
+				LinkedList<Instruction*> listInstructionList;
+				this->GenerateInstructionListRecursively(listInstructionList, listNode);
+				instructionList.Append(listInstructionList);
+
+				// Now issue the list instruction to pop left or right.  The list is replaced with the popped value on the eval stack.
+				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+				AssemblyData::Entry entry;
+				entry.code = (*actionNode->name == "-->") ? ListInstruction::POP_RIGHT : ListInstruction::POP_LEFT;
+				listInstruction->assemblyData->configMap.Insert("action", entry);
+				instructionList.AddTail(listInstruction);
+
+				// TODO: Support "list --> other_container[key]"?
+
+				// Lastly, store the popped value into the given identifier.
+				const Parser::SyntaxNode* identifierNode = (*actionNode->name == "-->") ? syntaxNode->childList.GetHead()->GetNext()->GetNext()->value : syntaxNode->childList.GetHead()->value;
+				if (*identifierNode->name != "identifier")
+					throw new CompileTimeException(FormatString("List pop expected to store value in location given by name, but got no identifier.  Got \"%s\" instead.", identifierNode->name->c_str()), &syntaxNode->fileLocation);
+				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+				entry.Reset();
+				entry.string = *identifierNode->childList.GetHead()->value->name;
+				storeInstruction->assemblyData->configMap.Insert("name", entry);
+				instructionList.AddTail(storeInstruction);
+			}
+			else if (*actionNode->name == "--<" || *actionNode->name == ">--")
+			{
+				// Push the list onto the eval stack.  Note that if it's not a list, we'll only know at run-time.
+				const Parser::SyntaxNode* listNode = (*actionNode->name == "--<") ? syntaxNode->childList.GetHead()->value : syntaxNode->childList.GetHead()->GetNext()->GetNext()->value;
+				LinkedList<Instruction*> listInstructionList;
+				this->GenerateInstructionListRecursively(listInstructionList, listNode);
+				instructionList.Append(listInstructionList);
+
+				// Now push the element onto the eval stack.  This can be anything, even another list or map.
+				const Parser::SyntaxNode* elementNode = (*actionNode->name == "--<") ? syntaxNode->childList.GetHead()->GetNext()->GetNext()->value : syntaxNode->childList.GetHead()->value;
+				LinkedList<Instruction*> elementInstructionList;
+				this->GenerateInstructionListRecursively(elementInstructionList, elementNode);
+				instructionList.Append(elementInstructionList);
+
+				// Now issue the push instruction.  The element value will be consumed, and the list will remain on the eval stack.
+				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+				AssemblyData::Entry entry;
+				entry.code = (*actionNode->name == "--<") ? ListInstruction::PUSH_RIGHT : ListInstruction::PUSH_LEFT;
+				listInstruction->assemblyData->configMap.Insert("action", entry);
+				instructionList.AddTail(listInstruction);
+
+				// Now check our context.  If we're an immediate child of a statement-list, then no one wants the list anymore.  Don't leak the list on the eval-stack.
+				if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
+				{
+					PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+					instructionList.AddTail(popInstruction);
+				}
+			}
+			else
+			{
+				throw new CompileTimeException(FormatString("Did not recognize action (%s) for list manipulation operation.", actionNode->name->c_str()), &actionNode->fileLocation);
+			}
 		}
 		else if (*syntaxNode->name == "function-call")
 		{

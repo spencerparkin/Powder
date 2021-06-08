@@ -22,6 +22,11 @@ namespace Powder
 		return new BooleanValue(this->boolValue);
 	}
 
+	/*virtual*/ std::string BooleanValue::ToString() const
+	{
+		return this->boolValue ? "true" : "false";
+	}
+
 	/*virtual*/ Value* BooleanValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		if (!value)

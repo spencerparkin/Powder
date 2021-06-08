@@ -32,7 +32,7 @@ namespace Powder
 	{
 		const AssemblyData::Entry* nameEntry = this->assemblyData->configMap.LookupPtr("name");
 		if (!nameEntry)
-			throw new CompileTimeException("Assembly of store instruction failed because no identifier was give.");
+			throw new CompileTimeException("Assembly of store instruction failed because no identifier was given.");
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{

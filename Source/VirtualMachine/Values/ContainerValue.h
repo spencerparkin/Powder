@@ -13,5 +13,6 @@ namespace Powder
 		virtual void SetField(Value* fieldValue, Value* dataValue) = 0;
 		virtual Value* GetField(Value* fieldValue) = 0;
 		virtual Value* DelField(Value* fieldValue) = 0;
+		virtual uint64_t Size() = 0;
 	};
 }

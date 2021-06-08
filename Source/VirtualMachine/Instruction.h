@@ -50,6 +50,7 @@ namespace Powder
 		virtual void Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const = 0;
 
 #if defined POWDER_DEBUG
+		// This lets us print a disassembled version of the program.
 		virtual std::string Print(void) const = 0;
 #endif
 

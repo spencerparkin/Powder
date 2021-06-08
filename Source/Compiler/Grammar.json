@@ -61,7 +61,7 @@
     [ "wrapped-expression" ],
     [ "membership-expression" ],
     [ "container-size-expression" ],
-    [ "list-manipulation-expression" ],
+    [ "list-push-pop-expression" ],
     [ "binary-expression" ],
     [ "unary-expression" ],
     [ "get-field-expression" ],
@@ -72,7 +72,7 @@
   "membership-expression": [
     [ "expression", "in", "expression" ]
   ],
-  "list-manipulation-expression": [
+  "list-push-pop-expression": [
     [ "expression", "-->", "expression" ],
     [ "expression", "<--", "expression" ],
     [ "expression", "--<", "expression" ],

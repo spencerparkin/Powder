@@ -19,6 +19,11 @@ namespace Powder
 		return nullptr;
 	}
 
+	/*virtual*/ std::string MapValue::ToString() const
+	{
+		return "";
+	}
+
 	/*virtual*/ Value* MapValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		return new UndefinedValue();
@@ -38,5 +43,10 @@ namespace Powder
 	{
 		// TODO: Don't forget to disown value here.
 		return nullptr;
+	}
+
+	/*virtual*/ uint64_t MapValue::Size()
+	{
+		return 0L;
 	}
 }

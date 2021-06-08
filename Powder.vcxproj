@@ -33,6 +33,7 @@
     <ClCompile Include="Source\VirtualMachine\Instructions\BranchInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\ForkInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\JumpInstruction.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Instructions\ListInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\LoadInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\MathInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\PopInstruction.cpp" />
@@ -75,6 +76,7 @@
     <ClInclude Include="Source\VirtualMachine\Instructions\BranchInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\ForkInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\JumpInstruction.h" />
+    <ClInclude Include="Source\VirtualMachine\Instructions\ListInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\LoadInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\MathInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\PopInstruction.h" />

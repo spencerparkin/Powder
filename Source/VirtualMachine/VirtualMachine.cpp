@@ -7,6 +7,7 @@
 #include "BranchInstruction.h"
 #include "ForkInstruction.h"
 #include "JumpInstruction.h"
+#include "ListInstruction.h"
 #include "LoadInstruction.h"
 #include "MathInstruction.h"
 #include "PopInstruction.h"
@@ -28,6 +29,7 @@ namespace Powder
 		this->RegisterInstruction<BranchInstruction>();
 		this->RegisterInstruction<ForkInstruction>();
 		this->RegisterInstruction<JumpInstruction>();
+		this->RegisterInstruction<ListInstruction>();
 		this->RegisterInstruction<LoadInstruction>();
 		this->RegisterInstruction<MathInstruction>();
 		this->RegisterInstruction<PopInstruction>();

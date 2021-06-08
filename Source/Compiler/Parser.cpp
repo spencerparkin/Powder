@@ -152,7 +152,7 @@ namespace Powder
 				{
 					// Throw an exception here.  I don't allow non-terminals to be adjacent to one another in an expansion rule.
 					// I don't know how to overcome this limitation, because it produces an ambiguity in my mind that I do not know how to resolve in all cases.
-					// One thought it to expand a grammar rule until it no two non-terminals touch one another, but that adds extra complication, and it's
+					// One thought is to expand a grammar rule until it has no two non-terminals touching one another, but that adds extra complication, and it's
 					// more likely that I just don't understand the proper algorithms for dealing with expansion rules.
 					throw new CompileTimeException(FormatString("Encountered adjacent non-terminals in expansion rule for grammar rule: %s", nonTerminal));
 				}
@@ -486,7 +486,8 @@ namespace Powder
 				LinkedList<SyntaxNode*>::Node* nextNode = node->GetNext();
 				if (*node->value->name == "(" || *node->value->name == ")" ||
 					*node->value->name == ";" || *node->value->name == "," ||
-					*node->value->name == "{" || *node->value->name == "}")
+					*node->value->name == "{" || *node->value->name == "}" ||
+					*node->value->name == "[" || *node->value->name == "]")
 				{
 					delete node->value;
 					this->childList.Remove(node);

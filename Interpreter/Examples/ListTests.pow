@@ -16,15 +16,20 @@ list --> j;
 output("i = " + i + "\n");
 output("j = " + j + "\n");
 
-func print_list(given_list)
-{
-    i = 0;
-    while(i < len(given_list))
-    {
-        output(i + ": " + given_list[i] + "\n");
-        i = i + 1;
-    }
-};
-
-output("len(list) = " + len(list) + "\n");
-print_list(list);
+#func print_list(given_list)
+#{
+#    i = 0;
+#    while(i < len(given_list))
+#    {
+#        output(i + ": " + given_list[i] + "\n");
+#        i = i + 1;
+#    }
+#};
+#
+#output("len(list) = " + len(list) + "\n");
+#print_list(list);
+#
+#list[0] = -1;
+#list[1] = -2;
+#list[2] = -3;
+#print_list(list);
