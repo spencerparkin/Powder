@@ -35,5 +35,5 @@ list[1] = -2;
 list[2] = -3;
 print_list(list);
 
-del list[2];
+del list[1];
 print_list(list);
