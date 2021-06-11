@@ -1,0 +1,28 @@
+# Matrix.pow
+
+mat = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+];
+
+func print_matrix(given_mat)
+{
+    i = 0;
+    while(i < 3)
+    {
+        j = 0;
+        while(j < 3)
+        {
+            ele = given_mat[i][j];
+            output(ele);
+            if(j < 2)
+                output(", ");
+            j = j + 1;
+        }
+        output("\n");
+        i = i + 1;
+    }
+};
+
+print_matrix(mat);

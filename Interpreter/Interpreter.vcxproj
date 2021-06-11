@@ -30,6 +30,7 @@
     <None Include="Examples\ListTests.pow" />
     <None Include="Examples\MapTests.pow" />
     <None Include="Examples\MathExpression.pow" />
+    <None Include="Examples\Matrix.pow" />
     <None Include="Examples\ScopeTest.pow" />
     <None Include="Examples\TowersOfHanoi.pow" />
   </ItemGroup>

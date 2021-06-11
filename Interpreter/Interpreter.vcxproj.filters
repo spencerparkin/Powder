@@ -45,6 +45,9 @@
     <None Include="Examples\MapTests.pow">
       <Filter>Examples</Filter>
     </None>
+    <None Include="Examples\Matrix.pow">
+      <Filter>Examples</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Examples\Function.pow">
