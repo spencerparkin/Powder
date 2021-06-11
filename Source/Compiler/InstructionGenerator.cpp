@@ -76,6 +76,12 @@ namespace Powder
 		}
 	}
 
+	// Normally I would cringe at a subroutine being this hideously long,
+	// because it can causes you to not be able to see the forest through
+	// the trees (i.e., you lose sight of context and the structure of the
+	// code), but I don't believe this is the case here, and that this is
+	// one of the rare exceptions to the rule that a subroutine should be
+	// about no more than a page-full.
 	void InstructionGenerator::GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode)
 	{
 		if (*syntaxNode->name == "statement-list")
@@ -84,6 +90,92 @@ namespace Powder
 			{
 				// We simply execute the code for each statement in order.
 				this->GenerateInstructionListRecursively(instructionList, node->value);
+			}
+		}
+		else if (*syntaxNode->name == "container-size-expression")
+		{
+			if (syntaxNode->childList.GetCount() != 2)
+				throw new CompileTimeException("Expected \"container-size-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
+
+			// Load the container value onto the eval stack top.  Note that we won't know until run-time if we're actually getting a container value.
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+
+			// Now compute its size while also popping it off.
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			AssemblyData::Entry entry;
+			entry.code = MathInstruction::MathOp::SIZE;
+			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
+			instructionList.AddTail(mathInstruction);
+		}
+		else if (*syntaxNode->name == "get-field-expression")
+		{
+			if (syntaxNode->childList.GetCount() != 2)
+				throw new CompileTimeException("Expected \"get-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
+
+			// Load the container value onto the eval stack top first.
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
+
+			// Load the field value onto the eval stack top second.
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+
+			// Now compute the container value look-up operation.
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			AssemblyData::Entry entry;
+			entry.code = MathInstruction::MathOp::GET_FIELD;
+			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
+			instructionList.AddTail(mathInstruction);
+		}
+		else if (*syntaxNode->name == "set-field-expression")
+		{
+			if (syntaxNode->childList.GetCount() != 4)
+				throw new CompileTimeException("Expected \"set-field-expression\" in AST to have exactly 4 children.", &syntaxNode->fileLocation);
+
+			// First goes the container value.
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
+
+			// Second goes the field value.
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+
+			// Third goes the field value value.  (Confusing, I know.)
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->value);
+
+			// Finally, issue a math instruction to insert a value into the container value at the field value.
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			AssemblyData::Entry entry;
+			entry.code = MathInstruction::MathOp::SET_FIELD;
+			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
+			instructionList.AddTail(mathInstruction);
+
+			// Lastly, check out context.  If nothing wants the value we leave on the stack-stop, pop it.
+			if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
+			{
+				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+				instructionList.AddTail(popInstruction);
+			}
+		}
+		else if (*syntaxNode->name == "del-field-expression")
+		{
+			if (syntaxNode->childList.GetCount() != 3)
+				throw new CompileTimeException("Expected \"del-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
+
+			// Push the container value.
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+
+			// Push the field value to delete.
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+
+			// And now issue the del instruction.
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			AssemblyData::Entry entry;
+			entry.code = MathInstruction::MathOp::DEL_FIELD;
+			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
+			instructionList.AddTail(mathInstruction);
+
+			// Our result is the value in the container at the deleted field value.  But if no one wants it, pop it.
+			if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
+			{
+				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+				instructionList.AddTail(popInstruction);
 			}
 		}
 		else if (*syntaxNode->name == "if-statement")

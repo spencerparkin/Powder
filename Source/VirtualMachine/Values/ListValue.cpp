@@ -32,25 +32,34 @@ namespace Powder
 			if (i + 1 < (signed)this->valueListIndex->size())
 				listStr += ", ";
 		}
+		listStr += "]";
 		return listStr;
 	}
 
 	/*virtual*/ Value* ListValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
+		switch (mathOp)
+		{
+			case MathInstruction::MathOp::SIZE:
+			{
+				return new NumberValue(this->valueList.GetCount());
+			}
+		}
+
 		const ListValue* listValue = dynamic_cast<const ListValue*>(value);
 		if (listValue)
 		{
 			switch (mathOp)
 			{
-			case MathInstruction::MathOp::ADD:
-			{
-				ListValue* newListValue = new ListValue();
-				newListValue->valueList.Append(this->valueList);
-				newListValue->valueList.Append(listValue->valueList);
-				for (LinkedList<Value*>::Node* node = newListValue->valueList.GetHead(); node; node = node->GetNext())
-					newListValue->OwnObject(node->value);
-				return newListValue;
-			}
+				case MathInstruction::MathOp::ADD:
+				{
+					ListValue* newListValue = new ListValue();
+					newListValue->valueList.Append(this->valueList);
+					newListValue->valueList.Append(listValue->valueList);
+					for (LinkedList<Value*>::Node* node = newListValue->valueList.GetHead(); node; node = node->GetNext())
+						newListValue->OwnObject(node->value);
+					return newListValue;
+				}
 			}
 		}
 
@@ -154,10 +163,5 @@ namespace Powder
 			this->valueListIndex->pop_back();
 		this->DisownObject(value);
 		return value;
-	}
-
-	/*virtual*/ uint64_t ListValue::Size()
-	{
-		return this->valueList.GetCount();
 	}
 }

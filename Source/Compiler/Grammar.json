@@ -61,12 +61,12 @@
     [ "wrapped-expression" ],
     [ "membership-expression" ],
     [ "container-size-expression" ],
+    [ "set-field-expression" ],
+    [ "del-field-expression" ],
+    [ "get-field-expression" ],
     [ "list-push-pop-expression" ],
     [ "binary-expression" ],
     [ "unary-expression" ],
-    [ "get-field-expression" ],
-    [ "set-field-expression" ],
-    [ "del-field-expression" ],
     [ "function-call" ]
   ],
   "membership-expression": [
@@ -85,13 +85,13 @@
     [ "keys", "(", "expression", ")" ]
   ],
   "get-field-expression": [
-    [ "identifier", "[", "expression", "]" ]
+    [ "expression", "[", "expression", "]" ]
   ],
   "set-field-expression": [
-    [ "identifier", "[", "expression", "]", "=", "expression" ]
+    [ "expression", "[", "expression", "]", "=", "expression" ]
   ],
   "del-field-expression": [
-    [ "del", "identifier", "[", "expression", "]" ]
+    [ "del", "expression", "[", "expression", "]" ]
   ],
   "binary-expression": [
     [ "expression", "=", "expression" ],

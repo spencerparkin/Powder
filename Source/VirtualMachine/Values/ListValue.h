@@ -18,7 +18,6 @@ namespace Powder
 		virtual void SetField(Value* fieldValue, Value* dataValue) override;
 		virtual Value* GetField(Value* fieldValue) override;
 		virtual Value* DelField(Value* fieldValue) override;
-		virtual uint64_t Size() override;
 
 		void PushLeft(Value* value);
 		Value* PopLeft();

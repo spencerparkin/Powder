@@ -44,9 +44,4 @@ namespace Powder
 		// TODO: Don't forget to disown value here.
 		return nullptr;
 	}
-
-	/*virtual*/ uint64_t MapValue::Size()
-	{
-		return 0L;
-	}
 }

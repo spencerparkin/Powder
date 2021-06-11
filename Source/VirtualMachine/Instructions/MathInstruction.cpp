@@ -149,6 +149,7 @@ namespace Powder
 				case MathOp::NEGATE:
 				case MathOp::FACTORIAL:
 				case MathOp::NOT:
+				case MathOp::SIZE:
 				{
 					mathOp |= 0x80;
 					break;
