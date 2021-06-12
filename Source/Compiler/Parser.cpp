@@ -110,7 +110,7 @@ namespace Powder
 			throw new CompileTimeException(FormatString("Expected expansion rule for non-terminal %s to be an array of non-zero size in the JSON grammar file.", nonTerminal));
 
 		std::vector<const TokenList::Node*> terminalArray;
-		this->FindAllRootLevelTerminals(range, terminalArray, SearchDirection::LEFT_TO_RIGHT);
+		this->FindAllRootLevelTerminals(range, terminalArray);
 
 		// Special case: If we're trying to parse something as an expression, early-out if any top-level terminal is a semi-colon.
 		// I'm hoping this doesn't come back to bite me if I do find a legitimate reason to have semi-colons in an expression.
@@ -303,47 +303,25 @@ namespace Powder
 		return nullptr;
 	}
 
-	void Parser::FindAllRootLevelTerminals(const Range& range, std::vector<const TokenList::Node*>& terminalArray, SearchDirection searchDirection)
+	void Parser::FindAllRootLevelTerminals(const Range& range, std::vector<const TokenList::Node*>& terminalArray)
 	{
-		const TokenList::Node* node = nullptr;
-
-		if (searchDirection == SearchDirection::LEFT_TO_RIGHT)
-			node = range.firstNode;
-		else if (searchDirection == SearchDirection::RIGHT_TO_LEFT)
-			node = range.lastNode;
-		else
-			return;
-
+		const TokenList::Node* node = range.firstNode;
 		int level = 0;
 		while (true)
 		{
-			if ((searchDirection == SearchDirection::LEFT_TO_RIGHT && node->value.type == Token::CLOSER) ||
-				(searchDirection == SearchDirection::RIGHT_TO_LEFT && node->value.type == Token::OPENER))
-			{
+			if (node->value.type == Token::CLOSER)
 				level--;
-			}
 
 			if (level == 0 && this->IsTerminal(node->value.text.c_str()))
 				terminalArray.push_back(node);
 
-			if ((searchDirection == SearchDirection::LEFT_TO_RIGHT && node->value.type == Token::OPENER) ||
-				(searchDirection == SearchDirection::RIGHT_TO_LEFT && node->value.type == Token::CLOSER))
-			{
+			if (node->value.type == Token::OPENER)
 				level++;
-			}
 
-			if (searchDirection == SearchDirection::LEFT_TO_RIGHT)
-			{
-				if (node == range.lastNode)
-					break;
-				node = node->GetNext();
-			}
-			else if (searchDirection == SearchDirection::RIGHT_TO_LEFT)
-			{
-				if (node == range.firstNode)
-					break;
-				node = node->GetPrev();
-			}
+			if (node == range.lastNode)
+				break;
+
+			node = node->GetNext();
 		}
 	}
 

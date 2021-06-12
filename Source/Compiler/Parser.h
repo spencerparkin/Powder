@@ -80,13 +80,7 @@ namespace Powder
 		bool IsNonTerminal(const char* name);
 		bool IsTerminal(const char* name);
 
-		enum SearchDirection
-		{
-			LEFT_TO_RIGHT,
-			RIGHT_TO_LEFT
-		};
-
-		void FindAllRootLevelTerminals(const Range& range, std::vector<const TokenList::Node*>& terminalArray, SearchDirection searchDirection);
+		void FindAllRootLevelTerminals(const Range& range, std::vector<const TokenList::Node*>& terminalArray);
 		const TokenList::Node* ScanTerminalsForMatch(int& i, const std::vector<const TokenList::Node*>& terminalArray, const std::string& terminal);
 
 		rapidjson::Document* grammarDoc;
