@@ -61,11 +61,11 @@
     [ "wrapped-expression" ],
     [ "membership-expression" ],
     [ "container-size-expression" ],
-    [ "container-delete-expression" ],
     [ "list-push-pop-expression" ],
     [ "binary-expression" ],
     [ "unary-expression" ],
     [ "function-call" ],
+    [ "delete-field-expression" ],
     [ "container-field-expression" ]
   ],
   "membership-expression": [
@@ -80,7 +80,7 @@
   "container-size-expression": [
     [ "len", "(", "expression", ")" ]
   ],
-  "container-delete-expression": [
+  "delete-field-expression": [
     [ "del", "expression" ]
   ],
   "map-keys-expression": [

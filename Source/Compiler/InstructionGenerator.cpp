@@ -107,10 +107,10 @@ namespace Powder
 			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
 			instructionList.AddTail(mathInstruction);
 		}
-		else if (*syntaxNode->name == "get-field-expression")
+		else if (*syntaxNode->name == "container-field-expression")
 		{
 			if (syntaxNode->childList.GetCount() != 2)
-				throw new CompileTimeException("Expected \"get-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
+				throw new CompileTimeException("Expected \"container-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
 
 			// Load the container value onto the eval stack top first.
 			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
@@ -125,44 +125,21 @@ namespace Powder
 			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
 			instructionList.AddTail(mathInstruction);
 		}
-		else if (*syntaxNode->name == "set-field-expression")
+		else if (*syntaxNode->name == "delete-field-expression")
 		{
-			if (syntaxNode->childList.GetCount() != 4)
-				throw new CompileTimeException("Expected \"set-field-expression\" in AST to have exactly 4 children.", &syntaxNode->fileLocation);
+			if (syntaxNode->childList.GetCount() != 2)
+				throw new CompileTimeException("Expected \"delete-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
 
-			// First goes the container value.
-			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
+			if (*syntaxNode->childList.GetHead()->GetNext()->value->name != "container-field-expression")
+				throw new CompileTimeException("Expected \"container-field-expression\" to be second child of \"delete-field-expression\" in AST.", &syntaxNode->childList.GetHead()->GetNext()->value->fileLocation);
 
-			// Second goes the field value.
-			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
-
-			// Third goes the field value value.  (Confusing, I know.)
-			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->value);
-
-			// Finally, issue a math instruction to insert a value into the container value at the field value.
-			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
-			AssemblyData::Entry entry;
-			entry.code = MathInstruction::MathOp::SET_FIELD;
-			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
-			instructionList.AddTail(mathInstruction);
-
-			// Lastly, check out context.  If nothing wants the value we leave on the stack-stop, pop it.
-			if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
-			{
-				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
-				instructionList.AddTail(popInstruction);
-			}
-		}
-		else if (*syntaxNode->name == "del-field-expression")
-		{
-			if (syntaxNode->childList.GetCount() != 3)
-				throw new CompileTimeException("Expected \"del-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
+			const Parser::SyntaxNode* containerFieldNode = syntaxNode->childList.GetHead()->GetNext()->value;
 
 			// Push the container value.
-			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+			this->GenerateInstructionListRecursively(instructionList, containerFieldNode->childList.GetHead()->GetNext()->value);
 
 			// Push the field value to delete.
-			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+			this->GenerateInstructionListRecursively(instructionList, containerFieldNode->childList.GetHead()->GetNext()->GetNext()->value);
 
 			// And now issue the del instruction.
 			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
@@ -367,7 +344,7 @@ namespace Powder
 			if(syntaxNode->childList.GetCount() != 3)
 				throw new CompileTimeException("Expected \"binary-expression\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
 
-			// We treat assignment as a special case here, because it is not supported by the math instruction.
+			// We treat assignment to identifiers as a special case here, because it is not supported by the math instruction.
 			// Rather, it is supported by the store instruction.  The math instruction only operates on concrete values.
 			// Yes, we could introduce variable values as another type of value floating around in the VM, and have the
 			// math instruction store variables when given an assignment operation to perform, or load concrete values
@@ -377,27 +354,52 @@ namespace Powder
 			if (*operationNode->name == "=")
 			{
 				const Parser::SyntaxNode* storeLocationNode = syntaxNode->childList.GetHead()->value;
-				if (*storeLocationNode->name != "identifier")
-					throw new CompileTimeException(FormatString("Expected left operand of \"binary-expression\" in AST to be an identifier (not \"%s\") when the operation is assignment.", storeLocationNode->name->c_str()), &storeLocationNode->fileLocation);
+				if (*storeLocationNode->name != "identifier" && *storeLocationNode->name != "container-field-expression")
+					throw new CompileTimeException(FormatString("Expected left operand of \"binary-expression\" in AST to be an storable location (not \"%s\") when the operation is assignment.", storeLocationNode->name->c_str()), &storeLocationNode->fileLocation);
 
-				if (storeLocationNode->childList.GetCount() != 1)
-					throw new CompileTimeException("Expected \"identifier\" in AST to have exactly 1 child.", &storeLocationNode->fileLocation);
+				if (*storeLocationNode->name == "identifier")
+				{
+					const Parser::SyntaxNode* storeLocationNameNode = storeLocationNode->childList.GetHead()->value;
 
-				const Parser::SyntaxNode* storeLocationNameNode = storeLocationNode->childList.GetHead()->value;
+					// Lay down the instructions that will generate the value to be stored on top of the evaluation stack.
+					this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
 
-				// Lay down the instructions that will generate the value to be stored on top of the evaluation stack.
-				this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+					// Now issue a store instruction.  Note that this also pops the value off the stack, which is
+					// symmetrically consistent with its counter-part, the load instruction.
+					StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+					AssemblyData::Entry entry;
+					entry.string = *storeLocationNameNode->name;
+					storeInstruction->assemblyData->configMap.Insert("name", entry);
+					instructionList.AddTail(storeInstruction);
 
-				// Now issue a store instruction.  Note that this also pops the value off the stack, which is
-				// symmetrically consistent with its counter-part, the load instruction.
-				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
-				AssemblyData::Entry entry;
-				entry.string = *storeLocationNameNode->name;
-				storeInstruction->assemblyData->configMap.Insert("name", entry);
-				instructionList.AddTail(storeInstruction);
+					// TODO: For the case a = b = 1, look at our parent syntax nodes to see if we should issue
+					//       a load instruction here for the next store instruction.
+				}
+				else if (*storeLocationNode->name == "container-field-expression")
+				{
+					// First goes the container value.
+					this->GenerateInstructionListRecursively(instructionList, storeLocationNode->childList.GetHead()->value);
 
-				// TODO: For the case a = b = 1, look at our parent syntax nodes to see if we should issue
-				//       a load instruction here for the next store instruction.
+					// Second goes the field value.  (Not to be confused with the value that will be stored at the field value in the container value.)
+					this->GenerateInstructionListRecursively(instructionList, storeLocationNode->childList.GetHead()->GetNext()->value);
+
+					// Third goes the value to be store in the container value at the field value.
+					this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+
+					// Finally, issue a math instruction to insert a value into the container value at the field value.
+					MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+					AssemblyData::Entry entry;
+					entry.code = MathInstruction::MathOp::SET_FIELD;
+					mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
+					instructionList.AddTail(mathInstruction);
+
+					// Lastly, check out context.  If nothing wants the value we leave on the stack-stop, pop it.
+					if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
+					{
+						PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+						instructionList.AddTail(popInstruction);
+					}
+				}
 			}
 			else
 			{
