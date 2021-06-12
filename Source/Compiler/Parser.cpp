@@ -88,23 +88,25 @@ namespace Powder
 
 	Parser::SyntaxNode* Parser::TryGrammarRule(const char* nonTerminal, const Range& range, LinkedList<ParseError>& parseErrorList)
 	{
+		LinkedList<ParseError> nestedParseErrorList;
+
 		if (this->IsNonTerminal(nonTerminal))
 		{
 			const rapidjson::Value& expansionsListValue = (*this->grammarDoc)[nonTerminal];
 			if (!expansionsListValue.IsArray())
 				throw new CompileTimeException(FormatString("Expected expansion rule for grammar rule %s in grammar JSON file to be an array.", nonTerminal));
 			
+			// Note that the order in which the expansion rules are applied is
+			// critical to the correct parsing of the code.
 			for (int i = 0; i < (signed)expansionsListValue.Size(); i++)
 			{
-				LinkedList<ParseError> nestedParseErrorList;
 				SyntaxNode* syntaxNode = this->TryExpansionRule(nonTerminal, expansionsListValue[i], range, nestedParseErrorList);
 				if (syntaxNode)
 					return syntaxNode;
-				
-				parseErrorList.Append(nestedParseErrorList);
 			}
 		}
 
+		parseErrorList.Append(nestedParseErrorList);
 		return nullptr;
 	}
 
@@ -121,7 +123,7 @@ namespace Powder
 
 		// Special case: If we're trying to parse something as an expression, early-out if any top-level terminal is a semi-colon.
 		// I'm hoping this doesn't come back to bite me if I do find a legitimate reason to have semi-colons in an expression.
-		// In that case, I can simply remove this.  It's not just an optimization, but it may also improve improve error detection accuracy and applicability.
+		// In that case, I can simply remove this.  It's not just an optimization, but it may also improve error detection accuracy and applicability.
 		if (::strcmp(nonTerminal, "expression") == 0)
 		{
 			for (int i = 0; i < (signed)terminalArray.size(); i++)
@@ -141,10 +143,24 @@ namespace Powder
 			Range range;
 		};
 
-		int j = 0;
+		int matchListSize = (signed)matchListValue.Size();
+		if (matchListSize == 0)
+			throw new CompileTimeException(FormatString("Encountered match list of zero size in expansin rule for non-terminal %s of JSON grammar file.", nonTerminal));
+
+		// Do we match the rule left to right, or right to left?
+		int i = 0, j = 0;
+		int delta = 1;
+		if (!matchListValue[matchListSize - 1].IsString())
+		{
+			matchListSize--;
+			i = matchListSize - 1;
+			j = terminalArray.size() - 1;
+			delta = -1;
+		}
+		
 		int contiguousNonTerminalCount = 0;
 		std::vector<Subsequence> subsequenceArray;
-		for (int i = 0; i < (signed)matchListValue.Size(); i++)
+		while (0 <= i && i < matchListSize)
 		{
 			const rapidjson::Value& matchValue = matchListValue[i];
 			if (!matchValue.IsString())
@@ -169,7 +185,7 @@ namespace Powder
 				contiguousNonTerminalCount = 0;
 
 				// If we don't find the terminal, then this expansion rule does not apply.
-				const TokenList::Node* foundNode = this->ScanTerminalsForMatch(j, terminalArray, subsequence.name);
+				const TokenList::Node* foundNode = this->ScanTerminalsForMatch(j, delta, terminalArray, subsequence.name);
 				if (!foundNode)
 				{
 					std::string reason = "Failed to find terminal match \"" + subsequence.name + "\" in grammar expansion rule.";
@@ -181,7 +197,12 @@ namespace Powder
 				subsequence.range.firstNode = subsequence.range.lastNode = foundNode;
 			}
 
-			subsequenceArray.push_back(subsequence);
+			if (delta > 0)
+				subsequenceArray.push_back(subsequence);
+			else
+				subsequenceArray.insert(subsequenceArray.begin(), subsequence);
+
+			i += delta;
 		}
 
 		// The non-terminals now simply fill the space between the terminals.
@@ -236,6 +257,7 @@ namespace Powder
 		}
 
 		// Lastly, recursively descend on all the non-terminals.
+		LinkedList<ParseError> nestedParseErrorList;
 		SyntaxNode* parentNode = new SyntaxNode(nonTerminal, range.firstNode->value.fileLocation);
 		for (int i = 0; i < (signed)subsequenceArray.size(); i++)
 		{
@@ -243,7 +265,6 @@ namespace Powder
 			FileLocation fileLocation = subsequence.range.firstNode->value.fileLocation;
 			if (this->IsNonTerminal(subsequence.name.c_str()))
 			{
-				LinkedList<ParseError> nestedParseErrorList;
 				SyntaxNode* childNode = this->TryGrammarRule(subsequence.name.c_str(), subsequence.range, nestedParseErrorList);
 				if (childNode)
 					parentNode->childList.AddTail(childNode);
@@ -252,7 +273,6 @@ namespace Powder
 					delete childNode;
 					delete parentNode;
 					parentNode = nullptr;
-					parseErrorList.Append(nestedParseErrorList);
 					break;
 				}
 			}
@@ -270,6 +290,9 @@ namespace Powder
 			}
 		}
 
+		if (!parentNode)
+			parseErrorList.Append(nestedParseErrorList);
+
 		return parentNode;
 	}
 
@@ -283,12 +306,12 @@ namespace Powder
 		return !this->IsNonTerminal(name);
 	}
 
-	const TokenList::Node* Parser::ScanTerminalsForMatch(int& i, const std::vector<const TokenList::Node*>& terminalArray, const std::string& terminal)
+	const TokenList::Node* Parser::ScanTerminalsForMatch(int& i, int i_delta, const std::vector<const TokenList::Node*>& terminalArray, const std::string& terminal)
 	{
-		while (i < (signed)terminalArray.size())
+		while (0 <= i && i < (signed)terminalArray.size())
 		{
-			// TODO: May need to scan terminals in other direction in order to account for associativity of some binary operators?
-			const TokenList::Node* node = terminalArray[i++];
+			const TokenList::Node* node = terminalArray[i];
+			i += i_delta;
 
 			if (terminal == "identifier")
 			{
@@ -555,9 +578,12 @@ namespace Powder
 
 		for (uint32_t i = 0; i < matchListValue.Size(); i++)
 		{
-			if (this->expansionRule.length() > 0)
-				this->expansionRule += " ";
-			this->expansionRule += matchListValue[i].GetString();
+			if (matchListValue[i].IsString())
+			{
+				if (this->expansionRule.length() > 0)
+					this->expansionRule += " ";
+				this->expansionRule += matchListValue[i].GetString();
+			}
 		}
 	}
 

@@ -77,7 +77,7 @@ namespace Powder
 		bool IsTerminal(const char* name);
 
 		void FindAllRootLevelTerminals(const Range& range, std::vector<const TokenList::Node*>& terminalArray);
-		const TokenList::Node* ScanTerminalsForMatch(int& i, const std::vector<const TokenList::Node*>& terminalArray, const std::string& terminal);
+		const TokenList::Node* ScanTerminalsForMatch(int& i, int i_delta, const std::vector<const TokenList::Node*>& terminalArray, const std::string& terminal);
 
 		rapidjson::Document* grammarDoc;
 	};

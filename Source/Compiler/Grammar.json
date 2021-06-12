@@ -63,9 +63,9 @@
     [ "container-size-expression" ],
     [ "set-field-expression" ],
     [ "del-field-expression" ],
-    [ "get-field-expression" ],
     [ "list-push-pop-expression" ],
     [ "binary-expression" ],
+    [ "get-field-expression" ],
     [ "unary-expression" ],
     [ "function-call" ]
   ],
@@ -85,13 +85,13 @@
     [ "keys", "(", "expression", ")" ]
   ],
   "get-field-expression": [
-    [ "expression", "[", "expression", "]" ]
+    [ "expression", "[", "expression", "]", -1 ]
   ],
   "set-field-expression": [
-    [ "expression", "[", "expression", "]", "=", "expression" ]
+    [ "expression", "[", "expression", "]", "=", "expression", -1 ]
   ],
   "del-field-expression": [
-    [ "del", "expression", "[", "expression", "]" ]
+    [ "del", "expression", "[", "expression", "]", -1 ]
   ],
   "binary-expression": [
     [ "expression", "=", "expression" ],
