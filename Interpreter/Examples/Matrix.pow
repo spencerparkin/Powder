@@ -19,7 +19,7 @@ func print_matrix(given_mat)
             if(j < 2)
                 output(", ");
             j = j + 1;
-        }
+        };
         output("\n");
         i = i + 1;
     }

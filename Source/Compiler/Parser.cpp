@@ -20,11 +20,6 @@ namespace Powder
 		delete this->grammarDoc;
 	}
 
-	// TODO: How do we determine the real point of parse failure?  The praser is designed
-	//       to fail until is succeeds, but even those successes can be false positives.
-	//       This needs a lot of work.  Presently, parse failure errors that are given are
-	//       just not helpful at all.  Even if they show that the parser doesn't know what
-	//       the programmer is trying to say, they should at least fail at the right location.
 	Parser::SyntaxNode* Parser::Parse(const TokenList& tokenList)
 	{
 		// TODO: Find a better way to locate this file.
@@ -52,11 +47,26 @@ namespace Powder
 			throw new CompileTimeException(FormatString("Grammar file has JSON parser error on line %d, column %d: %s", line, column, jsonParseError));
 		}
 
-		ParseError parseError;
+		LinkedList<ParseError> parseErrorList;
 		Range range(tokenList.GetHead(), tokenList.GetTail());
-		SyntaxNode* rootNode = this->TryGrammarRule("statement-list", range, parseError, 1);
+		SyntaxNode* rootNode = this->TryGrammarRule("statement-list", range, parseErrorList);
 		if (!rootNode)
-			parseError.ThrowException();
+		{
+			if (parseErrorList.GetCount() == 0)
+				throw new CompileTimeException("Unknown parse error.");
+			else
+			{
+				// This hueristic might give better results, but it is still unclear
+				// as to whether this will always give a file location where the
+				// real parse error exists, or whether it will bog down as the size
+				// of the source code scales up.  Note that one possible improvement
+				// might be to check among the first several errors: which one involved
+				// a grammar rule that matched the most, but not quite.
+				parseErrorList.BubbleSort();
+				ParseError parseError = parseErrorList.GetHead()->value;
+				throw parseError.MakeException();
+			}
+		}
 		else
 		{
 			// TODO: Before running reductions on the AST, we might perform some sort of
@@ -76,7 +86,7 @@ namespace Powder
 		return rootNode;
 	}
 
-	Parser::SyntaxNode* Parser::TryGrammarRule(const char* nonTerminal, const Range& range, ParseError& parseError, uint32_t depth)
+	Parser::SyntaxNode* Parser::TryGrammarRule(const char* nonTerminal, const Range& range, LinkedList<ParseError>& parseErrorList)
 	{
 		if (this->IsNonTerminal(nonTerminal))
 		{
@@ -86,22 +96,19 @@ namespace Powder
 			
 			for (int i = 0; i < (signed)expansionsListValue.Size(); i++)
 			{
-				SyntaxNode* syntaxNode = this->TryExpansionRule(nonTerminal, expansionsListValue[i], range, parseError, depth + 1);
+				LinkedList<ParseError> nestedParseErrorList;
+				SyntaxNode* syntaxNode = this->TryExpansionRule(nonTerminal, expansionsListValue[i], range, nestedParseErrorList);
 				if (syntaxNode)
-				{
-					// Reset error with each successfully parsed statement so that false-errors don't obscur true errors.
-					if (::strcmp(nonTerminal, "statement") == 0)
-						parseError.Reset();
-
 					return syntaxNode;
-				}
+				
+				parseErrorList.Append(nestedParseErrorList);
 			}
 		}
 
 		return nullptr;
 	}
 
-	Parser::SyntaxNode* Parser::TryExpansionRule(const char* nonTerminal, const rapidjson::Value& matchListValue, const Range& range, ParseError& parseError, uint32_t depth)
+	Parser::SyntaxNode* Parser::TryExpansionRule(const char* nonTerminal, const rapidjson::Value& matchListValue, const Range& range, LinkedList<ParseError>& parseErrorList)
 	{
 		if (!matchListValue.IsArray())
 			throw new CompileTimeException(FormatString("Expected expansion rule for non-terminal %s to be an array of strings in the JSON grammar file.", nonTerminal));
@@ -121,7 +128,8 @@ namespace Powder
 			{
 				if (terminalArray[i]->value.text == ";")
 				{
-					parseError.Detail(range, nonTerminal, "No expression should contain semi-colons at the top-level.  (They might appear nested, but not at the top level.)", matchListValue, 0, depth);
+					ParseError parseError(range, nonTerminal, "No expression should contain semi-colons at the top-level.  (They might appear nested, but not at the top level.)", matchListValue);
+					parseErrorList.AddTail(parseError);
 					return nullptr;
 				}
 			}
@@ -133,7 +141,6 @@ namespace Powder
 			Range range;
 		};
 
-		uint32_t matchCount = 0;
 		int j = 0;
 		int contiguousNonTerminalCount = 0;
 		std::vector<Subsequence> subsequenceArray;
@@ -166,11 +173,11 @@ namespace Powder
 				if (!foundNode)
 				{
 					std::string reason = "Failed to find terminal match \"" + subsequence.name + "\" in grammar expansion rule.";
-					parseError.Detail(range, nonTerminal, reason, matchListValue, matchCount, depth);
+					ParseError parseError(range, nonTerminal, reason, matchListValue);
+					parseErrorList.AddTail(parseError);
 					return nullptr;
 				}
 
-				matchCount++;
 				subsequence.range.firstNode = subsequence.range.lastNode = foundNode;
 			}
 
@@ -189,7 +196,8 @@ namespace Powder
 					if (subsequenceArray[i - 1].range.lastNode->GetNext() == subsequenceArray[i + 1].range.firstNode)
 					{
 						std::string reason = "Failed to find non-terminal match \"" + subsequence.name + "\" in grammar expansion rule.";
-						parseError.Detail(range, nonTerminal, reason, matchListValue, matchCount, depth);
+						ParseError parseError(range, nonTerminal, reason, matchListValue);
+						parseErrorList.AddTail(parseError);
 						return nullptr;
 					}
 				}
@@ -208,7 +216,8 @@ namespace Powder
 				if (subsequence.range.firstNode == nullptr || subsequence.range.lastNode == nullptr)
 				{
 					std::string reason = "Failed to find non-terminal match \"" + subsequence.name + "\" in grammar expansion rule.";
-					parseError.Detail(range, nonTerminal, reason, matchListValue, matchCount, depth);
+					ParseError parseError(range, nonTerminal, reason, matchListValue);
+					parseErrorList.AddTail(parseError);
 					return nullptr;
 				}
 			}
@@ -221,7 +230,8 @@ namespace Powder
 		if (totalSize != range.CalcSize())
 		{
 			std::string reason = "Grammar expansion rule did not account for all tokens.";
-			parseError.Detail(range, nonTerminal, reason, matchListValue, matchCount, depth);
+			ParseError parseError(range, nonTerminal, reason, matchListValue);
+			parseErrorList.AddTail(parseError);
 			return nullptr;
 		}
 
@@ -233,7 +243,8 @@ namespace Powder
 			FileLocation fileLocation = subsequence.range.firstNode->value.fileLocation;
 			if (this->IsNonTerminal(subsequence.name.c_str()))
 			{
-				SyntaxNode* childNode = this->TryGrammarRule(subsequence.name.c_str(), subsequence.range, parseError, depth + 1);
+				LinkedList<ParseError> nestedParseErrorList;
+				SyntaxNode* childNode = this->TryGrammarRule(subsequence.name.c_str(), subsequence.range, nestedParseErrorList);
 				if (childNode)
 					parentNode->childList.AddTail(childNode);
 				else
@@ -241,6 +252,7 @@ namespace Powder
 					delete childNode;
 					delete parentNode;
 					parentNode = nullptr;
+					parseErrorList.Append(nestedParseErrorList);
 					break;
 				}
 			}
@@ -529,43 +541,38 @@ namespace Powder
 		return nullptr;
 	}
 
-	void Parser::ParseError::Detail(const Range& range, const char* nonTerminal, const std::string& reason, const rapidjson::Value& matchListValue, uint32_t matchCount, uint32_t depth)
+	Parser::ParseError::ParseError()
 	{
-		// The idea here is that the most likely applicable parse error is based
-		// on the grammar-rule and expansion-rule that failed both deepest in the
-		// parse recursion, and that we were closest to match on.  But I'm still not sure.
-		if(matchCount > this->matchCount || (matchCount == this->matchCount && depth > this->depth))
-		{
-			this->matchCount = matchCount;
-			this->depth = depth;
-			this->range = range;
-			this->reason = reason;
-			this->grammarRule = nonTerminal;
-			this->expansionRule = "";
-			this->sourceCode = range.Print();
+	}
 
-			for (uint32_t i = 0; i < matchListValue.Size(); i++)
-			{
-				if (this->expansionRule.length() > 0)
-					this->expansionRule += " ";
-				this->expansionRule += matchListValue[i].GetString();
-			}
+	Parser::ParseError::ParseError(const Range& range, const char* nonTerminal, const std::string& reason, const rapidjson::Value& matchListValue)
+	{
+		this->range = range;
+		this->reason = reason;
+		this->grammarRule = nonTerminal;
+		this->expansionRule = "";
+		this->sourceCode = range.Print();
+
+		for (uint32_t i = 0; i < matchListValue.Size(); i++)
+		{
+			if (this->expansionRule.length() > 0)
+				this->expansionRule += " ";
+			this->expansionRule += matchListValue[i].GetString();
 		}
 	}
 
-	void Parser::ParseError::ThrowException()
+	CompileTimeException* Parser::ParseError::MakeException() const
 	{
 		std::string errorMsg;
 		errorMsg += "Code: " + this->sourceCode + "\n";
 		errorMsg += "Grammar Rule: " + this->grammarRule + "\n";
 		errorMsg += "Expansion Rule: " + this->expansionRule + "\n";
 		errorMsg += "Reason: " + this->reason + "\n";
-		throw new CompileTimeException(errorMsg, &this->range.firstNode->value.fileLocation);
+		return new CompileTimeException(errorMsg, &this->range.firstNode->value.fileLocation);
 	}
 
-	void Parser::ParseError::Reset()
+	int Parser::ParseError::SortKey() const
 	{
-		this->depth = 0;
-		this->matchCount = 0;
+		return this->sourceCode.length();
 	}
 }

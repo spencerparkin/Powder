@@ -81,51 +81,18 @@ namespace Powder
 
 		void InsertAfter(Node* after, T value)
 		{
-			Node* node = new Node(value);
-
-			if (!after)
-				this->head = this->tail = node;
-			else
-			{
-				node->prev = after;
-				node->next = after->next;
-				node->Couple();
-				if (!node->next)
-					this->tail = node;
-			}
-
-			this->count++;
+			this->InsertNodeAfter(after, new Node(value));
 		}
 
 		void InsertBefore(Node* before, T value)
 		{
-			Node* node = new Node(value);
-
-			if (!before)
-				this->head = this->tail = node;
-			else
-			{
-				node->next = before;
-				node->prev = before->prev;
-				node->Couple();
-				if (!node->prev)
-					this->head = node;
-			}
-
-			this->count++;
+			this->InsertNodeBefore(before, new Node(value));
 		}
 
 		void Remove(Node* node)
 		{
-			if (this->head == node)
-				this->head = this->head->next;
-
-			if (this->tail == node)
-				this->tail = this->tail->prev;
-
-			node->Decouple();
+			this->RemoveNode(node);
 			delete node;
-			this->count--;
 		}
 
 		void RemoveAll()
@@ -146,6 +113,30 @@ namespace Powder
 				this->AddHead(node->value);
 		}
 
+		void BubbleSort(void)
+		{
+			int swapCount = 0;
+			do
+			{
+				swapCount = 0;
+				Node* nodeA = this->head;
+				while (nodeA && nodeA->next)
+				{
+					Node* nodeB = nodeA->next;
+					int keyA = nodeA->value.SortKey();
+					int keyB = nodeB->value.SortKey();
+					if (keyA <= keyB)
+						nodeA = nodeB;
+					else
+					{
+						this->RemoveNode(nodeA);
+						this->InsertNodeAfter(nodeB, nodeA);
+						swapCount++;
+					}
+				}
+			} while (swapCount > 0);
+		}
+
 		Node* GetHead() { return this->head; }
 		Node* GetTail() { return this->tail; }
 
@@ -155,6 +146,50 @@ namespace Powder
 		unsigned int GetCount() const { return this->count; }
 
 	private:
+
+		void InsertNodeAfter(Node* after, Node* node)
+		{
+			if (!after)
+				this->head = this->tail = node;
+			else
+			{
+				node->prev = after;
+				node->next = after->next;
+				node->Couple();
+				if (!node->next)
+					this->tail = node;
+			}
+
+			this->count++;
+		}
+
+		void InsertNodeBefore(Node* before, Node* node)
+		{
+			if (!before)
+				this->head = this->tail = node;
+			else
+			{
+				node->next = before;
+				node->prev = before->prev;
+				node->Couple();
+				if (!node->prev)
+					this->head = node;
+			}
+
+			this->count++;
+		}
+
+		void RemoveNode(Node* node)
+		{
+			if (this->head == node)
+				this->head = this->head->next;
+
+			if (this->tail == node)
+				this->tail = this->tail->prev;
+
+			node->Decouple();
+			this->count--;
+		}
 
 		Node* head;
 		Node* tail;

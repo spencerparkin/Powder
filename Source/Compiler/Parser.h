@@ -10,6 +10,8 @@
 
 namespace Powder
 {
+	class CompileTimeException;
+
 	class POWDER_API Parser
 	{
 	public:
@@ -55,27 +57,21 @@ namespace Powder
 
 		struct ParseError
 		{
-			ParseError()
-			{
-				this->depth = 0;
-				this->matchCount = 0;
-			}
+			ParseError();
+			ParseError(const Range& range, const char* nonTerminal, const std::string& reason, const rapidjson::Value& matchListValue);
+
+			CompileTimeException* MakeException() const;
+			int SortKey() const;
 
 			Range range;
 			std::string sourceCode;
 			std::string grammarRule;
 			std::string expansionRule;
 			std::string reason;
-			uint32_t matchCount;
-			uint32_t depth;
-
-			void Detail(const Range& range, const char* nonTerminal, const std::string& reason, const rapidjson::Value& matchListValue, uint32_t matchCount, uint32_t depth);
-			void ThrowException();
-			void Reset();
 		};
 
-		SyntaxNode* TryGrammarRule(const char* nonTerminal, const Range& range, ParseError& parseError, uint32_t depth);
-		SyntaxNode* TryExpansionRule(const char* nonTerminal, const rapidjson::Value& matchListValue, const Range& range, ParseError& parseError, uint32_t depth);
+		SyntaxNode* TryGrammarRule(const char* nonTerminal, const Range& range, LinkedList<ParseError>& parseErrorList);
+		SyntaxNode* TryExpansionRule(const char* nonTerminal, const rapidjson::Value& matchListValue, const Range& range, LinkedList<ParseError>& parseErrorList);
 
 		bool IsNonTerminal(const char* name);
 		bool IsTerminal(const char* name);
