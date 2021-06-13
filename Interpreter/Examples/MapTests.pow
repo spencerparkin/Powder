@@ -22,7 +22,7 @@ func print_map(given_map)
     while(i < len(map_keys))
     {
         value = map[map_keys[i]];
-        output(key + ": " + value + "\n");
+        output(map_keys[i] + ": " + value + "\n");
         i = i + 1;
     }
 };
