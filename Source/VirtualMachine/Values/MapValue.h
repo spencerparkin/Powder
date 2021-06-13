@@ -18,6 +18,8 @@ namespace Powder
 		virtual Value* GetField(Value* fieldValue) override;
 		virtual Value* DelField(Value* fieldValue) override;
 
+		Value* GenerateKeyListValue();
+
 	private:
 		HashMap<Value*> valueMap;
 	};

@@ -1,5 +1,6 @@
 #include "StringValue.h"
 #include "UndefinedValue.h"
+#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -46,5 +47,14 @@ namespace Powder
 	/*virtual*/ bool StringValue::AsBoolean() const
 	{
 		return this->str->length() > 0;
+	}
+
+	/*virtual*/ double StringValue::AsNumber() const
+	{
+		char* endPtr = nullptr;
+		double number = ::strtod(this->str->c_str(), &endPtr);
+		if (endPtr == str->c_str())
+			throw new RunTimeException("Failed to get string value as number.");
+		return number;
 	}
 }

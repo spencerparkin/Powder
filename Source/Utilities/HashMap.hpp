@@ -52,7 +52,7 @@ namespace Powder
 
 		void DeleteAndClear()
 		{
-			this->ForAllEntries([](T data) -> bool {
+			this->ForAllEntries([](const char* key, T data) -> bool {
 				delete data;
 				return true;
 			});
@@ -124,14 +124,14 @@ namespace Powder
 			}
 		}
 
-		void ForAllEntries(std::function<bool(T data)> callback)
+		void ForAllEntries(std::function<bool(const char* key, T data)> callback)
 		{
 			for (uint32_t i = 0; i < this->tableSize; i++)
 			{
 				TableEntry* entry = this->table[i];
 				while (entry)
 				{
-					if (!callback(entry->data))
+					if (!callback(entry->key, entry->data))
 						return;
 
 					entry = entry->nextEntry;

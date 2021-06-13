@@ -64,6 +64,7 @@
     [ "list-push-pop-expression" ],
     [ "binary-expression" ],
     [ "unary-expression" ],
+    [ "map-keys-expression" ],
     [ "function-call" ],
     [ "delete-field-expression" ],
     [ "container-field-expression" ]

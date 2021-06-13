@@ -18,6 +18,7 @@ namespace Powder
 			NUMBER,
 			STRING,
 			EMPTY_LIST,
+			EMPTY_MAP,
 			ADDRESS
 		};
 

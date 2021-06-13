@@ -127,6 +127,9 @@
     <ClCompile Include="Source\VirtualMachine\Instructions\ListInstruction.cpp">
       <Filter>Source\VirtualMachine\Instructions</Filter>
     </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Instructions\MapInstruction.cpp">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -250,6 +253,9 @@
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Instructions\ListInstruction.h">
+      <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Instructions\MapInstruction.h">
       <Filter>Source\VirtualMachine\Instructions</Filter>
     </ClInclude>
   </ItemGroup>

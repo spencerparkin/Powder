@@ -7,6 +7,7 @@
 #include "StoreInstruction.h"
 #include "PushInstruction.h"
 #include "PopInstruction.h"
+#include "MapInstruction.h"
 #include "MathInstruction.h"
 #include "SysCallInstruction.h"
 #include "ScopeInstruction.h"
@@ -478,20 +479,18 @@ namespace Powder
 				dataEntry.number = ::strtod(literalDataNode->name->c_str(), nullptr);
 			}
 			else if (*literalTypeNode->name == "list-literal")
-			{
 				typeEntry.code = PushInstruction::DataType::EMPTY_LIST;
-			}
+			else if (*literalTypeNode->name == "map-literal")
+				typeEntry.code = PushInstruction::DataType::EMPTY_MAP;
 			else
-			{
 				throw new CompileTimeException(FormatString("Did not recognize \"%s\" data-type under \"literal\" in AST.", literalTypeNode->name->c_str()), &literalTypeNode->fileLocation);
-			}
 
 			pushInstruction->assemblyData->configMap.Insert("type", typeEntry);
 			pushInstruction->assemblyData->configMap.Insert("data", dataEntry);
 
-			if (*literalTypeNode->name == "list-literal")
+			if (*literalTypeNode->name == "list-literal" || *literalTypeNode->name == "map-literal")
 			{
-				// In this case, next come the instructions that populate the list.
+				// In this case, next come the instructions that populate the list or map.
 				this->GenerateInstructionListRecursively(instructionList, literalTypeNode);
 			}
 
@@ -539,6 +538,48 @@ namespace Powder
 				listInstruction->assemblyData->configMap.Insert("action", entry);
 				instructionList.AddTail(listInstruction);
 			}
+		}
+		else if (*syntaxNode->name == "map-literal")
+		{
+			if (syntaxNode->childList.GetCount() != 1 || *syntaxNode->childList.GetHead()->value->name != "map-pair-list")
+				throw new CompileTimeException("Expected \"map-literal\" to have exactly one child \"map-pair-list\" in AST.", &syntaxNode->fileLocation);
+
+			const Parser::SyntaxNode* mapPairListNode = syntaxNode->childList.GetHead()->value;
+			for (const LinkedList<Parser::SyntaxNode*>::Node* node = mapPairListNode->childList.GetHead(); node; node = node->GetNext())
+			{
+				const Parser::SyntaxNode* mapPairNode = node->value;
+				if (*mapPairNode->name != "map-pair")
+					throw new CompileTimeException("Expected all children of \"map-pair-list\" to be \"map-pair\" in AST.", &mapPairNode->fileLocation);
+
+				if (mapPairNode->childList.GetCount() != 3)
+					throw new CompileTimeException("Expected \"map-pair\" node in AST to have exactly 3 children.", &mapPairNode->fileLocation);
+
+				// Push the field value.
+				this->GenerateInstructionListRecursively(instructionList, mapPairNode->childList.GetHead()->value);
+
+				// Push the data value.
+				this->GenerateInstructionListRecursively(instructionList, mapPairNode->childList.GetHead()->GetNext()->GetNext()->value);
+
+				// Now insert the data value at the field value.  Field and data values are popped; the map value remains on the stack top.
+				MapInstruction* mapInstruction = Instruction::CreateForAssembly<MapInstruction>();
+				AssemblyData::Entry entry;
+				entry.code = MapInstruction::Action::INSERT;
+				mapInstruction->assemblyData->configMap.Insert("action", entry);
+				instructionList.AddTail(mapInstruction);
+			}
+		}
+		else if (*syntaxNode->name == "map-keys-expression")
+		{
+			if (syntaxNode->childList.GetCount() != 2)
+				throw new CompileTimeException("Expected \"map-keys-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
+
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+
+			MapInstruction* mapInstruction = Instruction::CreateForAssembly<MapInstruction>();
+			AssemblyData::Entry entry;
+			entry.code = MapInstruction::Action::MAKE_KEY_LIST;
+			mapInstruction->assemblyData->configMap.Insert("action", entry);
+			instructionList.AddTail(mapInstruction);
 		}
 		else if (*syntaxNode->name == "list-push-pop-expression")
 		{
@@ -719,8 +760,11 @@ namespace Powder
 		}
 		else if (*syntaxNode->name == "function-definition")
 		{
-			// I may revisit the idea of functions and try to make a variety of them (lambdas?) that are first-class
-			// citizens of the language (i.e., a type of value that can float around the VM and be manipulated or calculated with, etc.)
+			// TODO: I may revisit the idea of functions and try to make a variety of them (lambdas?) that are first-class
+			//       citizens of the language (i.e., a type of value that can float around the VM and be manipulated or calculated with, etc.)
+			//       Maybe at the very least, add a FunctionValue derivative of the Value class and allow function values to float around the
+			//       VM so that you can pass function as arguments to functions, etc.  So here, we not only add to our function def list,
+			//       be we could issue a store instruction that stores the function value in scope.
 
 			// Note that there is no real reason to enforce that function definitions appear at the root level.  We could allow them
 			// to be defined anywhere, oddly.  But that's just it.  I don't want to create a false expectation that it matters where

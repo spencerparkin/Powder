@@ -9,6 +9,7 @@
 #include "JumpInstruction.h"
 #include "ListInstruction.h"
 #include "LoadInstruction.h"
+#include "MapInstruction.h"
 #include "MathInstruction.h"
 #include "PopInstruction.h"
 #include "PushInstruction.h"
@@ -31,6 +32,7 @@ namespace Powder
 		this->RegisterInstruction<JumpInstruction>();
 		this->RegisterInstruction<ListInstruction>();
 		this->RegisterInstruction<LoadInstruction>();
+		this->RegisterInstruction<MapInstruction>();
 		this->RegisterInstruction<MathInstruction>();
 		this->RegisterInstruction<PopInstruction>();
 		this->RegisterInstruction<PushInstruction>();

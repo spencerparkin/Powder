@@ -72,7 +72,8 @@ namespace Powder
 		// container setting and getting.  The reason I think there is no contradiction,
 		// and that this choice keeps the system consistent, is because the math operation
 		// only deals with concrete (rather than symbolic) values on the evaluation stack.
-		// A list (or map) is itself a concrete value.
+		// A list (or map) is itself a concrete value, as are the values used as fields,
+		// or the values stored in the container at those fields.  Containers can store containers.
 		uint8_t mathOp = programBuffer[programBufferLocation + 1];
 		switch (mathOp)
 		{

@@ -1,8 +1,8 @@
 # MapTests.pow
 
 map = {
-    "apple": 1,
-    "orange": "hello",
+    "ap" + "ple": 1,
+    "orange": "hel" + "lo",
     "strawberry": [1, 2, 3, {"happy": "flappy"}]
 };
 

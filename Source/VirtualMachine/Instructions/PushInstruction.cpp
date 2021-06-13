@@ -5,6 +5,7 @@
 #include "StringValue.h"
 #include "NumberValue.h"
 #include "ListValue.h"
+#include "MapValue.h"
 #include "AddressValue.h"
 #include "Tokenizer.h"
 #include "Exceptions.hpp"
@@ -58,6 +59,12 @@ namespace Powder
 				programBufferLocation += 2;
 				break;
 			}
+			case DataType::EMPTY_MAP:
+			{
+				executor->PushValueOntoEvaluationStackTop(new MapValue());
+				programBufferLocation += 2;
+				break;
+			}
 			case DataType::ADDRESS:
 			{
 				uint64_t programBufferAddress = 0L;
@@ -102,7 +109,7 @@ namespace Powder
 		}
 
 		programBufferLocation += 2L;
-		if (typeEntry->code == DataType::UNDEFINED || typeEntry->code == DataType::EMPTY_LIST)
+		if (typeEntry->code == DataType::UNDEFINED || typeEntry->code == DataType::EMPTY_LIST || typeEntry->code == DataType::EMPTY_MAP)
 			programBufferLocation += 0L;
 		else if (typeEntry->code == DataType::STRING)
 			programBufferLocation += uint64_t(dataEntry->string.length()) + 1L;
@@ -139,6 +146,8 @@ namespace Powder
 				detail += "undef";
 			else if (typeEntry->code == DataType::EMPTY_LIST)
 				detail += "[]";
+			else if (typeEntry->code == DataType::EMPTY_MAP)
+				detail += "{}";
 			else
 				detail += "?";
 		}
