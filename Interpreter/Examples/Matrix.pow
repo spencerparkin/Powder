@@ -26,3 +26,8 @@ func print_matrix(given_mat)
 };
 
 print_matrix(mat);
+
+mat[0][0] = mat[2][2];
+
+output("-------------------------\n");
+print_matrix(mat);

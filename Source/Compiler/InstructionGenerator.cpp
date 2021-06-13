@@ -136,10 +136,10 @@ namespace Powder
 			const Parser::SyntaxNode* containerFieldNode = syntaxNode->childList.GetHead()->GetNext()->value;
 
 			// Push the container value.
-			this->GenerateInstructionListRecursively(instructionList, containerFieldNode->childList.GetHead()->GetNext()->value);
+			this->GenerateInstructionListRecursively(instructionList, containerFieldNode->childList.GetHead()->value);
 
 			// Push the field value to delete.
-			this->GenerateInstructionListRecursively(instructionList, containerFieldNode->childList.GetHead()->GetNext()->GetNext()->value);
+			this->GenerateInstructionListRecursively(instructionList, containerFieldNode->childList.GetHead()->GetNext()->value);
 
 			// And now issue the del instruction.
 			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
