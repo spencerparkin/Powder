@@ -144,9 +144,9 @@
   "map-pair": [
     [ "expression", ":", "expression" ]
   ],
-  "function-call": [
-    [ "identifier", "(", ")" ],
-    [ "identifier", "(", "argument-list", ")" ]
+  "functin-call": [
+    [ "expression", "(", ")", -1 ],
+    [ "expression", "(", "argument-list", ")", -1 ]
   ],
   "argument-list": [
     [ "argument-list", ",", "argument-list" ],
