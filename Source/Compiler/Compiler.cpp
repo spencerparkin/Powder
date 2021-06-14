@@ -39,13 +39,12 @@ namespace Powder
 			throw new CompileTimeException("Failed to generate AST from tokenization of the source code.");
 
 		LinkedList<Instruction*> instructionList;
-		HashMap<Instruction*> functionMap;
 		InstructionGenerator instructionGenerator;
-		instructionGenerator.GenerateInstructionList(instructionList, functionMap, rootSyntaxNode);
+		instructionGenerator.GenerateInstructionList(instructionList, rootSyntaxNode);
 		delete rootSyntaxNode;
 
 		Assembler assembler;
-		programBuffer = assembler.AssembleExecutable(instructionList, functionMap, programBufferSize);
+		programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);
 		return programBuffer;
 	}
 }

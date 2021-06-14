@@ -90,7 +90,7 @@ namespace Powder
 		if (!typeEntry)
 			throw new CompileTimeException("Can't assemble push instruction if not given type information.");
 
-		if (!dataEntry && typeEntry->code != DataType::UNDEFINED && typeEntry->code != DataType::EMPTY_LIST)
+		if (!dataEntry && typeEntry->code != DataType::UNDEFINED && typeEntry->code != DataType::EMPTY_LIST && typeEntry->code != DataType::EMPTY_MAP)
 			throw new CompileTimeException("Some push instructions can't be assembled without being given more information about the push content.");
 
 		if (assemblyPass == AssemblyPass::RENDER)

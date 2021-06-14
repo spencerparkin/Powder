@@ -14,6 +14,7 @@ namespace Powder
 		virtual ~AddressValue();
 
 		virtual Value* Copy() const override;
+		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 
 		operator uint64_t() const { return this->programBufferLocation; }
 

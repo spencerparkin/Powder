@@ -34,12 +34,14 @@
     [ "fork", "embedded-statement", "else", "embedded-statement" ]
   ],
   "return-statement": [
-    [ "return", "expression" ]
+    [ "return", "expression" ],
+    [ "return" ]
   ],
   "yield-statement": [
     [ "yield" ]
   ],
   "function-definition": [
+    [ "func", "identifier", "(", ")", "block" ],
     [ "func", "identifier", "(", "identifier-list", ")", "block" ]
   ],
   "identifier-list": [
@@ -144,7 +146,7 @@
   "map-pair": [
     [ "expression", ":", "expression" ]
   ],
-  "functin-call": [
+  "function-call": [
     [ "expression", "(", ")", -1 ],
     [ "expression", "(", "argument-list", ")", -1 ]
   ],

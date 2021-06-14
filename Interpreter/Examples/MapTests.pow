@@ -3,7 +3,13 @@
 map = {
     "ap" + "ple": 1,
     "orange": "hel" + "lo",
-    "strawberry": [1, 2, 3, {"happy": "flappy"}]
+    "strawberry": [1, 2, 3, {"happy": "flappy"}],
+    "happy_func": happy_func
+};
+
+func happy_func()
+{
+    output("Happy poopers!");
 };
 
 func blah(given_map)
@@ -28,3 +34,5 @@ func print_map(given_map)
 };
 
 print_map(map);
+
+map["happy_func"]();

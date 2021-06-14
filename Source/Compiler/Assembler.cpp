@@ -15,30 +15,8 @@ namespace Powder
 	{
 	}
 
-	void Assembler::ResolveJumps(const LinkedList<Instruction*>& instructionList, const HashMap<Instruction*>& functionMap)
+	void Assembler::ResolveJumps(const LinkedList<Instruction*>& instructionList)
 	{
-		// Resolve all function call jumps.
-		for (const LinkedList<Instruction*>::Node* node = instructionList.GetHead(); node; node = node->GetNext())
-		{
-			Instruction* instruction = node->value;
-			const AssemblyData::Entry* jumpFuncEntry = instruction->assemblyData->configMap.LookupPtr("jump-func");
-			if (jumpFuncEntry)
-			{
-				JumpInstruction* jumpInstruction = dynamic_cast<JumpInstruction*>(instruction);
-				if (jumpInstruction)
-				{
-					std::string funcName = jumpFuncEntry->string;
-					Instruction* functionFirstInstruction = const_cast<HashMap<Instruction*>*>(&functionMap)->Lookup(funcName.c_str());
-					if (!functionFirstInstruction)
-						throw new CompileTimeException(FormatString("Tried to call undefined function \"%s\".", funcName.c_str()), &jumpInstruction->assemblyData->fileLocation);
-
-					AssemblyData::Entry entry;
-					entry.instruction = functionFirstInstruction;
-					jumpInstruction->assemblyData->configMap.Insert("jump", entry);
-				}
-			}
-		}
-
 		// TODO: I should probably replace all uint64_t types with uint32_t, and int64_t with int32_t.
 		std::vector<Instruction*> instructionArray;
 		for (const LinkedList<Instruction*>::Node* node = instructionList.GetHead(); node; node = node->GetNext())
@@ -59,9 +37,9 @@ namespace Powder
 		}
 	}
 
-	uint8_t* Assembler::AssembleExecutable(const LinkedList<Instruction*>& instructionList, const HashMap<Instruction*>& functionMap, uint64_t& programBufferSize)
+	uint8_t* Assembler::AssembleExecutable(const LinkedList<Instruction*>& instructionList, uint64_t& programBufferSize)
 	{
-		this->ResolveJumps(instructionList, functionMap);
+		this->ResolveJumps(instructionList);
 
 		uint64_t programBufferLocation = 0L;
 		for(const LinkedList<Instruction*>::Node* node = instructionList.GetHead(); node; node = node->GetNext())

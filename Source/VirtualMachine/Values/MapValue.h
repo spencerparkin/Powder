@@ -5,6 +5,8 @@
 
 namespace Powder
 {
+	class ListValue;
+
 	class MapValue : public ContainerValue
 	{
 	public:
@@ -18,7 +20,7 @@ namespace Powder
 		virtual Value* GetField(Value* fieldValue) override;
 		virtual Value* DelField(Value* fieldValue) override;
 
-		Value* GenerateKeyListValue();
+		ListValue* GenerateKeyListValue();
 
 	private:
 		HashMap<Value*> valueMap;

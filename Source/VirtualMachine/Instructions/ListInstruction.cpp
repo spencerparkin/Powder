@@ -29,40 +29,33 @@ namespace Powder
 			case Action::POP_LEFT:
 			case Action::POP_RIGHT:
 			{
-				ListValue* listValue = dynamic_cast<ListValue*>(executor->PopValueFromEvaluationStackTop());
+				// Notice we push the popped value, but leave the list value.
+				ListValue* listValue = dynamic_cast<ListValue*>(executor->StackTop());
 				if (!listValue)
 					throw new RunTimeException("List instruction can only pop elements from a list value.");
-
-				result = (action == Action::POP_LEFT) ? listValue->PopLeft() : listValue->PopRight();
+				Value* elementValue = (action == Action::POP_LEFT) ? listValue->PopLeft() : listValue->PopRight();
+				executor->PushValueOntoEvaluationStackTop(elementValue);
 				break;
 			}
 			case Action::PUSH_LEFT:
 			case Action::PUSH_RIGHT:
 			{
+				// Notice that we pop the pushed value, but leave the list value.
 				Value* elementValue = executor->PopValueFromEvaluationStackTop();
-				ListValue* listValue = dynamic_cast<ListValue*>(executor->PopValueFromEvaluationStackTop());
+				ListValue* listValue = dynamic_cast<ListValue*>(executor->StackTop());
 				if (!listValue)
 					throw new RunTimeException("List instruction can only push elements to a list value.");
-
 				if (action == Action::PUSH_LEFT)
 					listValue->PushLeft(elementValue);
 				else
 					listValue->PushRight(elementValue);
-
-				// It's most convenient, I think, to leave the list value on the stack.
-				result = listValue;
 				break;
 			}
 			default:
 			{
-				break;
+				throw new RunTimeException(FormatString("List instruction encountered unknown action %04d.", action));
 			}
 		}
-
-		if (!result)
-			throw new RunTimeException("List instruction had no result.");
-
-		executor->PushValueOntoEvaluationStackTop(result);
 
 		programBufferLocation += 2;
 		return Executor::Result::CONTINUE;

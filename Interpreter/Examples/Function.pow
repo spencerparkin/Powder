@@ -7,4 +7,9 @@ func poopers(a, b, c)
     output("c = " + c + "\n");
 };
 
-poopers(1, "2", 3)
+func blah(given_func)
+{
+    given_func(1, 2, 3);
+};
+
+blah(poopers);

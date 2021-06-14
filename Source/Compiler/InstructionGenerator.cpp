@@ -24,17 +24,61 @@ namespace Powder
 
 	/*virtual*/ InstructionGenerator::~InstructionGenerator()
 	{
-		this->functionSignatureMap.DeleteAndClear();
 	}
 
-	void InstructionGenerator::GenerateInstructionList(LinkedList<Instruction*>& instructionList, HashMap<Instruction*>& functionMap, const Parser::SyntaxNode* rootSyntaxNode)
+	void InstructionGenerator::GenerateFunctionArgumentInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* argListNode)
 	{
-		this->GatherAllFunctionSignatures(rootSyntaxNode);
+		if (argListNode)
+		{
+			for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
+			{
+				const Parser::SyntaxNode* argNode = node->value;
+				if (*argNode->name != "identifier")
+					throw new CompileTimeException("Expected all children of \"identifier-list\" in AST to be \"identifier\".", &argNode->fileLocation);
 
+				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+				AssemblyData::Entry entry;
+				entry.code = ListInstruction::Action::POP_LEFT;
+				listInstruction->assemblyData->configMap.Insert("action", entry);
+				instructionList.AddTail(listInstruction);
+
+				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+				entry.Reset();
+				entry.string = *argNode->childList.GetHead()->value->name;
+				storeInstruction->assemblyData->configMap.Insert("name", entry);
+				instructionList.AddTail(storeInstruction);
+			}
+		}
+
+		// Don't leak the argument list.
+		PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+		instructionList.AddTail(popInstruction);
+	}
+
+	void InstructionGenerator::GenerateFunctionDeclarationInstructions(LinkedList<Instruction*>& instructionList, const std::string& funcName, Instruction* firstFunctionInstruction)
+	{
+		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+		AssemblyData::Entry entry;
+		entry.code = PushInstruction::DataType::ADDRESS;
+		pushInstruction->assemblyData->configMap.Insert("type", entry);
+		entry.Reset();
+		entry.instruction = firstFunctionInstruction;
+		pushInstruction->assemblyData->configMap.Insert("data", entry);
+		instructionList.AddTail(pushInstruction);
+
+		StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+		entry.Reset();
+		entry.string = funcName;
+		storeInstruction->assemblyData->configMap.Insert("name", entry);
+		instructionList.AddTail(storeInstruction);
+	}
+
+	void InstructionGenerator::GenerateInstructionList(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* rootSyntaxNode)
+	{
 		this->GenerateInstructionListRecursively(instructionList, rootSyntaxNode);
 
-		// Issue a halt instruction here so that we don't crash into the first subroutine of the program.
-		// This isn't a problem if there aren't any subroutines.  However, we also want this instruction
+		// Issue a halt instruction here so that we don't crash into the first subroutine of the program, if any.
+		// Of course, this isn't a problem if there aren't any subroutines.  However, we also want this instruction
 		// here in the case that we need to resolve a jump that goes beyond the last program construct.
 		SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
 		AssemblyData::Entry entry;
@@ -55,15 +99,18 @@ namespace Powder
 				if (!identifierNode)
 					throw new CompileTimeException("Expected \"function-definition\" in AST to have \"identifier\" child.", &functionDefNode->fileLocation);
 
+				const Parser::SyntaxNode* argListNode = functionDefNode->FindChild("identifier-list", 1);
+
 				std::string funcName = *identifierNode->childList.GetHead()->value->name;
 
+				// The instructions of a function consist of the code for off-loading the arguments, then the function body.
 				LinkedList<Instruction*> functionInstructionList;
+				this->GenerateFunctionArgumentInstructions(functionInstructionList, argListNode);
 				this->GenerateInstructionListRecursively(functionInstructionList, functionStatementListNode);
 
-				// Populate a map we'll use later to resolve function call jumps.
-				functionMap.Insert(funcName.c_str(), functionInstructionList.GetHead()->value);
-
 				// The end of the function might already have a return, but if it doesn't, this doesn't hurt.
+				// We ensure that all functions return a value no matter what, because the calling code will always
+				// expect it, even if it is going to discard it.
 				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
 				entry.Reset();
 				entry.code = PushInstruction::DataType::UNDEFINED;
@@ -71,8 +118,15 @@ namespace Powder
 				functionInstructionList.AddTail(pushInstruction);
 				this->GenerateFunctionReturnInstructions(functionInstructionList);
 
-				// Finally, lay down the instructions for the function.
+				// Lay down the instructions for the function at the end of the executable.
+				// This way, we don't have to jump over the function bodies, which would be dumb.
 				instructionList.Append(functionInstructionList);
+
+				// Lastly, declare the function at the top of the executable so that it can be
+				// called from anywhere, even before the definition shows up in the source file.
+				LinkedList<Instruction*> functionDeclarationInstructionList;
+				this->GenerateFunctionDeclarationInstructions(functionDeclarationInstructionList, funcName, functionInstructionList.GetHead()->value);
+				instructionList.Prepend(functionDeclarationInstructionList);
 			}
 		}
 	}
@@ -510,7 +564,7 @@ namespace Powder
 			// Note that we assume we're generating code here in the context of an expression, but we're not
 			// going to check that, because there's no obvious way I can think of at the moment without
 			// introducing more fluff back into the AST.  Much of the fluff was removed before we were handed the AST.
-			// Of course, identifiers can appear in other contexts, such as a function call for function definition.
+			// Of course, identifiers can appear in other contexts, such as a function call or function definition.
 			// Note that we also generate this code in the context of a system call, which is looking for values on the eval stack.
 			const Parser::SyntaxNode* identifierNode = syntaxNode->childList.GetHead()->value;
 			LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>();
@@ -649,59 +703,36 @@ namespace Powder
 		}
 		else if (*syntaxNode->name == "function-call")
 		{
-			const Parser::SyntaxNode* identifierNode = syntaxNode->FindChild("identifier", 1);
-			if (!identifierNode)
-				throw new CompileTimeException("Expected \"function-call\" in AST to have a child with name \"identifier\".", &syntaxNode->fileLocation);
+			if (syntaxNode->childList.GetCount() == 0)
+				throw new CompileTimeException("Expected \"function-call\" in AST to have at least 1 child.", &syntaxNode->fileLocation);
 
-			if (identifierNode->childList.GetCount() != 1)
-				throw new CompileTimeException("Expected \"identifier\" node of \"function-call\" node in AST to have exactly 1 child.", &identifierNode->fileLocation);
-
-			std::string funcName = *identifierNode->childList.GetHead()->value->name;
-			SysCallInstruction::SysCall sysCall = SysCallInstruction::TranslateAsSysCall(funcName);
-
-			const FunctionSignature* functionSignature = nullptr;
-
-			if (sysCall == SysCallInstruction::UNKNOWN)
-			{
-				ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>();
-				AssemblyData::Entry entry;
-				entry.code = ScopeInstruction::ScopeOp::PUSH;
-				scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
-				instructionList.AddTail(scopeInstruction);
-
-				functionSignature = this->functionSignatureMap.Lookup(funcName.c_str());
-				if (!functionSignature)
-					throw new CompileTimeException(FormatString("Failed to look-up function signature for function \"%s\".", funcName.c_str()), &identifierNode->fileLocation);
-			}
-
-			uint32_t argCount = 0;
-
+			// This node may or may not be present.  Its absense simply means the call takes no arguments.
 			const Parser::SyntaxNode* argListNode = syntaxNode->FindChild("argument-list", 1);
-			if (argListNode)
-			{
-				for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
-				{
-					const Parser::SyntaxNode* argNode = node->value;
-					this->GenerateInstructionListRecursively(instructionList, argNode);
 
-					// System calls are passed their arguments on the eval stack, but user-defined functions are passed named arguments by scope stack.
-					if (sysCall == SysCallInstruction::UNKNOWN && argCount < functionSignature->namedArgsArray.size())
-					{
-						StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
-						AssemblyData::Entry entry;
-						entry.string = functionSignature->namedArgsArray[argCount++];
-						storeInstruction->assemblyData->configMap.Insert("name", entry);
-						instructionList.AddTail(storeInstruction);
-					}
-				}
-			}			
+			// Special case: Is this a system call?
+			SysCallInstruction::SysCall sysCall = SysCallInstruction::SysCall::UNKNOWN;
+			if (*syntaxNode->childList.GetHead()->value->name == "identifier")
+			{
+				std::string funcName = *syntaxNode->childList.GetHead()->value->childList.GetHead()->value->name;
+				sysCall = SysCallInstruction::TranslateAsSysCall(funcName);
+			}
 
 			if (sysCall != SysCallInstruction::SysCall::UNKNOWN)
 			{
-				argCount = (argListNode ? argListNode->childList.GetCount() : 0);
-				int sysCallArgCount = SysCallInstruction::ArgumentCount(sysCall);
-				if (argCount != sysCallArgCount)
-					throw new CompileTimeException(FormatString("System call 0x%04x takes %d arguments, not %d.", uint8_t(sysCall), sysCallArgCount, argCount), &identifierNode->fileLocation);
+				// In the case of a system call, we pass all arguments on the eval-stack.
+				if (argListNode)
+				{
+					for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
+					{
+						const Parser::SyntaxNode* argNode = node->value;
+						this->GenerateInstructionListRecursively(instructionList, argNode);
+					}
+				}
+
+				uint32_t argCountGiven = argListNode ? argListNode->childList.GetCount() : 0;
+				uint32_t argCountExpected = SysCallInstruction::ArgumentCount(sysCall);
+				if (argCountGiven != argCountExpected)
+					throw new CompileTimeException(FormatString("System call 0x%04x takes %d arguments, not %d.", uint8_t(sysCall), argCountExpected, argCountGiven), &syntaxNode->childList.GetHead()->value->childList.GetHead()->value->fileLocation);
 
 				// The system call should pop all its arguments off the evaluation stack.
 				SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
@@ -712,12 +743,43 @@ namespace Powder
 			}
 			else
 			{
-				if (functionSignature->namedArgsArray.size() != argCount)
-					throw new CompileTimeException(FormatString("Function \"%s\" takes %d arguments, but %d were given.", funcName.c_str(), functionSignature->namedArgsArray.size(), argCount), &syntaxNode->fileLocation);
-
-				// Jump to whatever instruction will end-up immediately after the jump instruction we make to actually call the function.
+				// Push a list onto the eval-stack that will contain all the function arguments.  The function
+				// itself is responsible for off-loading the list into its own named variables before executing.
+				// Note that we do this even if the function doesn't take any arguments, because there is nothing
+				// to stop a caller from trying to give it arguments anyway.  Any extra arguments are just ignored.
 				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
 				AssemblyData::Entry entry;
+				entry.code = PushInstruction::DataType::EMPTY_LIST;
+				pushInstruction->assemblyData->configMap.Insert("type", entry);
+				instructionList.AddTail(pushInstruction);
+				if (argListNode)
+				{
+					for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
+					{
+						const Parser::SyntaxNode* argNode = node->value;
+						this->GenerateInstructionListRecursively(instructionList, argNode);
+						ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+						entry.Reset();
+						entry.code = ListInstruction::Action::PUSH_RIGHT;
+						listInstruction->assemblyData->configMap.Insert("action", entry);
+						instructionList.AddTail(listInstruction);
+					}
+				}
+
+				// Push onto the eval-stack the address of the function to be called.  This could be a single
+				// load instruction, or several instructions that ultimately leave an address on the stack top.
+				this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
+
+				// Push scope so that the called function doesn't pollute the caller's name-space.
+				ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>();
+				entry.Reset();
+				entry.code = ScopeInstruction::ScopeOp::PUSH;
+				scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
+				instructionList.AddTail(scopeInstruction);
+
+				// The return jump should jump to whatever instruction will end-up immediately after the jump instruction we make to actually call the function.
+				pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+				entry.Reset();
 				entry.code = PushInstruction::DataType::ADDRESS;
 				pushInstruction->assemblyData->configMap.Insert("type", entry);
 				entry.jumpDelta = 3;
@@ -725,6 +787,7 @@ namespace Powder
 				pushInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 				instructionList.AddTail(pushInstruction);
 
+				// Store the return address value in the newly pushed function scope.
 				// Yes, this value could get poked by the calling function, but whatever, I can find a solution to that later.
 				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
 				entry.Reset();
@@ -732,49 +795,42 @@ namespace Powder
 				storeInstruction->assemblyData->configMap.Insert("name", entry);
 				instructionList.AddTail(storeInstruction);
 
-				// We will resolve the jump address in a separate pass, once we've become aware of all user-defined functions.
+				// Now make the call by jumping to the function at the run-time evaluated address.  All that
+				// will remain on the eval-stack is the argument list value, which the called function is
+				// responsible for popping off the eval-stack.
 				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
 				entry.Reset();
-				entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
+				entry.code = JumpInstruction::JUMP_TO_LOADED_ADDRESS;
 				jumpInstruction->assemblyData->configMap.Insert("type", entry);
-				entry.string = funcName;
-				jumpInstruction->assemblyData->configMap.Insert("jump-func", entry);
-				jumpInstruction->assemblyData->fileLocation = identifierNode->fileLocation;
 				instructionList.AddTail(jumpInstruction);
 
-				// The first thing we always do after returning from a call is to pop scope.
-				ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>();
+				// Here now is the instruction that we will jump to when returning from the call.
+				// The first thing we always do after returning from a call is to pop the function's scope.
+				scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>();
 				entry.Reset();
 				entry.code = ScopeInstruction::ScopeOp::POP;
 				scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
 				instructionList.AddTail(scopeInstruction);
+			}
 
-				// We now look at the call in context to see if we need to leave the return result or clean it up.
-				// For now, the only case I can see is when we make the call as the entirety of a single program statement.
-				if (syntaxNode->FindParent("statement-list", 1) != nullptr)
-				{
-					PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
-					instructionList.AddTail(popInstruction);
-				}
+			// We now look at the call in context to see if we need to leave the return result or clean it up.
+			// Note that all functions will return a result whether a return statement is given or not.
+			if (syntaxNode->FindParent("statement-list", 1) != nullptr)
+			{
+				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+				instructionList.AddTail(popInstruction);
 			}
 		}
 		else if (*syntaxNode->name == "function-definition")
 		{
-			// TODO: I may revisit the idea of functions and try to make a variety of them (lambdas?) that are first-class
-			//       citizens of the language (i.e., a type of value that can float around the VM and be manipulated or calculated with, etc.)
-			//       Maybe at the very least, add a FunctionValue derivative of the Value class and allow function values to float around the
-			//       VM so that you can pass function as arguments to functions, etc.  So here, we not only add to our function def list,
-			//       be we could issue a store instruction that stores the function value in scope.
-
 			// Note that there is no real reason to enforce that function definitions appear at the root level.  We could allow them
 			// to be defined anywhere, oddly.  But that's just it.  I don't want to create a false expectation that it matters where
 			// a function definition is defined when in reality, it doesn't matter.  So just require them to always be at the root level.
 			if (!syntaxNode->parentNode || *syntaxNode->parentNode->name != "statement-list")
 				throw new CompileTimeException("Function definitions cannot appear anywhere but at the root level of a source file.", &syntaxNode->fileLocation);
 
-			// For now we just collect the function definitions, because we want them to
-			// appear at the end of the executable.  Otherwise, if we just layed them down
-			// wherever they were, we'd have to jump over them.
+			// Collect the function definitions in a list to be processed later, because we want them to appear at the end of the executable.
+			// Otherwise, if we just layed them down wherever they were, we'd have to jump over them, and that would be stupid.
 			this->functionDefinitionList.AddTail(syntaxNode);
 		}
 		else if (*syntaxNode->name == "return-statement")
@@ -811,30 +867,5 @@ namespace Powder
 		entry.code = JumpInstruction::JUMP_TO_LOADED_ADDRESS;
 		jumpInstruction->assemblyData->configMap.Insert("type", entry);
 		instructionList.AddTail(jumpInstruction);
-	}
-
-	void InstructionGenerator::GatherAllFunctionSignatures(const Parser::SyntaxNode* syntaxNode)
-	{
-		if (*syntaxNode->name == "function-definition")
-		{
-			const Parser::SyntaxNode* identifierNode = syntaxNode->FindChild("identifier", 1);
-			if (!identifierNode)
-				throw new CompileTimeException("Expected \"function-definition\" in AST to have \"identifier\" child.", &syntaxNode->fileLocation);
-
-			std::string funcName = *identifierNode->childList.GetHead()->value->name;
-			FunctionSignature* functionSignature = new FunctionSignature();
-
-			const Parser::SyntaxNode* identifierListNode = syntaxNode->FindChild("identifier-list", 2);
-			if (identifierListNode)
-			{
-				for (const LinkedList<Parser::SyntaxNode*>::Node* node = identifierListNode->childList.GetHead(); node; node = node->GetNext())
-					functionSignature->namedArgsArray.push_back(*node->value->childList.GetHead()->value->name);
-			}
-
-			this->functionSignatureMap.Insert(funcName.c_str(), functionSignature);
-		}
-
-		for (const LinkedList<Parser::SyntaxNode*>::Node* node = syntaxNode->childList.GetHead(); node; node = node->GetNext())
-			this->GatherAllFunctionSignatures(node->value);
 	}
 }

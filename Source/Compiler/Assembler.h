@@ -18,11 +18,11 @@ namespace Powder
 		Assembler();
 		virtual ~Assembler();
 
-		uint8_t* AssembleExecutable(const LinkedList<Instruction*>& instructionList, const HashMap<Instruction*>& functionMap, uint64_t& programBufferSize);
+		uint8_t* AssembleExecutable(const LinkedList<Instruction*>& instructionList, uint64_t& programBufferSize);
 
 	private:
 
-		void ResolveJumps(const LinkedList<Instruction*>& instructionList, const HashMap<Instruction*>& functionMap);
+		void ResolveJumps(const LinkedList<Instruction*>& instructionList);
 	};
 
 	struct POWDER_API AssemblyData
