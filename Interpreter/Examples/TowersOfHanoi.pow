@@ -6,33 +6,41 @@ towers = [
     []
 ];
 
-tower_bases = [0, 0, 0];
+tower_ranges = [
+    [0, len(towers[0]) - 1],
+    [0, 0],
+    [0, 0]
+];
 
 func other_tower(src_tower, dst_tower)
 {
     i = 0;
-    while(i == src_tower or i == dst_tower)
+    while(i == src_tower || i == dst_tower)
         i = (i + 1) % 3;
     return i;
 };
 
-func move_disks(towers, tower_bases, src_tower, dst_tower)
+func move_disks(towers, tower_ranges, src_tower, dst_tower)
 {
-    src_tower_height = length(towers[src_tower]) - tower_bases[src_tower];
-    if(src_tower_height > 1)
-    {
-        tower_bases[src_tower] = tower_bases[src_tower] + 1;
-        move_disks(towers, tower_bases, src_tower, other_tower(src_tower, dst_tower));
-        tower_bases[src_tower] = tower_bases[src_tower] - 1;
-    }
-    
-    disk = rpop(towers[src_tower]);
-    rpush(towers[dst_tower], disk);
-    print_towers(towers);
+    src_tower_height = tower_ranges[src_tower][1] - tower_ranges[src_tower][0] + 1;
 
     if(src_tower_height > 1)
     {
-        move_disks(towers, tower_bases, other_tower(src_tower, dst_tower), dst_tower);
+        tower_ranges[src_tower][0] = tower_ranges[src_tower][0] + 1;
+        move_disks(towers, tower_ranges, src_tower, other_tower(src_tower, dst_tower));
+        tower_ranges[src_tower][0] = tower_ranges[src_tower][0] - 1;
+    }
+    
+    towers[src_tower] --> disk;
+    towers[dst_tower] --< disk;
+    print_towers(towers);
+
+    tower_ranges[src_tower][1] = tower_ranges[src_tower][1] - 1;
+    tower_ranges[dst_tower][1] = tower_ranges[dst_tower][1] + 1;
+
+    if(src_tower_height > 1)
+    {
+        move_disks(towers, tower_ranges, other_tower(src_tower, dst_tower), dst_tower);
     }
 };
 
@@ -43,9 +51,9 @@ func print_towers(towers)
     while(i < 3)
     {
         j = 0;
-        while(j < length(towers[i]))
+        while(j < len(towers[i]))
         {
-            output("(" + i + ")");
+            output("(" + towers[i][j] + ")");
             j = j + 1;
         }
         output("\n");
@@ -54,4 +62,4 @@ func print_towers(towers)
 };
 
 print_towers(towers);
-move_disks(towers, tower_bases, 0, 2);
+move_disks(towers, tower_heights, 0, 2);
