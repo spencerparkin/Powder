@@ -13,3 +13,11 @@ func blah(given_func)
 };
 
 blah(poopers);
+
+func super()
+{
+    return poopers;
+};
+
+output("----------------\n");
+super()(3, 2, 1);
