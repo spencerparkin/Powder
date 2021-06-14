@@ -92,4 +92,12 @@ namespace Powder
 		this->evaluationStack->pop_back();
 		return value;
 	}
+
+	Value* Executor::StackTop()
+	{
+		if (this->evaluationStack->size() == 0)
+			throw new RunTimeException("No stack top!");
+		Value* value = (*this->evaluationStack)[this->evaluationStack->size() - 1];
+		return value;
+	}
 }

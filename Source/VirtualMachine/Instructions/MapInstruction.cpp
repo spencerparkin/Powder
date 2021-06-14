@@ -2,6 +2,7 @@
 #include "Assembler.h"
 #include "Executor.h"
 #include "MapValue.h"
+#include "ListValue.h"
 #include "Exceptions.hpp"
 
 namespace Powder
@@ -28,50 +29,40 @@ namespace Powder
 		{
 			case Action::REMOVE:
 			{
+				// Notice we pop the field value, but leave the map value.
 				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
-				MapValue* mapValue = dynamic_cast<MapValue*>(executor->PopValueFromEvaluationStackTop());
+				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only remove elements from a map value.");
-
 				mapValue->DelField(fieldValue);
-				
-				// It's most convenient, I think, to leave the map value on the stack.
-				result = mapValue;
 				break;
 			}
 			case Action::INSERT:
 			{
+				// Notice we pop the field and data values, but leave the map value.
 				Value* dataValue = executor->PopValueFromEvaluationStackTop();
 				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
-				MapValue* mapValue = dynamic_cast<MapValue*>(executor->PopValueFromEvaluationStackTop());
+				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only insert elements into a map value.");
-
 				mapValue->SetField(fieldValue, dataValue);
-
-				// It's most convenient, I think, to leave the map value on the stack.
-				result = mapValue;
 				break;
 			}
 			case Action::MAKE_KEY_LIST:
 			{
+				// In this case, the map value is replaced with the list value.
 				MapValue* mapValue = dynamic_cast<MapValue*>(executor->PopValueFromEvaluationStackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only generate key lists for map values.");
-
-				result = mapValue->GenerateKeyListValue();
+				ListValue* listValue = mapValue->GenerateKeyListValue();
+				executor->PushValueOntoEvaluationStackTop(listValue);
 				break;
 			}
 			default:
 			{
-				break;
+				throw new RunTimeException(FormatString("Map instruction encountered unknown action %04d.", action));
 			}
 		}
-
-		if (!result)
-			throw new RunTimeException("Map instruction had no result.");
-
-		executor->PushValueOntoEvaluationStackTop(result);
 
 		programBufferLocation += 2;
 		return Executor::Result::CONTINUE;

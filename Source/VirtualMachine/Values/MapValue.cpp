@@ -77,7 +77,7 @@ namespace Powder
 		return dataValue;
 	}
 
-	Value* MapValue::GenerateKeyListValue()
+	ListValue* MapValue::GenerateKeyListValue()
 	{
 		ListValue* listValue = new ListValue();
 		this->valueMap.ForAllEntries([=](const char* key, Value* value) -> bool {

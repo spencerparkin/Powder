@@ -7,4 +7,17 @@ func poopers(a, b, c)
     output("c = " + c + "\n");
 };
 
-poopers(1, "2", 3)
+func blah(given_func)
+{
+    given_func(1, 2, 3);
+};
+
+blah(poopers);
+
+func super()
+{
+    return poopers;
+};
+
+output("----------------\n");
+super()(3, 2, 1);

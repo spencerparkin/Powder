@@ -68,6 +68,7 @@ namespace Powder
 			case SysCall::GC:
 			{
 				GarbageCollector::GC()->FullPass();
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				programBufferLocation += 2;
 				break;
 			}
@@ -98,7 +99,9 @@ namespace Powder
 			case SysCall::OUTPUT:
 			{
 				Value* value = executor->PopValueFromEvaluationStackTop();
-				std::cout << value->ToString();
+				std::string str = value->ToString();
+				std::cout << str;
+				executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()));
 				programBufferLocation += 2;
 				break;
 			}

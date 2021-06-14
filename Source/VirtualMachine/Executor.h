@@ -37,6 +37,8 @@ namespace Powder
 		void PushValueOntoEvaluationStackTop(Value* value);
 		Value* PopValueFromEvaluationStackTop();
 
+		Value* StackTop();
+
 	protected:
 
 		uint64_t programBufferLocation;

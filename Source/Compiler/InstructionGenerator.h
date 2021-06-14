@@ -16,21 +16,15 @@ namespace Powder
 		InstructionGenerator();
 		virtual ~InstructionGenerator();
 
-		void GenerateInstructionList(LinkedList<Instruction*>& instructionList, HashMap<Instruction*>& functionMap, const Parser::SyntaxNode* rootSyntaxNode);
+		void GenerateInstructionList(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* rootSyntaxNode);
 
 	private:
 
 		void GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode);
-		void GatherAllFunctionSignatures(const Parser::SyntaxNode* syntaxNode);
 		void GenerateFunctionReturnInstructions(LinkedList<Instruction*>& instructionList);
+		void GenerateFunctionArgumentInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* argListNode);
+		void GenerateFunctionDeclarationInstructions(LinkedList<Instruction*>& instructionList, const std::string& funcName, Instruction* firstFunctionInstruction);
 
 		LinkedList<const Parser::SyntaxNode*> functionDefinitionList;
-
-		struct FunctionSignature
-		{
-			std::vector<std::string> namedArgsArray;
-		};
-
-		HashMap<FunctionSignature*> functionSignatureMap;
 	};
 }
