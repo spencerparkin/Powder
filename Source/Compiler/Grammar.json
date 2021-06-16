@@ -94,17 +94,18 @@
   ],
   "binary-expression": [
     [ "expression", "=", "expression" ],
+    [ "expression", "&&", "expression" ],
+    [ "expression", "||", "expression" ],
     [ "expression", "==", "expression" ],
     [ "expression", "<", "expression" ],
     [ "expression", ">", "expression" ],
     [ "expression", "<=", "expression" ],
     [ "expression", ">=", "expression" ],
-    [ "expression", "&&", "expression" ],
-    [ "expression", "||", "expression" ],
     [ "expression", "+", "expression" ],
     [ "expression", "-", "expression" ],
     [ "expression", "*", "expression" ],
-    [ "expression", "/", "expression" ]
+    [ "expression", "/", "expression" ],
+    [ "expression", "%", "expression" ]
   ],
   "unary-expression": [
     [ "left-unary-expression" ],

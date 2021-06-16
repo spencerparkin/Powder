@@ -31,6 +31,8 @@ namespace Powder
 			return MathOp::MULTIPLY;
 		else if (tokenText == "/")
 			return MathOp::DIVIDE;
+		else if (tokenText == "%")
+			return MathOp::MODULUS;
 		else if (tokenText == "==")
 			return MathOp::EQUAL;
 		else if (tokenText == "<")
@@ -41,6 +43,10 @@ namespace Powder
 			return MathOp::GREATER_THAN;
 		else if (tokenText == ">=")
 			return MathOp::GREATER_THAN_OR_EQUAL;
+		else if (tokenText == "||")
+			return MathOp::OR;
+		else if (tokenText == "&&")
+			return MathOp::AND;
 
 		return MathOp::UNKNOWN;
 	}

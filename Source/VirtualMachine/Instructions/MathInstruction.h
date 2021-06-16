@@ -21,6 +21,7 @@ namespace Powder
 			SUBTRACT,
 			MULTIPLY,
 			DIVIDE,
+			MODULUS,
 
 			// Unary arithmetic operations:
 			NEGATE,

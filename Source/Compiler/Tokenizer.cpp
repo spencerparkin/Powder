@@ -9,6 +9,7 @@ namespace Powder
 	{
 		this->operatorArray = new std::vector<std::string>();
 		this->operatorArray->push_back("=");
+		this->operatorArray->push_back("==");
 		this->operatorArray->push_back("+");
 		this->operatorArray->push_back("-");
 		this->operatorArray->push_back("*");

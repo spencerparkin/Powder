@@ -65,9 +65,13 @@ namespace Powder
 				{
 					return new NumberValue(this->number / numberValue->number);
 				}
+				case MathInstruction::MathOp::MODULUS:
+				{
+					return new NumberValue(::fmod(this->number, numberValue->number));
+				}
 				case MathInstruction::MathOp::EQUAL:
 				{
-					return new NumberValue(this->number == numberValue->number);
+					return new BooleanValue(this->number == numberValue->number);
 				}
 				case MathInstruction::MathOp::LESS_THAN:
 				{

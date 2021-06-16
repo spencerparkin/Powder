@@ -510,14 +510,11 @@ namespace Powder
 			if (syntaxNode->childList.GetCount() != 1)
 				throw new CompileTimeException("Expected \"literal\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
-			if (syntaxNode->childList.GetHead()->value->childList.GetCount() != 1)
-				throw new CompileTimeException("Expected \"literal\" in AST to have exactly one grandchild.", &syntaxNode->fileLocation);
-
 			PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
 			instructionList.AddTail(pushInstruction);
 
 			const Parser::SyntaxNode* literalTypeNode = syntaxNode->childList.GetHead()->value;
-			const Parser::SyntaxNode* literalDataNode = literalTypeNode->childList.GetHead()->value;
+			const Parser::SyntaxNode* literalDataNode = (literalTypeNode->childList.GetCount() == 1) ? literalTypeNode->childList.GetHead()->value : nullptr;
 
 			AssemblyData::Entry typeEntry;
 			AssemblyData::Entry dataEntry;
@@ -575,51 +572,53 @@ namespace Powder
 		}
 		else if (*syntaxNode->name == "list-literal")
 		{
+			// The list may be empty, in which case, we don't find the node.
 			const Parser::SyntaxNode* elementListNode = syntaxNode->FindChild("list-element-list", 1);
-			if (!elementListNode)
-				throw new CompileTimeException("Expected to find \"list-element-list\" child of \"list-literal\" in AST.", &syntaxNode->fileLocation);
-
-			// We assume here that the list in question is already on the eval-stack.
-			for (const LinkedList<Parser::SyntaxNode*>::Node* node = elementListNode->childList.GetHead(); node; node = node->GetNext())
+			if (elementListNode)
 			{
-				// Push the element onto the eval stack.
-				this->GenerateInstructionListRecursively(instructionList, node->value);
+				// We assume here that the list in question is already on the eval-stack.
+				for (const LinkedList<Parser::SyntaxNode*>::Node* node = elementListNode->childList.GetHead(); node; node = node->GetNext())
+				{
+					// Push the element onto the eval stack.
+					this->GenerateInstructionListRecursively(instructionList, node->value);
 
-				// Now add the element to the list.  The element gets removed from the stack, but the list should remain.
-				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
-				AssemblyData::Entry entry;
-				entry.code = ListInstruction::PUSH_RIGHT;
-				listInstruction->assemblyData->configMap.Insert("action", entry);
-				instructionList.AddTail(listInstruction);
+					// Now add the element to the list.  The element gets removed from the stack, but the list should remain.
+					ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+					AssemblyData::Entry entry;
+					entry.code = ListInstruction::PUSH_RIGHT;
+					listInstruction->assemblyData->configMap.Insert("action", entry);
+					instructionList.AddTail(listInstruction);
+				}
 			}
 		}
 		else if (*syntaxNode->name == "map-literal")
 		{
-			if (syntaxNode->childList.GetCount() != 1 || *syntaxNode->childList.GetHead()->value->name != "map-pair-list")
-				throw new CompileTimeException("Expected \"map-literal\" to have exactly one child \"map-pair-list\" in AST.", &syntaxNode->fileLocation);
-
-			const Parser::SyntaxNode* mapPairListNode = syntaxNode->childList.GetHead()->value;
-			for (const LinkedList<Parser::SyntaxNode*>::Node* node = mapPairListNode->childList.GetHead(); node; node = node->GetNext())
+			// The map may be empty, in which case, we don't find the node.
+			const Parser::SyntaxNode* mapPairListNode = syntaxNode->FindChild("map-pair-list", 1);
+			if (mapPairListNode)
 			{
-				const Parser::SyntaxNode* mapPairNode = node->value;
-				if (*mapPairNode->name != "map-pair")
-					throw new CompileTimeException("Expected all children of \"map-pair-list\" to be \"map-pair\" in AST.", &mapPairNode->fileLocation);
+				for (const LinkedList<Parser::SyntaxNode*>::Node* node = mapPairListNode->childList.GetHead(); node; node = node->GetNext())
+				{
+					const Parser::SyntaxNode* mapPairNode = node->value;
+					if (*mapPairNode->name != "map-pair")
+						throw new CompileTimeException("Expected all children of \"map-pair-list\" to be \"map-pair\" in AST.", &mapPairNode->fileLocation);
 
-				if (mapPairNode->childList.GetCount() != 3)
-					throw new CompileTimeException("Expected \"map-pair\" node in AST to have exactly 3 children.", &mapPairNode->fileLocation);
+					if (mapPairNode->childList.GetCount() != 3)
+						throw new CompileTimeException("Expected \"map-pair\" node in AST to have exactly 3 children.", &mapPairNode->fileLocation);
 
-				// Push the field value.
-				this->GenerateInstructionListRecursively(instructionList, mapPairNode->childList.GetHead()->value);
+					// Push the field value.
+					this->GenerateInstructionListRecursively(instructionList, mapPairNode->childList.GetHead()->value);
 
-				// Push the data value.
-				this->GenerateInstructionListRecursively(instructionList, mapPairNode->childList.GetHead()->GetNext()->GetNext()->value);
+					// Push the data value.
+					this->GenerateInstructionListRecursively(instructionList, mapPairNode->childList.GetHead()->GetNext()->GetNext()->value);
 
-				// Now insert the data value at the field value.  Field and data values are popped; the map value remains on the stack top.
-				MapInstruction* mapInstruction = Instruction::CreateForAssembly<MapInstruction>();
-				AssemblyData::Entry entry;
-				entry.code = MapInstruction::Action::INSERT;
-				mapInstruction->assemblyData->configMap.Insert("action", entry);
-				instructionList.AddTail(mapInstruction);
+					// Now insert the data value at the field value.  Field and data values are popped; the map value remains on the stack top.
+					MapInstruction* mapInstruction = Instruction::CreateForAssembly<MapInstruction>();
+					AssemblyData::Entry entry;
+					entry.code = MapInstruction::Action::INSERT;
+					mapInstruction->assemblyData->configMap.Insert("action", entry);
+					instructionList.AddTail(mapInstruction);
+				}
 			}
 		}
 		else if (*syntaxNode->name == "map-keys-expression")
