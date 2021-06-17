@@ -86,6 +86,8 @@ namespace Powder
 		sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
 		instructionList.AddTail(sysCallInstruction);
 
+		HashMap<int> functionNameMap;
+
 		if (this->functionDefinitionList.GetCount() > 0)
 		{
 			for (LinkedList<const Parser::SyntaxNode*>::Node* node = this->functionDefinitionList.GetHead(); node; node = node->GetNext())
@@ -102,6 +104,10 @@ namespace Powder
 				const Parser::SyntaxNode* argListNode = functionDefNode->FindChild("identifier-list", 1);
 
 				std::string funcName = *identifierNode->childList.GetHead()->value->name;
+				if (functionNameMap.LookupPtr(funcName.c_str()) != nullptr)
+					throw new CompileTimeException(FormatString("Function \"%s\" defined more than once.", funcName.c_str()), &functionDefNode->fileLocation);
+				else
+					functionNameMap.Insert(funcName.c_str(), 0);
 
 				// The instructions of a function consist of the code for off-loading the arguments, then the function body.
 				LinkedList<Instruction*> functionInstructionList;
@@ -846,6 +852,20 @@ namespace Powder
 			}
 
 			this->GenerateFunctionReturnInstructions(instructionList);
+		}
+		else if (*syntaxNode->name == "membership-expression")
+		{
+			if (syntaxNode->childList.GetCount() != 3)
+				throw new CompileTimeException("Expected \"membership-expression\" node in AST to have exactly 3 children.", &syntaxNode->fileLocation);
+
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
+			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			AssemblyData::Entry entry;
+			entry.code = MathInstruction::CONTAINS;
+			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
+			instructionList.AddTail(mathInstruction);
 		}
 		else
 		{

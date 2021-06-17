@@ -1,0 +1,25 @@
+# Membership.pow
+
+my_map = {};
+my_map["a"] = 1;
+my_map[1] = "a";
+
+my_list = [];
+my_list --< "b";
+my_list --< "c";
+"a" >-- my_list;
+
+if("a" in my_map)
+    output("\"a\" in my_map!\n");
+
+if(1 in my_map)
+    output("1 in my_map!\n");
+
+if(!(2 in my_map))
+    output("2 not in my_map!\n");
+
+if("a" in my_list)
+    output("\"a\" in my_list!\n");
+
+if(!("d" in my_list))
+    output("\"d\" not in my_list!\n");

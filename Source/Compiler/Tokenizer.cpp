@@ -26,6 +26,7 @@ namespace Powder
 		this->operatorArray->push_back(">--");
 		this->operatorArray->push_back("&&");
 		this->operatorArray->push_back("||");
+		this->operatorArray->push_back("!");
 	}
 
 	/*virtual*/ Tokenizer::~Tokenizer()
@@ -129,8 +130,17 @@ namespace Powder
 			{
 				if (programCodeBuffer[i] == '\0' || programCodeBuffer[i] == '\n')
 					throw new CompileTimeException("Encountered run-away string.", &fileLocation);
-				token.text += programCodeBuffer[i++];
-				fileLocation.columnNumber++;
+				if (programCodeBuffer[i] == '\\' && programCodeBuffer[i + 1] == '"')
+				{
+					token.text += "\"";
+					i += 2;
+					fileLocation.columnNumber += 2;
+				}
+				else
+				{
+					token.text += programCodeBuffer[i++];
+					fileLocation.columnNumber++;
+				}
 			}
 			i++;
 			fileLocation.columnNumber++;

@@ -3,6 +3,7 @@
 #include "NumberValue.h"
 #include "Exceptions.hpp"
 #include "StringFormat.h"
+#include "BooleanValue.h"
 
 namespace Powder
 {
@@ -64,6 +65,15 @@ namespace Powder
 		}
 
 		return new UndefinedValue();
+	}
+
+	/*virtual*/ BooleanValue* ListValue::IsMember(const Value* value) const
+	{
+		std::string valueStr = value->ToString();
+		for (const LinkedList<Value*>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
+			if (node->value->ToString() == valueStr)
+				return new BooleanValue(true);
+		return new BooleanValue(false);
 	}
 
 	/*virtual*/ void ListValue::SetField(Value* fieldValue, Value* dataValue)

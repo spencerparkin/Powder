@@ -47,6 +47,7 @@ namespace Powder
 			SET_FIELD,			// Ternary
 			DEL_FIELD,			// Binary
 			SIZE,				// Unary
+			CONTAINS			// Binary
 		};
 
 		static MathOp TranslateBinaryOperatorInfixToken(const std::string& tokenText);

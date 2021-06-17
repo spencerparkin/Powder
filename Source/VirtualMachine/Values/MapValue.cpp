@@ -5,6 +5,7 @@
 #include "Exceptions.hpp"
 #include "StringFormat.h"
 #include "StringValue.h"
+#include "BooleanValue.h"
 
 namespace Powder
 {
@@ -37,6 +38,13 @@ namespace Powder
 		}
 
 		return new UndefinedValue();
+	}
+
+	/*virtual*/ BooleanValue* MapValue::IsMember(const Value* value) const
+	{
+		std::string key = value->ToString();
+		Value* dataValue = const_cast<MapValue*>(this)->valueMap.Lookup(key.c_str());
+		return new BooleanValue(dataValue != nullptr);
 	}
 
 	/*virtual*/ void MapValue::SetField(Value* fieldValue, Value* dataValue)

@@ -3,6 +3,7 @@
 #include "Scope.h"
 #include "Value.h"
 #include "ContainerValue.h"
+#include "BooleanValue.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
 
@@ -109,6 +110,15 @@ namespace Powder
 				if (!containerValue)
 					throw new RunTimeException("Delete field math operation expected a container value on the evaluation stack.");
 				result = containerValue->DelField(fieldValue);
+				break;
+			}
+			case MathOp::CONTAINS:
+			{
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				if (!containerValue)
+					throw new RunTimeException("Membership math operation expected a container value on the evaluation stack.");
+				Value* value = executor->PopValueFromEvaluationStackTop();
+				result = containerValue->IsMember(value);
 				break;
 			}
 			default:
