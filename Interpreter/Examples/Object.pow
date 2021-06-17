@@ -7,6 +7,8 @@
 # The old syntax will no longer be supported, because the new syntax handles that case and more cases.
 
 # TODO: Quotes on left side of colon optional?  I think that would be nice.
+#       On second thought, I would disallow this, because it really means something else.
+#       It means load the value of the identified variable and use that as the key.
 base_object = {
     "method_a": func(self) {
         output("Hello!\n");
