@@ -51,6 +51,9 @@
     <None Include="Examples\Membership.pow">
       <Filter>Examples</Filter>
     </None>
+    <None Include="Examples\Object.pow">
+      <Filter>Examples</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Examples\Function.pow">
