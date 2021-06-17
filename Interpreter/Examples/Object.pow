@@ -21,13 +21,13 @@ base_object = {
 };
 
 object = {
+    "__inherits__": [base_object],
     "method_b": func(self) {
         output("Poopers!\n");
         self.x = self.x + 1;
     }
 };
 
-object inherits base_object;
 object.method_a();
 object.method_b();
 object.method_a();
@@ -35,3 +35,6 @@ object.x = 100.0;
 object.method_a();
 
 # TODO: Test syntax object.owned_object.method_call();
+#       a.b sugar for a["b"] always?
+#       a.b(...) sugar for a["b"](a, ...) always?
+#       If so, maybe supporting the syntax is all about changing the syntax tree before we pass it to the instruction generator.
