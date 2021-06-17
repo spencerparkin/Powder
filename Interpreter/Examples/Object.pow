@@ -1,0 +1,35 @@
+# Object.pow
+
+# Maybe change function syntax so that...
+# my_func_var = func(...) { ... }
+# ...is always the syntax?  I would do this and fixup all other scripts before working on this script.
+# I think this is actually a better way to go, but it's tricky, because we have to resolve a push address later.
+# The old syntax will no longer be supported, because the new syntax handles that case and more cases.
+
+# TODO: Quotes on left side of colon optional?  I think that would be nice.
+base_object = {
+    "method_a": func(self) {
+        output("Hello!\n");
+        output("self.x = " + self.x + "\n");
+    },
+    "method_b": func(self) {
+        output("Good-bye!\n");
+    },
+    "x": 0.0
+};
+
+object = {
+    "method_b": func(self) {
+        output("Poopers!\n");
+        self.x = self.x + 1;
+    }
+};
+
+object inherits base_object;
+object.method_a();
+object.method_b();
+object.method_a();
+object.x = 100.0;
+object.method_a();
+
+# TODO: Test syntax object.owned_object.method_call();
