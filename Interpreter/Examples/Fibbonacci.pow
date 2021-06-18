@@ -1,6 +1,6 @@
 # Fibbonacci.pow
 
-func calc_fib(x)
+calc_fib = func(x)
 {
     if(x < 3)
         return 1

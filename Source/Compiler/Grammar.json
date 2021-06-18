@@ -12,7 +12,6 @@
     [ "fork-statement" ],
     [ "return-statement" ],
     [ "yield-statement" ],
-    [ "function-definition" ],
     [ "expression" ]
   ],
   "if-statement": [
@@ -41,8 +40,8 @@
     [ "yield" ]
   ],
   "function-definition": [
-    [ "func", "identifier", "(", ")", "block" ],
-    [ "func", "identifier", "(", "identifier-list", ")", "block" ]
+    [ "func", "(", ")", "block" ],
+    [ "func", "(", "identifier-list", ")", "block" ]
   ],
   "identifier-list": [
     [ "identifier-list", ",", "identifier-list" ],
@@ -69,7 +68,8 @@
     [ "map-keys-expression" ],
     [ "function-call" ],
     [ "delete-field-expression" ],
-    [ "container-field-expression" ]
+    [ "container-field-expression" ],
+    [ "function-definition" ]
   ],
   "membership-expression": [
     [ "expression", "in", "expression" ]

@@ -23,8 +23,13 @@ namespace Powder
 		void GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode);
 		void GenerateFunctionReturnInstructions(LinkedList<Instruction*>& instructionList);
 		void GenerateFunctionArgumentInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* argListNode);
-		void GenerateFunctionDeclarationInstructions(LinkedList<Instruction*>& instructionList, const std::string& funcName, Instruction* firstFunctionInstruction);
 
-		LinkedList<const Parser::SyntaxNode*> functionDefinitionList;
+		struct FunctionDef
+		{
+			const Parser::SyntaxNode* syntaxNode;
+			Instruction* declareInstruction;
+		};
+
+		LinkedList<FunctionDef> functionDefinitionList;
 	};
 }

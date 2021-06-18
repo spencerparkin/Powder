@@ -23,7 +23,7 @@ namespace Powder
 	Parser::SyntaxNode* Parser::Parse(const TokenList& tokenList)
 	{
 		// TODO: Find a better way to locate this file.
-		std::string grammarFilePath = R"(D:\git_repos\Powder\Source\Compiler\Grammar.json)";
+		std::string grammarFilePath = R"(G:\git_repos\Powder\Source\Compiler\Grammar.json)";
 		std::fstream fileStream;
 		fileStream.open(grammarFilePath, std::fstream::in);
 		if (!fileStream.is_open())

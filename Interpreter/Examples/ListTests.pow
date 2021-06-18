@@ -2,7 +2,7 @@
 
 list = [1, 1 + 1, 1 + 1 + 1];
 
-func blah(given_list)
+blah = func(given_list)
 {
     given_list --< 4;
     0 >-- given_list;
@@ -16,7 +16,7 @@ list --> j;
 output("i = " + i + "\n");
 output("j = " + j + "\n");
 
-func print_list(given_list)
+print_list = func(given_list)
 {
     output("----------------------\n");
     output("len(given_list) = " + len(given_list) + "\n");

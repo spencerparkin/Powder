@@ -1,20 +1,20 @@
 # Function.pow
 
-func poopers(a, b, c)
+poopers = func(a, b, c)
 {
     output("a = " + a + "\n");
     output("b = " + b + "\n");
     output("c = " + c + "\n");
 };
 
-func blah(given_func)
+blah = func(given_func)
 {
     given_func(1, 2, 3);
 };
 
 blah(poopers);
 
-func super()
+super = func()
 {
     return poopers;
 };

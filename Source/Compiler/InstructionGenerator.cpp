@@ -55,24 +55,6 @@ namespace Powder
 		instructionList.AddTail(popInstruction);
 	}
 
-	void InstructionGenerator::GenerateFunctionDeclarationInstructions(LinkedList<Instruction*>& instructionList, const std::string& funcName, Instruction* firstFunctionInstruction)
-	{
-		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
-		AssemblyData::Entry entry;
-		entry.code = PushInstruction::DataType::ADDRESS;
-		pushInstruction->assemblyData->configMap.Insert("type", entry);
-		entry.Reset();
-		entry.instruction = firstFunctionInstruction;
-		pushInstruction->assemblyData->configMap.Insert("data", entry);
-		instructionList.AddTail(pushInstruction);
-
-		StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
-		entry.Reset();
-		entry.string = funcName;
-		storeInstruction->assemblyData->configMap.Insert("name", entry);
-		instructionList.AddTail(storeInstruction);
-	}
-
 	void InstructionGenerator::GenerateInstructionList(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* rootSyntaxNode)
 	{
 		this->GenerateInstructionListRecursively(instructionList, rootSyntaxNode);
@@ -86,28 +68,18 @@ namespace Powder
 		sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
 		instructionList.AddTail(sysCallInstruction);
 
-		HashMap<int> functionNameMap;
-
 		if (this->functionDefinitionList.GetCount() > 0)
 		{
-			for (LinkedList<const Parser::SyntaxNode*>::Node* node = this->functionDefinitionList.GetHead(); node; node = node->GetNext())
+			for (LinkedList<FunctionDef>::Node* node = this->functionDefinitionList.GetHead(); node; node = node->GetNext())
 			{
-				const Parser::SyntaxNode* functionDefNode = node->value;
+				FunctionDef& functionDef = node->value;
+				const Parser::SyntaxNode* functionDefNode = functionDef.syntaxNode;
 				const Parser::SyntaxNode* functionStatementListNode = functionDefNode->FindChild("statement-list", 2);
 				if (!functionStatementListNode)
 					throw new CompileTimeException("Expected \"function-definition\" to have \"statement-list\" in AST.", &functionDefNode->fileLocation);
 
-				const Parser::SyntaxNode* identifierNode = functionDefNode->FindChild("identifier", 1);
-				if (!identifierNode)
-					throw new CompileTimeException("Expected \"function-definition\" in AST to have \"identifier\" child.", &functionDefNode->fileLocation);
-
+				// If this doesn't exist, then the function doesn't take any arguments.
 				const Parser::SyntaxNode* argListNode = functionDefNode->FindChild("identifier-list", 1);
-
-				std::string funcName = *identifierNode->childList.GetHead()->value->name;
-				if (functionNameMap.LookupPtr(funcName.c_str()) != nullptr)
-					throw new CompileTimeException(FormatString("Function \"%s\" defined more than once.", funcName.c_str()), &functionDefNode->fileLocation);
-				else
-					functionNameMap.Insert(funcName.c_str(), 0);
 
 				// The instructions of a function consist of the code for off-loading the arguments, then the function body.
 				LinkedList<Instruction*> functionInstructionList;
@@ -128,11 +100,10 @@ namespace Powder
 				// This way, we don't have to jump over the function bodies, which would be dumb.
 				instructionList.Append(functionInstructionList);
 
-				// Lastly, declare the function at the top of the executable so that it can be
-				// called from anywhere, even before the definition shows up in the source file.
-				LinkedList<Instruction*> functionDeclarationInstructionList;
-				this->GenerateFunctionDeclarationInstructions(functionDeclarationInstructionList, funcName, functionInstructionList.GetHead()->value);
-				instructionList.Prepend(functionDeclarationInstructionList);
+				// Lastly, patch the push instruction that effectively declares the anonymous function.
+				entry.Reset();
+				entry.instruction = functionInstructionList.GetHead()->value;
+				functionDef.declareInstruction->assemblyData->configMap.Insert("data", entry);
 			}
 		}
 	}
@@ -828,15 +799,20 @@ namespace Powder
 		}
 		else if (*syntaxNode->name == "function-definition")
 		{
-			// Note that there is no real reason to enforce that function definitions appear at the root level.  We could allow them
-			// to be defined anywhere, oddly.  But that's just it.  I don't want to create a false expectation that it matters where
-			// a function definition is defined when in reality, it doesn't matter.  So just require them to always be at the root level.
-			if (!syntaxNode->parentNode || *syntaxNode->parentNode->name != "statement-list")
-				throw new CompileTimeException("Function definitions cannot appear anywhere but at the root level of a source file.", &syntaxNode->fileLocation);
+			// This isn't a fool-proof check, but it's something.
+			if (syntaxNode->FindParent("statement-list", 1) != nullptr)
+				throw new CompileTimeException("Anonymous function not assigned at definition.", &syntaxNode->fileLocation);
 
-			// Collect the function definitions in a list to be processed later, because we want them to appear at the end of the executable.
-			// Otherwise, if we just layed them down wherever they were, we'd have to jump over them, and that would be stupid.
-			this->functionDefinitionList.AddTail(syntaxNode);
+			PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+			AssemblyData::Entry entry;
+			entry.code = PushInstruction::DataType::ADDRESS;
+			pushInstruction->assemblyData->configMap.Insert("type", entry);
+			instructionList.AddTail(pushInstruction);
+
+			FunctionDef functionDef;
+			functionDef.syntaxNode = syntaxNode;
+			functionDef.declareInstruction = pushInstruction;
+			this->functionDefinitionList.AddTail(functionDef);
 		}
 		else if (*syntaxNode->name == "return-statement")
 		{

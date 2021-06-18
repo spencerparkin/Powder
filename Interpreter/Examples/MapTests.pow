@@ -4,15 +4,12 @@ map = {
     "ap" + "ple": 1,
     "orange": "hel" + "lo",
     "strawberry": [1, 2, 3, {"happy": "flappy"}],
-    "happy_func": happy_func
+    "happy_func": func() {
+        output("Happy poopers!\n");
+    }
 };
 
-func happy_func()
-{
-    output("Happy poopers!");
-};
-
-func blah(given_map)
+blah = func(given_map)
 {
     del given_map["apple"];
 };
@@ -21,7 +18,7 @@ output("apple key gives: " + map["apple"] + "\n");
 blah(map);
 map["poopers"] = "scoopers";
 
-func print_map(given_map)
+print_map = func(given_map)
 {
     map_keys = keys(given_map);
     i = 0;
@@ -35,4 +32,5 @@ func print_map(given_map)
 
 print_map(map);
 
+output("\n");
 map["happy_func"]();
