@@ -155,11 +155,11 @@ namespace Powder
 		{
 			const AssemblyData::Entry* mathOpEntry = this->assemblyData->configMap.LookupPtr("mathOp");
 			if (!mathOpEntry)
-				throw new CompileTimeException("Can't assemble math instruction if not given math operation code.");
+				throw new CompileTimeException("Can't assemble math instruction if not given math operation code.", &this->assemblyData->fileLocation);
 
 			uint8_t mathOp = mathOpEntry->code;
 			if (mathOp == MathOp::UNKNOWN)
-				throw new CompileTimeException("Can't assemble math instruction with unknown math operation code.");
+				throw new CompileTimeException("Can't assemble math instruction with unknown math operation code.", &this->assemblyData->fileLocation);
 
 			switch (mathOp)
 			{

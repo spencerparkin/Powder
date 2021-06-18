@@ -60,7 +60,6 @@ namespace Powder
 		};
 
 		HashMap<Entry> configMap;
-
 		FileLocation fileLocation;
 	};
 }

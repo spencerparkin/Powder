@@ -120,7 +120,7 @@ namespace Powder
 		{
 			const AssemblyData::Entry* sysCallEntry = this->assemblyData->configMap.LookupPtr("sysCall");
 			if (!sysCallEntry)
-				throw new CompileTimeException("System call instruction can't be assembled without knowing what system call to call.");
+				throw new CompileTimeException("System call instruction can't be assembled without knowing what system call to call.", &this->assemblyData->fileLocation);
 
 			programBuffer[programBufferLocation + 1] = sysCallEntry->code;
 		}

@@ -36,7 +36,7 @@ namespace Powder
 		{
 			const AssemblyData::Entry* branchEntry = this->assemblyData->configMap.LookupPtr("branch");
 			if (!branchEntry)
-				throw new CompileTimeException("Cannot assemble branch instruction without the branch address information being given.");
+				throw new CompileTimeException("Cannot assemble branch instruction without the branch address information being given.", &this->assemblyData->fileLocation);
 
 			::memcpy_s(&programBuffer[programBufferLocation + 1], sizeof(uint64_t), &branchEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 		}

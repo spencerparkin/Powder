@@ -9,6 +9,7 @@ namespace Powder
 	class VirtualMachine;
 	class Executor;
 	struct AssemblyData;
+	struct FileLocation;
 
 	// Derivatives of this class are responsible for both the decoding
 	// and encoding of a Powder VM instructions.
@@ -59,10 +60,11 @@ namespace Powder
 		AssemblyData* assemblyData;
 
 		template<typename T>
-		static T* CreateForAssembly()
+		static T* CreateForAssembly(const FileLocation& fileLocation)
 		{
 			T* instruction = new T;
 			instruction->assemblyData = new AssemblyData;
+			instruction->assemblyData->fileLocation = fileLocation;
 			return instruction;
 		}
 

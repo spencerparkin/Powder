@@ -49,7 +49,7 @@ namespace Powder
 	{
 		const AssemblyData::Entry* typeEntry = this->assemblyData->configMap.LookupPtr("type");
 		if (!typeEntry)
-			throw new CompileTimeException("Can't assemble jump instruction if not given the jump-type.");
+			throw new CompileTimeException("Can't assemble jump instruction if not given the jump-type.", &this->assemblyData->fileLocation);
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
@@ -59,7 +59,7 @@ namespace Powder
 			{
 				const AssemblyData::Entry* jumpEntry = this->assemblyData->configMap.LookupPtr("jump");
 				if (!jumpEntry)
-					throw new CompileTimeException("Can't assemble jump instruction to hard-coded program location if not given that location.");
+					throw new CompileTimeException("Can't assemble jump instruction to hard-coded program location if not given that location.", &this->assemblyData->fileLocation);
 
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(uint64_t), &jumpEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 			}

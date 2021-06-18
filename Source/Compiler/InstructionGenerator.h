@@ -21,8 +21,8 @@ namespace Powder
 	private:
 
 		void GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode);
-		void GenerateFunctionReturnInstructions(LinkedList<Instruction*>& instructionList);
-		void GenerateFunctionArgumentInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* argListNode);
+		void GenerateFunctionReturnInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode);
+		void GenerateFunctionArgumentInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode, const Parser::SyntaxNode* argListNode);
 
 		struct FunctionDef
 		{

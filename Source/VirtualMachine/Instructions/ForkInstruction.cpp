@@ -34,7 +34,7 @@ namespace Powder
 		{
 			const AssemblyData::Entry* forkEntry = this->assemblyData->configMap.LookupPtr("fork");
 			if (!forkEntry)
-				throw new CompileTimeException("Can't assemble fork instruction when not given the fork address information.");
+				throw new CompileTimeException("Can't assemble fork instruction when not given the fork address information.", &this->assemblyData->fileLocation);
 
 			::memcpy_s(&programBuffer[programBufferLocation + 1], sizeof(uint64_t), &forkEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 		}

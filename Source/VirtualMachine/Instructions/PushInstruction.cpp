@@ -88,10 +88,10 @@ namespace Powder
 		const AssemblyData::Entry* dataEntry = this->assemblyData->configMap.LookupPtr("data");
 
 		if (!typeEntry)
-			throw new CompileTimeException("Can't assemble push instruction if not given type information.");
+			throw new CompileTimeException("Can't assemble push instruction if not given type information.", &this->assemblyData->fileLocation);
 
 		if (!dataEntry && typeEntry->code != DataType::UNDEFINED && typeEntry->code != DataType::EMPTY_LIST && typeEntry->code != DataType::EMPTY_MAP)
-			throw new CompileTimeException("Some push instructions can't be assembled without being given more information about the push content.");
+			throw new CompileTimeException("Some push instructions can't be assembled without being given more information about the push content.", &this->assemblyData->fileLocation);
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{

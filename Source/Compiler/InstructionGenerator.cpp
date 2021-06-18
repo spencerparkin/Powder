@@ -26,7 +26,7 @@ namespace Powder
 	{
 	}
 
-	void InstructionGenerator::GenerateFunctionArgumentInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* argListNode)
+	void InstructionGenerator::GenerateFunctionArgumentInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode, const Parser::SyntaxNode* argListNode)
 	{
 		if (argListNode)
 		{
@@ -36,13 +36,13 @@ namespace Powder
 				if (*argNode->name != "identifier")
 					throw new CompileTimeException("Expected all children of \"identifier-list\" in AST to be \"identifier\".", &argNode->fileLocation);
 
-				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(argNode->fileLocation);
 				AssemblyData::Entry entry;
 				entry.code = ListInstruction::Action::POP_LEFT;
 				listInstruction->assemblyData->configMap.Insert("action", entry);
 				instructionList.AddTail(listInstruction);
 
-				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(argNode->fileLocation);
 				entry.Reset();
 				entry.string = *argNode->childList.GetHead()->value->name;
 				storeInstruction->assemblyData->configMap.Insert("name", entry);
@@ -51,7 +51,7 @@ namespace Powder
 		}
 
 		// Don't leak the argument list.
-		PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+		PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 		instructionList.AddTail(popInstruction);
 	}
 
@@ -62,7 +62,7 @@ namespace Powder
 		// Issue a halt instruction here so that we don't crash into the first subroutine of the program, if any.
 		// Of course, this isn't a problem if there aren't any subroutines.  However, we also want this instruction
 		// here in the case that we need to resolve a jump that goes beyond the last program construct.
-		SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
+		SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>(rootSyntaxNode->fileLocation);
 		AssemblyData::Entry entry;
 		entry.code = SysCallInstruction::SysCall::EXIT;
 		sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
@@ -83,18 +83,18 @@ namespace Powder
 
 				// The instructions of a function consist of the code for off-loading the arguments, then the function body.
 				LinkedList<Instruction*> functionInstructionList;
-				this->GenerateFunctionArgumentInstructions(functionInstructionList, argListNode);
+				this->GenerateFunctionArgumentInstructions(functionInstructionList, functionDefNode, argListNode);
 				this->GenerateInstructionListRecursively(functionInstructionList, functionStatementListNode);
 
 				// The end of the function might already have a return, but if it doesn't, this doesn't hurt.
 				// We ensure that all functions return a value no matter what, because the calling code will always
 				// expect it, even if it is going to discard it.
-				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(functionDefNode->fileLocation);
 				entry.Reset();
 				entry.code = PushInstruction::DataType::UNDEFINED;
 				pushInstruction->assemblyData->configMap.Insert("type", entry);
 				functionInstructionList.AddTail(pushInstruction);
-				this->GenerateFunctionReturnInstructions(functionInstructionList);
+				this->GenerateFunctionReturnInstructions(functionInstructionList, functionDefNode);
 
 				// Lay down the instructions for the function at the end of the executable.
 				// This way, we don't have to jump over the function bodies, which would be dumb.
@@ -133,7 +133,7 @@ namespace Powder
 			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
 
 			// Now compute its size while also popping it off.
-			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(syntaxNode->fileLocation);
 			AssemblyData::Entry entry;
 			entry.code = MathInstruction::MathOp::SIZE;
 			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
@@ -151,7 +151,7 @@ namespace Powder
 			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
 
 			// Now compute the container value look-up operation.
-			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(syntaxNode->fileLocation);
 			AssemblyData::Entry entry;
 			entry.code = MathInstruction::MathOp::GET_FIELD;
 			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
@@ -174,7 +174,7 @@ namespace Powder
 			this->GenerateInstructionListRecursively(instructionList, containerFieldNode->childList.GetHead()->GetNext()->value);
 
 			// And now issue the del instruction.
-			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(syntaxNode->fileLocation);
 			AssemblyData::Entry entry;
 			entry.code = MathInstruction::MathOp::DEL_FIELD;
 			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
@@ -183,7 +183,7 @@ namespace Powder
 			// Our result is the value in the container at the deleted field value.  But if no one wants it, pop it.
 			if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
 			{
-				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 				instructionList.AddTail(popInstruction);
 			}
 		}
@@ -198,7 +198,7 @@ namespace Powder
 			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
 			
 			// The branch instruction falls through if the condition passes, and jumps if the condition fails.
-			BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>();
+			BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(branchInstruction);
 			
 			// Lay down condition-pass instructions.
@@ -218,7 +218,7 @@ namespace Powder
 			else
 			{
 				// Yes.  Before laying down the condition-fail instructions, we want an unconditional jump that goes over them if the condition passed.
-				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
 				entry.Reset();
 				entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 				jumpInstruction->assemblyData->configMap.Insert("type", entry);
@@ -254,7 +254,7 @@ namespace Powder
 			instructionList.Append(conditionalInstructionList);
 
 			// The branch falls through if the bool is true, or jumps in the bool is false.  We don't yet know how far to jump to get over the while-loop body.
-			BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>();
+			BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(branchInstruction);
 
 			// Lay down while-loop body instructions.
@@ -263,7 +263,7 @@ namespace Powder
 			instructionList.Append(whileLoopBodyInstructionList);
 
 			// Unconditionally jump back to the top of the while-loop where the conditional is evaluated.
-			JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+			JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
 			entry.Reset();
 			entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 			jumpInstruction->assemblyData->configMap.Insert("type", entry);
@@ -295,7 +295,7 @@ namespace Powder
 			instructionList.Append(conditionalInstructionList);
 
 			// Condition failure means we jump; success, we fall through.
-			BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>();
+			BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(branchInstruction);
 
 			// Now lay down the last half of the loop instructions, if given.
@@ -307,7 +307,7 @@ namespace Powder
 			}
 
 			// Unconditionally jump back up to the top of the do-while-loop.
-			JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+			JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
 			entry.Reset();
 			entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 			jumpInstruction->assemblyData->configMap.Insert("type", entry);
@@ -323,7 +323,7 @@ namespace Powder
 		}
 		else if (*syntaxNode->name == "yield-statement")
 		{
-			YieldInstruction* yeildInstruction = Instruction::CreateForAssembly<YieldInstruction>();
+			YieldInstruction* yeildInstruction = Instruction::CreateForAssembly<YieldInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(yeildInstruction);
 		}
 		else if (*syntaxNode->name == "fork-statement")
@@ -334,7 +334,7 @@ namespace Powder
 			AssemblyData::Entry entry;
 
 			// A fork is like an unconditional jump, but it both does and doesn't jump.
-			ForkInstruction* forkInstruction = Instruction::CreateForAssembly<ForkInstruction>();
+			ForkInstruction* forkInstruction = Instruction::CreateForAssembly<ForkInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(forkInstruction);
 
 			LinkedList<Instruction*> forkedInstructionList;
@@ -355,7 +355,7 @@ namespace Powder
 				entry.string = "fork";
 				forkInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 
-				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
 				entry.Reset();
 				entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 				jumpInstruction->assemblyData->configMap.Insert("type", entry);
@@ -398,7 +398,7 @@ namespace Powder
 
 					// Now issue a store instruction.  Note that this also pops the value off the stack, which is
 					// symmetrically consistent with its counter-part, the load instruction.
-					StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+					StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(syntaxNode->fileLocation);
 					AssemblyData::Entry entry;
 					entry.string = *storeLocationNameNode->name;
 					storeInstruction->assemblyData->configMap.Insert("name", entry);
@@ -419,7 +419,7 @@ namespace Powder
 					this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
 
 					// Finally, issue a math instruction to insert a value into the container value at the field value.
-					MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+					MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(syntaxNode->fileLocation);
 					AssemblyData::Entry entry;
 					entry.code = MathInstruction::MathOp::SET_FIELD;
 					mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
@@ -428,7 +428,7 @@ namespace Powder
 					// Lastly, check out context.  If nothing wants the value we leave on the stack-stop, pop it.
 					if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
 					{
-						PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+						PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 						instructionList.AddTail(popInstruction);
 					}
 				}
@@ -448,7 +448,7 @@ namespace Powder
 				if (entry.code == MathInstruction::MathOp::UNKNOWN)
 					throw new CompileTimeException(FormatString("Failed to recognize math operation \"%s\" for \"binary-expression\" in AST.", operationNode->name->c_str()), &operationNode->fileLocation);
 
-				MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+				MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(syntaxNode->fileLocation);
 				mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
 				instructionList.AddTail(mathInstruction);
 			}
@@ -478,7 +478,7 @@ namespace Powder
 
 			this->GenerateInstructionListRecursively(instructionList, operandNode);
 
-			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(syntaxNode->fileLocation);
 			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
 			instructionList.AddTail(mathInstruction);
 		}
@@ -487,7 +487,7 @@ namespace Powder
 			if (syntaxNode->childList.GetCount() != 1)
 				throw new CompileTimeException("Expected \"literal\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
-			PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+			PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(pushInstruction);
 
 			const Parser::SyntaxNode* literalTypeNode = syntaxNode->childList.GetHead()->value;
@@ -526,7 +526,7 @@ namespace Powder
 			// need to issue a pop instruction here in order to not leak a value on the eval stack.
 			if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
 			{
-				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 				instructionList.AddTail(popInstruction);
 			}
 		}
@@ -541,7 +541,7 @@ namespace Powder
 			// Of course, identifiers can appear in other contexts, such as a function call or function definition.
 			// Note that we also generate this code in the context of a system call, which is looking for values on the eval stack.
 			const Parser::SyntaxNode* identifierNode = syntaxNode->childList.GetHead()->value;
-			LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>();
+			LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(syntaxNode->fileLocation);
 			AssemblyData::Entry entry;
 			entry.string = *identifierNode->name;
 			loadInstruction->assemblyData->configMap.Insert("name", entry);
@@ -560,7 +560,7 @@ namespace Powder
 					this->GenerateInstructionListRecursively(instructionList, node->value);
 
 					// Now add the element to the list.  The element gets removed from the stack, but the list should remain.
-					ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+					ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(syntaxNode->fileLocation);
 					AssemblyData::Entry entry;
 					entry.code = ListInstruction::PUSH_RIGHT;
 					listInstruction->assemblyData->configMap.Insert("action", entry);
@@ -590,7 +590,7 @@ namespace Powder
 					this->GenerateInstructionListRecursively(instructionList, mapPairNode->childList.GetHead()->GetNext()->GetNext()->value);
 
 					// Now insert the data value at the field value.  Field and data values are popped; the map value remains on the stack top.
-					MapInstruction* mapInstruction = Instruction::CreateForAssembly<MapInstruction>();
+					MapInstruction* mapInstruction = Instruction::CreateForAssembly<MapInstruction>(syntaxNode->fileLocation);
 					AssemblyData::Entry entry;
 					entry.code = MapInstruction::Action::INSERT;
 					mapInstruction->assemblyData->configMap.Insert("action", entry);
@@ -605,7 +605,7 @@ namespace Powder
 
 			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
 
-			MapInstruction* mapInstruction = Instruction::CreateForAssembly<MapInstruction>();
+			MapInstruction* mapInstruction = Instruction::CreateForAssembly<MapInstruction>(syntaxNode->fileLocation);
 			AssemblyData::Entry entry;
 			entry.code = MapInstruction::Action::MAKE_KEY_LIST;
 			mapInstruction->assemblyData->configMap.Insert("action", entry);
@@ -626,7 +626,7 @@ namespace Powder
 				instructionList.Append(listInstructionList);
 
 				// Now issue the list instruction to pop left or right.  The list is replaced with the popped value on the eval stack.
-				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(syntaxNode->fileLocation);
 				AssemblyData::Entry entry;
 				entry.code = (*actionNode->name == "-->") ? ListInstruction::POP_RIGHT : ListInstruction::POP_LEFT;
 				listInstruction->assemblyData->configMap.Insert("action", entry);
@@ -638,7 +638,7 @@ namespace Powder
 				const Parser::SyntaxNode* identifierNode = (*actionNode->name == "-->") ? syntaxNode->childList.GetHead()->GetNext()->GetNext()->value : syntaxNode->childList.GetHead()->value;
 				if (*identifierNode->name != "identifier")
 					throw new CompileTimeException(FormatString("List pop expected to store value in location given by name, but got no identifier.  Got \"%s\" instead.", identifierNode->name->c_str()), &syntaxNode->fileLocation);
-				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(syntaxNode->fileLocation);
 				entry.Reset();
 				entry.string = *identifierNode->childList.GetHead()->value->name;
 				storeInstruction->assemblyData->configMap.Insert("name", entry);
@@ -659,7 +659,7 @@ namespace Powder
 				instructionList.Append(elementInstructionList);
 
 				// Now issue the push instruction.  The element value will be consumed, and the list will remain on the eval stack.
-				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(syntaxNode->fileLocation);
 				AssemblyData::Entry entry;
 				entry.code = (*actionNode->name == "--<") ? ListInstruction::PUSH_RIGHT : ListInstruction::PUSH_LEFT;
 				listInstruction->assemblyData->configMap.Insert("action", entry);
@@ -668,7 +668,7 @@ namespace Powder
 				// Now check our context.  If we're an immediate child of a statement-list, then no one wants the list anymore.  Don't leak the list on the eval-stack.
 				if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
 				{
-					PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+					PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 					instructionList.AddTail(popInstruction);
 				}
 			}
@@ -711,7 +711,7 @@ namespace Powder
 					throw new CompileTimeException(FormatString("System call 0x%04x takes %d arguments, not %d.", uint8_t(sysCall), argCountExpected, argCountGiven), &syntaxNode->childList.GetHead()->value->childList.GetHead()->value->fileLocation);
 
 				// The system call should pop all its arguments off the evaluation stack.
-				SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>();
+				SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>(syntaxNode->fileLocation);
 				AssemblyData::Entry entry;
 				entry.code = sysCall;
 				sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
@@ -723,7 +723,7 @@ namespace Powder
 				// itself is responsible for off-loading the list into its own named variables before executing.
 				// Note that we do this even if the function doesn't take any arguments, because there is nothing
 				// to stop a caller from trying to give it arguments anyway.  Any extra arguments are just ignored.
-				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
 				AssemblyData::Entry entry;
 				entry.code = PushInstruction::DataType::EMPTY_LIST;
 				pushInstruction->assemblyData->configMap.Insert("type", entry);
@@ -734,7 +734,7 @@ namespace Powder
 					{
 						const Parser::SyntaxNode* argNode = node->value;
 						this->GenerateInstructionListRecursively(instructionList, argNode);
-						ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>();
+						ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(syntaxNode->fileLocation);
 						entry.Reset();
 						entry.code = ListInstruction::Action::PUSH_RIGHT;
 						listInstruction->assemblyData->configMap.Insert("action", entry);
@@ -747,14 +747,14 @@ namespace Powder
 				this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
 
 				// Push scope so that the called function doesn't pollute the caller's name-space.
-				ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>();
+				ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(syntaxNode->fileLocation);
 				entry.Reset();
 				entry.code = ScopeInstruction::ScopeOp::PUSH;
 				scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
 				instructionList.AddTail(scopeInstruction);
 
 				// The return jump should jump to whatever instruction will end-up immediately after the jump instruction we make to actually call the function.
-				pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+				pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
 				entry.Reset();
 				entry.code = PushInstruction::DataType::ADDRESS;
 				pushInstruction->assemblyData->configMap.Insert("type", entry);
@@ -765,7 +765,7 @@ namespace Powder
 
 				// Store the return address value in the newly pushed function scope.
 				// Yes, this value could get poked by the calling function, but whatever, I can find a solution to that later.
-				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>();
+				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(syntaxNode->fileLocation);
 				entry.Reset();
 				entry.string = "__return_address__";
 				storeInstruction->assemblyData->configMap.Insert("name", entry);
@@ -774,7 +774,7 @@ namespace Powder
 				// Now make the call by jumping to the function at the run-time evaluated address.  All that
 				// will remain on the eval-stack is the argument list value, which the called function is
 				// responsible for popping off the eval-stack.
-				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+				JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
 				entry.Reset();
 				entry.code = JumpInstruction::JUMP_TO_LOADED_ADDRESS;
 				jumpInstruction->assemblyData->configMap.Insert("type", entry);
@@ -782,7 +782,7 @@ namespace Powder
 
 				// Here now is the instruction that we will jump to when returning from the call.
 				// The first thing we always do after returning from a call is to pop the function's scope.
-				scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>();
+				scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(syntaxNode->fileLocation);
 				entry.Reset();
 				entry.code = ScopeInstruction::ScopeOp::POP;
 				scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
@@ -793,7 +793,7 @@ namespace Powder
 			// Note that all functions will return a result whether a return statement is given or not.
 			if (syntaxNode->FindParent("statement-list", 1) != nullptr)
 			{
-				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>();
+				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 				instructionList.AddTail(popInstruction);
 			}
 		}
@@ -803,7 +803,7 @@ namespace Powder
 			if (syntaxNode->FindParent("statement-list", 1) != nullptr)
 				throw new CompileTimeException("Anonymous function not assigned at definition.", &syntaxNode->fileLocation);
 
-			PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+			PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
 			AssemblyData::Entry entry;
 			entry.code = PushInstruction::DataType::ADDRESS;
 			pushInstruction->assemblyData->configMap.Insert("type", entry);
@@ -820,14 +820,14 @@ namespace Powder
 				this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
 			else
 			{
-				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>();
+				PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
 				AssemblyData::Entry entry;
 				entry.code = PushInstruction::DataType::UNDEFINED;
 				pushInstruction->assemblyData->configMap.Insert("type", entry);
 				instructionList.AddTail(pushInstruction);
 			}
 
-			this->GenerateFunctionReturnInstructions(instructionList);
+			this->GenerateFunctionReturnInstructions(instructionList, syntaxNode);
 		}
 		else if (*syntaxNode->name == "membership-expression")
 		{
@@ -837,7 +837,7 @@ namespace Powder
 			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
 			this->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
 
-			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>();
+			MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(syntaxNode->fileLocation);
 			AssemblyData::Entry entry;
 			entry.code = MathInstruction::CONTAINS;
 			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
@@ -849,15 +849,15 @@ namespace Powder
 		}
 	}
 
-	void InstructionGenerator::GenerateFunctionReturnInstructions(LinkedList<Instruction*>& instructionList)
+	void InstructionGenerator::GenerateFunctionReturnInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode)
 	{
-		LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>();
+		LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(syntaxNode->fileLocation);
 		AssemblyData::Entry entry;
 		entry.string = "__return_address__";
 		loadInstruction->assemblyData->configMap.Insert("name", entry);
 		instructionList.AddTail(loadInstruction);
 
-		JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>();
+		JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
 		entry.Reset();
 		entry.code = JumpInstruction::JUMP_TO_LOADED_ADDRESS;
 		jumpInstruction->assemblyData->configMap.Insert("type", entry);

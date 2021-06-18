@@ -65,7 +65,7 @@ namespace Powder
 	{
 		const AssemblyData::Entry* actionEntry = this->assemblyData->configMap.LookupPtr("action");
 		if (!actionEntry)
-			throw new CompileTimeException("Assembly of list instruction failed because no action was given.");
+			throw new CompileTimeException("Assembly of list instruction failed because no action was given.", &this->assemblyData->fileLocation);
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
@@ -81,7 +81,7 @@ namespace Powder
 				}
 				default:
 				{
-					throw new CompileTimeException(FormatString("Did not recognize list instruction code: 0x%04x", actionEntry->code));
+					throw new CompileTimeException(FormatString("Did not recognize list instruction code: 0x%04x", actionEntry->code), &this->assemblyData->fileLocation);
 				}
 			}
 		}

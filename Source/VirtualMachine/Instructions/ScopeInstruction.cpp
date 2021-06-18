@@ -51,7 +51,7 @@ namespace Powder
 
 			const AssemblyData::Entry* scopeOpEntry = this->assemblyData->configMap.LookupPtr("scopeOp");
 			if (!scopeOpEntry)
-				throw new CompileTimeException("Failed to assemble scope instruction because no scope operation was specified.");
+				throw new CompileTimeException("Failed to assemble scope instruction because no scope operation was specified.", &this->assemblyData->fileLocation);
 			
 			programBuffer[programBufferLocation + 1] = scopeOpEntry->code;
 		}

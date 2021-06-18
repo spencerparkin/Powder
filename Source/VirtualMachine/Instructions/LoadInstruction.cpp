@@ -32,7 +32,7 @@ namespace Powder
 	{
 		const AssemblyData::Entry* nameEntry = this->assemblyData->configMap.LookupPtr("name");
 		if (!nameEntry)
-			throw new CompileTimeException("Can't assemble load instruction if not given identifier information.");
+			throw new CompileTimeException("Can't assemble load instruction if not given identifier information.", &this->assemblyData->fileLocation);
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
