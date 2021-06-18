@@ -23,7 +23,7 @@ namespace Powder
 	Parser::SyntaxNode* Parser::Parse(const TokenList& tokenList)
 	{
 		// TODO: Find a better way to locate this file.
-		std::string grammarFilePath = R"(G:\git_repos\Powder\Source\Compiler\Grammar.json)";
+		std::string grammarFilePath = R"(E:\git_repos\Powder\Source\Compiler\Grammar.json)";
 		std::fstream fileStream;
 		fileStream.open(grammarFilePath, std::fstream::in);
 		if (!fileStream.is_open())
@@ -69,17 +69,8 @@ namespace Powder
 		}
 		else
 		{
-			// TODO: Before running reductions on the AST, we might perform some sort of
-			//       analysis to make sure that it all makes sense.  For example, we wouldn't
-			//       want a statement-list to appear as the conditional part of an if-statement,
-			//       or for a function-definition to appear as an argument to a function.
-			//       The grammar production rules prevent such a thing from ever happening,
-			//       but there might be other cases to account for.
-
-			while (rootNode->PerformReductions())
-			{
-			}
-
+			while (rootNode->PerformReductions()) {}
+			while (rootNode->PerformSugarExpansions()) {}
 			rootNode->PatchParentPointers();
 		}
 
@@ -427,6 +418,62 @@ namespace Powder
 	}
 #endif //POWDER_DEBUG
 
+	bool Parser::SyntaxNode::PerformSugarExpansions()
+	{
+		bool performedExpansion = false;
+
+		std::vector<std::string> assignmentModifyArray;
+		assignmentModifyArray.push_back("+=");
+		assignmentModifyArray.push_back("-=");
+		assignmentModifyArray.push_back("*=");
+		assignmentModifyArray.push_back("/=");
+		assignmentModifyArray.push_back("%=");
+
+		if (*this->name == "binary-expression" && this->childList.GetCount() == 3)
+		{
+			for (int i = 0; i < (signed)assignmentModifyArray.size(); i++)
+			{
+				const std::string& assignmentModifier = assignmentModifyArray[i];
+				SyntaxNode* assignmentModifierNode = this->childList.GetHead()->GetNext()->value;
+				if (*assignmentModifierNode->name == assignmentModifier)
+				{
+					*assignmentModifierNode->name = "=";
+					std::string assignmentStr = assignmentModifier.substr(0, 1);
+					SyntaxNode* syntaxNode = new SyntaxNode("binary-expression", assignmentModifierNode->fileLocation);
+					syntaxNode->childList.AddTail(this->childList.GetHead()->value->Copy());
+					syntaxNode->childList.AddTail(new SyntaxNode(assignmentStr.c_str(), assignmentModifierNode->fileLocation));
+					syntaxNode->childList.AddTail(this->childList.GetHead()->GetNext()->GetNext()->value);
+					this->childList.GetHead()->GetNext()->GetNext()->value = syntaxNode;
+					performedExpansion = true;
+					break;
+				}
+			}
+		}
+
+		if (*this->name == "member-access-expression" && this->childList.GetCount() == 3)
+		{
+			SyntaxNode* identifierNode = this->childList.GetHead()->GetNext()->GetNext()->value;
+			if (*identifierNode->name == "identifier")
+			{
+				*this->name = "container-field-expression";
+				delete this->childList.GetHead()->GetNext()->value;
+				this->childList.Remove(this->childList.GetHead()->GetNext());
+				SyntaxNode* literalNode = new SyntaxNode("literal", identifierNode->fileLocation);
+				literalNode->childList.AddTail(new SyntaxNode("string-literal", identifierNode->fileLocation));
+				literalNode->childList.GetHead()->value->childList.AddTail(new SyntaxNode(identifierNode->childList.GetHead()->value->name->c_str(), identifierNode->fileLocation));
+				delete identifierNode;
+				this->childList.GetHead()->GetNext()->value = literalNode;
+				performedExpansion = true;
+			}
+		}
+
+		for (LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
+			if (node->value->PerformSugarExpansions())
+				performedExpansion = true;
+
+		return performedExpansion;
+	}
+
 	bool Parser::SyntaxNode::PerformReductions()
 	{
 		bool performedReduction = false;
@@ -563,6 +610,14 @@ namespace Powder
 		}
 
 		return nullptr;
+	}
+
+	Parser::SyntaxNode* Parser::SyntaxNode::Copy() const
+	{
+		SyntaxNode* syntaxNode = new SyntaxNode(this->name->c_str(), this->fileLocation);
+		for (const LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
+			syntaxNode->childList.AddTail(node->value->Copy());
+		return syntaxNode;
 	}
 
 	Parser::ParseError::ParseError()

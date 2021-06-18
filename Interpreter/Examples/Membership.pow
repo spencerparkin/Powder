@@ -23,3 +23,6 @@ if("a" in my_list)
 
 if(!("d" in my_list))
     output("\"d\" not in my_list!\n");
+
+my_map.a += 1;
+output("my_map.a = " + my_map.a + "\n");

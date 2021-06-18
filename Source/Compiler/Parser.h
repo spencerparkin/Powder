@@ -24,10 +24,13 @@ namespace Powder
 			SyntaxNode(const char* name, const FileLocation& fileLocation);
 			virtual ~SyntaxNode();
 
+			SyntaxNode* Copy() const;
+
 #if defined POWDER_DEBUG
 			void Print(std::ostream& stream, uint32_t indentLevel = 0) const;
 #endif
 			bool PerformReductions();
+			bool PerformSugarExpansions();
 			void PatchParentPointers();
 
 			const SyntaxNode* FindChild(const std::string& name, uint32_t maxRecurseDepth, uint32_t depth = 1) const;

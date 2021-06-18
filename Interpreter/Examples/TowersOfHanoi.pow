@@ -27,17 +27,17 @@ move_disks = func(towers, tower_ranges, src_tower, dst_tower)
 
     if(src_tower_height > 1)
     {
-        tower_ranges[src_tower][0] = tower_ranges[src_tower][0] + 1;
+        tower_ranges[src_tower][0] += 1;
         move_disks(towers, tower_ranges, src_tower, other_tower(src_tower, dst_tower));
-        tower_ranges[src_tower][0] = tower_ranges[src_tower][0] - 1;
+        tower_ranges[src_tower][0] -= 1;
     };
     
     towers[src_tower] --> disk;
     towers[dst_tower] --< disk;
     print_towers(towers);
 
-    tower_ranges[src_tower][1] = tower_ranges[src_tower][1] - 1;
-    tower_ranges[dst_tower][1] = tower_ranges[dst_tower][1] + 1;
+    tower_ranges[src_tower][1] -= 1;
+    tower_ranges[dst_tower][1] += 1;
 
     if(src_tower_height > 1)
         move_disks(towers, tower_ranges, other_tower(src_tower, dst_tower), dst_tower);
@@ -54,10 +54,10 @@ print_towers = func(towers)
         while(j < len(towers[i]))
         {
             output("(" + towers[i][j] + ")");
-            j = j + 1;
+            j += 1;
         };
         output("\n");
-        i = i + 1;
+        i += 1;
     }
 };
 

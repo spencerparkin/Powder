@@ -60,6 +60,7 @@
     [ "literal" ],
     [ "identifier" ],
     [ "wrapped-expression" ],
+    [ "member-access-expression" ],
     [ "membership-expression" ],
     [ "container-size-expression" ],
     [ "list-push-pop-expression" ],
@@ -73,6 +74,9 @@
   ],
   "membership-expression": [
     [ "expression", "in", "expression" ]
+  ],
+  "member-access-expression": [
+    [ "expression", ".", "identifier", -1 ]
   ],
   "list-push-pop-expression": [
     [ "expression", "-->", "expression" ],
@@ -94,6 +98,11 @@
   ],
   "binary-expression": [
     [ "expression", "=", "expression" ],
+    [ "expression", "+=", "expression" ],
+    [ "expression", "-=", "expression" ],
+    [ "expression", "*=", "expression" ],
+    [ "expression", "/=", "expression" ],
+    [ "expression", "%=", "expression" ],
     [ "expression", "&&", "expression" ],
     [ "expression", "||", "expression" ],
     [ "expression", "==", "expression" ],

@@ -8,7 +8,13 @@ namespace Powder
 	Tokenizer::Tokenizer()
 	{
 		this->operatorArray = new std::vector<std::string>();
+		this->operatorArray->push_back(".");
 		this->operatorArray->push_back("=");
+		this->operatorArray->push_back("+=");
+		this->operatorArray->push_back("-=");
+		this->operatorArray->push_back("*=");
+		this->operatorArray->push_back("/=");
+		this->operatorArray->push_back("%=");
 		this->operatorArray->push_back("==");
 		this->operatorArray->push_back("+");
 		this->operatorArray->push_back("-");
@@ -95,7 +101,7 @@ namespace Powder
 				fileLocation.columnNumber++;
 			}
 		}
-		else if (this->IsAnyChar(programCodeBuffer[i], "=~!%*/-+<>&|:"))
+		else if (this->IsAnyChar(programCodeBuffer[i], "=~!%*/-+<>&|:."))
 		{
 			token.type = Token::OPERATOR;
 			token.text = this->SoakUpToken(programCodeBuffer, i, *this->operatorArray);
