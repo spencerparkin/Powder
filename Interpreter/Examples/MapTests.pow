@@ -25,12 +25,15 @@ print_map = func(given_map)
     while(i < len(map_keys))
     {
         value = map[map_keys[i]];
-        output(map_keys[i] + ": " + value + "\n");
+        msg = map_keys[i] + ": " + value + "\n";
+        if(msg)
+            output(msg)
+        else
+            output(map_keys[i] + ": UNDEF\n");
         i = i + 1;
     }
 };
 
 print_map(map);
 
-output("\n");
 map["happy_func"]();

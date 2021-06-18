@@ -1,4 +1,5 @@
 #include "UndefinedValue.h"
+#include "StringValue.h"
 
 namespace Powder
 {
@@ -22,6 +23,6 @@ namespace Powder
 
 	/*virtual*/ std::string UndefinedValue::ToString() const
 	{
-		return "undefined";
+		return "";
 	}
 }

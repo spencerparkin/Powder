@@ -28,7 +28,10 @@ namespace Powder
 	/*virtual*/ Value* StringValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		if (mathOp == MathInstruction::MathOp::ADD)
-			return new StringValue(*this->str + value->ToString());
+		{
+			if (!dynamic_cast<const UndefinedValue*>(value))
+				return new StringValue(*this->str + value->ToString());
+		}
 
 		return new UndefinedValue();
 	}
