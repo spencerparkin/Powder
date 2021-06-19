@@ -47,7 +47,7 @@ Anyhow, this demonstrates the cooperative concurrency built into the language,
 which is useful for increasing the efficiency of programs that utilize
 non-blocking I/O operations.
 
-The language itself borrows from C, Python, Lua, and Javascript.  It's
+The language itself borrows from C, Python, Lua, and Javascript.  Its
 rules for placing semi-colons are somewhat different, but possibly more
 consistent; at least, from my point of view.
 
@@ -66,8 +66,8 @@ but the code remains quite compact.
 Ironically, the parser is the most complicated part of the compiler.  The
 code that generates the instructions as a function of the AST (abstarct syntax
 tree) is quite simple, and fell out naturally while targetting the stack-based VM.
-I would have thought the instruction sequence generating code would be the
-most complicated, but parsing is far harder.  Powder uses an algorithm
+I would have thought the instruction sequence generating code would have been the
+most complicated part of compilation, but the parser is far more so.  Powder uses an algorithm
 based on applying grammar production rules to a given tokenized sequence
 in order to produce the AST.
 
