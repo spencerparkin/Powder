@@ -9,7 +9,7 @@ fork
     {
         output("fork A: " + i + "\n");
         yield;
-        i = i + 1;
+        i += 1;
     }
 }
 else
@@ -19,7 +19,7 @@ else
     {
         output("fork B: " + j + "\n");
         yield;
-        j = j - 1;
+        j -= 1;
     }
 };
 
