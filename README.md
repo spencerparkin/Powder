@@ -8,14 +8,14 @@ code...
 output("Hello!\n");
 fork {
     i = 0;
-    while(i < 10) {
+    while(i < 4) {
         output("fork A: " + i + "\n");
         yield;
         i += 1;
     }
 } else {
     j = 0;
-    while(j > -10) {
+    while(j > -4) {
         output("fork B: " + j + "\n");
         yield;
         j -= 1;
