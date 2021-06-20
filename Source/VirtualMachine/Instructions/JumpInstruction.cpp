@@ -4,6 +4,11 @@
 #include "Assembler.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
+#include "StringValue.h"
+#include "ExtensionModule.h"
+#include "ListValue.h"
+#include "UndefinedValue.h"
+#include "VirtualMachine.h"
 
 namespace Powder
 {
@@ -33,12 +38,36 @@ namespace Powder
 			case Type::JUMP_TO_LOADED_ADDRESS:
 			{
 				Value* value = executor->PopValueFromEvaluationStackTop();
-				AddressValue* addressValue = dynamic_cast<AddressValue*>(value);
-				if (!addressValue)
-					throw new RunTimeException("Cannot jump to location indicated by anything other than an address value.");
 
-				programBufferLocation = *addressValue;
-				break;
+				AddressValue* addressValue = dynamic_cast<AddressValue*>(value);
+				if (addressValue)
+				{
+					programBufferLocation = *addressValue;
+					break;
+				}
+				
+				// An odd consequence of this is that "blah"() is an alternative syntax to @blah().
+				StringValue* stringValue = dynamic_cast<StringValue*>(value);
+				if (stringValue)
+				{
+					std::string funcName = stringValue->ToString();
+					ExtensionModule::Function* moduleFunction = virtualMachine->LookupModuleFunction(funcName);
+					if (!moduleFunction)
+						throw new RunTimeException(FormatString("Did not find module function \"%s\" among all currently loaded extension modules.", funcName.c_str()));
+
+					ListValue* argListValue = dynamic_cast<ListValue*>(executor->PopValueFromEvaluationStackTop());
+					if (!argListValue)
+						throw new RunTimeException(FormatString("Did not get argument list value from evaluation stack top for module function call \"%s\".", funcName.c_str()));
+
+					Value* resultValue = moduleFunction->Call(*argListValue);
+					if (!resultValue)
+						resultValue = new UndefinedValue();
+
+					executor->PushValueOntoEvaluationStackTop(resultValue);
+					break;
+				}				
+				
+				throw new RunTimeException("Cannot jump to location indicated by anything other than an address value.");
 			}
 		}
 		

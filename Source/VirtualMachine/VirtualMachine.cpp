@@ -2,7 +2,8 @@
 #include "Executor.h"
 #include "Scope.h"
 #include "Value.h"
-#include "Extension.h"
+#include "ExtensionModule.h"
+#include "Exceptions.hpp"
 #include "GarbageCollector.h"
 #include "BranchInstruction.h"
 #include "ForkInstruction.h"
@@ -25,7 +26,6 @@ namespace Powder
 	{
 		this->executorList = new ExecutorList();
 		this->instructionMap = new InstructionMap();
-		this->extensionFunctionMap = new ExtensionFunctionMap();
 
 		this->RegisterInstruction<BranchInstruction>();
 		this->RegisterInstruction<ForkInstruction>();
@@ -48,7 +48,7 @@ namespace Powder
 		DeleteList<Executor*>(*this->executorList);
 		delete this->instructionMap;
 		delete this->executorList;
-		delete this->extensionFunctionMap;
+		this->UnloadAllExtensionModules();
 	}
 
 	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Executor* forkOrigin /*= nullptr*/)
@@ -89,14 +89,41 @@ namespace Powder
 		return this->instructionMap->Lookup(key);
 	}
 
-	void VirtualMachine::LoadExtensionFunctions(void)
+	ExtensionModule::Function* VirtualMachine::LookupModuleFunction(const std::string& funcName)
 	{
-		//::LoadLibraryA()
+		return this->extensionFunctionMap.Lookup(funcName.c_str());
+	}
 
-		//::GetProcAddress()
+	void VirtualMachine::LoadExtensionModule(const std::string& modulePath)
+	{
+		LoadedExtensionModule loadedExtensionModule;
 
-		//RegisterExtensionFunctionsProc registrationFunc = nullptr;
+		loadedExtensionModule.moduleHandle = ::LoadLibraryA(modulePath.c_str());
+		if (loadedExtensionModule.moduleHandle == NULL)
+			throw new Exception(FormatString("Failed to load extension module: %s", modulePath.c_str()));
 
-		//registrationFunc(*this->extensionFunctionMap);
+		const char* registerFuncName = "RegisterExtensionModule";
+		RegisterExtensionModuleProc registerProc = (RegisterExtensionModuleProc)::GetProcAddress((HMODULE)loadedExtensionModule.moduleHandle, registerFuncName);
+		if (!registerProc)
+			throw new Exception(FormatString("Failed to find proc-address \"%s\" for module: %s", registerFuncName, modulePath.c_str()));
+
+		loadedExtensionModule.moduleInstance = registerProc();
+		if (!loadedExtensionModule.moduleInstance)
+			throw new Exception(FormatString("Failed to get module instance from module: %s", modulePath.c_str()));
+
+		loadedExtensionModule.moduleInstance->RegisterFunctions(this->extensionFunctionMap);
+		this->loadedExtensionModuleList.AddTail(loadedExtensionModule);
+	}
+
+	void VirtualMachine::UnloadAllExtensionModules(void)
+	{
+		while (this->loadedExtensionModuleList.GetCount() > 0)
+		{
+			LoadedExtensionModule& loadedExtensionModule = this->loadedExtensionModuleList.GetHead()->value;
+			::FreeLibrary((HMODULE)loadedExtensionModule.moduleHandle);
+			this->loadedExtensionModuleList.Remove(this->loadedExtensionModuleList.GetHead());
+		}
+
+		this->extensionFunctionMap.Clear();
 	}
 }

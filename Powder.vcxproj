@@ -29,6 +29,7 @@
     <ClCompile Include="Source\GarbageCollector\GCObject.cpp" />
     <ClCompile Include="Source\Utilities\StringFormat.cpp" />
     <ClCompile Include="Source\VirtualMachine\Executor.cpp" />
+    <ClCompile Include="Source\VirtualMachine\ExtensionModule.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\BranchInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\ForkInstruction.cpp" />
@@ -72,7 +73,7 @@
     <ClInclude Include="Source\Utilities\LinkedList.hpp" />
     <ClInclude Include="Source\Utilities\StringFormat.h" />
     <ClInclude Include="Source\VirtualMachine\Executor.h" />
-    <ClInclude Include="Source\VirtualMachine\Extension.h" />
+    <ClInclude Include="Source\VirtualMachine\ExtensionModule.h" />
     <ClInclude Include="Source\VirtualMachine\Instruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\BranchInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\ForkInstruction.h" />

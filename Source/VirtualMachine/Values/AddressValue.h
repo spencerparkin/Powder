@@ -4,8 +4,6 @@
 
 namespace Powder
 {
-	// The typical use-case here is in storing the return
-	// address needed for procedure calls.
 	class POWDER_API AddressValue : public Value
 	{
 	public:

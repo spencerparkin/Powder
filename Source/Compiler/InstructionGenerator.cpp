@@ -829,6 +829,23 @@ namespace Powder
 
 			this->GenerateFunctionReturnInstructions(instructionList, syntaxNode);
 		}
+		else if (*syntaxNode->name == "module-function-identifier")
+		{
+			if (syntaxNode->childList.GetCount() != 2)
+				throw new CompileTimeException("Expected \"module-function-identifier\" node in AST to have exactly 2 children.", &syntaxNode->fileLocation);
+
+			if (*syntaxNode->childList.GetHead()->GetNext()->value->name != "identifier")
+				throw new CompileTimeException("Expected \"identifier\" under \"module-function-identifier\" node in AST.", &syntaxNode->childList.GetHead()->GetNext()->value->fileLocation);
+
+			PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
+			AssemblyData::Entry entry;
+			entry.code = PushInstruction::DataType::STRING;
+			pushInstruction->assemblyData->configMap.Insert("type", entry);
+			entry.Reset();
+			entry.string = *syntaxNode->childList.GetHead()->GetNext()->value->childList.GetHead()->value->name;
+			pushInstruction->assemblyData->configMap.Insert("data", entry);
+			instructionList.AddTail(pushInstruction);
+		}
 		else if (*syntaxNode->name == "membership-expression")
 		{
 			if (syntaxNode->childList.GetCount() != 3)

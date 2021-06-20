@@ -130,6 +130,9 @@
     <ClCompile Include="Source\VirtualMachine\Instructions\MapInstruction.cpp">
       <Filter>Source\VirtualMachine\Instructions</Filter>
     </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\ExtensionModule.cpp">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -246,7 +249,7 @@
     <ClInclude Include="Source\VirtualMachine\Values\MapValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
-    <ClInclude Include="Source\VirtualMachine\Extension.h">
+    <ClInclude Include="Source\VirtualMachine\ExtensionModule.h">
       <Filter>Source\VirtualMachine</Filter>
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\ContainerValue.h">
