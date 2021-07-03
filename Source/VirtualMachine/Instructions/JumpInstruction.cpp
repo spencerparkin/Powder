@@ -46,7 +46,11 @@ namespace Powder
 					break;
 				}
 				
-				// An odd consequence of this is that "blah"() is an alternative syntax to @blah().
+				// You can call a module function using the odd syntax: "func_name"();
+				// But typically a module will expose its functions using a map of strings.
+				// This lets you use the syntax: func_map.field();
+				// The field is just a string value.  Trying to call a string instead of an address is how you call a module function.
+				// So that modules don't encounter name collisions, they should use some sort of module-wide prefix.
 				StringValue* stringValue = dynamic_cast<StringValue*>(value);
 				if (stringValue)
 				{

@@ -18,18 +18,19 @@ namespace Powder
 
 		void GenerateInstructionList(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* rootSyntaxNode);
 
-	private:
-
-		void GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode);
-		void GenerateFunctionReturnInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode);
-		void GenerateFunctionArgumentInstructions(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode, const Parser::SyntaxNode* argListNode);
-
-		struct FunctionDef
+		class SyntaxHandler
 		{
-			const Parser::SyntaxNode* syntaxNode;
-			Instruction* declareInstruction;
+		public:
+			SyntaxHandler() {}
+			virtual ~SyntaxHandler() {}
+
+			virtual void HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator) = 0;
 		};
 
-		LinkedList<FunctionDef> functionDefinitionList;
+		void GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode);
+
+	private:
+
+		HashMap<SyntaxHandler*> syntaxHandlerMap;
 	};
 }

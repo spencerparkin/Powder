@@ -59,7 +59,6 @@
   "expression": [
     [ "literal" ],
     [ "identifier" ],
-    [ "module-function-identifier" ],
     [ "wrapped-expression" ],
     [ "member-access-expression" ],
     [ "membership-expression" ],
@@ -72,9 +71,6 @@
     [ "delete-field-expression" ],
     [ "container-field-expression" ],
     [ "function-definition" ]
-  ],
-  "module-function-identifier": [
-    [ "@", "identifier" ]
   ],
   "membership-expression": [
     [ "expression", "in", "expression" ]

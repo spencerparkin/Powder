@@ -23,6 +23,27 @@
     <ClCompile Include="Source\Compiler\Compiler.cpp" />
     <ClCompile Include="Source\Compiler\InstructionGenerator.cpp" />
     <ClCompile Include="Source\Compiler\Parser.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ContainerSizeExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\DeleteFieldExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\DoWhileStatementHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ForkStatementHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\FunctionCallExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\FunctionDefinitionExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\IdentifierExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\IfStatementHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ListExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ListPushPopExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\LiteralExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\MapExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\MapKeysExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\MembershipExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ReturnStatementHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\StatementListHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\UnaryExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\Tokenizer.cpp" />
     <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp" />
@@ -61,6 +82,27 @@
     <ClInclude Include="Source\Compiler\Compiler.h" />
     <ClInclude Include="Source\Compiler\InstructionGenerator.h" />
     <ClInclude Include="Source\Compiler\Parser.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ContainerSizeExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\DeleteFieldExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\DoWhileStatementHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ForkStatementHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\FunctionCallExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\FunctionDefinitionExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\IdentifierExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\IfStatementHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ListExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ListPushPopExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\LiteralExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\MapExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\MapKeysExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\MembershipExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ReturnStatementHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\StatementListHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\UnaryExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.h" />
     <ClInclude Include="Source\Compiler\Tokenizer.h" />
     <ClInclude Include="Source\Defines.h" />
     <ClInclude Include="Source\Exceptions.hpp" />
@@ -176,7 +218,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty;./Source/Compiler/SyntaxHandlers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -195,7 +237,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty;./Source/Compiler/SyntaxHandlers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -214,7 +256,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty;./Source/Compiler/SyntaxHandlers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -233,7 +275,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty;./Source/Compiler/SyntaxHandlers</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

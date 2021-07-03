@@ -23,6 +23,9 @@
     <Filter Include="Source\VirtualMachine\Values">
       <UniqueIdentifier>{58653117-3c49-42ab-b0b0-13fa6df89c0a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Compiler\SyntaxHandlers">
+      <UniqueIdentifier>{fd6c5d42-48a9-4ac3-9a5b-a9f512818074}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\VirtualMachine\Executor.cpp">
@@ -132,6 +135,69 @@
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\ExtensionModule.cpp">
       <Filter>Source\VirtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\StatementListHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ContainerSizeExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\DeleteFieldExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\IfStatementHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\DoWhileStatementHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ForkStatementHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\UnaryExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\LiteralExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\IdentifierExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ListExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\MapExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\MapKeysExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ListPushPopExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\FunctionCallExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\FunctionDefinitionExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ReturnStatementHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\MembershipExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -260,6 +326,69 @@
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Instructions\MapInstruction.h">
       <Filter>Source\VirtualMachine\Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\StatementListHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ContainerSizeExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\DeleteFieldExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\IfStatementHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\DoWhileStatementHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ForkStatementHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\UnaryExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\LiteralExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\IdentifierExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ListExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\MapExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\MapKeysExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ListPushPopExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\FunctionCallExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\FunctionDefinitionExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ReturnStatementHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\MembershipExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
