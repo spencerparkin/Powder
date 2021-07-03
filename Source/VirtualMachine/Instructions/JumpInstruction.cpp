@@ -4,8 +4,7 @@
 #include "Assembler.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
-#include "StringValue.h"
-#include "ExtensionModule.h"
+#include "CppFunctionValue.h"
 #include "ListValue.h"
 #include "UndefinedValue.h"
 #include "VirtualMachine.h"
@@ -46,30 +45,20 @@ namespace Powder
 					break;
 				}
 				
-				// You can call a module function using the odd syntax: "func_name"();
-				// But typically a module will expose its functions using a map of strings.
-				// This lets you use the syntax: func_map.field();
-				// The field is just a string value.  Trying to call a string instead of an address is how you call a module function.
-				// So that modules don't encounter name collisions, they should use some sort of module-wide prefix.
-				StringValue* stringValue = dynamic_cast<StringValue*>(value);
-				if (stringValue)
+				CppFunctionValue* cppFunctionValue = dynamic_cast<CppFunctionValue*>(value);
+				if (cppFunctionValue)
 				{
-					std::string funcName = stringValue->ToString();
-					ExtensionModule::Function* moduleFunction = virtualMachine->LookupModuleFunction(funcName);
-					if (!moduleFunction)
-						throw new RunTimeException(FormatString("Did not find module function \"%s\" among all currently loaded extension modules.", funcName.c_str()));
-
 					ListValue* argListValue = dynamic_cast<ListValue*>(executor->PopValueFromEvaluationStackTop());
 					if (!argListValue)
-						throw new RunTimeException(FormatString("Did not get argument list value from evaluation stack top for module function call \"%s\".", funcName.c_str()));
+						throw new RunTimeException("Did not get argument list value from evaluation stack top for module function call.");
 
-					Value* resultValue = moduleFunction->Call(*argListValue);
+					Value* resultValue = cppFunctionValue->Call(argListValue);
 					if (!resultValue)
 						resultValue = new UndefinedValue();
 
 					executor->PushValueOntoEvaluationStackTop(resultValue);
 					break;
-				}				
+				}
 				
 				throw new RunTimeException("Cannot jump to location indicated by anything other than an address value.");
 			}

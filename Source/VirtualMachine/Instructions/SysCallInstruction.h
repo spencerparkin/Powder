@@ -18,7 +18,8 @@ namespace Powder
 			EXIT,
 			GC,
 			INPUT,
-			OUTPUT
+			OUTPUT,
+			MODULE
 		};
 
 		static SysCall TranslateAsSysCall(const std::string& funcName);
@@ -30,5 +31,7 @@ namespace Powder
 #if defined POWDER_DEBUG
 		virtual std::string Print(void) const override;
 #endif
+
+		std::string ResolveModulePath(const std::string& moduleRelativePath);
 	};
 }

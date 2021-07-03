@@ -7,7 +7,7 @@ namespace Powder
 {
 	class ListValue;
 
-	class MapValue : public ContainerValue
+	class POWDER_API MapValue : public ContainerValue
 	{
 	public:
 		MapValue();

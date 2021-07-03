@@ -50,7 +50,6 @@
     <ClCompile Include="Source\GarbageCollector\GCObject.cpp" />
     <ClCompile Include="Source\Utilities\StringFormat.cpp" />
     <ClCompile Include="Source\VirtualMachine\Executor.cpp" />
-    <ClCompile Include="Source\VirtualMachine\ExtensionModule.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\BranchInstruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\ForkInstruction.cpp" />
@@ -70,6 +69,7 @@
     <ClCompile Include="Source\VirtualMachine\Values\AddressValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\BooleanValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\ContainerValue.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\CppFunctionValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\ListValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\MapValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\NumberValue.cpp" />
@@ -115,7 +115,6 @@
     <ClInclude Include="Source\Utilities\LinkedList.hpp" />
     <ClInclude Include="Source\Utilities\StringFormat.h" />
     <ClInclude Include="Source\VirtualMachine\Executor.h" />
-    <ClInclude Include="Source\VirtualMachine\ExtensionModule.h" />
     <ClInclude Include="Source\VirtualMachine\Instruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\BranchInstruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\ForkInstruction.h" />
@@ -135,6 +134,7 @@
     <ClInclude Include="Source\VirtualMachine\Values\AddressValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\BooleanValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\ContainerValue.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\CppFunctionValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\ListValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\MapValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\NumberValue.h" />

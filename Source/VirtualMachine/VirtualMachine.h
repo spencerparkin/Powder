@@ -3,13 +3,13 @@
 #include <cinttypes>
 #include "LinkedList.hpp"
 #include "HashMap.hpp"
-#include "ExtensionModule.h"
 
 namespace Powder
 {
 	class Executor;
 	class Instruction;
 	class Scope;
+	class MapValue;
 
 	// The goal here is to facilitate a basic procedural-style programming language.
 	// Nothing dictates the syntax of that language here.  Rather, a compiler will
@@ -35,34 +35,25 @@ namespace Powder
 		{
 			T* instruction = new T();
 			char opCodeStr[2] = { (char)instruction->OpCode(), '\0' };
-			if (this->instructionMap->Lookup(opCodeStr))
+			if (this->instructionMap.Lookup(opCodeStr))
 				delete instruction;
 			else
-				this->instructionMap->Insert(opCodeStr, instruction);
+				this->instructionMap.Insert(opCodeStr, instruction);
 		}
 
-		void LoadExtensionModule(const std::string& modulePath);
-		void UnloadAllExtensionModules(void);
-		ExtensionModule::Function* LookupModuleFunction(const std::string& funcName);
+		typedef MapValue* (*GenerateFunctionMapFunc)();
+		MapValue* LoadModuleFunctionMap(const std::string& moduleAbsolutePath);
+		void UnloadAllModules(void);
 
 	protected:
 
 		typedef LinkedList<Executor*> ExecutorList;
-		ExecutorList* executorList;
+		ExecutorList executorList;
 
 		typedef HashMap<Instruction*> InstructionMap;
-		InstructionMap* instructionMap;
+		InstructionMap instructionMap;
 
-		typedef HashMap<ExtensionModule::Function*> ExtensionFunctionMap;
-		ExtensionFunctionMap extensionFunctionMap;
-
-		struct LoadedExtensionModule
-		{
-			void* moduleHandle;
-			ExtensionModule* moduleInstance;
-		};
-
-		typedef LinkedList<LoadedExtensionModule> LoadedExtensionModuleList;
-		LoadedExtensionModuleList loadedExtensionModuleList;
+		typedef HashMap<void*> ModuleMap;
+		ModuleMap moduleMap;
 	};
 }

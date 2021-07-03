@@ -2,7 +2,6 @@
 #include "Executor.h"
 #include "Scope.h"
 #include "Value.h"
-#include "ExtensionModule.h"
 #include "Exceptions.hpp"
 #include "GarbageCollector.h"
 #include "BranchInstruction.h"
@@ -24,9 +23,6 @@ namespace Powder
 {
 	VirtualMachine::VirtualMachine()
 	{
-		this->executorList = new ExecutorList();
-		this->instructionMap = new InstructionMap();
-
 		this->RegisterInstruction<BranchInstruction>();
 		this->RegisterInstruction<ForkInstruction>();
 		this->RegisterInstruction<JumpInstruction>();
@@ -44,17 +40,15 @@ namespace Powder
 
 	/*virtual*/ VirtualMachine::~VirtualMachine()
 	{
-		this->instructionMap->DeleteAndClear();
-		DeleteList<Executor*>(*this->executorList);
-		delete this->instructionMap;
-		delete this->executorList;
-		this->UnloadAllExtensionModules();
+		this->instructionMap.DeleteAndClear();
+		DeleteList<Executor*>(this->executorList);
+		this->UnloadAllModules();
 	}
 
 	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Executor* forkOrigin /*= nullptr*/)
 	{
 		Executor* executor = new Executor(programBufferLocation, forkOrigin);
-		this->executorList->AddTail(executor);
+		this->executorList.AddTail(executor);
 	}
 
 	/*virtual*/ void VirtualMachine::Execute(uint8_t* programBuffer, uint64_t programBufferSize)
@@ -64,16 +58,16 @@ namespace Powder
 
 		this->CreateExecutorAtLocation(0);
 
-		while (this->executorList->GetCount() > 0)
+		while (this->executorList.GetCount() > 0)
 		{
-			ExecutorList::Node* node = this->executorList->GetHead();
+			ExecutorList::Node* node = this->executorList.GetHead();
 			Executor* executor = node->value;
-			this->executorList->Remove(node);
+			this->executorList.Remove(node);
 
 			Executor::Result result = executor->Execute(programBuffer, programBufferSize, this);
 
 			if (result == Executor::Result::YIELD)
-				this->executorList->AddTail(executor);
+				this->executorList.AddTail(executor);
 			else if (result == Executor::Result::HALT)
 				delete executor;
 			else
@@ -86,44 +80,36 @@ namespace Powder
 	Instruction* VirtualMachine::LookupInstruction(uint8_t programOpCode)
 	{
 		char key[2] = { (char)programOpCode, '\0' };
-		return this->instructionMap->Lookup(key);
+		return this->instructionMap.Lookup(key);
 	}
 
-	ExtensionModule::Function* VirtualMachine::LookupModuleFunction(const std::string& funcName)
+	MapValue* VirtualMachine::LoadModuleFunctionMap(const std::string& moduleAbsolutePath)
 	{
-		return this->extensionFunctionMap.Lookup(funcName.c_str());
-	}
-
-	void VirtualMachine::LoadExtensionModule(const std::string& modulePath)
-	{
-		LoadedExtensionModule loadedExtensionModule;
-
-		loadedExtensionModule.moduleHandle = ::LoadLibraryA(modulePath.c_str());
-		if (loadedExtensionModule.moduleHandle == NULL)
-			throw new Exception(FormatString("Failed to load extension module: %s", modulePath.c_str()));
-
-		const char* registerFuncName = "RegisterExtensionModule";
-		RegisterExtensionModuleProc registerProc = (RegisterExtensionModuleProc)::GetProcAddress((HMODULE)loadedExtensionModule.moduleHandle, registerFuncName);
-		if (!registerProc)
-			throw new Exception(FormatString("Failed to find proc-address \"%s\" for module: %s", registerFuncName, modulePath.c_str()));
-
-		loadedExtensionModule.moduleInstance = registerProc();
-		if (!loadedExtensionModule.moduleInstance)
-			throw new Exception(FormatString("Failed to get module instance from module: %s", modulePath.c_str()));
-
-		loadedExtensionModule.moduleInstance->RegisterFunctions(this->extensionFunctionMap);
-		this->loadedExtensionModuleList.AddTail(loadedExtensionModule);
-	}
-
-	void VirtualMachine::UnloadAllExtensionModules(void)
-	{
-		while (this->loadedExtensionModuleList.GetCount() > 0)
+		HMODULE moduleHandle = (HMODULE)this->moduleMap.Lookup(moduleAbsolutePath.c_str());
+		if (moduleHandle == nullptr)
 		{
-			LoadedExtensionModule& loadedExtensionModule = this->loadedExtensionModuleList.GetHead()->value;
-			::FreeLibrary((HMODULE)loadedExtensionModule.moduleHandle);
-			this->loadedExtensionModuleList.Remove(this->loadedExtensionModuleList.GetHead());
+			moduleHandle = ::LoadLibraryA(moduleAbsolutePath.c_str());
+			if (moduleHandle == nullptr)
+				throw new RunTimeException(FormatString("No module found at %s", moduleAbsolutePath.c_str()));
+
+			this->moduleMap.Insert(moduleAbsolutePath.c_str(), moduleHandle);
 		}
 
-		this->extensionFunctionMap.Clear();
+		GenerateFunctionMapFunc generateFunctionMapFunc = (GenerateFunctionMapFunc)::GetProcAddress(moduleHandle, "GenerateFunctionMap");
+		if (generateFunctionMapFunc == nullptr)
+			throw new RunTimeException(FormatString("Module (%s) does not expose \"GenerateFunctionMap\" function.", moduleAbsolutePath.c_str()));
+
+		return generateFunctionMapFunc();
+	}
+
+	void VirtualMachine::UnloadAllModules(void)
+	{
+		this->moduleMap.ForAllEntries([](const char* key, void* modulePtr) -> bool {
+			HMODULE moduleHandle = (HMODULE)modulePtr;
+			::FreeLibrary(moduleHandle);
+			return true;
+		});
+
+		this->moduleMap.Clear();
 	}
 }

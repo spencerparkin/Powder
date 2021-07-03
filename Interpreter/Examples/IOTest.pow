@@ -1,0 +1,6 @@
+# IOTest.pow
+
+io = module("E:\git_repos\Powder\Debug\IO.dll");
+
+# TODO: Open a file for writing.  Write the file.  Close the file.
+# TODO: Open a file for reading.  Read the file.  Close the file.

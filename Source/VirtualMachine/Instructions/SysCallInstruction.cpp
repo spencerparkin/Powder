@@ -5,7 +5,9 @@
 #include "Value.h"
 #include "NumberValue.h"
 #include "StringValue.h"
+#include "MapValue.h"
 #include "UndefinedValue.h"
+#include "VirtualMachine.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
 #include <iostream>
@@ -35,6 +37,8 @@ namespace Powder
 			return SysCall::INPUT;
 		else if (funcName == "output")
 			return SysCall::OUTPUT;
+		else if (funcName == "module")
+			return SysCall::MODULE;
 
 		return SysCall::UNKNOWN;
 	}
@@ -50,6 +54,8 @@ namespace Powder
 			case SysCall::INPUT:
 				return 0;
 			case SysCall::OUTPUT:
+				return 1;
+			case SysCall::MODULE:
 				return 1;
 		}
 
@@ -105,6 +111,18 @@ namespace Powder
 				programBufferLocation += 2;
 				break;
 			}
+			case SysCall::MODULE:
+			{
+				Value* value = executor->PopValueFromEvaluationStackTop();
+				std::string moduleRelativePath = value->ToString();
+				std::string moduleAbsolutePath = this->ResolveModulePath(moduleRelativePath);
+				MapValue* functionMapValue = virtualMachine->LoadModuleFunctionMap(moduleAbsolutePath);
+				if (!functionMapValue)
+					throw new RunTimeException(FormatString("Module (%s) did not generate function map value.", moduleAbsolutePath.c_str()));
+				executor->PushValueOntoEvaluationStackTop(functionMapValue);
+				programBufferLocation += 2;
+				break;
+			}
 			default:
 			{
 				throw new RunTimeException(FormatString("Encountered unknown system call: 0x%04x", sysCallCode));
@@ -141,4 +159,10 @@ namespace Powder
 		return detail;
 	}
 #endif
+
+	std::string SysCallInstruction::ResolveModulePath(const std::string& moduleRelativePath)
+	{
+		// TODO: Resolve the path here based on an environment variable?
+		return moduleRelativePath;
+	}
 }
