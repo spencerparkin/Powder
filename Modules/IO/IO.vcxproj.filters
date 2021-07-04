@@ -17,12 +17,36 @@
     <ClInclude Include="FileValue.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="OpenFileFunctionValue.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="CloseFileFunctionValue.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadLineFunctionValue.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="WriteLineFunctionValue.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IOModule.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="FileValue.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenFileFunctionValue.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="CloseFileFunctionValue.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ReadLineFunctionValue.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WriteLineFunctionValue.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

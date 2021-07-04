@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Defines.h"
 #include <string>
 #include <stdarg.h>
 
 namespace Powder
 {
-	std::string FormatString(const char* formatBuffer, ...);
+	POWDER_API std::string FormatString(const char* formatBuffer, ...);
 }

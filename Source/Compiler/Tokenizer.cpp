@@ -136,9 +136,20 @@ namespace Powder
 			{
 				if (programCodeBuffer[i] == '\0' || programCodeBuffer[i] == '\n')
 					throw new CompileTimeException("Encountered run-away string.", &fileLocation);
-				if (programCodeBuffer[i] == '\\' && programCodeBuffer[i + 1] == '"')
+				if (programCodeBuffer[i] == '\\')
 				{
-					token.text += "\"";
+					if (programCodeBuffer[i + 1] == '"')
+						token.text += "\"";
+					else if (programCodeBuffer[i + 1] == 'n')
+						token.text += "\n";
+					else if (programCodeBuffer[i + 1] == 'r')
+						token.text += "\r";
+					else if (programCodeBuffer[i + 1] == 't')
+						token.text += "\t";
+					else if (programCodeBuffer[i + 1] == '\\')
+						token.text += "\\";
+					else
+						throw new CompileTimeException(FormatString("Encountered unknown escape sequence: \\%c", programCodeBuffer[i + 1]), &fileLocation);
 					i += 2;
 					fileLocation.columnNumber += 2;
 				}
@@ -150,9 +161,6 @@ namespace Powder
 			}
 			i++;
 			fileLocation.columnNumber++;
-			this->Replace(token.text, "\\n", "\n");
-			this->Replace(token.text, "\\r", "\r");
-			this->Replace(token.text, "\\t", "\t");
 		}
 		else
 		{
@@ -194,14 +202,5 @@ namespace Powder
 				return true;
 
 		return false;
-	}
-
-	/*static*/ void Tokenizer::Replace(std::string& string, const std::string& oldSubString, const std::string& newSubString)
-	{
-		std::size_t pos = string.find(oldSubString);
-		if (pos != std::string::npos)
-		{
-			string.replace(pos, oldSubString.length(), newSubString);
-		}
 	}
 }

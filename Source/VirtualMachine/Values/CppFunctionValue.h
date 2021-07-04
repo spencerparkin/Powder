@@ -12,6 +12,6 @@ namespace Powder
 		CppFunctionValue();
 		virtual ~CppFunctionValue();
 
-		virtual Value* Call(ListValue* argListValue) = 0;
+		virtual Value* Call(ListValue* argListValue, std::string& errorMsg) = 0;
 	};
 }

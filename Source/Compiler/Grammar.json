@@ -48,9 +48,9 @@
     [ "identifier" ]
   ],
   "embedded-statement": [
+    [ "block" ],
     [ "expression" ],
-    [ "return-statement" ],
-    [ "block" ]
+    [ "return-statement" ]
   ],
   "block": [
     [ "{", "}" ],

@@ -9,5 +9,7 @@ public:
 	FileValue();
 	virtual ~FileValue();
 
+	virtual bool AsBoolean() const override;
+
 	std::fstream fileStream;
 };

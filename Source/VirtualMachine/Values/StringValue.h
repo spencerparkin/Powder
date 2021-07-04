@@ -20,6 +20,9 @@ namespace Powder
 		virtual bool AsBoolean() const override;
 		virtual double AsNumber() const;
 
+		void SetString(const std::string& str) { *this->str = str; }
+		const std::string& GetString() const { return *this->str; }
+
 	private:
 
 		std::string* str;

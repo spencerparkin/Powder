@@ -45,7 +45,6 @@ namespace Powder
 
 		void Tokenize(const char* programCodeBuffer, TokenList& tokenList);
 
-		static void Replace(std::string& string, const std::string& oldSubString, const std::string& newSubString);
 		static bool IsAnyChar(char givenChar, const char* charSet);
 
 	private:

@@ -23,6 +23,9 @@ namespace Powder
 
 		ListValue* GenerateKeyListValue();
 
+		void SetField(const char* key, Value* dataValue);
+		Value* GetField(const char* key);
+
 	private:
 		HashMap<Value*> valueMap;
 	};

@@ -25,6 +25,8 @@ namespace Powder
 		void PushRight(Value* value);
 		Value* PopRight();
 
+		unsigned int Length() const { return this->valueList.GetCount(); }
+
 	private:
 		LinkedList<Value*> valueList;
 		mutable std::vector<LinkedList<Value*>::Node*>* valueListIndex;

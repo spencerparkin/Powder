@@ -47,29 +47,38 @@ namespace Powder
 		return new BooleanValue(dataValue != nullptr);
 	}
 
-	/*virtual*/ void MapValue::SetField(Value* fieldValue, Value* dataValue)
+	void MapValue::SetField(const char* key, Value* dataValue)
 	{
-		std::string key = fieldValue->ToString();
-
-		Value* existingDataValue = this->valueMap.Lookup(key.c_str());
+		Value* existingDataValue = this->valueMap.Lookup(key);
 		if (existingDataValue)
 		{
-			this->valueMap.Remove(key.c_str());
+			this->valueMap.Remove(key);
 			this->DisownObject(existingDataValue);
 		}
 
 		if (dataValue)
 		{
-			this->valueMap.Insert(key.c_str(), dataValue);
+			this->valueMap.Insert(key, dataValue);
 			this->OwnObject(dataValue);
 		}
+	}
+
+	Value* MapValue::GetField(const char* key)
+	{
+		Value* dataValue = this->valueMap.Lookup(key);
+		return dataValue;
+	}
+
+	/*virtual*/ void MapValue::SetField(Value* fieldValue, Value* dataValue)
+	{
+		std::string key = fieldValue->ToString();
+		this->SetField(key.c_str(), dataValue);
 	}
 
 	/*virtual*/ Value* MapValue::GetField(Value* fieldValue)
 	{
 		std::string key = fieldValue->ToString();
-		Value* dataValue = this->valueMap.Lookup(key.c_str());
-		return dataValue;
+		return this->GetField(key.c_str());
 	}
 
 	/*virtual*/ Value* MapValue::DelField(Value* fieldValue)

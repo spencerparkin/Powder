@@ -1,11 +1,18 @@
 #include "IOModule.h"
-#include "VirtualMachine/Values/MapValue.h"
+#include "MapValue.h"
+#include "OpenFileFunctionValue.h"
+#include "CloseFileFunctionValue.h"
+#include "ReadLineFunctionValue.h"
+#include "WriteLineFunctionValue.h"
 
 __declspec(dllexport) Powder::MapValue* GenerateFunctionMap()
 {
-	Powder::MapValue* mapValue = new Powder::MapValue();
+	Powder::MapValue* mapValue = Powder::GCObject::Create<Powder::MapValue>();
 
-	// TODO: Populate map with CppFunctionValue instances.
+	mapValue->SetField("open", new OpenFileFunctionValue());
+	mapValue->SetField("close", new CloseFileFunctionValue());
+	mapValue->SetField("read_line", new ReadLineFunctionValue());
+	mapValue->SetField("write_line", new WriteLineFunctionValue());
 
 	return mapValue;
 }

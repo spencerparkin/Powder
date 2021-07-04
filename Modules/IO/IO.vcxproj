@@ -19,12 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CloseFileFunctionValue.h" />
     <ClInclude Include="FileValue.h" />
     <ClInclude Include="IOModule.h" />
+    <ClInclude Include="OpenFileFunctionValue.h" />
+    <ClInclude Include="ReadLineFunctionValue.h" />
+    <ClInclude Include="WriteLineFunctionValue.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CloseFileFunctionValue.cpp" />
     <ClCompile Include="FileValue.cpp" />
     <ClCompile Include="IOModule.cpp" />
+    <ClCompile Include="OpenFileFunctionValue.cpp" />
+    <ClCompile Include="ReadLineFunctionValue.cpp" />
+    <ClCompile Include="WriteLineFunctionValue.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -99,6 +107,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>../../Source;../../Source/VirtualMachine;../../Source/VirtualMachine/Values;../../Source/GarbageCollector;../../Source/VirtualMachine/Instructions;../../Source/Utilities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

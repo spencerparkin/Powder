@@ -6,7 +6,7 @@
 #include "VirtualMachine.h"
 #include "Exceptions.hpp"
 
-int main(int argc, char**argv)
+int main(int argc, char** argv)
 {
     using namespace Powder;
 

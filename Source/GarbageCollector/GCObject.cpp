@@ -5,6 +5,7 @@ namespace Powder
 {
 	GCObject::GCObject()
 	{
+		this->placementNewUsed = false;
 		this->visitNumber = 0;
 		this->adjacencies = new std::set<GCObject*>();
 		GarbageCollector::GC()->objectSet->insert(this);
@@ -26,5 +27,15 @@ namespace Powder
 	{
 		this->adjacencies->erase(object);
 		object->adjacencies->erase(this);
+	}
+
+	/*static*/ void* GCObject::Allocate(uint64_t size)
+	{
+		return ::malloc((size_t)size);
+	}
+
+	/*static*/ void GCObject::Deallocate(void* memory)
+	{
+		::free(memory);
 	}
 }

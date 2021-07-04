@@ -43,7 +43,7 @@ namespace Powder
 		{
 			case MathInstruction::MathOp::SIZE:
 			{
-				return new NumberValue(this->valueList.GetCount());
+				return new NumberValue(this->Length());
 			}
 		}
 

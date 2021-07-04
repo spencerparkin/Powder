@@ -99,7 +99,13 @@ namespace Powder
 
 	/*virtual*/ void GarbageCollector::Delete(GCObject* object)
 	{
-		delete object;
+		if (!object->placementNewUsed)
+			delete object;
+		else
+		{
+			object->~GCObject();
+			GCObject::Deallocate(object);
+		}
 	}
 
 	static GarbageCollector defaultGC;

@@ -52,11 +52,16 @@ namespace Powder
 					if (!argListValue)
 						throw new RunTimeException("Did not get argument list value from evaluation stack top for module function call.");
 
-					Value* resultValue = cppFunctionValue->Call(argListValue);
+					std::string errorMsg;
+					Value* resultValue = cppFunctionValue->Call(argListValue, errorMsg);
+					if (errorMsg.size() > 0)
+						throw new RunTimeException(errorMsg);
+
 					if (!resultValue)
 						resultValue = new UndefinedValue();
 
 					executor->PushValueOntoEvaluationStackTop(resultValue);
+					programBufferLocation += 2;
 					break;
 				}
 				

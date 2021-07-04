@@ -1,6 +1,23 @@
 # IOTest.pow
 
-io = module("E:\git_repos\Powder\Debug\IO.dll");
+io = module("E:\\git_repos\\Powder\\Debug\\IO.dll");
 
-# TODO: Open a file for writing.  Write the file.  Close the file.
-# TODO: Open a file for reading.  Read the file.  Close the file.
+file = io.open("D:\\sandbox\\test.txt", "write");
+if(file) {
+    io.write_line(file, "line 1");
+    io.write_line(file, "line 2");
+    io.write_line(file, "line 3");
+    io.close(file);     # This, like the other calls, is syntactic sugar for: io["close"](file);
+} else {
+    output("Could not open file for writing!\n");
+};
+
+file = io.open("D:\\sandbox\\test.txt", "read");
+if(file) {
+    do
+        line = io.read_line(file)
+    while(line)
+        output(line + "\n");
+} else {
+    output("Could not open file for reading!\n");
+}
