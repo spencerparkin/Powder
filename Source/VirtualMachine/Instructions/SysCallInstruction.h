@@ -19,7 +19,8 @@ namespace Powder
 			GC,
 			INPUT,
 			OUTPUT,
-			MODULE
+			MODULE,
+			RUN_SCRIPT
 		};
 
 		static SysCall TranslateAsSysCall(const std::string& funcName);
@@ -32,6 +33,7 @@ namespace Powder
 		virtual std::string Print(void) const override;
 #endif
 
-		std::string ResolveModulePath(const std::string& moduleRelativePath);
+		static std::string ResolveModulePath(const std::string& moduleRelativePath);
+		static std::string ResolveScriptPath(const std::string& scriptRelativePath);
 	};
 }

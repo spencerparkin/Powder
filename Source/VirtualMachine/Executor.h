@@ -14,7 +14,7 @@ namespace Powder
 	class POWDER_API Executor
 	{
 	public:
-		Executor(uint64_t programBufferLocation, Executor* forkOrigin);
+		Executor(uint64_t programBufferLocation, Scope* scope);
 		virtual ~Executor();
 
 		enum Result

@@ -199,6 +199,9 @@
     <ClCompile Include="Source\VirtualMachine\Values\CppFunctionValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
+    <ClCompile Include="Source\RunTime.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -389,6 +392,9 @@
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\CppFunctionValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RunTime.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

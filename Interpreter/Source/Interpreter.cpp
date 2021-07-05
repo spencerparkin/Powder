@@ -1,9 +1,7 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdint>
 #include "Compiler.h"
-#include "VirtualMachine.h"
+#include "RunTime.h"
+#include "GarbageCollector.h"
 #include "Exceptions.hpp"
 
 int main(int argc, char** argv)
@@ -12,46 +10,25 @@ int main(int argc, char** argv)
 
     if (argc < 2)
     {
-        std::cerr << "Please pass in a fully qualified path to the desired Powder script file." << std::endl;
+        std::cerr << "Please pass in a path to the desired Powder script file." << std::endl;
         return -1;
     }
 
-    std::string powFilePath = argv[1];
-    std::fstream fileStream;
-    fileStream.open(powFilePath, std::fstream::in);
-    if (!fileStream.is_open())
-    {
-        std::cerr << "Failed to open file: " + powFilePath << std::endl;
-        return -1;
-    }
+    std::string programSourceCodePath = argv[1];
 
-    std::stringstream stringStream;
-    stringStream << fileStream.rdbuf();
-    std::string powFileCode = stringStream.str();
-    fileStream.close();
-
-    uint64_t programBufferSize = 0;
-    uint8_t* programBuffer = nullptr;
-
-    try
-    {
-        const char* programCode = powFileCode.c_str();
-        Compiler compiler;
-        programBuffer = compiler.CompileCode(programCode, programBufferSize);
-        if (programBuffer)
-        {
-            VirtualMachine vm;
-            vm.Execute(programBuffer, programBufferSize);
-        }
-    }
-    catch (Exception* exc)
-    {
-        std::string errorMsg = exc->GetErrorMessage();
-        std::cerr << errorMsg << std::endl;
-        delete exc;
-    }
-
-    delete[] programBuffer;
+	try
+	{
+		Compiler compiler;
+		RunTime runTime(&compiler);
+		runTime.ExecuteSourceCode(programSourceCodePath);
+		GarbageCollector::GC()->FullPass();
+	}
+	catch (Exception* exc)
+	{
+		std::string errorMsg = exc->GetErrorMessage();
+		std::cerr << errorMsg << std::endl;
+		delete exc;
+	}
 
     return 0;
 }

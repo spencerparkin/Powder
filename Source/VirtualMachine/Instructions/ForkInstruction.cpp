@@ -23,7 +23,7 @@ namespace Powder
 	{
 		uint64_t forkedProgramBufferLocation = 0;
 		::memcpy(&forkedProgramBufferLocation, &programBuffer[programBufferLocation + 1], sizeof(uint64_t));
-		virtualMachine->CreateExecutorAtLocation(forkedProgramBufferLocation, executor);
+		virtualMachine->CreateExecutorAtLocation(forkedProgramBufferLocation, executor->GetCurrentScope());
 		programBufferLocation += sizeof(uint8_t) + sizeof(uint64_t);
 		return Executor::Result::CONTINUE;
 	}

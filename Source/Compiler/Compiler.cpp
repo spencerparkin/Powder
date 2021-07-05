@@ -1,4 +1,5 @@
 #include "Compiler.h"
+#include "Value.h"
 #include "Tokenizer.h"
 #include "Parser.h"
 #include "InstructionGenerator.h"
@@ -16,7 +17,7 @@ namespace Powder
 	{
 	}
 
-	uint8_t* Compiler::CompileCode(const char* programCode, uint64_t& programBufferSize)
+	/*virtual*/ uint8_t* Compiler::CompileCode(const char* programCode, uint64_t& programBufferSize)
 	{
 		programBufferSize = 0L;
 		uint8_t* programBuffer = nullptr;

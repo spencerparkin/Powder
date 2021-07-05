@@ -8,6 +8,7 @@
 #include "MapValue.h"
 #include "UndefinedValue.h"
 #include "VirtualMachine.h"
+#include "RunTime.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
 #include <iostream>
@@ -39,6 +40,8 @@ namespace Powder
 			return SysCall::OUTPUT;
 		else if (funcName == "module")
 			return SysCall::MODULE;
+		else if (funcName == "run")
+			return SysCall::RUN_SCRIPT;
 
 		return SysCall::UNKNOWN;
 	}
@@ -56,6 +59,8 @@ namespace Powder
 			case SysCall::OUTPUT:
 				return 1;
 			case SysCall::MODULE:
+				return 1;
+			case SysCall::RUN_SCRIPT:
 				return 1;
 		}
 
@@ -116,10 +121,20 @@ namespace Powder
 				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string moduleRelativePath = value->ToString();
 				std::string moduleAbsolutePath = this->ResolveModulePath(moduleRelativePath);
-				MapValue* functionMapValue = virtualMachine->LoadModuleFunctionMap(moduleAbsolutePath);
+				MapValue* functionMapValue = virtualMachine->runTime->LoadModuleFunctionMap(moduleAbsolutePath);
 				if (!functionMapValue)
 					throw new RunTimeException(FormatString("Module (%s) did not generate function map value.", moduleAbsolutePath.c_str()));
 				executor->PushValueOntoEvaluationStackTop(functionMapValue);
+				programBufferLocation += 2;
+				break;
+			}
+			case SysCall::RUN_SCRIPT:
+			{
+				Value* value = executor->PopValueFromEvaluationStackTop();
+				std::string scriptRelativePath = value->ToString();
+				std::string scriptAbsolutePath = this->ResolveScriptPath(scriptRelativePath);
+				virtualMachine->runTime->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				programBufferLocation += 2;
 				break;
 			}
@@ -160,9 +175,15 @@ namespace Powder
 	}
 #endif
 
-	std::string SysCallInstruction::ResolveModulePath(const std::string& moduleRelativePath)
+	/*static*/ std::string SysCallInstruction::ResolveModulePath(const std::string& moduleRelativePath)
 	{
 		// TODO: Resolve the path here based on an environment variable?
 		return moduleRelativePath;
+	}
+
+	/*static*/ std::string SysCallInstruction::ResolveScriptPath(const std::string& scriptRelativePath)
+	{
+		// TODO: Resolve path using env-vars and CWD?
+		return scriptRelativePath;
 	}
 }

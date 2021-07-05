@@ -9,13 +9,9 @@
 
 namespace Powder
 {
-	Executor::Executor(uint64_t programBufferLocation, Executor* forkOrigin)
+	Executor::Executor(uint64_t programBufferLocation, Scope* scope)
 	{
-		if (forkOrigin)
-			this->currentScope = forkOrigin->currentScope;
-		else
-			this->currentScope = new Scope();
-
+		this->currentScope = scope;
 		this->programBufferLocation = programBufferLocation;
 		this->evaluationStack = new std::vector<GCReference<Value>>();
 	}
@@ -57,7 +53,7 @@ namespace Powder
 			if (result != Executor::Result::CONTINUE)
 				return result;
 
-			// TODO: Run garbage collector here periodically, but once every tick might be too much.
+			// TODO: Run garbage collector here periodically, but once every tick might be too much.  Figure it out.
 		}
 
 		return Result::HALT;

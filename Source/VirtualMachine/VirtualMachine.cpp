@@ -1,9 +1,6 @@
 #include "VirtualMachine.h"
 #include "Executor.h"
-#include "Scope.h"
-#include "Value.h"
 #include "Exceptions.hpp"
-#include "GarbageCollector.h"
 #include "BranchInstruction.h"
 #include "ForkInstruction.h"
 #include "JumpInstruction.h"
@@ -17,12 +14,13 @@
 #include "StoreInstruction.h"
 #include "SysCallInstruction.h"
 #include "YieldInstruction.h"
-#include <Windows.h>
 
 namespace Powder
 {
-	VirtualMachine::VirtualMachine()
+	VirtualMachine::VirtualMachine(RunTime* runTime)
 	{
+		this->runTime = runTime;
+
 		this->RegisterInstruction<BranchInstruction>();
 		this->RegisterInstruction<ForkInstruction>();
 		this->RegisterInstruction<JumpInstruction>();
@@ -42,21 +40,20 @@ namespace Powder
 	{
 		this->instructionMap.DeleteAndClear();
 		DeleteList<Executor*>(this->executorList);
-		this->UnloadAllModules();
 	}
 
-	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Executor* forkOrigin /*= nullptr*/)
+	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Scope* scope)
 	{
-		Executor* executor = new Executor(programBufferLocation, forkOrigin);
+		Executor* executor = new Executor(programBufferLocation, scope);
 		this->executorList.AddTail(executor);
 	}
 
-	/*virtual*/ void VirtualMachine::Execute(uint8_t* programBuffer, uint64_t programBufferSize)
+	void VirtualMachine::ExecuteByteCode(uint8_t* programBuffer, uint64_t programBufferSize, Scope* scope)
 	{
 		if (!programBuffer || programBufferSize == 0)
 			return;
 
-		this->CreateExecutorAtLocation(0);
+		this->CreateExecutorAtLocation(0L, scope);
 
 		while (this->executorList.GetCount() > 0)
 		{
@@ -73,43 +70,11 @@ namespace Powder
 			else
 				break;
 		}
-
-		GarbageCollector::GC()->FullPass();
 	}
 
 	Instruction* VirtualMachine::LookupInstruction(uint8_t programOpCode)
 	{
 		char key[2] = { (char)programOpCode, '\0' };
 		return this->instructionMap.Lookup(key);
-	}
-
-	MapValue* VirtualMachine::LoadModuleFunctionMap(const std::string& moduleAbsolutePath)
-	{
-		HMODULE moduleHandle = (HMODULE)this->moduleMap.Lookup(moduleAbsolutePath.c_str());
-		if (moduleHandle == nullptr)
-		{
-			moduleHandle = ::LoadLibraryA(moduleAbsolutePath.c_str());
-			if (moduleHandle == nullptr)
-				throw new RunTimeException(FormatString("No module found at %s", moduleAbsolutePath.c_str()));
-
-			this->moduleMap.Insert(moduleAbsolutePath.c_str(), moduleHandle);
-		}
-
-		GenerateFunctionMapFunc generateFunctionMapFunc = (GenerateFunctionMapFunc)::GetProcAddress(moduleHandle, "GenerateFunctionMap");
-		if (generateFunctionMapFunc == nullptr)
-			throw new RunTimeException(FormatString("Module (%s) does not expose \"GenerateFunctionMap\" function.", moduleAbsolutePath.c_str()));
-
-		return generateFunctionMapFunc();
-	}
-
-	void VirtualMachine::UnloadAllModules(void)
-	{
-		this->moduleMap.ForAllEntries([](const char* key, void* modulePtr) -> bool {
-			HMODULE moduleHandle = (HMODULE)modulePtr;
-			::FreeLibrary(moduleHandle);
-			return true;
-		});
-
-		this->moduleMap.Clear();
 	}
 }
