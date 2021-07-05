@@ -1,8 +1,10 @@
 #include <iostream>
 #include "Compiler.h"
+#include "Value.h"
 #include "RunTime.h"
 #include "GarbageCollector.h"
 #include "Exceptions.hpp"
+#include "SysCallInstruction.h"
 
 int main(int argc, char** argv)
 {
@@ -14,13 +16,13 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    std::string programSourceCodePath = argv[1];
+	std::string programSourceCodePath = SysCallInstruction::ResolveScriptPath(argv[1]);
 
 	try
 	{
 		Compiler compiler;
 		RunTime runTime(&compiler);
-		runTime.ExecuteSourceCode(programSourceCodePath);
+		runTime.ExecuteSourceCodeFile(programSourceCodePath);
 		GarbageCollector::GC()->FullPass();
 	}
 	catch (Exception* exc)

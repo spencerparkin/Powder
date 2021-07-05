@@ -1,0 +1,8 @@
+# VectorTest.pow
+
+run("VectorLibrary.pow");
+
+a = vec_make(1, 2, 3);
+b = vec_make(4, 5, 6);
+c = vec_sub(b, a);
+vec_print(c);

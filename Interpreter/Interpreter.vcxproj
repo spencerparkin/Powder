@@ -36,6 +36,8 @@
     <None Include="Examples\Object.pow" />
     <None Include="Examples\ScopeTest.pow" />
     <None Include="Examples\TowersOfHanoi.pow" />
+    <None Include="Examples\VectorLibrary.pow" />
+    <None Include="Examples\VectorTest.pow" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Examples\Function.pow" />
