@@ -25,6 +25,13 @@ namespace Powder
 		// Note that for faster execution, implimentations of this virtual
 		// method need not bounds-check their access to the given program
 		// buffer.  An out-of-bounds error here means there is a bug in the compiler.
+		// TODO: I think we need to abstract the notion of a program buffer into
+		//       a GCCollectable derivative, and change the API of this function
+		//       so that it not only can return a new location in the buffer, but
+		//       a new execution buffer altogether!  AddressValue instances need
+		//       to keep a reference to executable buffers so that they don't go
+		//       out of scope.  A reference to an executable buffer should be
+		//       kept by the VM for as long as it is trying to execute it.
 		virtual uint32_t Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) = 0;
 
 		enum AssemblyPass
