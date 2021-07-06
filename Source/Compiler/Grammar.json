@@ -60,12 +60,13 @@
     [ "literal" ],
     [ "identifier" ],
     [ "wrapped-expression" ],
-    [ "member-access-expression" ],
+    [ "assignment-expression" ],
     [ "membership-expression" ],
     [ "container-size-expression" ],
     [ "list-push-pop-expression" ],
     [ "binary-expression" ],
     [ "unary-expression" ],
+    [ "member-access-expression" ],
     [ "map-keys-expression" ],
     [ "function-call" ],
     [ "delete-field-expression" ],
@@ -96,8 +97,10 @@
   "container-field-expression": [
     [ "expression", "[", "expression", "]", -1 ]
   ],
+  "assignment-expression": [
+    [ "expression", "=", "expression" ]
+  ],
   "binary-expression": [
-    [ "expression", "=", "expression" ],
     [ "expression", "+=", "expression" ],
     [ "expression", "-=", "expression" ],
     [ "expression", "*=", "expression" ],

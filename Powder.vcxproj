@@ -23,6 +23,7 @@
     <ClCompile Include="Source\Compiler\Compiler.cpp" />
     <ClCompile Include="Source\Compiler\InstructionGenerator.cpp" />
     <ClCompile Include="Source\Compiler\Parser.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\AssignmentExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ContainerSizeExpressionHandler.cpp" />
@@ -85,6 +86,7 @@
     <ClInclude Include="Source\Compiler\Compiler.h" />
     <ClInclude Include="Source\Compiler\InstructionGenerator.h" />
     <ClInclude Include="Source\Compiler\Parser.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\AssignmentExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ContainerSizeExpressionHandler.h" />

@@ -1,5 +1,7 @@
 #include "PathResolver.h"
+#include "ModuleMain.h"
 #include "Exceptions.hpp"
+#include <Windows.h>
 
 namespace Powder
 {
@@ -31,6 +33,9 @@ namespace Powder
 			
 			if (!std::filesystem::exists(resolvedPath))
 			{
+				if (this->baseDirectory == "")
+					this->FindBaseDirectoryUsingModulePath();
+
 				if ((searchFlags & SEARCH_BASE) != 0)
 				{
 					resolvedPath = this->baseDirectory / unresolvedPath;
@@ -61,8 +66,13 @@ namespace Powder
 		return false;
 	}
 
-	bool PathResolver::FindBaseDirectoryUsingModulePath(const std::string& modulePath)
+	bool PathResolver::FindBaseDirectoryUsingModulePath()
 	{
+		char modulePathBuffer[1024];
+		DWORD modulePathBufferSize = sizeof(modulePathBuffer);
+		::GetModuleFileNameA((HMODULE)moduleHandle, modulePathBuffer, modulePathBufferSize);
+
+		std::string modulePath = modulePathBuffer;
 		std::filesystem::path directory = std::filesystem::path(modulePath);
 
 		while (directory.has_filename())

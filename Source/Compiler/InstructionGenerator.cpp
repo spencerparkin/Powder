@@ -9,6 +9,7 @@
 #include "DoWhileStatementHandler.h"
 #include "YieldStatementHandler.h"
 #include "ForkStatementHandler.h"
+#include "AssignmentExpressionHandler.h"
 #include "BinaryExpressionHandler.h"
 #include "UnaryExpressionHandler.h"
 #include "LiteralExpressionHandler.h"
@@ -42,6 +43,7 @@ namespace Powder
 		this->syntaxHandlerMap.Insert("do-while-statement", new DoWhileStatementHandler());
 		this->syntaxHandlerMap.Insert("yield-statement", new YieldStatementHandler());
 		this->syntaxHandlerMap.Insert("fork-statement", new ForkStatementHandler());
+		this->syntaxHandlerMap.Insert("assignment-expression", new AssignmentExpressionHandler());
 		this->syntaxHandlerMap.Insert("binary-expression", new BinaryExpressionHandler());
 		this->syntaxHandlerMap.Insert("left-unary-expression", new UnaryExpressionHandler());
 		this->syntaxHandlerMap.Insert("right-unary-expression", new UnaryExpressionHandler());

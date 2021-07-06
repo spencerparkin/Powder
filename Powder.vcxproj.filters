@@ -208,6 +208,9 @@
     <ClCompile Include="Source\PathResolver.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\AssignmentExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -407,6 +410,9 @@
     </ClInclude>
     <ClInclude Include="Source\PathResolver.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\AssignmentExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -18,7 +18,7 @@ namespace Powder
 		};
 
 		std::string ResolvePath(const std::string& givenPath, int searchFlags);
-		bool FindBaseDirectoryUsingModulePath(const std::string& modulePath);
+		bool FindBaseDirectoryUsingModulePath();
 		bool SearchDirectoryForFile(const std::filesystem::path& searchDirectory, const std::filesystem::path& relativePath, std::filesystem::path& absolutePath);
 
 		std::filesystem::path baseDirectory;
