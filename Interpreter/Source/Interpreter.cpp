@@ -20,9 +20,9 @@ int main(int argc, char** argv)
 			while (true)
 			{
 				std::cout << "Powder: ";
-				std::string sourceCode;
-				std::cin >> sourceCode;
-				if (sourceCode == "exit")
+				char sourceCode[1024];
+				std::cin.getline(sourceCode, sizeof(sourceCode));
+				if (::strcmp(sourceCode, "exit") == 0)
 					break;
 
 				try

@@ -86,8 +86,9 @@ namespace Powder
 			}
 			case SysCall::INPUT:
 			{
-				std::string str;
-				std::cin >> str;
+				char buffer[1024];
+				std::cin.getline(buffer, sizeof(buffer));
+				std::string str = buffer;
 
 				Value* value = nullptr;
 
