@@ -1,57 +1,60 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdint>
 #include "Compiler.h"
+#include "Value.h"
+#include "Scope.h"
 #include "VirtualMachine.h"
 #include "Exceptions.hpp"
+#include "GarbageCollector.h"
 
 int main(int argc, char** argv)
 {
     using namespace Powder;
 
-    if (argc < 2)
-    {
-        std::cerr << "Please pass in a fully qualified path to the desired Powder script file." << std::endl;
-        return -1;
-    }
+	// Enter scope for the VM so that we can run the GC once the VM goes out of scope.
+	{
+		Compiler compiler;
+		VirtualMachine vm(&compiler);
 
-    std::string powFilePath = argv[1];
-    std::fstream fileStream;
-    fileStream.open(powFilePath, std::fstream::in);
-    if (!fileStream.is_open())
-    {
-        std::cerr << "Failed to open file: " + powFilePath << std::endl;
-        return -1;
-    }
+		if (argc < 2)
+		{
+			while (true)
+			{
+				std::cout << "Powder: ";
+				char sourceCode[1024];
+				std::cin.getline(sourceCode, sizeof(sourceCode));
+				if (::strcmp(sourceCode, "exit") == 0)
+					break;
 
-    std::stringstream stringStream;
-    stringStream << fileStream.rdbuf();
-    std::string powFileCode = stringStream.str();
-    fileStream.close();
+				try
+				{
+					vm.ExecuteSourceCode(sourceCode, "");
+				}
+				catch (Exception* exc)
+				{
+					std::string errorMsg = exc->GetErrorMessage();
+					std::cerr << errorMsg << std::endl;
+					delete exc;
+				}
+			}
+		}
+		else
+		{
+			std::string programSourceCodePath = argv[1];
 
-    uint64_t programBufferSize = 0;
-    uint8_t* programBuffer = nullptr;
+			try
+			{
+				vm.ExecuteSourceCodeFile(programSourceCodePath);
+			}
+			catch (Exception* exc)
+			{
+				std::string errorMsg = exc->GetErrorMessage();
+				std::cerr << errorMsg << std::endl;
+				delete exc;
+			}
+		}
+	}
 
-    try
-    {
-        const char* programCode = powFileCode.c_str();
-        Compiler compiler;
-        programBuffer = compiler.CompileCode(programCode, programBufferSize);
-        if (programBuffer)
-        {
-            VirtualMachine vm;
-            vm.Execute(programBuffer, programBufferSize);
-        }
-    }
-    catch (Exception* exc)
-    {
-        std::string errorMsg = exc->GetErrorMessage();
-        std::cerr << errorMsg << std::endl;
-        delete exc;
-    }
-
-    delete[] programBuffer;
+	GarbageCollector::GC()->FullPass();
 
     return 0;
 }

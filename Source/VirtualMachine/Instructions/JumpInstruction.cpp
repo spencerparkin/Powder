@@ -4,6 +4,7 @@
 #include "Assembler.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
+#include "Executable.h"
 #include "CppFunctionValue.h"
 #include "ListValue.h"
 #include "UndefinedValue.h"
@@ -24,8 +25,9 @@ namespace Powder
 		return 0x03;
 	}
 
-	/*virtual*/ uint32_t JumpInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t JumpInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
+		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		Type type = Type(programBuffer[programBufferLocation + 1]);
 		switch (type)
 		{
@@ -41,7 +43,8 @@ namespace Powder
 				AddressValue* addressValue = dynamic_cast<AddressValue*>(value);
 				if (addressValue)
 				{
-					programBufferLocation = *addressValue;
+					programBufferLocation = addressValue->programBufferLocation;
+					executable = addressValue->executable.Get();
 					break;
 				}
 				
@@ -72,7 +75,7 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void JumpInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ void JumpInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
 	{
 		const AssemblyData::Entry* typeEntry = this->assemblyData->configMap.LookupPtr("type");
 		if (!typeEntry)
@@ -80,6 +83,7 @@ namespace Powder
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
+			uint8_t* programBuffer = executable->byteCodeBuffer;
 			programBuffer[programBufferLocation + 1] = typeEntry->code;
 
 			if (typeEntry->code == Type::JUMP_TO_EMBEDDED_ADDRESS)

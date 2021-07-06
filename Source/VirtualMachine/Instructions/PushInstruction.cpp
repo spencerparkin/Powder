@@ -9,6 +9,7 @@
 #include "AddressValue.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
+#include "Executable.h"
 
 namespace Powder
 {
@@ -25,8 +26,9 @@ namespace Powder
 		return 0x07;
 	}
 
-	/*virtual*/ uint32_t PushInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t PushInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
+		uint8_t* programBuffer = executable->byteCodeBuffer;
 		uint8_t pushType = programBuffer[programBufferLocation + 1];
 		switch (pushType)
 		{
@@ -68,7 +70,7 @@ namespace Powder
 			{
 				uint64_t programBufferAddress = 0L;
 				::memcpy_s(&programBufferAddress, sizeof(uint64_t), &programBuffer[programBufferLocation + 2], sizeof(uint64_t));
-				executor->PushValueOntoEvaluationStackTop(new AddressValue(programBufferAddress));
+				executor->PushValueOntoEvaluationStackTop(new AddressValue(executable, programBufferAddress));
 				programBufferLocation += 2 + sizeof(uint64_t);
 				break;
 			}
@@ -81,7 +83,7 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void PushInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ void PushInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
 	{
 		const AssemblyData::Entry* typeEntry = this->assemblyData->configMap.LookupPtr("type");
 		const AssemblyData::Entry* dataEntry = this->assemblyData->configMap.LookupPtr("data");
@@ -94,6 +96,7 @@ namespace Powder
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
+			uint8_t* programBuffer = executable->byteCodeBuffer;
 			programBuffer[programBufferLocation + 1] = typeEntry->code;
 
 			if (typeEntry->code == DataType::STRING)

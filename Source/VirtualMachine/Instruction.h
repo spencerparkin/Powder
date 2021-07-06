@@ -8,6 +8,7 @@ namespace Powder
 {
 	class VirtualMachine;
 	class Executor;
+	class Executable;
 	struct AssemblyData;
 	struct FileLocation;
 
@@ -21,11 +22,13 @@ namespace Powder
 
 		virtual uint8_t OpCode() const = 0;
 
-		// Read and execute this instruction from the given buffer.
+		// Read and execute this instruction from the given executable buffer.
 		// Note that for faster execution, implimentations of this virtual
 		// method need not bounds-check their access to the given program
 		// buffer.  An out-of-bounds error here means there is a bug in the compiler.
-		virtual uint32_t Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) = 0;
+		// The override should always advance or otherwise update the given program
+		// buffer location, and may change the given exectuable pointer.
+		virtual uint32_t Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) = 0;
 
 		enum AssemblyPass
 		{
@@ -47,8 +50,8 @@ namespace Powder
 
 		// Format and write this instruction into the given buffer.
 		// Note that overrides need not write their op-code into
-		// the buffer; the assemlber does that for you.
-		virtual void Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const = 0;
+		// the buffer; the assembler does that for you.
+		virtual void Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const = 0;
 
 #if defined POWDER_DEBUG
 		// This lets us print a disassembled version of the program.

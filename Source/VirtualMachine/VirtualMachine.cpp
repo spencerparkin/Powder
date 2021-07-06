@@ -1,9 +1,7 @@
 #include "VirtualMachine.h"
 #include "Executor.h"
-#include "Scope.h"
-#include "Value.h"
 #include "Exceptions.hpp"
-#include "GarbageCollector.h"
+#include "Executable.h"
 #include "BranchInstruction.h"
 #include "ForkInstruction.h"
 #include "JumpInstruction.h"
@@ -17,12 +15,20 @@
 #include "StoreInstruction.h"
 #include "SysCallInstruction.h"
 #include "YieldInstruction.h"
+#include "GarbageCollector.h"
 #include <Windows.h>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <cstdint>
 
 namespace Powder
 {
-	VirtualMachine::VirtualMachine()
+	VirtualMachine::VirtualMachine(CompilerInterface* compiler)
 	{
+		this->compiler = compiler;
+		this->globalScope = new Scope();		// This gets deleted by the GC.
+		this->executorListStack = new std::vector<ExecutorList*>();
 		this->RegisterInstruction<BranchInstruction>();
 		this->RegisterInstruction<ForkInstruction>();
 		this->RegisterInstruction<JumpInstruction>();
@@ -40,47 +46,103 @@ namespace Powder
 
 	/*virtual*/ VirtualMachine::~VirtualMachine()
 	{
-		this->instructionMap.DeleteAndClear();
-		DeleteList<Executor*>(this->executorList);
 		this->UnloadAllModules();
+		this->instructionMap.DeleteAndClear();
+		delete this->executorListStack;
 	}
 
-	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Executor* forkOrigin /*= nullptr*/)
+	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Scope* scope)
 	{
-		Executor* executor = new Executor(programBufferLocation, forkOrigin);
-		this->executorList.AddTail(executor);
+		if (this->executorListStack->size() == 0)
+			throw new RunTimeException("Executor list stack size is zero when trying to create new executor");
+
+		ExecutorList* executorList = (*this->executorListStack)[this->executorListStack->size() - 1];
+		Executor* executor = new Executor(programBufferLocation, scope);
+		executorList->AddTail(executor);
 	}
 
-	/*virtual*/ void VirtualMachine::Execute(uint8_t* programBuffer, uint64_t programBufferSize)
+	void VirtualMachine::ExecuteByteCode(const Executable* executable, Scope* scope)
 	{
-		if (!programBuffer || programBufferSize == 0)
-			return;
+		GCReference<Executable> exectuableRef(const_cast<Executable*>(executable));
 
-		this->CreateExecutorAtLocation(0);
+		ExecutorList executorList;
+		this->executorListStack->push_back(&executorList);
+		executorList.AddTail(new Executor(0L, scope));
 
-		while (this->executorList.GetCount() > 0)
+		while (executorList.GetCount() > 0)
 		{
-			ExecutorList::Node* node = this->executorList.GetHead();
+			ExecutorList::Node* node = executorList.GetHead();
 			Executor* executor = node->value;
-			this->executorList.Remove(node);
+			executorList.Remove(node);
 
-			Executor::Result result = executor->Execute(programBuffer, programBufferSize, this);
+			Executor::Result result = executor->Execute(executable, this);
 
 			if (result == Executor::Result::YIELD)
-				this->executorList.AddTail(executor);
+				executorList.AddTail(executor);
 			else if (result == Executor::Result::HALT)
 				delete executor;
 			else
 				break;
 		}
 
-		GarbageCollector::GC()->FullPass();
+		DeleteList<Executor*>(executorList);
+		this->executorListStack->pop_back();
 	}
 
-	Instruction* VirtualMachine::LookupInstruction(uint8_t programOpCode)
+	void VirtualMachine::ExecuteSourceCodeFile(const std::string& programSourceCodePath, Scope* scope /*= nullptr*/)
 	{
-		char key[2] = { (char)programOpCode, '\0' };
-		return this->instructionMap.Lookup(key);
+		if (!scope)
+			scope = this->globalScope.Ptr();
+
+		std::string programSourceCodeResolvedPath = SysCallInstruction::ResolveScriptPath(programSourceCodePath);
+		if (!std::filesystem::exists(programSourceCodeResolvedPath))
+			throw new RunTimeException(FormatString("Could not find file: %s", programSourceCodePath.c_str()));
+
+		std::string programByteCodePath = programSourceCodeResolvedPath.substr(0, programSourceCodeResolvedPath.find_last_of('.')) + ".pwx";
+		if (std::filesystem::exists(programByteCodePath))
+		{
+			std::filesystem::file_time_type byteCodeTime = std::filesystem::last_write_time(programByteCodePath);
+			std::filesystem::file_time_type sourceCodeTime = std::filesystem::last_write_time(programSourceCodeResolvedPath);
+			if (byteCodeTime >= sourceCodeTime)
+			{
+				Executable* executable = new Executable();
+				executable->Load(programByteCodePath);
+				this->ExecuteByteCode(executable, scope);
+				GarbageCollector::GC()->FullPass();
+				return;
+			}
+		}
+
+		std::fstream fileStream;
+		fileStream.open(programSourceCodeResolvedPath, std::fstream::in);
+		if (!fileStream.is_open())
+			throw new RunTimeException(FormatString("Failed to open file: %s", programSourceCodeResolvedPath.c_str()));
+
+		std::stringstream stringStream;
+		stringStream << fileStream.rdbuf();
+		std::string programCode = stringStream.str();
+		fileStream.close();
+
+		this->ExecuteSourceCode(programCode, programSourceCodeResolvedPath, scope);
+	}
+
+	void VirtualMachine::ExecuteSourceCode(const std::string& programSourceCode, const std::string& programSourceCodePath, Scope* scope /*= nullptr*/)
+	{
+		if (!scope)
+			scope = this->globalScope.Ptr();
+
+		Executable* executable = this->compiler->CompileCode(programSourceCode.c_str());
+		if (!executable)
+			throw new RunTimeException("Unknown compilation error!");
+
+		if (programSourceCodePath.length() > 0)
+		{
+			std::string programByteCodePath = programSourceCodePath.substr(0, programSourceCodePath.find_last_of('.')) + ".pwx";
+			executable->Save(programByteCodePath);
+		}
+
+		this->ExecuteByteCode(executable, scope);
+		GarbageCollector::GC()->FullPass();
 	}
 
 	MapValue* VirtualMachine::LoadModuleFunctionMap(const std::string& moduleAbsolutePath)
@@ -108,8 +170,14 @@ namespace Powder
 			HMODULE moduleHandle = (HMODULE)modulePtr;
 			::FreeLibrary(moduleHandle);
 			return true;
-		});
+			});
 
 		this->moduleMap.Clear();
+	}
+
+	Instruction* VirtualMachine::LookupInstruction(uint8_t programOpCode)
+	{
+		char key[2] = { (char)programOpCode, '\0' };
+		return this->instructionMap.Lookup(key);
 	}
 }

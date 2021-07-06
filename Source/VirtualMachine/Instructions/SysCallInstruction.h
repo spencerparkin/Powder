@@ -19,19 +19,21 @@ namespace Powder
 			GC,
 			INPUT,
 			OUTPUT,
-			MODULE
+			MODULE,
+			RUN_SCRIPT
 		};
 
 		static SysCall TranslateAsSysCall(const std::string& funcName);
 		static uint32_t ArgumentCount(SysCall sysCall);
 
-		virtual uint32_t Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;
-		virtual void Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const override;
+		virtual uint32_t Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;
+		virtual void Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const override;
 
 #if defined POWDER_DEBUG
 		virtual std::string Print(void) const override;
 #endif
 
-		std::string ResolveModulePath(const std::string& moduleRelativePath);
+		static std::string ResolveModulePath(const std::string& moduleRelativePath);
+		static std::string ResolveScriptPath(const std::string& scriptRelativePath);
 	};
 }

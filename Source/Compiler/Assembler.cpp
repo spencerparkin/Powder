@@ -1,6 +1,7 @@
 #include "Assembler.h"
 #include "Instruction.h"
 #include "StringFormat.h"
+#include "Executable.h"
 #include "JumpInstruction.h"
 #include "Exceptions.hpp"
 #include <iostream>
@@ -37,7 +38,7 @@ namespace Powder
 		}
 	}
 
-	uint8_t* Assembler::AssembleExecutable(const LinkedList<Instruction*>& instructionList, uint64_t& programBufferSize)
+	Executable* Assembler::AssembleExecutable(const LinkedList<Instruction*>& instructionList)
 	{
 		this->ResolveJumps(instructionList);
 
@@ -46,25 +47,27 @@ namespace Powder
 		{
 			const Instruction* instruction = node->value;
 			instruction->assemblyData->programBufferLocation = programBufferLocation;
-			instruction->Assemble(nullptr, 0, programBufferLocation, Instruction::AssemblyPass::CALC_EXTENT);
+			instruction->Assemble(nullptr, programBufferLocation, Instruction::AssemblyPass::CALC_EXTENT);
 		}
 
-		programBufferSize = programBufferLocation;
-		if (programBufferSize == 0L)
+		if (programBufferLocation == 0L)
 			return nullptr;
 
-		uint8_t* programBuffer = new uint8_t[(unsigned int)programBufferSize];
+		Executable* executable = new Executable();
+		executable->byteCodeBufferSize = programBufferLocation;
+		executable->byteCodeBuffer = new uint8_t[(uint32_t)executable->byteCodeBufferSize];
+
 		programBufferLocation = 0L;
 		for(const LinkedList<Instruction*>::Node* node = instructionList.GetHead(); node; node = node->GetNext())
 		{
 			const Instruction* instruction = node->value;
-			programBuffer[programBufferLocation] = instruction->OpCode();
+			executable->byteCodeBuffer[programBufferLocation] = instruction->OpCode();
 #if defined POWDER_DEBUG
 			std::cout << FormatString("%04d: ", programBufferLocation) << instruction->Print() << std::endl;
 #endif
-			instruction->Assemble(programBuffer, programBufferSize, programBufferLocation, Instruction::AssemblyPass::RENDER);
+			instruction->Assemble(executable, programBufferLocation, Instruction::AssemblyPass::RENDER);
 		}
 
-		return programBuffer;
+		return executable;
 	}
 }

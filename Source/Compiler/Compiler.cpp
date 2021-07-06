@@ -1,4 +1,6 @@
 #include "Compiler.h"
+#include "Value.h"
+#include "Scope.h"
 #include "Tokenizer.h"
 #include "Parser.h"
 #include "InstructionGenerator.h"
@@ -16,14 +18,11 @@ namespace Powder
 	{
 	}
 
-	uint8_t* Compiler::CompileCode(const char* programCode, uint64_t& programBufferSize)
+	/*virtual*/ Executable* Compiler::CompileCode(const char* programSourceCode)
 	{
-		programBufferSize = 0L;
-		uint8_t* programBuffer = nullptr;
-
 		TokenList tokenList;
 		Tokenizer tokenizer;
-		tokenizer.Tokenize(programCode, tokenList);
+		tokenizer.Tokenize(programSourceCode, tokenList);
 
 		Parser parser;
 		Parser::SyntaxNode* rootSyntaxNode = parser.Parse(tokenList);
@@ -44,7 +43,6 @@ namespace Powder
 		delete rootSyntaxNode;
 
 		Assembler assembler;
-		programBuffer = assembler.AssembleExecutable(instructionList, programBufferSize);
-		return programBuffer;
+		return assembler.AssembleExecutable(instructionList);
 	}
 }

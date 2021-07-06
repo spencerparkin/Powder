@@ -49,6 +49,7 @@
     <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCObject.cpp" />
     <ClCompile Include="Source\Utilities\StringFormat.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Executable.cpp" />
     <ClCompile Include="Source\VirtualMachine\Executor.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instruction.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instructions\BranchInstruction.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="Source\Utilities\HashMap.hpp" />
     <ClInclude Include="Source\Utilities\LinkedList.hpp" />
     <ClInclude Include="Source\Utilities\StringFormat.h" />
+    <ClInclude Include="Source\VirtualMachine\Executable.h" />
     <ClInclude Include="Source\VirtualMachine\Executor.h" />
     <ClInclude Include="Source\VirtualMachine\Instruction.h" />
     <ClInclude Include="Source\VirtualMachine\Instructions\BranchInstruction.h" />

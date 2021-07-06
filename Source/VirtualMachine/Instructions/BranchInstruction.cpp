@@ -4,6 +4,7 @@
 #include "Value.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
+#include "Executable.h"
 
 namespace Powder
 {
@@ -20,8 +21,9 @@ namespace Powder
 		return 0x01;
 	}
 
-	/*virtual*/ uint32_t BranchInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t BranchInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
+		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		Value* value = executor->PopValueFromEvaluationStackTop();
 		if (value->AsBoolean())
 			programBufferLocation += 1 + sizeof(uint64_t);
@@ -30,7 +32,7 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void BranchInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ void BranchInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
 	{
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
@@ -38,6 +40,7 @@ namespace Powder
 			if (!branchEntry)
 				throw new CompileTimeException("Cannot assemble branch instruction without the branch address information being given.", &this->assemblyData->fileLocation);
 
+			uint8_t* programBuffer = executable->byteCodeBuffer;
 			::memcpy_s(&programBuffer[programBufferLocation + 1], sizeof(uint64_t), &branchEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 		}
 

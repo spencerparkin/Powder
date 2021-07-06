@@ -10,8 +10,6 @@ namespace Powder
 {
 	class Value;
 
-	// The name here may be an abuse of the term.  A perhaps more accurate
-	// term here is call stack frame.
 	class POWDER_API Scope : public GCCollectable
 	{
 	public:
