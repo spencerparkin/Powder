@@ -36,3 +36,6 @@
 Debug/
 Release/
 *.user
+
+# Powder executables
+*.pwx

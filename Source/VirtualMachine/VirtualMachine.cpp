@@ -27,7 +27,6 @@ namespace Powder
 	VirtualMachine::VirtualMachine(CompilerInterface* compiler)
 	{
 		this->compiler = compiler;
-		this->compiler = compiler;
 		this->globalScope = new Scope();		// This gets deleted by the GC.
 		this->executorListStack = new std::vector<ExecutorList*>();
 		this->RegisterInstruction<BranchInstruction>();
@@ -124,7 +123,7 @@ namespace Powder
 		std::string programCode = stringStream.str();
 		fileStream.close();
 
-		this->ExecuteSourceCode(programCode.c_str(), programSourceCodeResolvedPath, scope);
+		this->ExecuteSourceCode(programCode, programSourceCodeResolvedPath, scope);
 	}
 
 	void VirtualMachine::ExecuteSourceCode(const std::string& programSourceCode, const std::string& programSourceCodePath, Scope* scope /*= nullptr*/)
