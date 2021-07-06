@@ -115,6 +115,7 @@ namespace Powder
 
 		void BubbleSort(void)
 		{
+			// I think this actually has really bad time-complexity.
 			int swapCount = 0;
 			do
 			{
@@ -144,8 +145,6 @@ namespace Powder
 		const Node* GetTail() const { return this->tail; }
 
 		unsigned int GetCount() const { return this->count; }
-
-	private:
 
 		void InsertNodeAfter(Node* after, Node* node)
 		{
@@ -190,6 +189,8 @@ namespace Powder
 			node->Decouple();
 			this->count--;
 		}
+
+	private:
 
 		Node* head;
 		Node* tail;

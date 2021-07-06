@@ -510,7 +510,7 @@ namespace Powder
 		{
 			SyntaxNode* childNode = node->value;
 			if (childNode->childList.GetCount() == 1 &&
-				(*childNode->childList.GetHead()->value->name == *this->name ||
+					(*childNode->name == *this->name ||
 					*childNode->name == "expression" ||
 					*childNode->name == "statement" ||
 					*childNode->name == "embedded-statement" ||
@@ -520,6 +520,7 @@ namespace Powder
 			{
 				SyntaxNode* newChildNode = childNode->childList.GetHead()->value;
 				childNode->childList.RemoveAll();
+				delete childNode;
 				node->value = newChildNode;
 				performedReduction = true;
 			}
