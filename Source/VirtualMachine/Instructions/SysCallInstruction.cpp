@@ -8,7 +8,6 @@
 #include "MapValue.h"
 #include "UndefinedValue.h"
 #include "VirtualMachine.h"
-#include "RunTime.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
@@ -123,7 +122,7 @@ namespace Powder
 				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string moduleRelativePath = value->ToString();
 				std::string moduleAbsolutePath = this->ResolveModulePath(moduleRelativePath);
-				MapValue* functionMapValue = virtualMachine->GetRunTime()->LoadModuleFunctionMap(moduleAbsolutePath);
+				MapValue* functionMapValue = virtualMachine->LoadModuleFunctionMap(moduleAbsolutePath);
 				if (!functionMapValue)
 					throw new RunTimeException(FormatString("Module (%s) did not generate function map value.", moduleAbsolutePath.c_str()));
 				executor->PushValueOntoEvaluationStackTop(functionMapValue);
@@ -135,7 +134,7 @@ namespace Powder
 				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string scriptRelativePath = value->ToString();
 				std::string scriptAbsolutePath = this->ResolveScriptPath(scriptRelativePath);
-				virtualMachine->GetRunTime()->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
+				virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
 				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				programBufferLocation += 2;
 				break;

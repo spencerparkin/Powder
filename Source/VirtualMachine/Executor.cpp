@@ -1,7 +1,6 @@
 #include "Executor.h"
 #include "Instruction.h"
 #include "VirtualMachine.h"
-#include "RunTime.h"
 #include "Value.h"
 #include "Scope.h"
 #include "GarbageCollector.h"
@@ -47,7 +46,7 @@ namespace Powder
 		while (this->programBufferLocation < executable->byteCodeBufferSize)
 		{
 			uint8_t opCode = executable->byteCodeBuffer[this->programBufferLocation];
-			Instruction* instruction = virtualMachine->GetRunTime()->LookupInstruction(opCode);
+			Instruction* instruction = virtualMachine->LookupInstruction(opCode);
 			if (!instruction)
 				throw new RunTimeException(FormatString("Encountered unknown opcode 0x%04x", opCode));
 

@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Defines.h"
-#include "RunTime.h"
+#include "VirtualMachine.h"
 #include <cstdint>
 
 namespace Powder
 {
-	class POWDER_API Compiler : public RunTime::CompilerInterface
+	class POWDER_API Compiler : public VirtualMachine::CompilerInterface
 	{
 	public:
 		Compiler();

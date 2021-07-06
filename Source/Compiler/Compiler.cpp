@@ -1,5 +1,6 @@
 #include "Compiler.h"
 #include "Value.h"
+#include "Scope.h"
 #include "Tokenizer.h"
 #include "Parser.h"
 #include "InstructionGenerator.h"

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Compiler.h"
 #include "Value.h"
-#include "RunTime.h"
+#include "VirtualMachine.h"
 #include "Exceptions.hpp"
 
 int main(int argc, char** argv)
@@ -9,7 +9,7 @@ int main(int argc, char** argv)
     using namespace Powder;
 
 	Compiler compiler;
-	RunTime runTime(&compiler);
+	VirtualMachine vm(&compiler);
 
 	if (argc < 2)
 	{
@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 
 			try
 			{
-				runTime.ExecuteSourceCode(sourceCode, "");
+				vm.ExecuteSourceCode(sourceCode, "");
 			}
 			catch (Exception* exc)
 			{
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 
 		try
 		{
-			runTime.ExecuteSourceCodeFile(programSourceCodePath);
+			vm.ExecuteSourceCodeFile(programSourceCodePath);
 		}
 		catch (Exception* exc)
 		{
