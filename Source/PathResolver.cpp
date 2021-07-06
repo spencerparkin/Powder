@@ -28,11 +28,15 @@ namespace Powder
 				if (!std::filesystem::exists(resolvedPath))
 					this->SearchDirectoryForFile(std::filesystem::current_path(), unresolvedPath, resolvedPath);
 			}
-			else if ((searchFlags & SEARCH_BASE) != 0)
+			
+			if (!std::filesystem::exists(resolvedPath))
 			{
-				resolvedPath = this->baseDirectory / unresolvedPath;
-				if (!std::filesystem::exists(resolvedPath))
-					this->SearchDirectoryForFile(this->baseDirectory, unresolvedPath, resolvedPath);
+				if ((searchFlags & SEARCH_BASE) != 0)
+				{
+					resolvedPath = this->baseDirectory / unresolvedPath;
+					if (!std::filesystem::exists(resolvedPath))
+						this->SearchDirectoryForFile(this->baseDirectory, unresolvedPath, resolvedPath);
+				}
 			}
 		}
 
