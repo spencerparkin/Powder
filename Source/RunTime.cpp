@@ -3,6 +3,21 @@
 #include "Exceptions.hpp"
 #include "VirtualMachine.h"
 #include "Scope.h"
+#include "Executable.h"
+#include "GarbageCollector.h"
+#include "BranchInstruction.h"
+#include "ForkInstruction.h"
+#include "JumpInstruction.h"
+#include "ListInstruction.h"
+#include "LoadInstruction.h"
+#include "MapInstruction.h"
+#include "MathInstruction.h"
+#include "PopInstruction.h"
+#include "PushInstruction.h"
+#include "ScopeInstruction.h"
+#include "StoreInstruction.h"
+#include "SysCallInstruction.h"
+#include "YieldInstruction.h"
 #include <Windows.h>
 #include <filesystem>
 #include <fstream>
@@ -15,11 +30,26 @@ namespace Powder
 	{
 		this->compiler = compiler;
 		this->globalScope = new Scope();
+
+		this->RegisterInstruction<BranchInstruction>();
+		this->RegisterInstruction<ForkInstruction>();
+		this->RegisterInstruction<JumpInstruction>();
+		this->RegisterInstruction<ListInstruction>();
+		this->RegisterInstruction<LoadInstruction>();
+		this->RegisterInstruction<MapInstruction>();
+		this->RegisterInstruction<MathInstruction>();
+		this->RegisterInstruction<PopInstruction>();
+		this->RegisterInstruction<PushInstruction>();
+		this->RegisterInstruction<ScopeInstruction>();
+		this->RegisterInstruction<StoreInstruction>();
+		this->RegisterInstruction<SysCallInstruction>();
+		this->RegisterInstruction<YieldInstruction>();
 	}
 
 	/*virtual*/ RunTime::~RunTime()
 	{
 		this->UnloadAllModules();
+		this->instructionMap.DeleteAndClear();
 	}
 
 	void RunTime::ExecuteSourceCodeFile(const std::string& programSourceCodePath, Scope* scope /*= nullptr*/)
@@ -27,44 +57,37 @@ namespace Powder
 		if (!scope)
 			scope = this->globalScope.Ptr();
 
-		if (!std::filesystem::exists(programSourceCodePath))
-			throw new RunTimeException(FormatString("File \"%s\" does not exist.", programSourceCodePath.c_str()));
+		std::string programSourceCodeResolvedPath = SysCallInstruction::ResolveScriptPath(programSourceCodePath);
+		if (!std::filesystem::exists(programSourceCodeResolvedPath))
+			throw new RunTimeException(FormatString("Could not find file: %s", programSourceCodePath.c_str()));
 
-		std::string programByteCodePath = programSourceCodePath.substr(0, programSourceCodePath.find_last_of('.')) + ".pwx";
+		std::string programByteCodePath = programSourceCodeResolvedPath.substr(0, programSourceCodeResolvedPath.find_last_of('.')) + ".pwx";
 		if (std::filesystem::exists(programByteCodePath))
 		{
 			std::filesystem::file_time_type byteCodeTime = std::filesystem::last_write_time(programByteCodePath);
-			std::filesystem::file_time_type sourceCodeTime = std::filesystem::last_write_time(programSourceCodePath);
+			std::filesystem::file_time_type sourceCodeTime = std::filesystem::last_write_time(programSourceCodeResolvedPath);
 			if (byteCodeTime >= sourceCodeTime)
 			{
-				std::fstream fileStream;
-				fileStream.open(programByteCodePath, std::fstream::in | std::fstream::binary | std::fstream::ate);
-				if (!fileStream.is_open())
-					throw new RunTimeException(FormatString("Failed to open file: %s", programByteCodePath.c_str()));
-
-				std::streamsize programBufferSize = fileStream.tellg();
-				fileStream.seekg(0, std::ios::beg);
-				std::vector<char> programBuffer((uint32_t)programBufferSize);
-				fileStream.read(programBuffer.data(), programBufferSize);
-				fileStream.close();
-
+				Executable* executable = new Executable();
+				executable->Load(programByteCodePath);
 				VirtualMachine vm(this);
-				vm.ExecuteByteCode((uint8_t*)programBuffer.data(), programBufferSize, scope);
+				vm.ExecuteByteCode(executable, scope);
+				GarbageCollector::GC()->FullPass();
 				return;
 			}
 		}
 
 		std::fstream fileStream;
-		fileStream.open(programSourceCodePath, std::fstream::in);
+		fileStream.open(programSourceCodeResolvedPath, std::fstream::in);
 		if (!fileStream.is_open())
-			throw new RunTimeException(FormatString("Failed to open file: %s", programSourceCodePath.c_str()));
+			throw new RunTimeException(FormatString("Failed to open file: %s", programSourceCodeResolvedPath.c_str()));
 
 		std::stringstream stringStream;
 		stringStream << fileStream.rdbuf();
 		std::string programCode = stringStream.str();
 		fileStream.close();
 
-		this->ExecuteSourceCode(programCode.c_str(), programSourceCodePath, scope);
+		this->ExecuteSourceCode(programCode.c_str(), programSourceCodeResolvedPath, scope);
 	}
 
 	void RunTime::ExecuteSourceCode(const std::string& programSourceCode, const std::string& programSourceCodePath, Scope* scope /*= nullptr*/)
@@ -72,25 +95,19 @@ namespace Powder
 		if (!scope)
 			scope = this->globalScope.Ptr();
 
-		uint64_t programBufferSize = 0L;
-		uint8_t* programBuffer = this->compiler->CompileCode(programSourceCode.c_str(), programBufferSize);
-		if (!programBuffer)
+		Executable* executable = this->compiler->CompileCode(programSourceCode.c_str());
+		if (!executable)
 			throw new RunTimeException("Unknown compilation error!");
 
 		if (programSourceCodePath.length() > 0)
 		{
 			std::string programByteCodePath = programSourceCodePath.substr(0, programSourceCodePath.find_last_of('.')) + ".pwx";
-			std::fstream fileStream;
-			fileStream.open(programByteCodePath, std::fstream::out | std::fstream::binary);
-			if (!fileStream.is_open())
-				throw new RunTimeException(FormatString("Failed to open file: %s", programByteCodePath.c_str()));
-
-			fileStream.write((const char*)programBuffer, programBufferSize);
-			fileStream.close();
+			executable->Save(programByteCodePath);
 		}
 
 		VirtualMachine vm(this);
-		vm.ExecuteByteCode(programBuffer, programBufferSize, scope);
+		vm.ExecuteByteCode(executable, scope);
+		GarbageCollector::GC()->FullPass();
 	}
 
 	MapValue* RunTime::LoadModuleFunctionMap(const std::string& moduleAbsolutePath)
@@ -121,5 +138,11 @@ namespace Powder
 		});
 
 		this->moduleMap.Clear();
+	}
+
+	Instruction* RunTime::LookupInstruction(uint8_t programOpCode)
+	{
+		char key[2] = { (char)programOpCode, '\0' };
+		return this->instructionMap.Lookup(key);
 	}
 }

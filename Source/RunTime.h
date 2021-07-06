@@ -9,6 +9,8 @@
 namespace Powder
 {
 	class MapValue;
+	class Executable;
+	class Instruction;
 
 	// Note that while no specific compiler is dictated here, we do require access
 	// to a general compiler interface as part of the code re-usability feature.
@@ -26,7 +28,7 @@ namespace Powder
 			CompilerInterface() {}
 			virtual ~CompilerInterface() {}
 
-			virtual uint8_t* CompileCode(const char* programCode, uint64_t& programBufferSize) = 0;
+			virtual Executable* CompileCode(const char* programSourceCode) = 0;
 		};
 
 		void ExecuteSourceCodeFile(const std::string& programSourceCodePath, Scope* scope = nullptr);
@@ -36,6 +38,8 @@ namespace Powder
 		MapValue* LoadModuleFunctionMap(const std::string& moduleAbsolutePath);
 		void UnloadAllModules(void);
 
+		Instruction* LookupInstruction(uint8_t programOpCode);
+
 	protected:
 
 		CompilerInterface* compiler;
@@ -44,5 +48,19 @@ namespace Powder
 
 		typedef HashMap<void*> ModuleMap;
 		ModuleMap moduleMap;
+
+		template<typename T>
+		void RegisterInstruction()
+		{
+			T* instruction = new T();
+			char opCodeStr[2] = { (char)instruction->OpCode(), '\0' };
+			if (this->instructionMap.Lookup(opCodeStr))
+				delete instruction;
+			else
+				this->instructionMap.Insert(opCodeStr, instruction);
+		}
+
+		typedef HashMap<Instruction*> InstructionMap;
+		InstructionMap instructionMap;
 	};
 }

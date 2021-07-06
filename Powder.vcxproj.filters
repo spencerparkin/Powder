@@ -202,6 +202,9 @@
     <ClCompile Include="Source\RunTime.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Executable.cpp">
+      <Filter>Source\VirtualMachine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -395,6 +398,9 @@
     </ClInclude>
     <ClInclude Include="Source\RunTime.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Executable.h">
+      <Filter>Source\VirtualMachine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

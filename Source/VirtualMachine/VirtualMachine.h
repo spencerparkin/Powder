@@ -7,7 +7,7 @@
 namespace Powder
 {
 	class Executor;
-	class Instruction;
+	class Executable;
 	class RunTime;
 	class Scope;
 
@@ -24,29 +24,16 @@ namespace Powder
 		VirtualMachine(RunTime* runTime);
 		virtual ~VirtualMachine();
 
-		void ExecuteByteCode(uint8_t* programBuffer, uint64_t programBufferSize, Scope* scope);
+		void ExecuteByteCode(const Executable* executable, Scope* scope);
 		void CreateExecutorAtLocation(uint64_t programBufferLocation, Scope* scope);
-		Instruction* LookupInstruction(uint8_t programOpCode);
 
-		RunTime* runTime;
+		RunTime* GetRunTime() { return this->runTime; }
 
 	protected:
 
-		template<typename T>
-		void RegisterInstruction()
-		{
-			T* instruction = new T();
-			char opCodeStr[2] = { (char)instruction->OpCode(), '\0' };
-			if (this->instructionMap.Lookup(opCodeStr))
-				delete instruction;
-			else
-				this->instructionMap.Insert(opCodeStr, instruction);
-		}
+		RunTime* runTime;
 
 		typedef LinkedList<Executor*> ExecutorList;
 		ExecutorList executorList;
-
-		typedef HashMap<Instruction*> InstructionMap;
-		InstructionMap instructionMap;
 	};
 }

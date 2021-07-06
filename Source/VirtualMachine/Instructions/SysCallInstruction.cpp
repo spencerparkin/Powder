@@ -11,6 +11,7 @@
 #include "RunTime.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
+#include "Executable.h"
 #include <iostream>
 
 namespace Powder
@@ -67,8 +68,9 @@ namespace Powder
 		return -1;
 	}
 
-	/*virtual*/ uint32_t SysCallInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t SysCallInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
+		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		uint8_t sysCallCode = programBuffer[programBufferLocation + 1];
 		switch (sysCallCode)
 		{
@@ -121,7 +123,7 @@ namespace Powder
 				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string moduleRelativePath = value->ToString();
 				std::string moduleAbsolutePath = this->ResolveModulePath(moduleRelativePath);
-				MapValue* functionMapValue = virtualMachine->runTime->LoadModuleFunctionMap(moduleAbsolutePath);
+				MapValue* functionMapValue = virtualMachine->GetRunTime()->LoadModuleFunctionMap(moduleAbsolutePath);
 				if (!functionMapValue)
 					throw new RunTimeException(FormatString("Module (%s) did not generate function map value.", moduleAbsolutePath.c_str()));
 				executor->PushValueOntoEvaluationStackTop(functionMapValue);
@@ -133,7 +135,7 @@ namespace Powder
 				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string scriptRelativePath = value->ToString();
 				std::string scriptAbsolutePath = this->ResolveScriptPath(scriptRelativePath);
-				virtualMachine->runTime->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
+				virtualMachine->GetRunTime()->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
 				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				programBufferLocation += 2;
 				break;
@@ -147,7 +149,7 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void SysCallInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ void SysCallInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
 	{
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
@@ -155,6 +157,7 @@ namespace Powder
 			if (!sysCallEntry)
 				throw new CompileTimeException("System call instruction can't be assembled without knowing what system call to call.", &this->assemblyData->fileLocation);
 
+			uint8_t* programBuffer = executable->byteCodeBuffer;
 			programBuffer[programBufferLocation + 1] = sysCallEntry->code;
 		}
 

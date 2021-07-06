@@ -11,6 +11,7 @@
 namespace Powder
 {
 	class Instruction;
+	class Executable;
 
 	class POWDER_API Assembler
 	{
@@ -18,7 +19,7 @@ namespace Powder
 		Assembler();
 		virtual ~Assembler();
 
-		uint8_t* AssembleExecutable(const LinkedList<Instruction*>& instructionList, uint64_t& programBufferSize);
+		Executable* AssembleExecutable(const LinkedList<Instruction*>& instructionList);
 
 	private:
 

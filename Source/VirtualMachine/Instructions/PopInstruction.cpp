@@ -19,14 +19,14 @@ namespace Powder
 		return 0x06;
 	}
 
-	/*virtual*/ uint32_t PopInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t PopInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		executor->PopValueFromEvaluationStackTop();
 		programBufferLocation += 1;
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void PopInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ void PopInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
 	{
 		// TODO: Add byte for count of how many pops to do?
 		programBufferLocation += 1;

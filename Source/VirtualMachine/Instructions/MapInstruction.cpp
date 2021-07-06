@@ -4,6 +4,7 @@
 #include "MapValue.h"
 #include "ListValue.h"
 #include "Exceptions.hpp"
+#include "Executable.h"
 
 namespace Powder
 {
@@ -20,10 +21,11 @@ namespace Powder
 		return 0x0D;
 	}
 
-	/*virtual*/ uint32_t MapInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t MapInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		Value* result = nullptr;
 
+		uint8_t* programBuffer = executable->byteCodeBuffer;
 		uint8_t action = programBuffer[programBufferLocation + 1];
 		switch (action)
 		{
@@ -68,7 +70,7 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void MapInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ void MapInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
 	{
 		const AssemblyData::Entry* actionEntry = this->assemblyData->configMap.LookupPtr("action");
 		if (!actionEntry)
@@ -76,6 +78,7 @@ namespace Powder
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
+			uint8_t* programBuffer = executable->byteCodeBuffer;
 			switch (actionEntry->code)
 			{
 				case Action::INSERT:

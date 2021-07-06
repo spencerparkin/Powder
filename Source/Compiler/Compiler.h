@@ -12,6 +12,6 @@ namespace Powder
 		Compiler();
 		virtual ~Compiler();
 
-		virtual uint8_t* CompileCode(const char* programCode, uint64_t& programBufferSize) override;
+		virtual Executable* CompileCode(const char* programSourceCode) override;
 	};
 }

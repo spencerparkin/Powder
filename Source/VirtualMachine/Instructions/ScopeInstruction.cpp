@@ -2,6 +2,7 @@
 #include "Assembler.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
+#include "Executable.h"
 
 namespace Powder
 {
@@ -18,8 +19,9 @@ namespace Powder
 		return 0x08;
 	}
 
-	/*virtual*/ uint32_t ScopeInstruction::Execute(const uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t ScopeInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
+		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		uint8_t scopeOp = programBuffer[programBufferLocation + 1];
 		switch (scopeOp)
 		{
@@ -43,10 +45,11 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void ScopeInstruction::Assemble(uint8_t* programBuffer, uint64_t programBufferSize, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ void ScopeInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
 	{
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
+			uint8_t* programBuffer = executable->byteCodeBuffer;
 			programBuffer[programBufferLocation + 1] = -1;
 
 			const AssemblyData::Entry* scopeOpEntry = this->assemblyData->configMap.LookupPtr("scopeOp");

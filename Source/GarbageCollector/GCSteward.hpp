@@ -25,6 +25,11 @@ namespace Powder
 			return this->object;
 		}
 
+		const T* Get() const
+		{
+			return this->object;
+		}
+
 		void Set(T* object)
 		{
 			if (this->object)

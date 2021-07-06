@@ -1,15 +1,17 @@
 #include "AddressValue.h"
 #include "UndefinedValue.h"
+#include "Executable.h"
 
 namespace Powder
 {
-	AddressValue::AddressValue()
+	AddressValue::AddressValue() : executable(this)
 	{
 		this->programBufferLocation = 0;
 	}
 
-	AddressValue::AddressValue(uint64_t programBufferLocation)
+	AddressValue::AddressValue(const Executable* executable, uint64_t programBufferLocation) : executable(this)
 	{
+		this->executable.Set(const_cast<Executable*>(executable));
 		this->programBufferLocation = programBufferLocation;
 	}
 
@@ -19,7 +21,7 @@ namespace Powder
 
 	/*virtual*/ Value* AddressValue::Copy() const
 	{
-		return new AddressValue(this->programBufferLocation);
+		return new AddressValue(this->executable.Get(), this->programBufferLocation);
 	}
 
 	/*virtual*/ Value* AddressValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
