@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Compiler.h"
 #include "Value.h"
+#include "Scope.h"
 #include "VirtualMachine.h"
 #include "Exceptions.hpp"
 
