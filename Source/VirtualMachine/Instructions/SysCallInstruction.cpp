@@ -11,6 +11,7 @@
 #include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
+#include "PathResolver.h"
 #include <iostream>
 
 namespace Powder
@@ -121,7 +122,7 @@ namespace Powder
 			{
 				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string moduleRelativePath = value->ToString();
-				std::string moduleAbsolutePath = this->ResolveModulePath(moduleRelativePath);
+				std::string moduleAbsolutePath = pathResolver.ResolvePath(moduleRelativePath, PathResolver::SEARCH_BASE | PathResolver::SEARCH_CWD);
 				MapValue* functionMapValue = virtualMachine->LoadModuleFunctionMap(moduleAbsolutePath);
 				if (!functionMapValue)
 					throw new RunTimeException(FormatString("Module (%s) did not generate function map value.", moduleAbsolutePath.c_str()));
@@ -133,7 +134,7 @@ namespace Powder
 			{
 				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string scriptRelativePath = value->ToString();
-				std::string scriptAbsolutePath = this->ResolveScriptPath(scriptRelativePath);
+				std::string scriptAbsolutePath = pathResolver.ResolvePath(scriptRelativePath, PathResolver::SEARCH_CWD);
 				virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
 				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				programBufferLocation += 2;
@@ -176,16 +177,4 @@ namespace Powder
 		return detail;
 	}
 #endif
-
-	/*static*/ std::string SysCallInstruction::ResolveModulePath(const std::string& moduleRelativePath)
-	{
-		// TODO: Resolve the path here based on an environment variable?
-		return moduleRelativePath;
-	}
-
-	/*static*/ std::string SysCallInstruction::ResolveScriptPath(const std::string& scriptRelativePath)
-	{
-		// TODO: Resolve path using env-vars and CWD?
-		return scriptRelativePath;
-	}
 }

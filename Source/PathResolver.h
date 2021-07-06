@@ -1,0 +1,28 @@
+#pragma once
+
+#include <string>
+#include <filesystem>
+
+namespace Powder
+{
+	class PathResolver
+	{
+	public:
+		PathResolver();
+		virtual ~PathResolver();
+
+		enum
+		{
+			SEARCH_CWD = 1,
+			SEARCH_BASE = 2
+		};
+
+		std::string ResolvePath(const std::string& givenPath, int searchFlags);
+		bool FindBaseDirectoryUsingModulePath(const std::string& modulePath);
+		bool SearchDirectoryForFile(const std::filesystem::path& searchDirectory, const std::filesystem::path& relativePath, std::filesystem::path& absolutePath);
+
+		std::filesystem::path baseDirectory;
+	};
+
+	extern PathResolver pathResolver;
+}

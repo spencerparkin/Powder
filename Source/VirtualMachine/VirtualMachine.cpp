@@ -16,6 +16,7 @@
 #include "SysCallInstruction.h"
 #include "YieldInstruction.h"
 #include "GarbageCollector.h"
+#include "PathResolver.h"
 #include <Windows.h>
 #include <filesystem>
 #include <fstream>
@@ -94,10 +95,7 @@ namespace Powder
 		if (!scope)
 			scope = this->globalScope.Ptr();
 
-		std::string programSourceCodeResolvedPath = SysCallInstruction::ResolveScriptPath(programSourceCodePath);
-		if (!std::filesystem::exists(programSourceCodeResolvedPath))
-			throw new RunTimeException(FormatString("Could not find file: %s", programSourceCodePath.c_str()));
-
+		std::string programSourceCodeResolvedPath = pathResolver.ResolvePath(programSourceCodePath, PathResolver::SEARCH_CWD);
 		std::string programByteCodePath = programSourceCodeResolvedPath.substr(0, programSourceCodeResolvedPath.find_last_of('.')) + ".pwx";
 		if (std::filesystem::exists(programByteCodePath))
 		{

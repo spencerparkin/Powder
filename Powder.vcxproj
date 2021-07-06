@@ -48,6 +48,8 @@
     <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCObject.cpp" />
+    <ClCompile Include="Source\ModuleMain.cpp" />
+    <ClCompile Include="Source\PathResolver.cpp" />
     <ClCompile Include="Source\Utilities\StringFormat.cpp" />
     <ClCompile Include="Source\VirtualMachine\Executable.cpp" />
     <ClCompile Include="Source\VirtualMachine\Executor.cpp" />
@@ -112,6 +114,8 @@
     <ClInclude Include="Source\GarbageCollector\GCObject.h" />
     <ClInclude Include="Source\GarbageCollector\GCSteward.hpp" />
     <ClInclude Include="Source\GarbageCollector\GCReference.hpp" />
+    <ClInclude Include="Source\ModuleMain.h" />
+    <ClInclude Include="Source\PathResolver.h" />
     <ClInclude Include="Source\Utilities\HashMap.hpp" />
     <ClInclude Include="Source\Utilities\LinkedList.hpp" />
     <ClInclude Include="Source\Utilities\StringFormat.h" />

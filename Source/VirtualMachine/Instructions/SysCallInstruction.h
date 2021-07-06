@@ -32,8 +32,5 @@ namespace Powder
 #if defined POWDER_DEBUG
 		virtual std::string Print(void) const override;
 #endif
-
-		static std::string ResolveModulePath(const std::string& moduleRelativePath);
-		static std::string ResolveScriptPath(const std::string& scriptRelativePath);
 	};
 }

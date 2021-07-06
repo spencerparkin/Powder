@@ -1,0 +1,77 @@
+#include "PathResolver.h"
+#include "Exceptions.hpp"
+
+namespace Powder
+{
+	PathResolver pathResolver;
+
+	PathResolver::PathResolver()
+	{
+	}
+
+	/*virtual*/ PathResolver::~PathResolver()
+	{
+	}
+
+	std::string PathResolver::ResolvePath(const std::string& givenPath, int searchFlags)
+	{
+		std::filesystem::path unresolvedPath = givenPath;
+		std::filesystem::path resolvedPath;
+
+		if (unresolvedPath.is_absolute())
+			resolvedPath = unresolvedPath;
+		else if (unresolvedPath.is_relative())
+		{
+			if ((searchFlags & SEARCH_CWD) != 0)
+			{
+				resolvedPath = std::filesystem::current_path() / unresolvedPath;
+				if (!std::filesystem::exists(resolvedPath))
+					this->SearchDirectoryForFile(std::filesystem::current_path(), unresolvedPath, resolvedPath);
+			}
+			else if ((searchFlags & SEARCH_BASE) != 0)
+			{
+				resolvedPath = this->baseDirectory / unresolvedPath;
+				if (!std::filesystem::exists(resolvedPath))
+					this->SearchDirectoryForFile(this->baseDirectory, unresolvedPath, resolvedPath);
+			}
+		}
+
+		if (!std::filesystem::exists(resolvedPath))
+			throw new RunTimeException(FormatString("Could not find file: %s", givenPath.c_str()));
+
+		return resolvedPath.string();
+	}
+
+	bool PathResolver::SearchDirectoryForFile(const std::filesystem::path& searchDirectory, const std::filesystem::path& relativePath, std::filesystem::path& absolutePath)
+	{
+		for (std::filesystem::directory_entry dir_entry : std::filesystem::recursive_directory_iterator(searchDirectory))
+		{
+			if (dir_entry.is_directory())
+			{
+				absolutePath = dir_entry.path() / relativePath;
+				if (std::filesystem::exists(absolutePath))
+					return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool PathResolver::FindBaseDirectoryUsingModulePath(const std::string& modulePath)
+	{
+		std::filesystem::path directory = std::filesystem::path(modulePath);
+
+		while (directory.has_filename())
+		{
+			if (directory.filename() == "Powder")
+			{
+				this->baseDirectory = directory;
+				return true;
+			}
+
+			directory = directory.parent_path();
+		}
+
+		return false;
+	}
+}

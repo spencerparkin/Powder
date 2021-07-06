@@ -1,6 +1,6 @@
 # IOTest.pow
 
-io = module("E:\\git_repos\\Powder\\Debug\\IO.dll");
+io = module("IO.dll");
 
 file = io.open("D:\\sandbox\\test.txt", "write");
 if(file) {
