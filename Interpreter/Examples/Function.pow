@@ -7,12 +7,12 @@ poopers = func(a, b, c)
     output("c = " + c + "\n");
 };
 
-blah = func(given_func)
-{
-    given_func(1, 2, 3);
-};
-
-blah(poopers);
+#blah = func(given_func)
+#{
+#    given_func(1, 2, 3);
+#};
+#
+#blah(poopers);
 
 super = func()
 {
@@ -20,4 +20,4 @@ super = func()
 };
 
 output("----------------\n");
-super()(3, 2, 1);
+super()(3, 2, 1);       # TODO: This is not parsing correctly.  Figure it out.
