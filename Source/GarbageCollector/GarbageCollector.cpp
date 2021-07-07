@@ -1,22 +1,31 @@
 #include "GarbageCollector.h"
 #include "GCObject.h"
-#include <assert.h>
 
 namespace Powder
 {
 	GarbageCollector::GarbageCollector()
 	{
+		this->honestCollectableCount = 0;
+		this->state = STAND_BY;
 		this->visitNumber = 0;
+		this->referenceFound = false;
+		this->visitingObject = nullptr;
 		this->unvisitedObjectSet = 0;
 		this->visitedObjectSet = 1;
 		this->objectSet[0] = new std::set<GCObject*>();
 		this->objectSet[1] = new std::set<GCObject*>();
+		this->spanningTreeSet = new std::set<GCObject*>();
+		this->objectQueue = new std::set<GCObject*>();
+		this->objectSetIter = new std::set<GCObject*>::iterator();
 	}
 
 	/*virtual*/ GarbageCollector::~GarbageCollector()
 	{
 		delete this->objectSet[0];
 		delete this->objectSet[1];
+		delete this->spanningTreeSet;
+		delete this->objectQueue;
+		delete this->objectSetIter;
 	}
 
 	void GarbageCollector::Remember(GCObject* object)
@@ -26,71 +35,135 @@ namespace Powder
 
 	void GarbageCollector::Forget(GCObject* object)
 	{
-		std::set<GCObject*>::iterator iter = this->objectSet[this->visitedObjectSet]->find(object);
-		if (iter != this->objectSet[this->visitedObjectSet]->end())
-			this->objectSet[this->visitedObjectSet]->erase(iter);
-		else
+		this->objectSet[this->visitedObjectSet]->erase(object);
+		this->objectSet[this->unvisitedObjectSet]->erase(object);
+		this->objectQueue->erase(object);
+		this->spanningTreeSet->erase(object);
+		if (this->visitingObject == object)
 		{
-			iter = this->objectSet[this->unvisitedObjectSet]->find(object);
-			if (iter != this->objectSet[this->unvisitedObjectSet]->end())
-				this->objectSet[this->unvisitedObjectSet]->erase(iter);
-			else
-			{
-				assert(false);
-			}
+			this->visitingObject = nullptr;
+			this->state = STAND_BY;
+		}
+	}
+
+	void GarbageCollector::AdjacenciesChanged(GCObject* object)
+	{
+		if (this->state != STAND_BY)
+		{
+			std::set<GCObject*>::iterator iter = this->spanningTreeSet->find(object);
+			if (iter != this->spanningTreeSet->end())
+				this->state = STAND_BY;
+
+			iter = this->objectQueue->find(object);
+			if (iter != this->objectQueue->end())
+				this->state = STAND_BY;
 		}
 	}
 
 	void GarbageCollector::Run()
 	{
-		if (this->RemainingObjectCount() == 0)
-			return;
-		
-		if (this->objectSet[this->unvisitedObjectSet]->size() == 0)
+		switch (this->state)
 		{
-			this->unvisitedObjectSet = 1 - this->unvisitedObjectSet;
-			this->visitedObjectSet = 1 - this->visitedObjectSet;
-		}
-
-		// It's important that we find the full spanning tree here rather
-		// than bail early, because we don't want to re-find the same tree
-		// more than once in a single pass over all objects.
-		bool referenceFound = false;
-		std::set<GCObject*> spanningTreeSet;
-		std::list<GCObject*> objectQueue;
-		GCObject* object = *this->objectSet[this->unvisitedObjectSet]->begin();
-		object->visitNumber = ++this->visitNumber;
-		objectQueue.push_back(object);
-		while (objectQueue.size() > 0)
-		{
-			std::list<GCObject*>::iterator queueIter = objectQueue.begin();
-			object = *queueIter;
-			objectQueue.erase(queueIter);
-			
-			this->objectSet[this->unvisitedObjectSet]->erase(object);
-			this->objectSet[this->visitedObjectSet]->insert(object);
-
-			if (object->IsReference())
-				referenceFound = true;
-
-			if (!referenceFound)
-				spanningTreeSet.insert(object);
-
-			for (GCObject* adjacentObject : *object->adjacencies)
+			case STAND_BY:
 			{
-				// Is the adjacent object destined for visitation or has it already been visited?
-				if (adjacentObject->visitNumber != this->visitNumber)
+				if (this->RemainingObjectCount() == 0)
+					return;
+
+				this->state = INITIATE_BFS;
+				break;
+			}
+			case INITIATE_BFS:
+			{
+				this->spanningTreeSet->clear();
+
+				if (this->objectSet[this->unvisitedObjectSet]->size() == 0)
 				{
-					objectQueue.push_back(adjacentObject);
-					adjacentObject->visitNumber = this->visitNumber;
+					this->unvisitedObjectSet = 1 - this->unvisitedObjectSet;
+					this->visitedObjectSet = 1 - this->visitedObjectSet;
 				}
+
+				if (this->objectSet[this->unvisitedObjectSet]->size() == 0)
+					this->state = STAND_BY;
+				else
+				{
+					// A random choice here might be better, but just use the first one for now.
+					GCObject* object = *this->objectSet[this->unvisitedObjectSet]->begin();
+					object->visitNumber = ++this->visitNumber;
+					this->objectQueue->insert(object);
+					this->referenceFound = false;
+					this->state = CONTINUE_BFS;
+				}
+
+				break;
+			}
+			case CONTINUE_BFS:
+			{
+				if (this->objectQueue->size() == 0)
+				{
+					this->visitingObject = nullptr;
+					this->state = CONSUME_SPANNING_TREE_SET;
+				}
+				else
+				{
+					std::set<GCObject*>::iterator queueIter = this->objectQueue->begin();
+					this->visitingObject = *queueIter;
+					this->objectQueue->erase(queueIter);
+
+					if (this->visitingObject->IsReference())
+						this->referenceFound = true;
+
+					this->spanningTreeSet->insert(this->visitingObject);
+					this->state = INITIATE_ADJACENCY_WALK;
+				}
+
+				break;
+			}
+			case INITIATE_ADJACENCY_WALK:
+			{
+				*this->objectSetIter = this->visitingObject->adjacencies->begin();
+				this->state = CONTINUE_ADJACENCY_WALK;
+				break;
+			}
+			case CONTINUE_ADJACENCY_WALK:
+			{
+				if (*this->objectSetIter == this->visitingObject->adjacencies->end())
+					this->state = CONTINUE_BFS;
+				else
+				{
+					GCObject* adjacentObject = **objectSetIter;
+					
+					// Is the adjacent object destined for visitation or has it already been visited?
+					if (adjacentObject->visitNumber != this->visitNumber)
+					{
+						this->objectQueue->insert(adjacentObject);
+						adjacentObject->visitNumber = this->visitNumber;
+					}
+
+					(*this->objectSetIter)++;
+				}
+
+				break;
+			}
+			case CONSUME_SPANNING_TREE_SET:
+			{
+				if (this->spanningTreeSet->size() == 0)
+					this->state = STAND_BY;
+				else
+				{
+					std::set<GCObject*>::iterator iter = this->spanningTreeSet->begin();
+					GCObject* object = *iter;
+					this->spanningTreeSet->erase(iter);
+
+					this->objectSet[this->unvisitedObjectSet]->erase(object);
+					this->objectSet[this->visitedObjectSet]->insert(object);
+
+					if (!this->referenceFound)
+						this->Delete(object);	// The destructor for the object will take it out of the GC graph.
+				}
+
+				break;
 			}
 		}
-
-		// If the spanning tree did not contain any reference objects, then all objects in the tree can be freed.
-		if (!referenceFound)
-			for(GCObject* object : spanningTreeSet)
-				this->Delete(object);		// The destructor for the object will take it out of the GC graph.
 	}
 
 	void GarbageCollector::FullPurge()
@@ -109,13 +182,16 @@ namespace Powder
 				break;
 
 			// Complete one full pass over the remaining objects.
-			this->Run();
+			while (this->objectSet[this->unvisitedObjectSet]->size() == 0)
+				this->Run();
 			while (this->objectSet[this->unvisitedObjectSet]->size() > 0)
 				this->Run();
 
 			// If nothing was purged, we're done.  If anything was purged,
 			// we must go for another pass, because the previous pass may
-			// have removed references holding onto other collectables.
+			// have removed references holding onto other collectables,
+			// not because we delete references (we don't, the user must
+			// manage that memory), but because collectables can own references.
 			if (this->RemainingObjectCount() == remainingObjectCount)
 				break;
 		}

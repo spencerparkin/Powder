@@ -17,10 +17,12 @@ namespace Powder
 			UNKNOWN,
 			EXIT,
 			GC,
+			GC_COUNT,
 			INPUT,
 			OUTPUT,
 			MODULE,
-			RUN_SCRIPT
+			RUN_SCRIPT,
+			SLEEP
 		};
 
 		static SysCall TranslateAsSysCall(const std::string& funcName);

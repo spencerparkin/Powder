@@ -1,0 +1,9 @@
+# GCTest.pow
+
+i = 0;
+while(i < 64) {
+    output("i = " + i + "\n");
+    output("GC count: " + gc_count() + "\n");
+    sleep(0.5);
+    i += 1;
+}

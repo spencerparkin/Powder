@@ -7,6 +7,11 @@ namespace Powder
 {
 	class Executable;
 
+	// TODO: Maybe make a derivative of this class called ClosureValue and have
+	//       it own a set of capture values.  I'm not sure how those would make
+	//       it into the function scope when the call is made, but it's an idea.
+	//       Maybe you could own a scope object in the closure value and then
+	//       sneakily insert it into the scope chain at the call jump.
 	class POWDER_API AddressValue : public Value
 	{
 	public:

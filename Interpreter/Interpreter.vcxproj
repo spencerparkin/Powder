@@ -25,6 +25,7 @@
     <None Include="Examples\DoWhile.pow" />
     <None Include="Examples\Fibbonacci.pow" />
     <None Include="Examples\Fork.pow" />
+    <None Include="Examples\GCTest.pow" />
     <None Include="Examples\HelloWorld.pow" />
     <None Include="Examples\IfThenElse.pow" />
     <None Include="Examples\IOTest.pow" />

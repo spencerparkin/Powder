@@ -1,6 +1,5 @@
 #include "GCObject.h"
 #include "GarbageCollector.h"
-#include <assert.h>
 
 namespace Powder
 {
@@ -22,12 +21,16 @@ namespace Powder
 	{
 		this->adjacencies->insert(object);
 		object->adjacencies->insert(this);
+		GarbageCollector::GC()->AdjacenciesChanged(object);
+		GarbageCollector::GC()->AdjacenciesChanged(this);
 	}
 
 	void GCObject::DisconnectFrom(GCObject* object)
 	{
 		this->adjacencies->erase(object);
 		object->adjacencies->erase(this);
+		GarbageCollector::GC()->AdjacenciesChanged(object);
+		GarbageCollector::GC()->AdjacenciesChanged(this);
 	}
 
 	/*static*/ void* GCObject::Allocate(uint64_t size)

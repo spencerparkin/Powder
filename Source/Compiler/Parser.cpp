@@ -437,9 +437,10 @@ namespace Powder
 				SyntaxNode* assignmentModifierNode = this->childList.GetHead()->GetNext()->value;
 				if (*assignmentModifierNode->name == assignmentModifier)
 				{
+					*this->name = "assignment-expression";
 					*assignmentModifierNode->name = "=";
 					std::string assignmentStr = assignmentModifier.substr(0, 1);
-					SyntaxNode* syntaxNode = new SyntaxNode("assignment-expression", assignmentModifierNode->fileLocation);
+					SyntaxNode* syntaxNode = new SyntaxNode("binary-expression", assignmentModifierNode->fileLocation);
 					syntaxNode->childList.AddTail(this->childList.GetHead()->value->Copy());
 					syntaxNode->childList.AddTail(new SyntaxNode(assignmentStr.c_str(), assignmentModifierNode->fileLocation));
 					syntaxNode->childList.AddTail(this->childList.GetHead()->GetNext()->GetNext()->value);

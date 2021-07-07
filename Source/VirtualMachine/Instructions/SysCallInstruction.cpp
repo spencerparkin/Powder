@@ -13,6 +13,7 @@
 #include "Executable.h"
 #include "PathResolver.h"
 #include <iostream>
+#include <Windows.h>
 
 namespace Powder
 {
@@ -35,6 +36,8 @@ namespace Powder
 			return SysCall::EXIT;
 		else if (funcName == "gc")
 			return SysCall::GC;
+		else if (funcName == "gc_count")
+			return SysCall::GC_COUNT;
 		else if (funcName == "input")
 			return SysCall::INPUT;
 		else if (funcName == "output")
@@ -43,6 +46,8 @@ namespace Powder
 			return SysCall::MODULE;
 		else if (funcName == "run")
 			return SysCall::RUN_SCRIPT;
+		else if (funcName == "sleep")
+			return SysCall::SLEEP;
 
 		return SysCall::UNKNOWN;
 	}
@@ -55,6 +60,8 @@ namespace Powder
 				return 0;
 			case SysCall::GC:
 				return 0;
+			case SysCall::GC_COUNT:
+				return 0;
 			case SysCall::INPUT:
 				return 0;
 			case SysCall::OUTPUT:
@@ -62,6 +69,8 @@ namespace Powder
 			case SysCall::MODULE:
 				return 1;
 			case SysCall::RUN_SCRIPT:
+				return 1;
+			case SysCall::SLEEP:
 				return 1;
 		}
 
@@ -137,6 +146,24 @@ namespace Powder
 				std::string scriptAbsolutePath = pathResolver.ResolvePath(scriptRelativePath, PathResolver::SEARCH_CWD);
 				virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
 				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				programBufferLocation += 2;
+				break;
+			}
+			case SysCall::SLEEP:
+			{
+				Value* value = executor->PopValueFromEvaluationStackTop();
+				double sleepSeconds = value->AsNumber();
+				if (sleepSeconds > 0.0)
+					::Sleep(DWORD(sleepSeconds * 1000.0f));
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				programBufferLocation += 2;
+				break;
+			}
+			case SysCall::GC_COUNT:
+			{
+				uint32_t count = GarbageCollector::GC()->HonestCollectableCount();
+				NumberValue* numberValue = new NumberValue(count);
+				executor->PushValueOntoEvaluationStackTop(numberValue);
 				programBufferLocation += 2;
 				break;
 			}
