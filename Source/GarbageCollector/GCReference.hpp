@@ -57,6 +57,14 @@ namespace Powder
 				this->pointer->ConnectTo(this);
 		}
 
+		void Clear(void)
+		{
+			if (this->pointer)
+				this->pointer->DisconnectFrom(this);
+
+			this->pointer = nullptr;
+		}
+
 		T* operator->()
 		{
 			return pointer;

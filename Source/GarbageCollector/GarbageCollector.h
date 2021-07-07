@@ -27,18 +27,18 @@ namespace Powder
 		// reclaimed, but it could take a bit more time than is generally desirable.
 		void Run();
 
-		// This runs the GC over all currently known objects.  You might call this
-		// at program end to free all remaining memory, which will happen if at the
-		// point of being called, all reference objects are out of scope or otherwise
-		// deleted.
-		void FullPass();
+		// This will take the time to purge as much memory as can possibly be
+		// reclaimed at the point of being called.
+		void FullPurge();
 
-		// This may need to be overridden to prevent us from freeing allocations in
-		// the wrong heap.
 		virtual void Delete(GCObject* object);
+
+		uint32_t RemainingObjectCount() { return this->objectSet->size(); }
 
 	protected:
 		
+		GCObject* FindUnvisitedObject();
+
 		std::set<GCObject*>* objectSet;
 		uint32_t visitNumber;
 	};

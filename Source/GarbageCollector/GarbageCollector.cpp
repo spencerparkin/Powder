@@ -14,41 +14,31 @@ namespace Powder
 		delete this->objectSet;
 	}
 
+	GCObject* GarbageCollector::FindUnvisitedObject()
+	{
+		// TODO: We really should make this an O(1) operation
+		//       by, perhaps, keeping track of which objects
+		//       we've visited, and which we haven't, in two
+		//       different sets.  A single pass is just a
+		//       matter of transfering one set into the other.
+		for(GCObject* object : *this->objectSet)
+			if (object->visitNumber != this->visitNumber)
+				return object;
+
+		return nullptr;
+	}
+
 	void GarbageCollector::Run()
 	{
 		if (this->objectSet->size() == 0)
 			return;
 		
-		// Look for an object that can be the start of a BFS for a spanning tree.
-		// This is an object we have not yet visited.  Once we find that we have
-		// visited them all, we start over.
-		// TODO: One idea that came to mind is that whenever a GCReference goes out of
-		//       scope, we could have it recommend to us its referenced objects as a
-		//       good possible start for a BFS.  If we only fallow these leads, then
-		//       we're less likely to waste time doing BFS-es on objects that cannot
-		//       be collected.
 		std::list<GCObject*> objectQueue;
-		while (objectQueue.size() == 0)
-		{
-			std::set<GCObject*>::iterator setIter = this->objectSet->begin();
-			while (true)
-			{
-				GCObject* object = *setIter;
-				if (object->visitNumber != this->visitNumber)
-				{
-					objectQueue.push_back(object);
-					object->visitNumber = this->visitNumber;
-					break;
-				}
-
-				setIter++;
-				if (setIter == this->objectSet->end())
-				{
-					this->visitNumber++;
-					break;
-				}
-			}
-		}
+		GCObject* object = this->FindUnvisitedObject();
+		if (!object)
+			this->visitNumber++;
+		else
+			objectQueue.push_back(object);
 
 		// Notice that we don't terminate early if we find a reference, because we
 		// want to mark all objects in the spanning tree as visited so that the next
@@ -60,6 +50,7 @@ namespace Powder
 			std::list<GCObject*>::iterator listIter = objectQueue.begin();
 			GCObject* object = *listIter;
 			objectQueue.erase(listIter);
+			object->visitNumber = this->visitNumber;
 
 			if (object->IsReference())
 				referenceFound = true;
@@ -71,10 +62,7 @@ namespace Powder
 			{
 				GCObject* adjacentObject = *setIter;
 				if (adjacentObject->visitNumber != this->visitNumber)
-				{
 					objectQueue.push_back(adjacentObject);
-					adjacentObject->visitNumber = this->visitNumber;
-				}
 			}
 		}
 
@@ -89,12 +77,23 @@ namespace Powder
 		}
 	}
 
-	void GarbageCollector::FullPass()
+	void GarbageCollector::FullPurge()
 	{
-		this->visitNumber++;
-		uint32_t nextVisitNumber = this->visitNumber + 1;
-		while (this->visitNumber < nextVisitNumber && this->objectSet->size() > 0)
-			this->Run();
+		uint32_t objectCount = 0;
+		do
+		{
+			objectCount = this->RemainingObjectCount();
+
+			this->visitNumber++;
+			uint32_t nextVisitNumber = this->visitNumber + 1;
+			while (this->visitNumber < nextVisitNumber && this->objectSet->size() > 0)
+				this->Run();
+
+			// We must make another pass if the object count dropped,
+			// because this may have also released reference objects
+			// that were holding onto collectables that didn't get
+			// freed in the previous pass.
+		} while (objectCount > this->RemainingObjectCount() && this->objectSet->size() > 0);
 	}
 
 	/*virtual*/ void GarbageCollector::Delete(GCObject* object)

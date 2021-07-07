@@ -54,7 +54,16 @@ int main(int argc, char** argv)
 		}
 	}
 
-	GarbageCollector::GC()->FullPass();
+	GarbageCollector::GC()->FullPurge();
+	uint32_t objectCount = GarbageCollector::GC()->RemainingObjectCount();
+	if (objectCount > 0)
+	{
+		std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+		std::cerr << "Leaked " << objectCount << " object(s) in the GC system." << std::endl;
+		std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+
+		GarbageCollector::GC()->FullPurge();
+	}
 
     return 0;
 }

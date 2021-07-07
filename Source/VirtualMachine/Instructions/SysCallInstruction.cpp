@@ -80,7 +80,7 @@ namespace Powder
 			}
 			case SysCall::GC:
 			{
-				GarbageCollector::GC()->FullPass();
+				GarbageCollector::GC()->FullPurge();
 				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				programBufferLocation += 2;
 				break;
