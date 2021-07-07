@@ -43,6 +43,9 @@ namespace Powder
 
 	/*virtual*/ Executor::Result Executor::Execute(const Executable* executable, VirtualMachine* virtualMachine)
 	{
+		uint32_t gcRunRequency = 10;
+		uint32_t tickCount = 0;
+
 		while (this->programBufferLocation < executable->byteCodeBufferSize)
 		{
 			uint8_t opCode = executable->byteCodeBuffer[this->programBufferLocation];
@@ -54,7 +57,15 @@ namespace Powder
 			if (result != Executor::Result::CONTINUE)
 				return result;
 
-			// TODO: Run garbage collector here periodically, but once every tick might be too much.  Figure it out.
+			// TODO: A single run of the GC is still potentially too slow, because if, say, there
+			//       is a list of several thousand strings, we may try to go iterate that whole
+			//       list right here and now.  We might be able to fix this by turning the run
+			//       into an incremental state machine so that a BFS can be resumed where it left
+			//       off.  The tricky part is knowing that the spanning tree we're trying to find
+			//       could be growing while we're trying to find it.  We must convince ourselves
+			//       that this isn't a problem with whatever alogirhtm we come up with.
+			if (tickCount++ % gcRunRequency == 0)
+				GarbageCollector::GC()->Run();
 		}
 
 		return Result::HALT;

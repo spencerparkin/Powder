@@ -1,5 +1,6 @@
 #include "GCObject.h"
 #include "GarbageCollector.h"
+#include <assert.h>
 
 namespace Powder
 {
@@ -8,13 +9,13 @@ namespace Powder
 		this->placementNewUsed = false;
 		this->visitNumber = 0;
 		this->adjacencies = new std::set<GCObject*>();
-		GarbageCollector::GC()->objectSet->insert(this);
+		GarbageCollector::GC()->Remember(this);
 	}
 	
 	/*virtual*/ GCObject::~GCObject()
 	{
 		delete this->adjacencies;
-		GarbageCollector::GC()->objectSet->erase(this);
+		GarbageCollector::GC()->Forget(this);
 	}
 
 	void GCObject::ConnectTo(GCObject* object)
