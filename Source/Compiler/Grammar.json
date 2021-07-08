@@ -41,7 +41,9 @@
   ],
   "function-definition": [
     [ "func", "(", ")", "block" ],
-    [ "func", "(", "identifier-list", ")", "block" ]
+    [ "func", "(", "identifier-list", ")", "block" ],
+    [ "func", "[", "capture-list", "]", "(", ")", "block" ],
+    [ "func", "[", "capture-list", "]", "(", "identifier-list", ")", "block" ]
   ],
   "identifier-list": [
     [ "identifier-list", ",", "identifier-list" ],
@@ -169,5 +171,9 @@
   ],
   "argument": [
     [ "expression" ]
+  ],
+  "capture-list": [
+    [ "capture-list", ",", "capture-list" ],
+    [ "identifier" ]
   ]
 }

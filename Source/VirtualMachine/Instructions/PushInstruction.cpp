@@ -7,6 +7,7 @@
 #include "ListValue.h"
 #include "MapValue.h"
 #include "AddressValue.h"
+#include "ClosureValue.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
@@ -67,10 +68,12 @@ namespace Powder
 				break;
 			}
 			case DataType::ADDRESS:
+			case DataType::CLOSURE:
 			{
 				uint64_t programBufferAddress = 0L;
 				::memcpy_s(&programBufferAddress, sizeof(uint64_t), &programBuffer[programBufferLocation + 2], sizeof(uint64_t));
-				executor->PushValueOntoEvaluationStackTop(new AddressValue(executable, programBufferAddress));
+				AddressValue* addressValue = (pushType == DataType::ADDRESS) ? new AddressValue(executable, programBufferAddress) : new ClosureValue(executable, programBufferAddress);
+				executor->PushValueOntoEvaluationStackTop(addressValue);
 				programBufferLocation += 2 + sizeof(uint64_t);
 				break;
 			}
@@ -106,7 +109,7 @@ namespace Powder
 			}
 			else if (typeEntry->code == DataType::NUMBER)
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(double), &dataEntry->number, sizeof(double));
-			else if (typeEntry->code == DataType::ADDRESS)
+			else if (typeEntry->code == DataType::ADDRESS || typeEntry->code == DataType::CLOSURE)
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(uint64_t), &dataEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 		}
 
@@ -117,7 +120,7 @@ namespace Powder
 			programBufferLocation += uint64_t(dataEntry->string.length()) + 1L;
 		else if (typeEntry->code == DataType::NUMBER)
 			programBufferLocation += sizeof(double);
-		else if (typeEntry->code == DataType::ADDRESS)
+		else if (typeEntry->code == DataType::ADDRESS || typeEntry->code == DataType::CLOSURE)
 			programBufferLocation += sizeof(uint64_t);
 	}
 
@@ -136,7 +139,7 @@ namespace Powder
 				detail += dataEntry->string;
 			else if (typeEntry->code == DataType::NUMBER)
 				detail += FormatString("%f", dataEntry->number);
-			else if (typeEntry->code == ADDRESS)
+			else if (typeEntry->code == ADDRESS || typeEntry->code == CLOSURE)
 				detail += FormatString("%04d", dataEntry->instruction->assemblyData->programBufferLocation);
 			else if (typeEntry->code == UNDEFINED)
 				detail += "undef";

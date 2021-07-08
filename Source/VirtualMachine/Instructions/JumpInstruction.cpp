@@ -1,6 +1,7 @@
 #include "JumpInstruction.h"
 #include "Scope.h"
 #include "AddressValue.h"
+#include "ClosureValue.h"
 #include "Assembler.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
@@ -45,6 +46,11 @@ namespace Powder
 				{
 					programBufferLocation = addressValue->programBufferLocation;
 					executable = addressValue->executable.Get();
+
+					ClosureValue* closureValue = dynamic_cast<ClosureValue*>(addressValue);
+					if (closureValue)
+						executor->AbsorbScope(closureValue->scope);
+
 					break;
 				}
 				

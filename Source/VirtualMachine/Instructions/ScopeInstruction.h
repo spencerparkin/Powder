@@ -15,7 +15,8 @@ namespace Powder
 		enum ScopeOp
 		{
 			PUSH,
-			POP
+			POP,
+			BIND
 		};
 
 		virtual uint32_t Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;

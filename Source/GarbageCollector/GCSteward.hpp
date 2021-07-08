@@ -41,6 +41,16 @@ namespace Powder
 				this->owner->OwnObject(this->object);
 		}
 
+		operator T* ()
+		{
+			return this->object;
+		}
+
+		operator const T* () const
+		{
+			return this->object;
+		}
+
 	private:
 
 		T* object;

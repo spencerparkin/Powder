@@ -211,6 +211,9 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\AssignmentExpressionHandler.cpp">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Values\ClosureValue.cpp">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -413,6 +416,9 @@
     </ClInclude>
     <ClInclude Include="Source\Compiler\SyntaxHandlers\AssignmentExpressionHandler.h">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Values\ClosureValue.h">
+      <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

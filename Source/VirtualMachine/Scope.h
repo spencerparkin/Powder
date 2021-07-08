@@ -24,6 +24,8 @@ namespace Powder
 		Scope* GetContainingScope();
 		void SetContainingScope(Scope* containingScope);
 
+		void Absorb(Scope* scope);
+
 	private:
 
 		GCSteward<Scope> containingScope;

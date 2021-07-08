@@ -51,4 +51,12 @@ namespace Powder
 	{
 		this->valueMap.Remove(identifier);
 	}
+
+	void Scope::Absorb(Scope* scope)
+	{
+		scope->valueMap.ForAllEntries([this](const char* key, Value* value) -> bool {
+			this->StoreValue(key, value);
+			return true;
+		});
+	}
 }

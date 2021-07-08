@@ -72,6 +72,7 @@
     <ClCompile Include="Source\VirtualMachine\Value.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\AddressValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\BooleanValue.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\ClosureValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\ContainerValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\CppFunctionValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\ListValue.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="Source\VirtualMachine\Value.h" />
     <ClInclude Include="Source\VirtualMachine\Values\AddressValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\BooleanValue.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\ClosureValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\ContainerValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\CppFunctionValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\ListValue.h" />

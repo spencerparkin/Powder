@@ -1,0 +1,13 @@
+# Closure.pow
+
+make_greeting_func = func(who) {
+    return func[who]() {
+        output("Hello, " + who + "!\n");
+    }
+};
+
+greet_bob_func = make_greeting_func("Bob");
+greet_alice_func = make_greeting_func("Alice");
+
+greet_bob_func();
+greet_alice_func();

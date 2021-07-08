@@ -66,6 +66,9 @@
     <None Include="Examples\GCTest.pow">
       <Filter>Examples</Filter>
     </None>
+    <None Include="Examples\Closure.pow">
+      <Filter>Examples</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Examples\Function.pow">
