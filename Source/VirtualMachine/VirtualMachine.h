@@ -15,6 +15,16 @@ namespace Powder
 	class MapValue;
 	class Instruction;
 
+	// TODO: How would we support debugging of programs that run on the VM?
+	//       Firstly, this is different than embedding or extending the VM.
+	//       A debugger should be able to attach to the VM, no matter where
+	//       it's embedded or extended.  I'm thinking this might mean some
+	//       sort of socket communication protocol where the VM acts as server,
+	//       and a connected client issues commands.  Also, a .pwx file may
+	//       or may not have debug info appended, but it should be debuggable
+	//       in either case.  With debug info, it should be possible to view
+	//       the source code in context of where the VM is executing the program.
+
 	// The goal here is to facilitate a basic procedural-style programming language.
 	// Nothing dictates the syntax of that language here.  Rather, a compiler will
 	// have to be written that targets this virtual machine.  The only, perhaps,

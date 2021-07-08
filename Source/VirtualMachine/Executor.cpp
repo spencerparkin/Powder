@@ -69,6 +69,9 @@ namespace Powder
 			//       there be some sort of dynamic system in place to call the GC more
 			//       or less to keep our memory usage within a certain limit?
 			GarbageCollector::GC()->Run();
+			GarbageCollector::GC()->Run();
+			GarbageCollector::GC()->Run();
+			GarbageCollector::GC()->Run();
 #endif
 		}
 
