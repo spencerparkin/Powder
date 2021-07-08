@@ -510,20 +510,23 @@ namespace Powder
 		for (LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
 		{
 			SyntaxNode* childNode = node->value;
-			if (childNode->childList.GetCount() == 1 &&
-					(*childNode->name == *this->name ||
-					*childNode->name == "expression" ||
-					*childNode->name == "statement" ||
-					*childNode->name == "embedded-statement" ||
-					*childNode->name == "block" ||
-					*childNode->name == "unary-expression" ||
-					*childNode->name == "argument"))
+			if (*childNode->name != "function-call")
 			{
-				SyntaxNode* newChildNode = childNode->childList.GetHead()->value;
-				childNode->childList.RemoveAll();
-				delete childNode;
-				node->value = newChildNode;
-				performedReduction = true;
+				if (childNode->childList.GetCount() == 1 &&
+					(*childNode->name == *this->name ||
+						*childNode->name == "expression" ||
+						*childNode->name == "statement" ||
+						*childNode->name == "embedded-statement" ||
+						*childNode->name == "block" ||
+						*childNode->name == "unary-expression" ||
+						*childNode->name == "argument"))
+				{
+					SyntaxNode* newChildNode = childNode->childList.GetHead()->value;
+					childNode->childList.RemoveAll();
+					delete childNode;
+					node->value = newChildNode;
+					performedReduction = true;
+				}
 			}
 		}
 
