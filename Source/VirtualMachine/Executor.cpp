@@ -22,9 +22,9 @@ namespace Powder
 		delete this->evaluationStack;
 	}
 
-	bool Executor::PushScope()
+	bool Executor::PushScope(Scope* scope /*= nullptr*/)
 	{
-		Scope* newScope = new Scope();
+		Scope* newScope = scope ? scope : new Scope();
 		newScope->SetContainingScope(this->currentScope);
 		this->currentScope = newScope;
 		return true;

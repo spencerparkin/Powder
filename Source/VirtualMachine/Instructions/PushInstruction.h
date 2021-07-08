@@ -19,7 +19,8 @@ namespace Powder
 			STRING,
 			EMPTY_LIST,
 			EMPTY_MAP,
-			ADDRESS
+			ADDRESS,
+			CLOSURE
 		};
 
 		virtual uint32_t Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) override;

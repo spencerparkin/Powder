@@ -1,6 +1,7 @@
 #include "JumpInstruction.h"
 #include "Scope.h"
 #include "AddressValue.h"
+#include "ClosureValue.h"
 #include "Assembler.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
@@ -45,6 +46,16 @@ namespace Powder
 				{
 					programBufferLocation = addressValue->programBufferLocation;
 					executable = addressValue->executable.Get();
+
+					ClosureValue* closureValue = dynamic_cast<ClosureValue*>(addressValue);
+					if (closureValue)
+					{
+						// Scope was already pushed for the call as part of the calling convention, but such a convention
+						// is typically compiler-specific, so this doesn't feel terribly elligant or clean, but it will work.
+						executor->PopScope();
+						executor->PushScope(closureValue->scope);
+					}
+
 					break;
 				}
 				

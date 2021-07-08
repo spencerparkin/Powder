@@ -3,6 +3,7 @@
 #include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
+#include "ClosureValue.h"
 
 namespace Powder
 {
@@ -33,6 +34,14 @@ namespace Powder
 			case ScopeOp::POP:
 			{
 				executor->PopScope();
+				break;
+			}
+			case ScopeOp::BIND:
+			{
+				ClosureValue* closureValue = dynamic_cast<ClosureValue*>(executor->StackTop());
+				if (!closureValue)
+					throw new RunTimeException("Bind-pop scope operation expected closure value on eval-stack top.");
+				closureValue->scope.Set(executor->GetCurrentScope());
 				break;
 			}
 			default:

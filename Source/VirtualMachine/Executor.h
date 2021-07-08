@@ -27,7 +27,7 @@ namespace Powder
 
 		virtual Result Execute(const Executable* executable, VirtualMachine* virtualMachine);
 
-		bool PushScope();
+		bool PushScope(Scope* scope = nullptr);
 		bool PopScope();
 
 		Scope* GetCurrentScope() { return this->currentScope.Ptr(); }

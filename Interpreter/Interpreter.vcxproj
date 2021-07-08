@@ -22,6 +22,7 @@
     <ClCompile Include="Source\Interpreter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Examples\Closure.pow" />
     <None Include="Examples\DoWhile.pow" />
     <None Include="Examples\Fibbonacci.pow" />
     <None Include="Examples\Fork.pow" />

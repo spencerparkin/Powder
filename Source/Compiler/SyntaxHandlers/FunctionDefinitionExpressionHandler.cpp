@@ -1,10 +1,12 @@
 #include "FunctionDefinitionExpressionHandler.h"
 #include "PushInstruction.h"
 #include "ListInstruction.h"
+#include "LoadInstruction.h"
 #include "StoreInstruction.h"
 #include "PopInstruction.h"
 #include "LoadInstruction.h"
 #include "JumpInstruction.h"
+#include "ScopeInstruction.h"
 #include "Assembler.h"
 
 namespace Powder
@@ -25,10 +27,53 @@ namespace Powder
 
 		// Push the address of the function onto the eval-stack.  This allows for storing it in a variable or just immediately calling it.
 		PushInstruction* funcAddressPushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
+		const Parser::SyntaxNode* captureListNode = syntaxNode->FindChild("capture-list", 1);
 		AssemblyData::Entry entry;
-		entry.code = PushInstruction::DataType::ADDRESS;
+		entry.code = (captureListNode != nullptr) ? PushInstruction::DataType::CLOSURE : PushInstruction::DataType::ADDRESS;
 		funcAddressPushInstruction->assemblyData->configMap.Insert("type", entry);
 		instructionList.AddTail(funcAddressPushInstruction);
+
+		// If we're dealing with a closure here, it's now time to capture values for the closure.
+		if (captureListNode)
+		{
+			// Push scope that will capture the values for the closure.
+			ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(captureListNode->fileLocation);
+			entry.Reset();
+			entry.code = ScopeInstruction::ScopeOp::PUSH;
+			scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
+			instructionList.AddTail(scopeInstruction);
+
+			// Capture the desired values from the scope containing the current scope in the current scope.
+			for (const LinkedList<Parser::SyntaxNode*>::Node* node = captureListNode->childList.GetHead(); node; node = node->GetNext())
+			{
+				const Parser::SyntaxNode* captureNode = node->value;
+				if (*captureNode->name != "identifier")
+					throw new CompileTimeException("Expected all children of \"capture-list\" in AST to be \"identifier\".", &captureNode->fileLocation);
+
+				entry.Reset();
+				entry.string = *captureNode->childList.GetHead()->value->name;
+				LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(captureNode->fileLocation);
+				loadInstruction->assemblyData->configMap.Insert("name", entry);
+				instructionList.AddTail(loadInstruction);
+				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(captureNode->fileLocation);
+				storeInstruction->assemblyData->configMap.Insert("name", entry);
+				instructionList.AddTail(storeInstruction);
+			}
+
+			// Bind the current scope to the closure.
+			scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(captureListNode->fileLocation);
+			entry.Reset();
+			entry.code = ScopeInstruction::ScopeOp::BIND;
+			scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
+			instructionList.AddTail(scopeInstruction);
+
+			// Lastly, pop the scope bound to the closure.
+			scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(captureListNode->fileLocation);
+			entry.Reset();
+			entry.code = ScopeInstruction::ScopeOp::POP;
+			scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
+			instructionList.AddTail(scopeInstruction);
+		}
 
 		// Typically we'll just be storing the function address rather than calling it immediately, so we'll want to jump over the definition.
 		JumpInstruction* hopeOverFuncInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);

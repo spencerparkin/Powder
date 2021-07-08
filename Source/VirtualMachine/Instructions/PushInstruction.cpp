@@ -7,6 +7,7 @@
 #include "ListValue.h"
 #include "MapValue.h"
 #include "AddressValue.h"
+#include "ClosureValue.h"
 #include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
@@ -67,10 +68,12 @@ namespace Powder
 				break;
 			}
 			case DataType::ADDRESS:
+			case DataType::CLOSURE:
 			{
 				uint64_t programBufferAddress = 0L;
 				::memcpy_s(&programBufferAddress, sizeof(uint64_t), &programBuffer[programBufferLocation + 2], sizeof(uint64_t));
-				executor->PushValueOntoEvaluationStackTop(new AddressValue(executable, programBufferAddress));
+				AddressValue* addressValue = (pushType == DataType::ADDRESS) ? new AddressValue(executable, programBufferAddress) : new ClosureValue(executable, programBufferAddress);
+				executor->PushValueOntoEvaluationStackTop(addressValue);
 				programBufferLocation += 2 + sizeof(uint64_t);
 				break;
 			}
