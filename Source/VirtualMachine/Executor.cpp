@@ -41,6 +41,11 @@ namespace Powder
 		return true;
 	}
 
+	void Executor::AbsorbScope(Scope* scope)
+	{
+		this->currentScope->Absorb(scope);
+	}
+
 	/*virtual*/ Executor::Result Executor::Execute(const Executable* executable, VirtualMachine* virtualMachine)
 	{
 		while (this->programBufferLocation < executable->byteCodeBufferSize)
@@ -48,7 +53,7 @@ namespace Powder
 			uint8_t opCode = executable->byteCodeBuffer[this->programBufferLocation];
 			Instruction* instruction = virtualMachine->LookupInstruction(opCode);
 			if (!instruction)
-				throw new RunTimeException(FormatString("Encountered unknown opcode 0x%04x", opCode));
+				throw new RunTimeException(FormatString("Encountered unknown opcode 0x%04x at program location %04d.", opCode, this->programBufferLocation));
 
 			Executor::Result result = (Executor::Result)instruction->Execute(executable, this->programBufferLocation, this, virtualMachine);
 			if (result != Executor::Result::CONTINUE)

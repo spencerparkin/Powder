@@ -79,8 +79,14 @@ namespace Powder
 		const AssemblyData::Entry* scopeOpEntry = this->assemblyData->configMap.LookupPtr("scopeOp");
 		if (!scopeOpEntry)
 			detail += "?";
+		else if (scopeOpEntry->code == ScopeOp::PUSH)
+			detail += "push";
+		else if (scopeOpEntry->code == ScopeOp::POP)
+			detail += "pop";
+		else if (scopeOpEntry->code == ScopeOp::BIND)
+			detail += "bind";
 		else
-			detail += (scopeOpEntry->code == ScopeOp::PUSH) ? "push" : "pop";
+			detail += "???";
 		return detail;
 	}
 #endif

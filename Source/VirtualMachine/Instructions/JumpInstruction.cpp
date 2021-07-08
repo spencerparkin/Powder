@@ -49,12 +49,7 @@ namespace Powder
 
 					ClosureValue* closureValue = dynamic_cast<ClosureValue*>(addressValue);
 					if (closureValue)
-					{
-						// Scope was already pushed for the call as part of the calling convention, but such a convention
-						// is typically compiler-specific, so this doesn't feel terribly elligant or clean, but it will work.
-						executor->PopScope();
-						executor->PushScope(closureValue->scope);
-					}
+						executor->AbsorbScope(closureValue->scope);
 
 					break;
 				}

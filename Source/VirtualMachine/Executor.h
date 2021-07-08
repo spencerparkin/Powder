@@ -32,6 +32,8 @@ namespace Powder
 
 		Scope* GetCurrentScope() { return this->currentScope.Ptr(); }
 
+		void AbsorbScope(Scope* scope);
+
 		void LoadAndPushValueOntoEvaluationStackTop(const char* identifier);
 		void StoreAndPopValueFromEvaluationStackTop(const char* identifier);
 
