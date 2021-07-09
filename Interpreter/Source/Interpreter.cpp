@@ -5,6 +5,7 @@
 #include "VirtualMachine.h"
 #include "Exceptions.hpp"
 #include "GarbageCollector.h"
+#include "Debugger.h"
 
 int main(int argc, char** argv)
 {
@@ -14,7 +15,8 @@ int main(int argc, char** argv)
 	// This ensures that the VM has no excuse for leaking anything.
 	{
 		Compiler compiler;
-		VirtualMachine vm(&compiler);
+		Debugger debugger(1701);
+		VirtualMachine vm(&compiler, &debugger);
 
 		if (argc < 2)
 		{

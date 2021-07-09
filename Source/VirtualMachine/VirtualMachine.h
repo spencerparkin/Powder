@@ -15,16 +15,6 @@ namespace Powder
 	class MapValue;
 	class Instruction;
 
-	// TODO: How would we support debugging of programs that run on the VM?
-	//       Firstly, this is different than embedding or extending the VM.
-	//       A debugger should be able to attach to the VM, no matter where
-	//       it's embedded or extended.  I'm thinking this might mean some
-	//       sort of socket communication protocol where the VM acts as server,
-	//       and a connected client issues commands.  Also, a .pwx file may
-	//       or may not have debug info appended, but it should be debuggable
-	//       in either case.  With debug info, it should be possible to view
-	//       the source code in context of where the VM is executing the program.
-
 	// The goal here is to facilitate a basic procedural-style programming language.
 	// Nothing dictates the syntax of that language here.  Rather, a compiler will
 	// have to be written that targets this virtual machine.  The only, perhaps,
@@ -38,8 +28,9 @@ namespace Powder
 	{
 	public:
 		class CompilerInterface;
+		class DebuggerInterface;
 
-		VirtualMachine(CompilerInterface* compiler);
+		VirtualMachine(CompilerInterface* compiler, DebuggerInterface* debugger);
 		virtual ~VirtualMachine();
 
 		void ExecuteByteCode(const Executable* executable, Scope* scope);
@@ -54,6 +45,15 @@ namespace Powder
 			virtual Executable* CompileCode(const char* programSourceCode) = 0;
 		};
 
+		class POWDER_API DebuggerInterface
+		{
+		public:
+			DebuggerInterface() {}
+			virtual ~DebuggerInterface() {}
+
+			virtual void TrapExecution(const Executable* executable, Executor* executor) = 0;
+		};
+
 		void ExecuteSourceCodeFile(const std::string& programSourceCodePath, Scope* scope = nullptr);
 		void ExecuteSourceCode(const std::string& programSourceCode, const std::string& programSourceCodePath, Scope* scope = nullptr);
 
@@ -63,6 +63,9 @@ namespace Powder
 
 		Instruction* LookupInstruction(uint8_t programOpCode);
 
+		DebuggerInterface* GetDebugger() { return this->debugger; }
+		void SetDebugger(DebuggerInterface* debugger) { this->debugger = debugger; }
+
 	protected:
 
 		typedef LinkedList<Executor*> ExecutorList;
@@ -70,6 +73,7 @@ namespace Powder
 		typedef HashMap<Instruction*> InstructionMap;
 
 		CompilerInterface* compiler;
+		DebuggerInterface* debugger;
 		GCReference<Scope> globalScope;
 		ModuleMap moduleMap;
 		InstructionMap instructionMap;

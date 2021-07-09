@@ -25,9 +25,10 @@
 
 namespace Powder
 {
-	VirtualMachine::VirtualMachine(CompilerInterface* compiler)
+	VirtualMachine::VirtualMachine(CompilerInterface* compiler, DebuggerInterface* debugger)
 	{
 		this->compiler = compiler;
+		this->debugger = debugger;
 		this->globalScope = new Scope();		// This gets deleted by the GC.
 		this->executorListStack = new std::vector<ExecutorList*>();
 		this->RegisterInstruction<BranchInstruction>();

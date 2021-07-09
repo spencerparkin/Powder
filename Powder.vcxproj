@@ -46,6 +46,7 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\Tokenizer.cpp" />
+    <ClCompile Include="Source\Debugger.cpp" />
     <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCObject.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.h" />
     <ClInclude Include="Source\Compiler\Tokenizer.h" />
+    <ClInclude Include="Source\Debugger.h" />
     <ClInclude Include="Source\Defines.h" />
     <ClInclude Include="Source\Exceptions.hpp" />
     <ClInclude Include="Source\GarbageCollector\GarbageCollector.h" />
@@ -235,6 +237,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -256,6 +259,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -273,6 +277,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -294,6 +299,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
