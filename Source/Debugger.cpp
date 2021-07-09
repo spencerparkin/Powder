@@ -33,7 +33,7 @@ namespace Powder
 
 	/*virtual*/ void Debugger::TrapExecution(const Executable* executable, Executor* executor)
 	{
-		//...
+		// TODO: When we choose to break execution, block on a semephore that is only released by the server thread.
 	}
 
 	/*static*/ DWORD Debugger::ThreadFunc(LPVOID param)
