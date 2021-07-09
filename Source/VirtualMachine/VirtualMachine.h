@@ -5,6 +5,8 @@
 #include "GCReference.hpp"
 #include "LinkedList.hpp"
 #include "HashMap.hpp"
+#include "Value.h"
+#include "Scope.h"
 
 namespace Powder
 {

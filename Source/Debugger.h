@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Defines.h"
 #include "Scope.h"
 #include "Value.h"
 #include "VirtualMachine.h"
@@ -11,7 +12,7 @@
 
 namespace Powder
 {
-	class Debugger : public VirtualMachine::DebuggerInterface
+	class POWDER_API Debugger : public VirtualMachine::DebuggerInterface
 	{
 	public:
 		Debugger(uint16_t port);

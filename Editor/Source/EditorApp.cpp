@@ -1,9 +1,11 @@
 #include "EditorApp.h"
+#include "EditorFrame.h"
 
 wxIMPLEMENT_APP(EditorApp);
 
 EditorApp::EditorApp()
 {
+	this->frame = nullptr;
 }
 
 /*virtual*/ EditorApp::~EditorApp()
@@ -15,12 +17,11 @@ EditorApp::EditorApp()
 	if (!wxApp::OnInit())
 		return false;
 
-	// TODO: Make and show frame here.
-	// TODO: App lets you open/close a directory.  Once opened, a tree of .pow files is shown on left.
-	//       You can then double-click on files in the tree to open them.  Closing the files is done
-	//       by just closing the tab.
+	this->frame = new EditorFrame(nullptr, wxDefaultPosition, wxSize(1000, 800));
+	this->frame->Show();
+
 	// TODO: This app embeds the Powder VM and attaches to it by default, but you could attach to some
-	//       other VM embedded elsewhere if you want.
+	//       other Powder VM embedded elsewhere if you want.
 
 	return true;
 }

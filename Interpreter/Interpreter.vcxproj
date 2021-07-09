@@ -114,7 +114,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;POWDER_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values;../Source/ThirdParty</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values;../Source/ThirdParty</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,7 +148,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values;../Source/ThirdParty</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -164,7 +164,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values;../Source/ThirdParty</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

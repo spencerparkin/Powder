@@ -47,7 +47,7 @@ namespace Powder
 	{
 		WSADATA data;
 		int result = ::WSAStartup(MAKEWORD(2, 2), &data);
-		assert(result != 0);
+		assert(result == 0);
 
 		this->listeningSocket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		assert(this->listeningSocket != INVALID_SOCKET);

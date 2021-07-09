@@ -14,9 +14,33 @@
     <ClInclude Include="Source\EditorApp.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\EditorFrame.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DirectoryTreeControl.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SourceFileNotebookControl.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SourceFileEditControl.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\EditorApp.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\EditorFrame.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DirectoryTreeControl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SourceFileNotebookControl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SourceFileEditControl.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
