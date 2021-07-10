@@ -6,6 +6,8 @@ wxIMPLEMENT_APP(EditorApp);
 EditorApp::EditorApp()
 {
 	this->frame = nullptr;
+	this->vmAttachment = nullptr;
+	this->vmRun = nullptr;
 }
 
 /*virtual*/ EditorApp::~EditorApp()
@@ -19,9 +21,6 @@ EditorApp::EditorApp()
 
 	this->frame = new EditorFrame(nullptr, wxDefaultPosition, wxSize(1000, 800));
 	this->frame->Show();
-
-	// TODO: This app embeds the Powder VM and attaches to it by default, but you could attach to some
-	//       other Powder VM embedded elsewhere if you want.
 
 	return true;
 }

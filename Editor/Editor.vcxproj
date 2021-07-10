@@ -24,6 +24,8 @@
     <ClCompile Include="Source\EditorFrame.cpp" />
     <ClCompile Include="Source\SourceFileEditControl.cpp" />
     <ClCompile Include="Source\SourceFileNotebookControl.cpp" />
+    <ClCompile Include="Source\VMAttachment.cpp" />
+    <ClCompile Include="Source\VMRun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\DirectoryTreeControl.h" />
@@ -31,6 +33,8 @@
     <ClInclude Include="Source\EditorFrame.h" />
     <ClInclude Include="Source\SourceFileEditControl.h" />
     <ClInclude Include="Source\SourceFileNotebookControl.h" />
+    <ClInclude Include="Source\VMAttachment.h" />
+    <ClInclude Include="Source\VMRun.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
