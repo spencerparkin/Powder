@@ -1,17 +1,18 @@
 #pragma once
 
-#include <wx/notebook.h>
+#include <wx/aui/auibook.h>
 #include <wx/filename.h>
 
 class SourceFileEditControl;
 
-class SourceFileNotebookControl : public wxNotebook
+class SourceFileNotebookControl : public wxAuiNotebook
 {
 public:
 	SourceFileNotebookControl(wxWindow* parent);
 	virtual ~SourceFileNotebookControl();
 
-	void ToggleSourceFile(const wxString& filePath);
+	void OnPageCloseButtonPushed(wxAuiNotebookEvent& event);
+
 	bool OpenSourceFile(const wxString& filePath);
 	bool CloseSourceFile(int pageNumber);
 	void SaveSourceFile(int pageNumber);
@@ -20,5 +21,6 @@ public:
 	void UpdateTabLabelFor(SourceFileEditControl* editControl);
 	bool AnyFilesModified();
 	int OpenFileCount();
+	bool CanClosePage(int pageNumber);
 	SourceFileEditControl* FindEditControl(const wxFileName& filePath, int* pageNumber = nullptr);
 };

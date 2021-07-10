@@ -22,7 +22,7 @@ void DirectoryTreeControl::OnItemActivated(wxTreeEvent& event)
 	if (itemId.IsOk())
 	{
 		ItemData* itemData = dynamic_cast<ItemData*>(this->GetItemData(itemId));
-		wxGetApp().frame->sourceFileNotebookControl->ToggleSourceFile(itemData->filePath);
+		wxGetApp().frame->sourceFileNotebookControl->OpenSourceFile(itemData->filePath);
 	}
 }
 

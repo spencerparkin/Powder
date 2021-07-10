@@ -4,23 +4,42 @@
 #include "EditorFrame.h"
 #include <wx/msgdlg.h>
 
-SourceFileNotebookControl::SourceFileNotebookControl(wxWindow* parent) : wxNotebook(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxNB_MULTILINE)
+SourceFileNotebookControl::SourceFileNotebookControl(wxWindow* parent) : wxAuiNotebook(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize)
 {
+	this->Bind(wxEVT_AUINOTEBOOK_BUTTON, &SourceFileNotebookControl::OnPageCloseButtonPushed, this, wxID_ANY);
 }
 
 /*virtual*/ SourceFileNotebookControl::~SourceFileNotebookControl()
 {
 }
 
-void SourceFileNotebookControl::ToggleSourceFile(const wxString& filePath)
+bool SourceFileNotebookControl::CanClosePage(int pageNumber)
 {
-	if (!this->OpenSourceFile(filePath))
+	SourceFileEditControl* editControl = (SourceFileEditControl*)this->GetPage(pageNumber);
+	if (!editControl->modified)
+		return true;
+	
+	wxString fileName = editControl->GetFilename();
+	wxString messageText = wxString::Format("The file %s is modified.  Save before close?", fileName.c_str());
+	int result = ::wxMessageBox(messageText, wxT("Save changed?"), wxICON_QUESTION | wxYES_NO | wxCANCEL, wxGetApp().frame);
+	if (result == wxYES)
 	{
-		int pageNumber = -1;
-		SourceFileEditControl* editControl = this->FindEditControl(filePath, &pageNumber);
-		if (pageNumber >= 0)
-			this->CloseSourceFile(pageNumber);
+		if (editControl->SaveFile())
+			return true;
+		return false;
 	}
+	else if (result == wxNO)
+		return true;
+	else if (result == wxCANCEL)
+		return false;
+
+	return true;
+}
+
+void SourceFileNotebookControl::OnPageCloseButtonPushed(wxAuiNotebookEvent& event)
+{
+	if (this->CanClosePage(event.GetSelection()))
+		event.Skip();	// Pretend like we didn't handle the event and let the base class handle it as usual.
 }
 
 bool SourceFileNotebookControl::OpenSourceFile(const wxString& filePath)
@@ -30,38 +49,31 @@ bool SourceFileNotebookControl::OpenSourceFile(const wxString& filePath)
 	if (editControl)
 	{
 		if (this->GetSelection() != pageNumber)
-		{
 			this->ChangeSelection(pageNumber);
-			return true;
-		}
 	}
 	else
 	{
 		editControl = new SourceFileEditControl(this, filePath);
-		editControl->LoadFile();
+		if (!editControl->LoadFile())
+		{
+			wxString fileName = editControl->GetFilename();
+			wxString messageText = wxString::Format("The file %s could not be loaded from disk.", fileName.c_str());
+			::wxMessageBox(messageText, "Load failed!", wxICON_ERROR | wxOK, wxGetApp().frame);
+			return false;
+		}
+
 		this->AddPage(editControl, editControl->GetTabLabel(), true);
-		return true;
 	}
 
-	return false;
+	return true;
 }
 
 bool SourceFileNotebookControl::CloseSourceFile(int pageNumber)
 {
-	SourceFileEditControl* editControl = (SourceFileEditControl*)this->GetPage(pageNumber);
-	if (editControl->modified)
-	{
-		wxString fileName = editControl->GetFilename();
-		wxString messageText = wxString::Format("The file %s is modified.  Save before close?", fileName.c_str());
-		int result = ::wxMessageBox(messageText, wxT("Save changed?"), wxICON_QUESTION | wxYES_NO | wxCANCEL, wxGetApp().frame);
-		if (result == wxCANCEL)
-			return false;
-		else if (result == wxYES)
-			editControl->SaveFile();
-	}
+	if (!this->CanClosePage(pageNumber))
+		return false;
 
-	this->RemovePage(pageNumber);
-	return true;
+	return this->RemovePage(pageNumber);
 }
 
 bool SourceFileNotebookControl::CloseAllFiles(void)
