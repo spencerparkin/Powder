@@ -123,10 +123,6 @@ void EditorFrame::OnCloseDirectory(wxCommandEvent& event)
 
 void EditorFrame::OnRunWithDebugger(wxCommandEvent& event)
 {
-	// With or without a debugger, we need to run the VM in its own thread,
-	// because we need the UI responsive even when the script is running.
-	// This also means that we have to consider the thread-safety of wxWidgets
-	// concerning the IO-device we give to the VM.
 }
 
 void EditorFrame::OnRunWithoutDebugger(wxCommandEvent& event)
@@ -167,22 +163,18 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 		}
 		case ID_AttachToVM:
 		{
-			event.Enable(!wxGetApp().vmAttachment);
 			break;
 		}
 		case ID_DetachFromVM:
 		{
-			event.Enable(wxGetApp().vmAttachment);
 			break;
 		}
 		case ID_RunWithDebugger:
 		{
-			event.Enable(!wxGetApp().vmRun && !wxGetApp().vmAttachment && this->sourceFileNotebookControl->OpenFileCount() > 0);
 			break;
 		}
 		case ID_RunWithoutDebugger:
 		{
-			event.Enable(!wxGetApp().vmRun && this->sourceFileNotebookControl->OpenFileCount() > 0);
 			break;
 		}
 	}

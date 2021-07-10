@@ -26,12 +26,6 @@
     <ClInclude Include="Source\SourceFileEditControl.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\VMAttachment.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\VMRun.h">
-      <Filter>Source</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\EditorApp.cpp">
@@ -47,12 +41,6 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\SourceFileEditControl.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\VMAttachment.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\VMRun.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

@@ -214,9 +214,6 @@
     <ClCompile Include="Source\VirtualMachine\Values\ClosureValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Debugger.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -422,9 +419,6 @@
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\ClosureValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugger.h">
-      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

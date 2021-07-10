@@ -6,8 +6,6 @@ wxIMPLEMENT_APP(EditorApp);
 EditorApp::EditorApp()
 {
 	this->frame = nullptr;
-	this->vmAttachment = nullptr;
-	this->vmRun = nullptr;
 }
 
 /*virtual*/ EditorApp::~EditorApp()

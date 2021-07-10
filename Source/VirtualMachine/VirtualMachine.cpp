@@ -18,7 +18,6 @@
 #include "GarbageCollector.h"
 #include "PathResolver.h"
 #include "Compiler.h"
-#include "Debugger.h"
 #include <Windows.h>
 #include <filesystem>
 #include <fstream>
@@ -28,13 +27,14 @@
 
 namespace Powder
 {
-	VirtualMachine::VirtualMachine(CompilerInterface* compiler /*= nullptr*/, DebuggerInterface* debugger /*= nullptr*/, IODevice* ioDevice /*= nullptr*/)
+	VirtualMachine::VirtualMachine(CompilerInterface* compiler /*= nullptr*/, IODevice* ioDevice /*= nullptr*/)
 	{
 		this->compiler = compiler ? compiler : new Compiler();
-		this->debugger = debugger ? debugger : nullptr;
 		this->ioDevice = ioDevice ? ioDevice : new IODevice();
+		
 		this->globalScope = new Scope();		// This gets deleted by the GC.
 		this->executorListStack = new std::vector<ExecutorList*>();
+		
 		this->RegisterInstruction<BranchInstruction>();
 		this->RegisterInstruction<ForkInstruction>();
 		this->RegisterInstruction<JumpInstruction>();
@@ -56,7 +56,6 @@ namespace Powder
 		this->instructionMap.DeleteAndClear();
 		delete this->executorListStack;
 		delete this->compiler;
-		delete this->debugger;
 		delete this->ioDevice;
 	}
 
