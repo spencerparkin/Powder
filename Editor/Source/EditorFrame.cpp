@@ -85,7 +85,9 @@ void EditorFrame::OnAbout(wxCommandEvent& event)
 
 	aboutDialogInfo.SetName("Powder Editor");
 	aboutDialogInfo.SetVersion("1.0");
-	aboutDialogInfo.SetDescription("The Powder VM and associated tools were written by Spencer T. Parkin as a purely academic exercise, and because he had nothing better to do.");
+	aboutDialogInfo.SetDescription("The Powder VM and associated tools were written by Spencer T. Parkin as a purely academic exercise,"
+									"and because he had nothing better to do.  Well, that's not true.  There's always something else I should "
+									"be doing when I'm wasting time on the computer.");
 
 	wxAboutBox(aboutDialogInfo);
 }
