@@ -4,7 +4,8 @@
 #include "EditorFrame.h"
 #include <wx/msgdlg.h>
 
-SourceFileNotebookControl::SourceFileNotebookControl(wxWindow* parent) : wxAuiNotebook(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize)
+SourceFileNotebookControl::SourceFileNotebookControl(wxWindow* parent) : wxAuiNotebook(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+		wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_CLOSE_ON_ALL_TABS)
 {
 	this->Bind(wxEVT_AUINOTEBOOK_BUTTON, &SourceFileNotebookControl::OnPageCloseButtonPushed, this, wxID_ANY);
 }

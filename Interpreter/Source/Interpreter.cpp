@@ -1,11 +1,7 @@
 #include <iostream>
-#include "Compiler.h"
-#include "Value.h"
-#include "Scope.h"
 #include "VirtualMachine.h"
 #include "Exceptions.hpp"
 #include "GarbageCollector.h"
-#include "Debugger.h"
 
 int main(int argc, char** argv)
 {
@@ -14,9 +10,7 @@ int main(int argc, char** argv)
 	// Enter scope for the VM so that we can run the GC once the VM goes out of scope.
 	// This ensures that the VM has no excuse for leaking anything.
 	{
-		Compiler compiler;
-		Debugger debugger(1701);
-		VirtualMachine vm(&compiler, &debugger);
+		VirtualMachine vm;
 
 		if (argc < 2)
 		{

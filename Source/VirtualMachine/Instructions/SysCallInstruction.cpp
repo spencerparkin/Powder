@@ -97,7 +97,7 @@ namespace Powder
 			case SysCall::INPUT:
 			{
 				std::string str;
-				std::getline(std::cin, str);
+				virtualMachine->GetIODevice()->InputString(str);
 
 				Value* value = nullptr;
 
@@ -122,7 +122,7 @@ namespace Powder
 			{
 				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string str = value->ToString();
-				std::cout << str;
+				virtualMachine->GetIODevice()->OutputString(str);
 				executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()));
 				programBufferLocation += 2;
 				break;

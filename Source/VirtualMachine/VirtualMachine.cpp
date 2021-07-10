@@ -17,18 +17,22 @@
 #include "YieldInstruction.h"
 #include "GarbageCollector.h"
 #include "PathResolver.h"
+#include "Compiler.h"
+#include "Debugger.h"
 #include <Windows.h>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include <cstdint>
 
 namespace Powder
 {
-	VirtualMachine::VirtualMachine(CompilerInterface* compiler, DebuggerInterface* debugger)
+	VirtualMachine::VirtualMachine(CompilerInterface* compiler /*= nullptr*/, DebuggerInterface* debugger /*= nullptr*/, IODevice* ioDevice /*= nullptr*/)
 	{
-		this->compiler = compiler;
-		this->debugger = debugger;
+		this->compiler = compiler ? compiler : new Compiler();
+		this->debugger = debugger ? debugger : nullptr;
+		this->ioDevice = ioDevice ? ioDevice : new IODevice();
 		this->globalScope = new Scope();		// This gets deleted by the GC.
 		this->executorListStack = new std::vector<ExecutorList*>();
 		this->RegisterInstruction<BranchInstruction>();
@@ -51,6 +55,9 @@ namespace Powder
 		this->UnloadAllModules();
 		this->instructionMap.DeleteAndClear();
 		delete this->executorListStack;
+		delete this->compiler;
+		delete this->debugger;
+		delete this->ioDevice;
 	}
 
 	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Scope* scope)
@@ -183,5 +190,23 @@ namespace Powder
 	{
 		char key[2] = { (char)programOpCode, '\0' };
 		return this->instructionMap.Lookup(key);
+	}
+
+	VirtualMachine::IODevice::IODevice()
+	{
+	}
+
+	/*virtual*/ VirtualMachine::IODevice::~IODevice()
+	{
+	}
+
+	/*virtual*/ void VirtualMachine::IODevice::InputString(std::string& str)
+	{
+		std::getline(std::cin, str);
+	}
+
+	/*virtual*/ void VirtualMachine::IODevice::OutputString(const std::string& str)
+	{
+		std::cout << str;
 	}
 }

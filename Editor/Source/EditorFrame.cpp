@@ -20,6 +20,9 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_Exit, "Exit", "Go skiing."));
 
 	wxMenu* debugMenu = new wxMenu();
+	debugMenu->Append(new wxMenuItem(debugMenu, ID_RunWithDebugger, "Run with Debugger", "Run the currently shown script with the debugger attached."));
+	debugMenu->Append(new wxMenuItem(debugMenu, ID_RunWithoutDebugger, "Run without Debugger", "Run the currently shown script without a debugger attached."));
+	debugMenu->AppendSeparator();
 	debugMenu->Append(new wxMenuItem(debugMenu, ID_AttachToVM, "Attach to VM", "Attach to a Powder VM.  This could be the one embedded in this editor, or one elsewhere."));
 	debugMenu->Append(new wxMenuItem(debugMenu, ID_DetachFromVM, "Detach from VM", "Detach from the currently attached Powder VM, if any."));
 
@@ -39,6 +42,8 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_MENU, &EditorFrame::OnOpenDirectory, this, ID_OpenDirectory);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnCloseDirectory, this, ID_CloseDirectory);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnExit, this, ID_Exit);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithDebugger, this, ID_RunWithDebugger);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithoutDebugger, this, ID_RunWithoutDebugger);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnAttachToVM, this, ID_AttachToVM);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnDetachFromVM, this, ID_DetachFromVM);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnAbout, this, ID_About);
@@ -47,6 +52,8 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_CloseDirectory);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_OpenDirectory);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_CloseDirectory);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithDebugger);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithoutDebugger);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_AttachToVM);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_DetachFromVM);
 	this->Bind(wxEVT_CLOSE_WINDOW, &EditorFrame::OnClose, this);
@@ -110,6 +117,14 @@ void EditorFrame::OnCloseDirectory(wxCommandEvent& event)
 		this->directoryTreeControl->DeleteAllItems();
 		wxGetApp().projectDirectory = "";
 	}
+}
+
+void EditorFrame::OnRunWithDebugger(wxCommandEvent& event)
+{
+}
+
+void EditorFrame::OnRunWithoutDebugger(wxCommandEvent& event)
+{
 }
 
 void EditorFrame::OnAttachToVM(wxCommandEvent& event)
