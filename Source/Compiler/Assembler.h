@@ -19,7 +19,7 @@ namespace Powder
 		Assembler();
 		virtual ~Assembler();
 
-		Executable* AssembleExecutable(const LinkedList<Instruction*>& instructionList);
+		Executable* AssembleExecutable(const LinkedList<Instruction*>& instructionList, bool generateDebugInfo);
 
 	private:
 

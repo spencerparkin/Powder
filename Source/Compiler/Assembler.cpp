@@ -38,7 +38,7 @@ namespace Powder
 		}
 	}
 
-	Executable* Assembler::AssembleExecutable(const LinkedList<Instruction*>& instructionList)
+	Executable* Assembler::AssembleExecutable(const LinkedList<Instruction*>& instructionList, bool generateDebugInfo)
 	{
 		this->ResolveJumps(instructionList);
 
@@ -57,6 +57,15 @@ namespace Powder
 		executable->byteCodeBufferSize = programBufferLocation;
 		executable->byteCodeBuffer = new uint8_t[(uint32_t)executable->byteCodeBufferSize];
 
+		rapidjson::Value instructionMapValue;
+		instructionMapValue.SetObject();
+
+		if (generateDebugInfo)
+		{
+			executable->debugInfoDoc = new rapidjson::Document();
+			executable->debugInfoDoc->SetObject();
+		}
+
 		programBufferLocation = 0L;
 		for(const LinkedList<Instruction*>::Node* node = instructionList.GetHead(); node; node = node->GetNext())
 		{
@@ -65,8 +74,20 @@ namespace Powder
 #if defined POWDER_DEBUG
 			std::cout << FormatString("%04d: ", programBufferLocation) << instruction->Print() << std::endl;
 #endif
+			if (generateDebugInfo)
+			{
+				rapidjson::Value instructionMapEntryValue;
+				instructionMapEntryValue.SetObject();
+				instructionMapEntryValue.AddMember("line", rapidjson::Value().SetInt(instruction->assemblyData->fileLocation.lineNumber), executable->debugInfoDoc->GetAllocator());
+				instructionMapEntryValue.AddMember("col", rapidjson::Value().SetInt(instruction->assemblyData->fileLocation.columnNumber), executable->debugInfoDoc->GetAllocator());
+				std::string addressStr = FormatString("%d", programBufferLocation);
+				instructionMapValue.AddMember(rapidjson::Value().SetString(addressStr.c_str(), executable->debugInfoDoc->GetAllocator()), instructionMapEntryValue, executable->debugInfoDoc->GetAllocator());
+			}
 			instruction->Assemble(executable, programBufferLocation, Instruction::AssemblyPass::RENDER);
 		}
+
+		if (generateDebugInfo)
+			executable->debugInfoDoc->AddMember("instruction_map", instructionMapValue, executable->debugInfoDoc->GetAllocator());
 
 		return executable;
 	}

@@ -3,6 +3,8 @@
 #include "GCCollectable.h"
 #include <string>
 #include <cstdint>
+#include "rapidjson/rapidjson.h"
+#include "rapidjson/document.h"
 
 namespace Powder
 {
@@ -19,5 +21,7 @@ namespace Powder
 
 		uint8_t* byteCodeBuffer;
 		uint64_t byteCodeBufferSize;
+
+		rapidjson::Document* debugInfoDoc;
 	};
 }

@@ -224,7 +224,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);POWDER_API_EXPORT;POWDER_DEBUG</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);POWDER_API_EXPORT</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

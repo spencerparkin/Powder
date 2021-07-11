@@ -27,10 +27,13 @@
 
 namespace Powder
 {
-	VirtualMachine::VirtualMachine(CompilerInterface* compiler /*= nullptr*/, IODevice* ioDevice /*= nullptr*/)
+	VirtualMachine::IODevice theDefaultIODevice;
+
+	VirtualMachine::VirtualMachine()
 	{
-		this->compiler = compiler ? compiler : new Compiler();
-		this->ioDevice = ioDevice ? ioDevice : new IODevice();
+		this->compiler = &theDefaultCompiler;
+		this->ioDevice = &theDefaultIODevice;
+		this->debuggerTrap = nullptr;
 		
 		this->globalScope = new Scope();		// This gets deleted by the GC.
 		this->executorListStack = new std::vector<ExecutorList*>();
@@ -55,8 +58,6 @@ namespace Powder
 		this->UnloadAllModules();
 		this->instructionMap.DeleteAndClear();
 		delete this->executorListStack;
-		delete this->compiler;
-		delete this->ioDevice;
 	}
 
 	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Scope* scope)
@@ -180,7 +181,7 @@ namespace Powder
 			HMODULE moduleHandle = (HMODULE)modulePtr;
 			::FreeLibrary(moduleHandle);
 			return true;
-			});
+		});
 
 		this->moduleMap.Clear();
 	}
@@ -189,6 +190,14 @@ namespace Powder
 	{
 		char key[2] = { (char)programOpCode, '\0' };
 		return this->instructionMap.Lookup(key);
+	}
+
+	VirtualMachine::CompilerInterface::CompilerInterface()
+	{
+	}
+
+	/*virtual*/ VirtualMachine::CompilerInterface::~CompilerInterface()
+	{
 	}
 
 	VirtualMachine::IODevice::IODevice()
@@ -207,5 +216,13 @@ namespace Powder
 	/*virtual*/ void VirtualMachine::IODevice::OutputString(const std::string& str)
 	{
 		std::cout << str;
+	}
+
+	VirtualMachine::DebuggerTrap::DebuggerTrap()
+	{
+	}
+
+	/*virtual*/ VirtualMachine::DebuggerTrap::~DebuggerTrap()
+	{
 	}
 }

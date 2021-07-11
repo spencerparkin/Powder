@@ -1,6 +1,10 @@
 #include "Executable.h"
 #include "Exceptions.hpp"
 #include <fstream>
+#include <filesystem>
+#include <sstream>
+#include "rapidjson/cursorstreamwrapper.h"
+#include "rapidjson/prettywriter.h"
 
 namespace Powder
 {
@@ -8,6 +12,7 @@ namespace Powder
 	{
 		this->byteCodeBuffer = nullptr;
 		this->byteCodeBufferSize = 0L;
+		this->debugInfoDoc = nullptr;
 	}
 
 	/*virtual*/ Executable::~Executable()
@@ -22,6 +27,8 @@ namespace Powder
 			delete[] this->byteCodeBuffer;
 			this->byteCodeBuffer = nullptr;
 			this->byteCodeBufferSize = 0L;
+			delete this->debugInfoDoc;
+			this->debugInfoDoc = nullptr;
 		}
 	}
 
@@ -36,6 +43,21 @@ namespace Powder
 
 			fileStream.write((const char*)this->byteCodeBuffer, this->byteCodeBufferSize);
 			fileStream.close();
+
+			if (this->debugInfoDoc)
+			{
+				rapidjson::StringBuffer stringBuffer;
+				rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(stringBuffer);
+				this->debugInfoDoc->Accept(writer);
+
+				std::string debugInfoFile = byteCodeFile.substr(0, byteCodeFile.find_last_of('.')) + ".debuginfo";
+				fileStream.open(debugInfoFile, std::fstream::out);
+				if (!fileStream.is_open())
+					throw new RunTimeException(FormatString("Failed to open file: %s", debugInfoFile.c_str()));
+
+				fileStream.write(stringBuffer.GetString(), stringBuffer.GetLength());
+				fileStream.close();
+			}
 		}
 	}
 
@@ -56,5 +78,24 @@ namespace Powder
 		fileStream.seekg(0, std::ios::beg);
 		fileStream.read((char*)this->byteCodeBuffer, this->byteCodeBufferSize);
 		fileStream.close();
+
+		std::string debugInfoFile = byteCodeFile.substr(0, byteCodeFile.find_last_of('.')) + ".debuginfo";
+		if (std::filesystem::exists(debugInfoFile))
+		{
+			fileStream.open(debugInfoFile, std::fstream::in);
+			if (!fileStream.is_open())
+				throw new RunTimeException(FormatString("Failed to open file: %s", debugInfoFile.c_str()));
+
+			std::stringstream stringStream;
+			stringStream << fileStream.rdbuf();
+			std::string debugInfoJsonText = stringStream.str();
+
+			rapidjson::StringStream stream(debugInfoJsonText.c_str());
+			rapidjson::CursorStreamWrapper<rapidjson::StringStream> streamWrapper(stream);
+			this->debugInfoDoc = new rapidjson::Document();
+			this->debugInfoDoc->ParseStream(streamWrapper);
+			if (this->debugInfoDoc->HasParseError())
+				throw new RunTimeException(FormatString("Parse error in JSON file: %s", debugInfoFile.c_str()));
+		}
 	}
 }

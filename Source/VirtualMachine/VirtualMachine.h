@@ -29,10 +29,7 @@ namespace Powder
 	class POWDER_API VirtualMachine
 	{
 	public:
-		class CompilerInterface;
-		class IODevice;
-
-		VirtualMachine(CompilerInterface* compiler = nullptr, IODevice* ioDevice = nullptr);
+		VirtualMachine();
 		virtual ~VirtualMachine();
 
 		void ExecuteByteCode(const Executable* executable, Scope* scope);
@@ -41,8 +38,8 @@ namespace Powder
 		class POWDER_API CompilerInterface
 		{
 		public:
-			CompilerInterface() {}
-			virtual ~CompilerInterface() {}
+			CompilerInterface();
+			virtual ~CompilerInterface();
 
 			virtual Executable* CompileCode(const char* programSourceCode) = 0;
 		};
@@ -57,6 +54,15 @@ namespace Powder
 			virtual void OutputString(const std::string& str);
 		};
 
+		class POWDER_API DebuggerTrap
+		{
+		public:
+			DebuggerTrap();
+			virtual ~DebuggerTrap();
+
+			virtual void TrapExecution(const Executable* executable, Executor* executor) = 0;
+		};
+
 		void ExecuteSourceCodeFile(const std::string& programSourceCodePath, Scope* scope = nullptr);
 		void ExecuteSourceCode(const std::string& programSourceCode, const std::string& programSourceCodePath, Scope* scope = nullptr);
 
@@ -66,8 +72,14 @@ namespace Powder
 
 		Instruction* LookupInstruction(uint8_t programOpCode);
 
+		void SetCompiler(CompilerInterface* compiler) { this->compiler = compiler; }
 		CompilerInterface* GetCompiler() { return this->compiler; }
+
+		void SetIODevice(IODevice* ioDevice) { this->ioDevice = ioDevice; }
 		IODevice* GetIODevice() { return this->ioDevice; }
+
+		void SetDebuggerTrap(DebuggerTrap* debuggerTrap) { this->debuggerTrap = debuggerTrap; }
+		DebuggerTrap* GetDebuggerTrap() { return this->debuggerTrap; }
 
 	protected:
 
@@ -77,6 +89,7 @@ namespace Powder
 
 		CompilerInterface* compiler;
 		IODevice* ioDevice;
+		DebuggerTrap* debuggerTrap;
 		GCReference<Scope> globalScope;
 		ModuleMap moduleMap;
 		InstructionMap instructionMap;

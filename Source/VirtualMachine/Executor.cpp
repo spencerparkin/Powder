@@ -50,6 +50,10 @@ namespace Powder
 	{
 		while (this->programBufferLocation < executable->byteCodeBufferSize)
 		{
+			VirtualMachine::DebuggerTrap* debuggerTrap = virtualMachine->GetDebuggerTrap();
+			if (debuggerTrap)
+				debuggerTrap->TrapExecution(executable, this);
+
 			uint8_t opCode = executable->byteCodeBuffer[this->programBufferLocation];
 			Instruction* instruction = virtualMachine->LookupInstruction(opCode);
 			if (!instruction)

@@ -10,8 +10,11 @@
 
 namespace Powder
 {
+	Compiler theDefaultCompiler;
+
 	Compiler::Compiler()
 	{
+		this->generateDebugInfo = true;
 	}
 
 	/*virtual*/ Compiler::~Compiler()
@@ -43,6 +46,6 @@ namespace Powder
 		delete rootSyntaxNode;
 
 		Assembler assembler;
-		return assembler.AssembleExecutable(instructionList);
+		return assembler.AssembleExecutable(instructionList, this->generateDebugInfo);
 	}
 }
