@@ -22,8 +22,6 @@ public:
 		ID_CloseDirectory,
 		ID_RunWithDebugger,
 		ID_RunWithoutDebugger,
-		ID_AttachToVM,
-		ID_DetachFromVM,
 		ID_StartDebugging,
 		ID_StopDebugging,
 		ID_PauseDebugging
@@ -37,8 +35,6 @@ public:
 	void OnCloseDirectory(wxCommandEvent& event);
 	void OnRunWithDebugger(wxCommandEvent& event);
 	void OnRunWithoutDebugger(wxCommandEvent& event);
-	void OnAttachToVM(wxCommandEvent& event);
-	void OnDetachFromVM(wxCommandEvent& event);
 	void OnUpdateMenuItemUI(wxUpdateUIEvent& event);
 	void OnClose(wxCloseEvent& event);
 

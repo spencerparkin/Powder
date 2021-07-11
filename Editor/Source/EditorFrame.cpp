@@ -19,19 +19,16 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	fileMenu->AppendSeparator();
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_Exit, "Exit", "Go skiing."));
 
-	wxMenu* debugMenu = new wxMenu();
-	debugMenu->Append(new wxMenuItem(debugMenu, ID_RunWithDebugger, "Run with Debugger", "Run the currently shown script with the debugger attached."));
-	debugMenu->Append(new wxMenuItem(debugMenu, ID_RunWithoutDebugger, "Run without Debugger", "Run the currently shown script without a debugger attached."));
-	debugMenu->AppendSeparator();
-	debugMenu->Append(new wxMenuItem(debugMenu, ID_AttachToVM, "Attach to VM", "Attach to a Powder VM.  This could be the one embedded in this editor, or one elsewhere."));
-	debugMenu->Append(new wxMenuItem(debugMenu, ID_DetachFromVM, "Detach from VM", "Detach from the currently attached Powder VM, if any."));
+	wxMenu* runMenu = new wxMenu();
+	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithDebugger, "Run with Debugger", "Run the currently shown script with the debugger attached."));
+	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithoutDebugger, "Run without Debugger", "Run the currently shown script without a debugger attached."));
 
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about box."));
 
 	wxMenuBar* menuBar = new wxMenuBar();
 	menuBar->Append(fileMenu, "File");
-	menuBar->Append(debugMenu, "Debug");
+	menuBar->Append(runMenu, "Run");
 	menuBar->Append(helpMenu, "Help");
 	this->SetMenuBar(menuBar);
 
@@ -44,8 +41,6 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_MENU, &EditorFrame::OnExit, this, ID_Exit);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithDebugger, this, ID_RunWithDebugger);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithoutDebugger, this, ID_RunWithoutDebugger);
-	this->Bind(wxEVT_MENU, &EditorFrame::OnAttachToVM, this, ID_AttachToVM);
-	this->Bind(wxEVT_MENU, &EditorFrame::OnDetachFromVM, this, ID_DetachFromVM);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_SaveAll);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_CloseAll);
@@ -54,8 +49,6 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_CloseDirectory);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithDebugger);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithoutDebugger);
-	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_AttachToVM);
-	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_DetachFromVM);
 	this->Bind(wxEVT_CLOSE_WINDOW, &EditorFrame::OnClose, this);
 
 	wxSplitterWindow* verticalSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
@@ -85,9 +78,7 @@ void EditorFrame::OnAbout(wxCommandEvent& event)
 
 	aboutDialogInfo.SetName("Powder Editor");
 	aboutDialogInfo.SetVersion("1.0");
-	aboutDialogInfo.SetDescription("The Powder VM and associated tools were written by Spencer T. Parkin as a purely academic exercise,"
-									"and because he had nothing better to do.  Well, that's not true.  There's always something else I should "
-									"be doing when I'm wasting time on the computer.");
+	aboutDialogInfo.SetDescription("The Powder VM and associated tools were written by Spencer T. Parkin as a purely academic exercise.");
 
 	wxAboutBox(aboutDialogInfo);
 }
@@ -129,14 +120,6 @@ void EditorFrame::OnRunWithoutDebugger(wxCommandEvent& event)
 {
 }
 
-void EditorFrame::OnAttachToVM(wxCommandEvent& event)
-{
-}
-
-void EditorFrame::OnDetachFromVM(wxCommandEvent& event)
-{
-}
-
 void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 {
 	switch (event.GetId())
@@ -159,14 +142,6 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 		case ID_CloseDirectory:
 		{
 			event.Enable(!wxGetApp().projectDirectory.IsEmpty());
-			break;
-		}
-		case ID_AttachToVM:
-		{
-			break;
-		}
-		case ID_DetachFromVM:
-		{
 			break;
 		}
 		case ID_RunWithDebugger:
