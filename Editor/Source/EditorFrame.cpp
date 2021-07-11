@@ -1,6 +1,7 @@
 #include "EditorFrame.h"
 #include "DirectoryTreeControl.h"
 #include "SourceFileNotebookControl.h"
+#include "SourceFileEditControl.h"
 #include "EditorApp.h"
 #include <wx/menu.h>
 #include <wx/splitter.h>
@@ -145,11 +146,25 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 			break;
 		}
 		case ID_RunWithDebugger:
-		{
-			break;
-		}
 		case ID_RunWithoutDebugger:
 		{
+			SourceFileEditControl* editControl = this->sourceFileNotebookControl->GetSelectedEditControl();
+			event.Enable(editControl != nullptr);
+			if (editControl)
+			{
+				if (event.GetId() == ID_RunWithDebugger)
+					event.SetText("Run " + editControl->GetFileName() + " with Debugger");
+				else
+					event.SetText("Run " + editControl->GetFileName() + " without Debugger");
+			}
+			else
+			{
+				if (event.GetId() == ID_RunWithDebugger)
+					event.SetText("Run with Debugger");
+				else
+					event.SetText("Run without Debugger");
+			}
+
 			break;
 		}
 	}

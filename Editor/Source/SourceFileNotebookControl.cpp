@@ -20,7 +20,7 @@ bool SourceFileNotebookControl::CanClosePage(int pageNumber)
 	if (!editControl->modified)
 		return true;
 	
-	wxString fileName = editControl->GetFilename();
+	wxString fileName = editControl->GetFileName();
 	wxString messageText = wxString::Format("The file %s is modified.  Save before close?", fileName.c_str());
 	int result = ::wxMessageBox(messageText, wxT("Save changed?"), wxICON_QUESTION | wxYES_NO | wxCANCEL, wxGetApp().frame);
 	if (result == wxYES)
@@ -57,7 +57,7 @@ bool SourceFileNotebookControl::OpenSourceFile(const wxString& filePath)
 		editControl = new SourceFileEditControl(this, filePath);
 		if (!editControl->LoadFile())
 		{
-			wxString fileName = editControl->GetFilename();
+			wxString fileName = editControl->GetFileName();
 			wxString messageText = wxString::Format("The file %s could not be loaded from disk.", fileName.c_str());
 			::wxMessageBox(messageText, "Load failed!", wxICON_ERROR | wxOK, wxGetApp().frame);
 			return false;
@@ -95,7 +95,7 @@ void SourceFileNotebookControl::SaveSourceFile(int pageNumber)
 			this->UpdateTabLabelFor(editControl);
 		else
 		{
-			wxString fileName = editControl->GetFilename();
+			wxString fileName = editControl->GetFileName();
 			wxString messageText = wxString::Format("The file %s could not be saved to disk.", fileName.c_str());
 			::wxMessageBox(messageText, "Save failed!", wxICON_ERROR | wxOK, wxGetApp().frame);
 		}
@@ -131,6 +131,15 @@ SourceFileEditControl* SourceFileNotebookControl::FindEditControl(const wxFileNa
 	}
 
 	return nullptr;
+}
+
+SourceFileEditControl* SourceFileNotebookControl::GetSelectedEditControl()
+{
+	SourceFileEditControl* editControl = nullptr;
+	int pageNumber = this->GetSelection();
+	if(pageNumber >= 0)
+		editControl = (SourceFileEditControl*)this->GetPage(pageNumber);
+	return editControl;
 }
 
 bool SourceFileNotebookControl::AnyFilesModified()

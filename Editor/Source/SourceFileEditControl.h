@@ -13,7 +13,7 @@ public:
 	bool SaveFile(void);
 
 	wxString GetTabLabel();
-	wxString GetFilename();
+	wxString GetFileName();
 
 	void OnTextChanged(wxStyledTextEvent& event);
 

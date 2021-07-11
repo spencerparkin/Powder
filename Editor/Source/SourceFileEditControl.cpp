@@ -32,13 +32,13 @@ void SourceFileEditControl::OnTextChanged(wxStyledTextEvent& event)
 
 wxString SourceFileEditControl::GetTabLabel()
 {
-	wxString label = this->GetFilename();
+	wxString label = this->GetFileName();
 	if (this->modified)
 		label += "*";
 	return label;
 }
 
-wxString SourceFileEditControl::GetFilename()
+wxString SourceFileEditControl::GetFileName()
 {
 	return this->filePath.GetName() + "." + this->filePath.GetExt();
 }
