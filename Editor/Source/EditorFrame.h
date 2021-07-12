@@ -27,9 +27,7 @@ public:
 		ID_CloseDirectory,
 		ID_RunWithDebugger,
 		ID_RunWithoutDebugger,
-		ID_StartDebugging,
-		ID_StopDebugging,
-		ID_PauseDebugging
+		ID_KillScript
 	};
 
 	void OnExit(wxCommandEvent& event);
@@ -43,8 +41,10 @@ public:
 	void OnCloseDirectory(wxCommandEvent& event);
 	void OnRunWithDebugger(wxCommandEvent& event);
 	void OnRunWithoutDebugger(wxCommandEvent& event);
+	void OnKillScript(wxCommandEvent& event);
 	void OnUpdateMenuItemUI(wxUpdateUIEvent& event);
 	void OnClose(wxCloseEvent& event);
+	void OnRunThreadExiting(wxThreadEvent& event);
 
 	void UpdateTreeControl(void);
 	void SaveWindowAdjustments();

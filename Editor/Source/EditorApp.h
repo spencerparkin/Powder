@@ -7,6 +7,7 @@
 #include <wx/config.h>
 
 class EditorFrame;
+class RunThread;
 
 class EditorApp : public wxApp
 {
@@ -21,12 +22,15 @@ public:
 	const wxString& GetProjectDirectory();
 	EditorFrame* GetFrame() { return this->frame; }
 	wxConfig* GetConfig() { return this->config; }
+	void SetRunThread(RunThread* runThread) { this->runThread = runThread; }
+	RunThread* GetRunThread() { return this->runThread; }
 
 private:
 
 	EditorFrame* frame;
 	wxString projectDirectory;
 	wxConfig* config;
+	RunThread* runThread;
 };
 
 wxDECLARE_APP(EditorApp);

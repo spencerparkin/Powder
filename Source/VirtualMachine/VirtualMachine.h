@@ -60,7 +60,7 @@ namespace Powder
 			DebuggerTrap();
 			virtual ~DebuggerTrap();
 
-			virtual void TrapExecution(const Executable* executable, Executor* executor) = 0;
+			virtual bool TrapExecution(const Executable* executable, Executor* executor) = 0;
 		};
 
 		void ExecuteSourceCodeFile(const std::string& programSourceCodePath, Scope* scope = nullptr);

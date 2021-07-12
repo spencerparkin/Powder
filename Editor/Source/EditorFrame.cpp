@@ -3,6 +3,7 @@
 #include "SourceFileNotebookControl.h"
 #include "SourceFileEditControl.h"
 #include "TerminalControl.h"
+#include "RunThread.h"
 #include "EditorApp.h"
 #include <wx/menu.h>
 #include <wx/sizer.h>
@@ -76,6 +77,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithDebugger);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithoutDebugger);
 	this->Bind(wxEVT_CLOSE_WINDOW, &EditorFrame::OnClose, this);
+	this->Bind(wxEVT_RUNTHREAD_EXITING, &EditorFrame::OnRunThreadExiting, this);
 
 	this->verticalSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
 	this->directoryTreeControl = new DirectoryTreeControl(this->verticalSplitter);
@@ -180,8 +182,26 @@ void EditorFrame::OnRunWithoutDebugger(wxCommandEvent& event)
 	SourceFileEditControl* editControl = this->sourceFileNotebookControl->GetSelectedEditControl();
 	if (editControl)
 	{
-
+		RunThread* runThread = new RunThread(editControl->filePath.GetFullPath(), this);
+		wxGetApp().SetRunThread(runThread);
+		runThread->Run();
 	}
+}
+
+void EditorFrame::OnKillScript(wxCommandEvent& event)
+{
+	// Signal the thread to exit.
+	// TODO: May need to unlock semephore if broken at a break-point.
+	RunThread* runThread = wxGetApp().GetRunThread();
+	runThread->exitNow = true;
+}
+
+void EditorFrame::OnRunThreadExiting(wxThreadEvent& event)
+{
+	RunThread* runThread = wxGetApp().GetRunThread();
+	runThread->Wait(wxThreadWait::wxTHREAD_WAIT_BLOCK);
+	delete runThread;
+	wxGetApp().SetRunThread(nullptr);
 }
 
 void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
@@ -229,23 +249,33 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 		case ID_RunWithDebugger:
 		case ID_RunWithoutDebugger:
 		{
-			SourceFileEditControl* editControl = this->sourceFileNotebookControl->GetSelectedEditControl();
-			event.Enable(editControl != nullptr);
-			if (editControl)
-			{
-				if (event.GetId() == ID_RunWithDebugger)
-					event.SetText("Run " + editControl->GetFileName() + " with Debugger");
-				else
-					event.SetText("Run " + editControl->GetFileName() + " without Debugger");
-			}
+			if (wxGetApp().GetRunThread())
+				event.Enable(false);
 			else
 			{
-				if (event.GetId() == ID_RunWithDebugger)
-					event.SetText("Run with Debugger");
+				SourceFileEditControl* editControl = this->sourceFileNotebookControl->GetSelectedEditControl();
+				event.Enable(editControl != nullptr);
+				if (editControl)
+				{
+					if (event.GetId() == ID_RunWithDebugger)
+						event.SetText("Run " + editControl->GetFileName() + " with Debugger");
+					else
+						event.SetText("Run " + editControl->GetFileName() + " without Debugger");
+				}
 				else
-					event.SetText("Run without Debugger");
+				{
+					if (event.GetId() == ID_RunWithDebugger)
+						event.SetText("Run with Debugger");
+					else
+						event.SetText("Run without Debugger");
+				}
 			}
 
+			break;
+		}
+		case ID_KillScript:
+		{
+			event.Enable(wxGetApp().GetRunThread() ? true : false);
 			break;
 		}
 	}

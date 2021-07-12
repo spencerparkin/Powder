@@ -29,6 +29,9 @@
     <ClInclude Include="Source\TerminalControl.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\RunThread.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\EditorApp.cpp">
@@ -47,6 +50,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\TerminalControl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RunThread.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

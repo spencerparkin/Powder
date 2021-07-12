@@ -52,7 +52,8 @@ namespace Powder
 		{
 			VirtualMachine::DebuggerTrap* debuggerTrap = virtualMachine->GetDebuggerTrap();
 			if (debuggerTrap)
-				debuggerTrap->TrapExecution(executable, this);
+				if (debuggerTrap->TrapExecution(executable, this))
+					return Executor::Result::HALT;
 
 			uint8_t opCode = executable->byteCodeBuffer[this->programBufferLocation];
 			Instruction* instruction = virtualMachine->LookupInstruction(opCode);

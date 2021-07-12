@@ -8,6 +8,7 @@ EditorApp::EditorApp()
 {
 	this->frame = nullptr;
 	this->config = nullptr;
+	this->runThread = nullptr;
 }
 
 /*virtual*/ EditorApp::~EditorApp()
@@ -36,6 +37,11 @@ EditorApp::EditorApp()
 
 /*virtual*/ int EditorApp::OnExit()
 {
+	if (this->runThread)
+	{
+		// TODO: Signal exit, then wait with time-out.  If timed-out, kill?
+	}
+
 	return 0;
 }
 
