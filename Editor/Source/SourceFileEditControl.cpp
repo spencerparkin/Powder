@@ -16,10 +16,8 @@ SourceFileEditControl::SourceFileEditControl(wxWindow* parent, const wxString& f
 	this->StyleSetFont(0, font);
 
 	this->SetMarginCount(2);
-	this->SetMarginType(0, wxSTC_MARGIN_SYMBOL);
-	this->SetMarginType(1, wxSTC_MARGIN_NUMBER);
-	this->SetMarginWidth(0, 10);
-	this->SetMarginWidth(1, 30);
+	this->SetMarginType(0, wxSTC_MARGIN_NUMBER);
+	this->SetMarginWidth(0, 30);
 	this->SetMarginSensitive(0, true);
 	this->MarkerDefine(0, wxSTC_MARK_CIRCLE, *wxRED, *wxRED);
 

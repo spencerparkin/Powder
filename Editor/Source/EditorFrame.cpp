@@ -10,6 +10,7 @@
 #include <wx/dirdlg.h>
 #include <wx/aboutdlg.h>
 #include <wx/filedlg.h>
+#include <wx/toolbar.h>
 
 EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Powder Editor", pos, size)
 {
@@ -57,6 +58,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->SetStatusBar(new wxStatusBar(this));
 	this->GetStatusBar()->SetFieldsCount(2);
 
+	// TODO: Need a way to create a new source file under any directory of the currently open project directory.
 	this->Bind(wxEVT_MENU, &EditorFrame::OnSaveFile, this, ID_Save);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnOpenFile, this, ID_Open);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnCloseFile, this, ID_Close);
@@ -103,6 +105,9 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 
 	verticalSplitter->SetSashPosition(200);
 	horizontalSplitter->SetSashPosition(300);
+
+	//wxToolBar* toolBar = this->CreateToolBar(wxTB_DEFAULT_STYLE, wxID_ANY);
+	//toolBar->AddTool(ID_RunWithDebugger, "Run with Debugger", )
 
 	this->UpdateTreeControl();
 }
