@@ -15,7 +15,9 @@ public:
 	wxString GetTabLabel();
 	wxString GetFileName();
 
-	void OnTextChanged(wxStyledTextEvent& event);
+	void OnModified(wxStyledTextEvent& event);
+	void OnKeyPressed(wxStyledTextEvent& event);
+	void OnMarginClicked(wxStyledTextEvent& event);
 
 	wxFileName filePath;
 	bool modified;

@@ -1,5 +1,7 @@
 #include "SourceFileEditControl.h"
 #include "SourceFileNotebookControl.h"
+#include "EditorFrame.h"
+#include "EditorApp.h"
 #include <wx/file.h>
 
 SourceFileEditControl::SourceFileEditControl(wxWindow* parent, const wxString& filePath) : wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0L)
@@ -13,20 +15,52 @@ SourceFileEditControl::SourceFileEditControl(wxWindow* parent, const wxString& f
 	font.SetFamily(wxFONTFAMILY_MODERN);
 	this->StyleSetFont(0, font);
 
-	this->Bind(wxEVT_STC_CHANGE, &SourceFileEditControl::OnTextChanged, this, wxID_ANY);
+	this->SetMarginCount(2);
+	this->SetMarginType(0, wxSTC_MARGIN_SYMBOL);
+	this->SetMarginType(1, wxSTC_MARGIN_NUMBER);
+	this->SetMarginWidth(0, 10);
+	this->SetMarginWidth(1, 30);
+	this->SetMarginSensitive(0, true);
+	this->MarkerDefine(0, wxSTC_MARK_CIRCLE, *wxRED, *wxRED);
+
+	this->Bind(wxEVT_STC_MODIFIED, &SourceFileEditControl::OnModified, this, wxID_ANY);
+	//this->Bind(wxEVT_STC_KEY, &SourceFileEditControl::OnKeyPressed, this, wxID_ANY);
+	this->Bind(wxEVT_STC_MARGINCLICK, &SourceFileEditControl::OnMarginClicked, this, wxID_ANY);
 }
 
 /*virtual*/ SourceFileEditControl::~SourceFileEditControl()
 {
 }
 
-void SourceFileEditControl::OnTextChanged(wxStyledTextEvent& event)
+void SourceFileEditControl::OnMarginClicked(wxStyledTextEvent& event)
 {
-	if (this->ready && !this->modified)
+	if (event.GetMargin() == 0)
 	{
-		this->modified = true;
-		SourceFileNotebookControl* notebookControl = (SourceFileNotebookControl*)this->GetParent();
-		notebookControl->UpdateTabLabelFor(this);
+		int line = this->LineFromPosition(event.GetPosition());
+		int flags = this->MarkerGet(line);
+		if ((flags & 0x1) != 0)
+			this->MarkerDelete(line, 0);
+		else
+			this->MarkerAdd(line, 0);
+	}
+}
+
+void SourceFileEditControl::OnKeyPressed(wxStyledTextEvent& event)
+{
+	wxString cursorLocationText = wxString::Format("Line: %d, Column: %d", this->GetCurrentLine(), this->GetCurrentPos());
+	wxGetApp().GetFrame()->GetStatusBar()->SetStatusText(cursorLocationText, 1);
+}
+
+void SourceFileEditControl::OnModified(wxStyledTextEvent& event)
+{
+	if ((event.GetModificationType() & (wxSTC_MOD_INSERTTEXT | wxSTC_MOD_DELETETEXT)) != 0)
+	{
+		if (this->ready && !this->modified)
+		{
+			this->modified = true;
+			SourceFileNotebookControl* notebookControl = (SourceFileNotebookControl*)this->GetParent();
+			notebookControl->UpdateTabLabelFor(this);
+		}
 	}
 }
 

@@ -4,6 +4,7 @@
 #include <wx/notebook.h>
 #include <wx/splitter.h>
 
+class TerminalControl;
 class DirectoryTreeControl;
 class SourceFileNotebookControl;
 
@@ -17,6 +18,9 @@ public:
 	{
 		ID_Exit,
 		ID_About,
+		ID_Save,
+		ID_Open,
+		ID_Close,
 		ID_SaveAll,
 		ID_CloseAll,
 		ID_OpenDirectory,
@@ -30,8 +34,11 @@ public:
 
 	void OnExit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
-	void OnSaveAll(wxCommandEvent& event);
-	void OnCloseAll(wxCommandEvent& event);
+	void OnSaveFile(wxCommandEvent& event);
+	void OnOpenFile(wxCommandEvent& event);
+	void OnCloseFile(wxCommandEvent& event);
+	void OnSaveAllFiles(wxCommandEvent& event);
+	void OnCloseAllFiles(wxCommandEvent& event);
 	void OnOpenDirectory(wxCommandEvent& event);
 	void OnCloseDirectory(wxCommandEvent& event);
 	void OnRunWithDebugger(wxCommandEvent& event);
@@ -44,6 +51,8 @@ public:
 	void RestoreWindowAdjustments();
 
 	wxSplitterWindow* verticalSplitter;
+	wxSplitterWindow* horizontalSplitter;
 	DirectoryTreeControl* directoryTreeControl;
 	SourceFileNotebookControl* sourceFileNotebookControl;
+	TerminalControl* terminalControl;
 };

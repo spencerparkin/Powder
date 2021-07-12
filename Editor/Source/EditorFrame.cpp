@@ -2,15 +2,34 @@
 #include "DirectoryTreeControl.h"
 #include "SourceFileNotebookControl.h"
 #include "SourceFileEditControl.h"
+#include "TerminalControl.h"
 #include "EditorApp.h"
 #include <wx/menu.h>
 #include <wx/sizer.h>
 #include <wx/dirdlg.h>
 #include <wx/aboutdlg.h>
+#include <wx/filedlg.h>
 
 EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Powder Editor", pos, size)
 {
+	wxAcceleratorEntry entries[2];
+	entries[0].Set(wxACCEL_CTRL, 'S', ID_Save);
+	entries[1].Set(wxACCEL_CTRL, 'O', ID_Open);
+	int entryCount = sizeof(entries) / sizeof(wxAcceleratorEntry);
+
+	wxAcceleratorTable table(entryCount, entries);
+	this->SetAcceleratorTable(table);
+
 	wxMenu* fileMenu = new wxMenu();
+	wxMenuItem* saveFileMenuItem = new wxMenuItem(fileMenu, ID_Save, "Save", "Save the currently shown source file, if any.");
+	wxMenuItem* openFileMenuItem = new wxMenuItem(fileMenu, ID_Open, "Open", "Browse to and open a source file.");
+	wxMenuItem* closeFileMenuItem = new wxMenuItem(fileMenu, ID_Close, "Close", "Close the currently shown source file, if any.");
+	saveFileMenuItem->SetAccel(&entries[0]);
+	openFileMenuItem->SetAccel(&entries[1]);
+	fileMenu->Append(saveFileMenuItem);
+	fileMenu->Append(openFileMenuItem);
+	fileMenu->Append(closeFileMenuItem);
+	fileMenu->AppendSeparator();
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_SaveAll, "Save All", "Save all currently open files."));
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_CloseAll, "Close All", "Close all currently open files."));
 	fileMenu->AppendSeparator();
@@ -33,15 +52,22 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->SetMenuBar(menuBar);
 
 	this->SetStatusBar(new wxStatusBar(this));
+	this->GetStatusBar()->SetFieldsCount(2);
 
-	this->Bind(wxEVT_MENU, &EditorFrame::OnSaveAll, this, ID_SaveAll);
-	this->Bind(wxEVT_MENU, &EditorFrame::OnCloseAll, this, ID_CloseAll);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnSaveFile, this, ID_Save);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnOpenFile, this, ID_Open);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnCloseFile, this, ID_Close);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnSaveAllFiles, this, ID_SaveAll);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnCloseAllFiles, this, ID_CloseAll);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnOpenDirectory, this, ID_OpenDirectory);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnCloseDirectory, this, ID_CloseDirectory);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnExit, this, ID_Exit);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithDebugger, this, ID_RunWithDebugger);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithoutDebugger, this, ID_RunWithoutDebugger);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnAbout, this, ID_About);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Save);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Open);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Close);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_SaveAll);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_CloseAll);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_CloseDirectory);
@@ -52,18 +78,20 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_CLOSE_WINDOW, &EditorFrame::OnClose, this);
 
 	this->verticalSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
-
 	this->directoryTreeControl = new DirectoryTreeControl(this->verticalSplitter);
-	this->sourceFileNotebookControl = new SourceFileNotebookControl(this->verticalSplitter);
+	this->horizontalSplitter = new wxSplitterWindow(this->verticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
+	this->sourceFileNotebookControl = new SourceFileNotebookControl(this->horizontalSplitter);
 	this->sourceFileNotebookControl->RestoreOpenFiles();
-
-	this->verticalSplitter->SplitVertically(this->directoryTreeControl, this->sourceFileNotebookControl);
+	this->terminalControl = new TerminalControl(this->horizontalSplitter);
+	this->horizontalSplitter->SplitHorizontally(this->sourceFileNotebookControl, this->terminalControl);
+	this->verticalSplitter->SplitVertically(this->directoryTreeControl, this->horizontalSplitter);
 
 	wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
 	boxSizer->Add(verticalSplitter, 1, wxALL | wxGROW, 0);
 	this->SetSizer(boxSizer);
 
 	verticalSplitter->SetSashPosition(200);
+	horizontalSplitter->SetSashPosition(300);
 
 	this->UpdateTreeControl();
 }
@@ -88,12 +116,33 @@ void EditorFrame::OnAbout(wxCommandEvent& event)
 	wxAboutBox(aboutDialogInfo);
 }
 
-void EditorFrame::OnSaveAll(wxCommandEvent& event)
+void EditorFrame::OnSaveFile(wxCommandEvent& event)
+{
+	int pageNumber = this->sourceFileNotebookControl->GetSelection();
+	if (pageNumber >= 0)
+		this->sourceFileNotebookControl->SaveSourceFile(pageNumber);
+}
+
+void EditorFrame::OnOpenFile(wxCommandEvent& event)
+{
+	wxFileDialog openFileDialog(this, "Open Powder Source File", "", "", "Powder File (*.pow)|*.pow", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+	if (openFileDialog.ShowModal() == wxID_OK)
+		this->sourceFileNotebookControl->OpenSourceFile(openFileDialog.GetPath());
+}
+
+void EditorFrame::OnCloseFile(wxCommandEvent& event)
+{
+	int pageNumber = this->sourceFileNotebookControl->GetSelection();
+	if (pageNumber >= 0)
+		this->sourceFileNotebookControl->CloseSourceFile(pageNumber);
+}
+
+void EditorFrame::OnSaveAllFiles(wxCommandEvent& event)
 {
 	this->sourceFileNotebookControl->SaveAllFiles();
 }
 
-void EditorFrame::OnCloseAll(wxCommandEvent& event)
+void EditorFrame::OnCloseAllFiles(wxCommandEvent& event)
 {
 	this->sourceFileNotebookControl->CloseAllFiles();
 }
@@ -139,6 +188,24 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 {
 	switch (event.GetId())
 	{
+		case ID_Save:
+		{
+			if (this->sourceFileNotebookControl->OpenFileCount() == 0)
+				event.Enable(false);
+			else
+				event.Enable(this->sourceFileNotebookControl->GetSelectedEditControl()->modified);
+			break;
+		}
+		case ID_Open:
+		{
+			event.Enable(true);
+			break;
+		}
+		case ID_Close:
+		{
+			event.Enable(this->sourceFileNotebookControl->GetSelectedEditControl() ? true : false);
+			break;
+		}
 		case ID_SaveAll:
 		{
 			event.Enable(this->sourceFileNotebookControl->AnyFilesModified());
@@ -191,6 +258,7 @@ void EditorFrame::SaveWindowAdjustments()
 	wxGetApp().GetConfig()->Write("windowWidth", this->GetSize().x);
 	wxGetApp().GetConfig()->Write("windowHeight", this->GetSize().y);
 	wxGetApp().GetConfig()->Write("verticalSplitterSashPos", this->verticalSplitter->GetSashPosition());
+	wxGetApp().GetConfig()->Write("horizontalSplitterSashPos", this->horizontalSplitter->GetSashPosition());
 }
 
 void EditorFrame::RestoreWindowAdjustments()
@@ -215,6 +283,10 @@ void EditorFrame::RestoreWindowAdjustments()
 	int sashPos = wxGetApp().GetConfig()->Read("verticalSplitterSashPos", -1);
 	if (sashPos >= 0)
 		this->verticalSplitter->SetSashPosition(sashPos);
+
+	sashPos = wxGetApp().GetConfig()->Read("horizontalSplitterSashPos", -1);
+	if (sashPos >= 0)
+		this->horizontalSplitter->SetSashPosition(sashPos);
 }
 
 void EditorFrame::OnClose(wxCloseEvent& event)
