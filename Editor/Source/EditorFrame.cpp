@@ -85,6 +85,8 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(EVT_RUNTHREAD_EXITING, &EditorFrame::OnRunThreadExiting, this);
 	this->Bind(EVT_RUNTHREAD_EXCEPTION, &EditorFrame::OnRunThreadException, this);
 	this->Bind(EVT_RUNTHREAD_OUTPUT, &EditorFrame::OnRunThreadOutput, this);
+	this->Bind(EVT_RUNTHREAD_INPUT, &EditorFrame::OnRunThreadInput, this);
+	this->Bind(EVT_TERMINAL_INPUT_READY, &EditorFrame::OnTerminalInputReady, this);
 
 	this->verticalSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
 	this->directoryTreeControl = new DirectoryTreeControl(this->verticalSplitter);
@@ -197,10 +199,8 @@ void EditorFrame::OnRunWithoutDebugger(wxCommandEvent& event)
 
 void EditorFrame::OnKillScript(wxCommandEvent& event)
 {
-	// Signal the thread to exit.
-	// TODO: May need to unlock semephore if broken at a break-point.
 	RunThread* runThread = wxGetApp().GetRunThread();
-	runThread->exitNow = true;
+	runThread->SignalExit();
 }
 
 void EditorFrame::OnRunThreadEntering(wxThreadEvent& event)
@@ -212,7 +212,7 @@ void EditorFrame::OnRunThreadExiting(wxThreadEvent& event)
 {
 	RunThread* runThread = wxGetApp().GetRunThread();
 	runThread->Wait(wxThreadWait::wxTHREAD_WAIT_BLOCK);
-	this->terminalControl->AppendText(wxString::Format("Execution time: %d ms", runThread->executionTimeMilliseconds));
+	this->terminalControl->AppendText(wxString::Format("\n\nExecution time: %d ms", runThread->executionTimeMilliseconds));
 	delete runThread;
 	wxGetApp().SetRunThread(nullptr);
 }
@@ -220,6 +220,18 @@ void EditorFrame::OnRunThreadExiting(wxThreadEvent& event)
 void EditorFrame::OnRunThreadOutput(RunThreadOutputEvent& event)
 {
 	this->terminalControl->AppendText(event.outputText);
+}
+
+void EditorFrame::OnRunThreadInput(RunThreadInputEvent& event)
+{
+	this->terminalControl->EditString(event.inputText);
+}
+
+void EditorFrame::OnTerminalInputReady(wxCommandEvent& event)
+{
+	RunThread* runThread = wxGetApp().GetRunThread();
+	if (runThread)
+		runThread->inputSemaphore.Post();
 }
 
 void EditorFrame::OnRunThreadException(RunThreadExceptionEvent& event)

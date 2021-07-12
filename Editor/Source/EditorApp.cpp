@@ -39,7 +39,10 @@ EditorApp::EditorApp()
 {
 	if (this->runThread)
 	{
-		// TODO: Signal exit, then wait with time-out.  If timed-out, kill?
+		this->runThread->SignalExit(true);
+		this->runThread->Wait(wxThreadWait::wxTHREAD_WAIT_BLOCK);
+		delete this->runThread;
+		this->runThread = nullptr;
 	}
 
 	return 0;

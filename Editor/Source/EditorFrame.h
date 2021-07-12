@@ -49,6 +49,8 @@ public:
 	void OnRunThreadExiting(wxThreadEvent& event);
 	void OnRunThreadException(RunThreadExceptionEvent& event);
 	void OnRunThreadOutput(RunThreadOutputEvent& event);
+	void OnRunThreadInput(RunThreadInputEvent& event);
+	void OnTerminalInputReady(wxCommandEvent& event);
 
 	void UpdateTreeControl(void);
 	void SaveWindowAdjustments();

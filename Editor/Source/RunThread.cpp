@@ -6,6 +6,7 @@ wxDEFINE_EVENT(EVT_RUNTHREAD_ENTERING, wxThreadEvent);
 wxDEFINE_EVENT(EVT_RUNTHREAD_EXITING, wxThreadEvent);
 wxDEFINE_EVENT(EVT_RUNTHREAD_EXCEPTION, RunThreadExceptionEvent);
 wxDEFINE_EVENT(EVT_RUNTHREAD_OUTPUT, RunThreadOutputEvent);
+wxDEFINE_EVENT(EVT_RUNTHREAD_INPUT, RunThreadInputEvent);
 
 RunThreadExceptionEvent::RunThreadExceptionEvent(Powder::Exception* exception) : wxThreadEvent(EVT_RUNTHREAD_EXCEPTION)
 {
@@ -25,7 +26,16 @@ RunThreadOutputEvent::RunThreadOutputEvent(const wxString& outputText) : wxThrea
 {
 }
 
-RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler) : wxThread(wxTHREAD_JOINABLE)
+RunThreadInputEvent::RunThreadInputEvent(wxString* inputText) : wxThreadEvent(EVT_RUNTHREAD_INPUT)
+{
+	this->inputText = inputText;
+}
+
+/*virtual*/ RunThreadInputEvent::~RunThreadInputEvent()
+{
+}
+
+RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler) : wxThread(wxTHREAD_JOINABLE), inputSemaphore(0, 1)
 {
 	this->eventHandler = eventHandler;
 	this->vm = nullptr;
@@ -42,7 +52,8 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler)
 {
 	using namespace Powder;
 
-	::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_ENTERING));
+	if (this->eventHandler)
+		::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_ENTERING));
 
 	wxStopWatch stopWatch;
 
@@ -56,7 +67,8 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler)
 	}
 	catch (Exception* exc)
 	{
-		::wxQueueEvent(this->eventHandler, new RunThreadExceptionEvent(exc));
+		if (this->eventHandler)
+			::wxQueueEvent(this->eventHandler, new RunThreadExceptionEvent(exc));
 		delete exc;
 	}
 
@@ -65,8 +77,18 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler)
 
 	this->executionTimeMilliseconds = stopWatch.Time();
 
-	::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_EXITING));
+	if (this->eventHandler)
+		::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_EXITING));
+
 	return 0;
+}
+
+void RunThread::SignalExit(bool appGoingDown /*= false*/)
+{
+	if (appGoingDown)
+		this->eventHandler = nullptr;
+	this->exitNow = true;
+	this->inputSemaphore.Post();	// This is fine, because the semephore is re-created with each thread.
 }
 
 /*virtual*/ bool RunThread::TrapExecution(const Powder::Executable* executable, Powder::Executor* executor)
@@ -80,7 +102,10 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler)
 
 /*virtual*/ void RunThread::InputString(std::string& str)
 {
-	// TODO: Signal main thread here, then block on a semaphore until we get a string resource.
+	wxString inputText;
+	::wxQueueEvent(this->eventHandler, new RunThreadInputEvent(&inputText));
+	this->inputSemaphore.Wait();
+	str = (const char*)inputText.c_str();
 }
 
 /*virtual*/ void RunThread::OutputString(const std::string& str)
