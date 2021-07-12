@@ -1,8 +1,29 @@
 #include "RunThread.h"
-#include "VirtualMachine.h"
-#include "Exceptions.hpp"
+#include "GarbageCollector.h"
+#include <wx/stopwatch.h>
 
-wxDEFINE_EVENT(wxEVT_RUNTHREAD_EXITING, wxThreadEvent);
+wxDEFINE_EVENT(EVT_RUNTHREAD_ENTERING, wxThreadEvent);
+wxDEFINE_EVENT(EVT_RUNTHREAD_EXITING, wxThreadEvent);
+wxDEFINE_EVENT(EVT_RUNTHREAD_EXCEPTION, RunThreadExceptionEvent);
+wxDEFINE_EVENT(EVT_RUNTHREAD_OUTPUT, RunThreadOutputEvent);
+
+RunThreadExceptionEvent::RunThreadExceptionEvent(Powder::Exception* exception) : wxThreadEvent(EVT_RUNTHREAD_EXCEPTION)
+{
+	this->errorMsg = (const char*)exception->GetErrorMessage().c_str();
+}
+
+/*virtual*/ RunThreadExceptionEvent::~RunThreadExceptionEvent()
+{
+}
+
+RunThreadOutputEvent::RunThreadOutputEvent(const wxString& outputText) : wxThreadEvent(EVT_RUNTHREAD_OUTPUT)
+{
+	this->outputText = outputText;
+}
+
+/*virtual*/ RunThreadOutputEvent::~RunThreadOutputEvent()
+{
+}
 
 RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler) : wxThread(wxTHREAD_JOINABLE)
 {
@@ -10,6 +31,7 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler)
 	this->vm = nullptr;
 	this->sourceFilePath = sourceFilePath;
 	this->exitNow = false;
+	this->executionTimeMilliseconds = 0L;
 }
 
 /*virtual*/ RunThread::~RunThread()
@@ -20,8 +42,13 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler)
 {
 	using namespace Powder;
 
+	::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_ENTERING));
+
+	wxStopWatch stopWatch;
+
 	this->vm = new VirtualMachine();
 	this->vm->SetDebuggerTrap(this);
+	this->vm->SetIODevice(this);
 
 	try
 	{
@@ -29,12 +56,16 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler)
 	}
 	catch (Exception* exc)
 	{
+		::wxQueueEvent(this->eventHandler, new RunThreadExceptionEvent(exc));
 		delete exc;
 	}
 
 	delete this->vm;
+	GarbageCollector::GC()->FullPurge();
 
-	wxQueueEvent(this->eventHandler, new wxThreadEvent(wxEVT_RUNTHREAD_EXITING));
+	this->executionTimeMilliseconds = stopWatch.Time();
+
+	::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_EXITING));
 	return 0;
 }
 
@@ -54,5 +85,5 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler)
 
 /*virtual*/ void RunThread::OutputString(const std::string& str)
 {
-	// TODO: Use thread-safe way of communicating string to main thread.
+	::wxQueueEvent(this->eventHandler, new RunThreadOutputEvent((const char*)str.c_str()));
 }

@@ -42,6 +42,8 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	wxMenu* runMenu = new wxMenu();
 	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithDebugger, "Run with Debugger", "Run the currently shown script with the debugger attached."));
 	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithoutDebugger, "Run without Debugger", "Run the currently shown script without a debugger attached."));
+	runMenu->AppendSeparator();
+	runMenu->Append(new wxMenuItem(runMenu, ID_KillScript, "Kill Script", "Prematurely end the currently running script, if any."));
 
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about box."));
@@ -65,6 +67,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_MENU, &EditorFrame::OnExit, this, ID_Exit);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithDebugger, this, ID_RunWithDebugger);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithoutDebugger, this, ID_RunWithoutDebugger);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnKillScript, this, ID_KillScript);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Save);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Open);
@@ -76,8 +79,12 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_CloseDirectory);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithDebugger);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithoutDebugger);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_KillScript);
 	this->Bind(wxEVT_CLOSE_WINDOW, &EditorFrame::OnClose, this);
-	this->Bind(wxEVT_RUNTHREAD_EXITING, &EditorFrame::OnRunThreadExiting, this);
+	this->Bind(EVT_RUNTHREAD_ENTERING, &EditorFrame::OnRunThreadEntering, this);
+	this->Bind(EVT_RUNTHREAD_EXITING, &EditorFrame::OnRunThreadExiting, this);
+	this->Bind(EVT_RUNTHREAD_EXCEPTION, &EditorFrame::OnRunThreadException, this);
+	this->Bind(EVT_RUNTHREAD_OUTPUT, &EditorFrame::OnRunThreadOutput, this);
 
 	this->verticalSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
 	this->directoryTreeControl = new DirectoryTreeControl(this->verticalSplitter);
@@ -196,12 +203,30 @@ void EditorFrame::OnKillScript(wxCommandEvent& event)
 	runThread->exitNow = true;
 }
 
+void EditorFrame::OnRunThreadEntering(wxThreadEvent& event)
+{
+	this->terminalControl->Clear();
+}
+
 void EditorFrame::OnRunThreadExiting(wxThreadEvent& event)
 {
 	RunThread* runThread = wxGetApp().GetRunThread();
 	runThread->Wait(wxThreadWait::wxTHREAD_WAIT_BLOCK);
+	this->terminalControl->AppendText(wxString::Format("Execution time: %d ms", runThread->executionTimeMilliseconds));
 	delete runThread;
 	wxGetApp().SetRunThread(nullptr);
+}
+
+void EditorFrame::OnRunThreadOutput(RunThreadOutputEvent& event)
+{
+	this->terminalControl->AppendText(event.outputText);
+}
+
+void EditorFrame::OnRunThreadException(RunThreadExceptionEvent& event)
+{
+	this->terminalControl->AppendText("-------------------- ERROR --------------------\n");
+	this->terminalControl->AppendText(event.errorMsg);
+	this->terminalControl->AppendText("-------------------- ERROR --------------------\n");
 }
 
 void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)

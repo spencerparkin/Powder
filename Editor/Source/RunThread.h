@@ -4,8 +4,30 @@
 #include <wx/string.h>
 #include <wx/event.h>
 #include "VirtualMachine.h"
+#include "Exceptions.hpp"
 
-wxDECLARE_EVENT(wxEVT_RUNTHREAD_EXITING, wxThreadEvent);
+class RunThreadExceptionEvent : public wxThreadEvent
+{
+public:
+	RunThreadExceptionEvent(Powder::Exception* exception);
+	virtual ~RunThreadExceptionEvent();
+	
+	wxString errorMsg;
+};
+
+class RunThreadOutputEvent : public wxThreadEvent
+{
+public:
+	RunThreadOutputEvent(const wxString& outputText);
+	virtual ~RunThreadOutputEvent();
+
+	wxString outputText;
+};
+
+wxDECLARE_EVENT(EVT_RUNTHREAD_ENTERING, wxThreadEvent);
+wxDECLARE_EVENT(EVT_RUNTHREAD_EXITING, wxThreadEvent);
+wxDECLARE_EVENT(EVT_RUNTHREAD_EXCEPTION, RunThreadExceptionEvent);
+wxDECLARE_EVENT(EVT_RUNTHREAD_OUTPUT, RunThreadOutputEvent);
 
 class RunThread : public wxThread, Powder::VirtualMachine::DebuggerTrap, Powder::VirtualMachine::IODevice
 {
@@ -22,4 +44,5 @@ public:
 	wxString sourceFilePath;
 	bool exitNow;
 	Powder::VirtualMachine* vm;
+	long executionTimeMilliseconds;
 };

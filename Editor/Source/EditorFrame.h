@@ -3,6 +3,7 @@
 #include <wx/frame.h>
 #include <wx/notebook.h>
 #include <wx/splitter.h>
+#include "RunThread.h"
 
 class TerminalControl;
 class DirectoryTreeControl;
@@ -44,7 +45,10 @@ public:
 	void OnKillScript(wxCommandEvent& event);
 	void OnUpdateMenuItemUI(wxUpdateUIEvent& event);
 	void OnClose(wxCloseEvent& event);
+	void OnRunThreadEntering(wxThreadEvent& event);
 	void OnRunThreadExiting(wxThreadEvent& event);
+	void OnRunThreadException(RunThreadExceptionEvent& event);
+	void OnRunThreadOutput(RunThreadOutputEvent& event);
 
 	void UpdateTreeControl(void);
 	void SaveWindowAdjustments();

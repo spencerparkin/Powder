@@ -1,3 +1,6 @@
 # HelloWorld.pow
 
-output("Hello, World!\n");
+while(1) {
+	output("Hello, World!\n");
+	sleep(1);
+}
