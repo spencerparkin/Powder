@@ -3,6 +3,7 @@
 #include "EditorApp.h"
 #include "EditorFrame.h"
 #include <wx/msgdlg.h>
+#include <wx/tokenzr.h>
 
 SourceFileNotebookControl::SourceFileNotebookControl(wxWindow* parent) : wxAuiNotebook(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 		wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_CLOSE_ON_ALL_TABS)
@@ -22,7 +23,7 @@ bool SourceFileNotebookControl::CanClosePage(int pageNumber)
 	
 	wxString fileName = editControl->GetFileName();
 	wxString messageText = wxString::Format("The file %s is modified.  Save before close?", fileName.c_str());
-	int result = ::wxMessageBox(messageText, wxT("Save changed?"), wxICON_QUESTION | wxYES_NO | wxCANCEL, wxGetApp().frame);
+	int result = ::wxMessageBox(messageText, wxT("Save changed?"), wxICON_QUESTION | wxYES_NO | wxCANCEL, wxGetApp().GetFrame());
 	if (result == wxYES)
 	{
 		if (editControl->SaveFile())
@@ -59,7 +60,7 @@ bool SourceFileNotebookControl::OpenSourceFile(const wxString& filePath)
 		{
 			wxString fileName = editControl->GetFileName();
 			wxString messageText = wxString::Format("The file %s could not be loaded from disk.", fileName.c_str());
-			::wxMessageBox(messageText, "Load failed!", wxICON_ERROR | wxOK, wxGetApp().frame);
+			::wxMessageBox(messageText, "Load failed!", wxICON_ERROR | wxOK, wxGetApp().GetFrame());
 			return false;
 		}
 
@@ -97,7 +98,7 @@ void SourceFileNotebookControl::SaveSourceFile(int pageNumber)
 		{
 			wxString fileName = editControl->GetFileName();
 			wxString messageText = wxString::Format("The file %s could not be saved to disk.", fileName.c_str());
-			::wxMessageBox(messageText, "Save failed!", wxICON_ERROR | wxOK, wxGetApp().frame);
+			::wxMessageBox(messageText, "Save failed!", wxICON_ERROR | wxOK, wxGetApp().GetFrame());
 		}
 	}
 }
@@ -157,4 +158,34 @@ bool SourceFileNotebookControl::AnyFilesModified()
 int SourceFileNotebookControl::OpenFileCount()
 {
 	return (signed)this->GetPageCount();
+}
+
+void SourceFileNotebookControl::RememberCurrentlyOpenFiles()
+{
+	wxString openFiles;
+	for (int i = 0; i < (signed)this->GetPageCount(); i++)
+	{
+		SourceFileEditControl* editControl = (SourceFileEditControl*)this->GetPage(i);
+		wxString fileName = editControl->filePath.GetFullPath();
+		if (openFiles.length() > 0)
+			openFiles += "|";
+		openFiles += fileName;
+	}
+
+	wxGetApp().GetConfig()->Write("openFiles", openFiles);
+}
+
+void SourceFileNotebookControl::RestoreOpenFiles()
+{
+	wxString openFiles = wxGetApp().GetConfig()->Read("openFiles");
+	if (!openFiles.empty())
+	{
+		wxStringTokenizer tokenizer(openFiles, "|");
+		while (tokenizer.HasMoreTokens())
+		{
+			wxFileName fileName = tokenizer.GetNextToken();
+			if (fileName.Exists())
+				this->OpenSourceFile(fileName.GetFullPath());
+		}
+	}
 }

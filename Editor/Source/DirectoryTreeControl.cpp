@@ -22,16 +22,18 @@ void DirectoryTreeControl::OnItemActivated(wxTreeEvent& event)
 	if (itemId.IsOk())
 	{
 		ItemData* itemData = dynamic_cast<ItemData*>(this->GetItemData(itemId));
-		wxGetApp().frame->sourceFileNotebookControl->OpenSourceFile(itemData->filePath);
+		wxGetApp().GetFrame()->sourceFileNotebookControl->OpenSourceFile(itemData->filePath);
 	}
 }
 
 void DirectoryTreeControl::RebuildForDirectory(const wxString& directoryPath)
 {
+	this->DeleteAllItems();
+	if (directoryPath.empty())
+		return;
+
 	wxString containingFolder, folderName;
 	wxFileName::SplitPath(directoryPath, &containingFolder, &folderName, nullptr);
-
-	this->DeleteAllItems();
 	this->AddRoot(folderName);
 
 	wxArrayString fileArray;

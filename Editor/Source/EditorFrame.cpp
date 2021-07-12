@@ -4,7 +4,6 @@
 #include "SourceFileEditControl.h"
 #include "EditorApp.h"
 #include <wx/menu.h>
-#include <wx/splitter.h>
 #include <wx/sizer.h>
 #include <wx/dirdlg.h>
 #include <wx/aboutdlg.h>
@@ -52,16 +51,21 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithoutDebugger);
 	this->Bind(wxEVT_CLOSE_WINDOW, &EditorFrame::OnClose, this);
 
-	wxSplitterWindow* verticalSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
+	this->verticalSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
 
-	this->directoryTreeControl = new DirectoryTreeControl(verticalSplitter);
-	this->sourceFileNotebookControl = new SourceFileNotebookControl(verticalSplitter);
+	this->directoryTreeControl = new DirectoryTreeControl(this->verticalSplitter);
+	this->sourceFileNotebookControl = new SourceFileNotebookControl(this->verticalSplitter);
+	this->sourceFileNotebookControl->RestoreOpenFiles();
 
-	verticalSplitter->SplitVertically(this->directoryTreeControl, this->sourceFileNotebookControl);
+	this->verticalSplitter->SplitVertically(this->directoryTreeControl, this->sourceFileNotebookControl);
 
 	wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
 	boxSizer->Add(verticalSplitter, 1, wxALL | wxGROW, 0);
 	this->SetSizer(boxSizer);
+
+	verticalSplitter->SetSashPosition(200);
+
+	this->UpdateTreeControl();
 }
 
 /*virtual*/ EditorFrame::~EditorFrame()
@@ -99,8 +103,8 @@ void EditorFrame::OnOpenDirectory(wxCommandEvent& event)
 	wxDirDialog dirDialog(this, "Open which directory?", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
 	if (wxID_OK == dirDialog.ShowModal())
 	{
-		wxGetApp().projectDirectory = dirDialog.GetPath();
-		this->directoryTreeControl->RebuildForDirectory(wxGetApp().projectDirectory);
+		wxGetApp().SetProjectDirectory(dirDialog.GetPath());
+		this->UpdateTreeControl();
 	}
 }
 
@@ -108,9 +112,14 @@ void EditorFrame::OnCloseDirectory(wxCommandEvent& event)
 {
 	if (this->sourceFileNotebookControl->CloseAllFiles())
 	{
-		this->directoryTreeControl->DeleteAllItems();
-		wxGetApp().projectDirectory = "";
+		wxGetApp().SetProjectDirectory("");
+		this->UpdateTreeControl();
 	}
+}
+
+void EditorFrame::UpdateTreeControl(void)
+{
+	this->directoryTreeControl->RebuildForDirectory(wxGetApp().GetProjectDirectory());
 }
 
 void EditorFrame::OnRunWithDebugger(wxCommandEvent& event)
@@ -119,6 +128,11 @@ void EditorFrame::OnRunWithDebugger(wxCommandEvent& event)
 
 void EditorFrame::OnRunWithoutDebugger(wxCommandEvent& event)
 {
+	SourceFileEditControl* editControl = this->sourceFileNotebookControl->GetSelectedEditControl();
+	if (editControl)
+	{
+
+	}
 }
 
 void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
@@ -137,12 +151,12 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 		}
 		case ID_OpenDirectory:
 		{
-			event.Enable(wxGetApp().projectDirectory.IsEmpty());
+			event.Enable(wxGetApp().GetProjectDirectory().IsEmpty());
 			break;
 		}
 		case ID_CloseDirectory:
 		{
-			event.Enable(!wxGetApp().projectDirectory.IsEmpty());
+			event.Enable(!wxGetApp().GetProjectDirectory().IsEmpty());
 			break;
 		}
 		case ID_RunWithDebugger:
@@ -170,8 +184,44 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 	}
 }
 
+void EditorFrame::SaveWindowAdjustments()
+{
+	wxGetApp().GetConfig()->Write("windowX", this->GetPosition().x);
+	wxGetApp().GetConfig()->Write("windowY", this->GetPosition().y);
+	wxGetApp().GetConfig()->Write("windowWidth", this->GetSize().x);
+	wxGetApp().GetConfig()->Write("windowHeight", this->GetSize().y);
+	wxGetApp().GetConfig()->Write("verticalSplitterSashPos", this->verticalSplitter->GetSashPosition());
+}
+
+void EditorFrame::RestoreWindowAdjustments()
+{
+	// Note that if the window title bar is off desktop, there is a trick to
+	// getting it back into the desktop.  You have to access the system menu's
+	// move menu item from the task bar when hold the shift key down when
+	// selecting it.  Now locate your cursor, which should be a quad-arrow.
+	// Then press the up-arrow key.
+	wxPoint point;
+	point.x = wxGetApp().GetConfig()->Read("windowX", -1);
+	point.y = wxGetApp().GetConfig()->Read("windowY", -1);
+	if (point.x >= 0 && point.y >= 0)
+		this->SetPosition(point);
+
+	wxSize size;
+	size.x = wxGetApp().GetConfig()->Read("windowWidth", -1);
+	size.y = wxGetApp().GetConfig()->Read("windowHeight", -1);
+	if (size.x >= 0 && size.y >= 0)
+		this->SetSize(size);
+
+	int sashPos = wxGetApp().GetConfig()->Read("verticalSplitterSashPos", -1);
+	if (sashPos >= 0)
+		this->verticalSplitter->SetSashPosition(sashPos);
+}
+
 void EditorFrame::OnClose(wxCloseEvent& event)
 {
+	this->SaveWindowAdjustments();
+	this->sourceFileNotebookControl->RememberCurrentlyOpenFiles();
+
 	if (this->sourceFileNotebookControl->CloseAllFiles())
 		wxFrame::OnCloseWindow(event);
 }

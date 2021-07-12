@@ -24,4 +24,6 @@ public:
 	bool CanClosePage(int pageNumber);
 	SourceFileEditControl* FindEditControl(const wxFileName& filePath, int* pageNumber = nullptr);
 	SourceFileEditControl* GetSelectedEditControl();
+	void RememberCurrentlyOpenFiles();
+	void RestoreOpenFiles();
 };

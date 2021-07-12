@@ -2,6 +2,7 @@
 
 #include <wx/frame.h>
 #include <wx/notebook.h>
+#include <wx/splitter.h>
 
 class DirectoryTreeControl;
 class SourceFileNotebookControl;
@@ -38,6 +39,11 @@ public:
 	void OnUpdateMenuItemUI(wxUpdateUIEvent& event);
 	void OnClose(wxCloseEvent& event);
 
+	void UpdateTreeControl(void);
+	void SaveWindowAdjustments();
+	void RestoreWindowAdjustments();
+
+	wxSplitterWindow* verticalSplitter;
 	DirectoryTreeControl* directoryTreeControl;
 	SourceFileNotebookControl* sourceFileNotebookControl;
 };
