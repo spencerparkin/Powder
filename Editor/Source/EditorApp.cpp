@@ -22,7 +22,7 @@ EditorApp::EditorApp()
 		return false;
 
 	this->config = new wxConfig("PowderEditor");
-	this->projectDirectory = this->config->Read("projectDirectory");
+	this->SetProjectDirectory(this->config->Read("projectDirectory"));
 
 	wxFileName fileName(this->projectDirectory);
 	if (!fileName.Exists())
@@ -37,14 +37,6 @@ EditorApp::EditorApp()
 
 /*virtual*/ int EditorApp::OnExit()
 {
-	if (this->runThread)
-	{
-		this->runThread->SignalExit(true);
-		this->runThread->Wait(wxThreadWait::wxTHREAD_WAIT_BLOCK);
-		delete this->runThread;
-		this->runThread = nullptr;
-	}
-
 	return 0;
 }
 
@@ -52,6 +44,9 @@ void EditorApp::SetProjectDirectory(const wxString& projectDirectory)
 {
 	this->projectDirectory = projectDirectory;
 	this->config->Write("projectDirectory", this->projectDirectory);
+
+	if (this->projectDirectory.Length() > 0)
+		::wxSetWorkingDirectory(this->projectDirectory);
 }
 
 const wxString& EditorApp::GetProjectDirectory()

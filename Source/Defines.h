@@ -8,7 +8,7 @@
 #	define POWDER_API
 #endif
 
-//#define POWDER_DEBUG
+#define POWDER_DEBUG
 
 namespace Powder
 {

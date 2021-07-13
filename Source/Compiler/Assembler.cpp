@@ -80,6 +80,8 @@ namespace Powder
 				instructionMapEntryValue.SetObject();
 				instructionMapEntryValue.AddMember("line", rapidjson::Value().SetInt(instruction->assemblyData->fileLocation.lineNumber), executable->debugInfoDoc->GetAllocator());
 				instructionMapEntryValue.AddMember("col", rapidjson::Value().SetInt(instruction->assemblyData->fileLocation.columnNumber), executable->debugInfoDoc->GetAllocator());
+				if (instruction->assemblyData->debuggerHelp->length() > 0)
+					instructionMapEntryValue.AddMember("debugger_help", rapidjson::Value().SetString(instruction->assemblyData->debuggerHelp->c_str(), executable->debugInfoDoc->GetAllocator()), executable->debugInfoDoc->GetAllocator());
 				std::string addressStr = FormatString("%d", programBufferLocation);
 				instructionMapValue.AddMember(rapidjson::Value().SetString(addressStr.c_str(), executable->debugInfoDoc->GetAllocator()), instructionMapEntryValue, executable->debugInfoDoc->GetAllocator());
 			}

@@ -33,6 +33,12 @@ namespace Powder
 			this->programBufferLocation = 0L;
 			this->fileLocation.lineNumber = -1;
 			this->fileLocation.columnNumber = -1;
+			this->debuggerHelp = new std::string;
+		}
+
+		virtual ~AssemblyData()
+		{
+			delete this->debuggerHelp;
 		}
 
 		uint64_t programBufferLocation;
@@ -62,5 +68,6 @@ namespace Powder
 
 		HashMap<Entry> configMap;
 		FileLocation fileLocation;
+		std::string* debuggerHelp;
 	};
 }

@@ -12,6 +12,7 @@ namespace Powder
 {
 	FunctionCallExpressionHandler::FunctionCallExpressionHandler()
 	{
+		this->callNumber = 0;
 	}
 
 	/*virtual*/ FunctionCallExpressionHandler::~FunctionCallExpressionHandler()
@@ -119,6 +120,7 @@ namespace Powder
 			entry.Reset();
 			entry.code = JumpInstruction::JUMP_TO_LOADED_ADDRESS;
 			jumpInstruction->assemblyData->configMap.Insert("type", entry);
+			*jumpInstruction->assemblyData->debuggerHelp = FormatString("function_%d_call", this->callNumber);
 			instructionList.AddTail(jumpInstruction);
 
 			// Here now is the instruction that we will jump to when returning from the call.
@@ -127,7 +129,10 @@ namespace Powder
 			entry.Reset();
 			entry.code = ScopeInstruction::ScopeOp::POP;
 			scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
+			*scopeInstruction->assemblyData->debuggerHelp = FormatString("function_%d_return", this->callNumber);
 			instructionList.AddTail(scopeInstruction);
+
+			this->callNumber++;
 		}
 
 		// We now look at the call in context to see if we need to leave the return result or clean it up.

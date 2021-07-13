@@ -160,6 +160,15 @@ int SourceFileNotebookControl::OpenFileCount()
 	return (signed)this->GetPageCount();
 }
 
+void SourceFileNotebookControl::ClearExecutionMarkers()
+{
+	for (int i = 0; i < (signed)this->GetPageCount(); i++)
+	{
+		SourceFileEditControl* editControl = (SourceFileEditControl*)this->GetPage(i);
+		editControl->ClearExecutionMarker();
+	}
+}
+
 void SourceFileNotebookControl::RememberCurrentlyOpenFiles()
 {
 	wxString openFiles;

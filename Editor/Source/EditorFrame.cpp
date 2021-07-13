@@ -10,14 +10,16 @@
 #include <wx/dirdlg.h>
 #include <wx/aboutdlg.h>
 #include <wx/filedlg.h>
-#include <wx/toolbar.h>
 
 EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Powder Editor", pos, size)
 {
-	wxAcceleratorEntry entries[2];
+	const int entryCount = 5;
+	wxAcceleratorEntry entries[entryCount];
 	entries[0].Set(wxACCEL_CTRL, 'S', ID_Save);
 	entries[1].Set(wxACCEL_CTRL, 'O', ID_Open);
-	int entryCount = sizeof(entries) / sizeof(wxAcceleratorEntry);
+	entries[2].Set(wxACCEL_NORMAL, WXK_F10, ID_StepOver);
+	entries[3].Set(wxACCEL_NORMAL, WXK_F11, ID_StepInto);
+	entries[4].Set(wxACCEL_SHIFT, WXK_F11, ID_StepOut);
 
 	wxAcceleratorTable table(entryCount, entries);
 	this->SetAcceleratorTable(table);
@@ -44,6 +46,18 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithDebugger, "Run with Debugger", "Run the currently shown script with the debugger attached."));
 	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithoutDebugger, "Run without Debugger", "Run the currently shown script without a debugger attached."));
 	runMenu->AppendSeparator();
+	wxMenuItem* stepOverMenuItem = new wxMenuItem(runMenu, ID_StepOver, "Step Over", "Step over the current statement of function call.");
+	wxMenuItem* stepIntoMenuItem = new wxMenuItem(runMenu, ID_StepInto, "Step Into", "Step into the current function call, if any; or just step over.");
+	wxMenuItem* stepOutMenuItem = new wxMenuItem(runMenu, ID_StepOut, "Step Out", "Step out of the current function call, if any; or just resume.");
+	stepOverMenuItem->SetAccel(&entries[2]);
+	stepIntoMenuItem->SetAccel(&entries[3]);
+	stepOutMenuItem->SetAccel(&entries[4]);
+	runMenu->Append(stepOverMenuItem);
+	runMenu->Append(stepIntoMenuItem);
+	runMenu->Append(stepOutMenuItem);
+	runMenu->AppendSeparator();
+	runMenu->Append(new wxMenuItem(runMenu, ID_PauseScript, "Pause Script", "Suspend the currently running script as soon as possible."));
+	runMenu->Append(new wxMenuItem(runMenu, ID_ResumeScript, "Resume Script", "Resume execution of the currently suspended script, if any."));
 	runMenu->Append(new wxMenuItem(runMenu, ID_KillScript, "Kill Script", "Prematurely end the currently running script, if any."));
 
 	wxMenu* helpMenu = new wxMenu();
@@ -69,7 +83,12 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_MENU, &EditorFrame::OnExit, this, ID_Exit);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithDebugger, this, ID_RunWithDebugger);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithoutDebugger, this, ID_RunWithoutDebugger);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnPauseScript, this, ID_PauseScript);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnResumeScript, this, ID_ResumeScript);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnKillScript, this, ID_KillScript);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnStepOver, this, ID_StepOver);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnStepInto, this, ID_StepInto);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnStepOut, this, ID_StepOut);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Save);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Open);
@@ -81,13 +100,19 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_CloseDirectory);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithDebugger);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithoutDebugger);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_PauseScript);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_ResumeScript);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_KillScript);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_StepOver);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_StepInto);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_StepOut);
 	this->Bind(wxEVT_CLOSE_WINDOW, &EditorFrame::OnClose, this);
 	this->Bind(EVT_RUNTHREAD_ENTERING, &EditorFrame::OnRunThreadEntering, this);
 	this->Bind(EVT_RUNTHREAD_EXITING, &EditorFrame::OnRunThreadExiting, this);
 	this->Bind(EVT_RUNTHREAD_EXCEPTION, &EditorFrame::OnRunThreadException, this);
 	this->Bind(EVT_RUNTHREAD_OUTPUT, &EditorFrame::OnRunThreadOutput, this);
 	this->Bind(EVT_RUNTHREAD_INPUT, &EditorFrame::OnRunThreadInput, this);
+	this->Bind(EVT_RUNTHREAD_SUSPENDED, &EditorFrame::OnRunThreadSuspended, this);
 	this->Bind(EVT_TERMINAL_INPUT_READY, &EditorFrame::OnTerminalInputReady, this);
 
 	this->verticalSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
@@ -105,9 +130,6 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 
 	verticalSplitter->SetSashPosition(200);
 	horizontalSplitter->SetSashPosition(300);
-
-	//wxToolBar* toolBar = this->CreateToolBar(wxTB_DEFAULT_STYLE, wxID_ANY);
-	//toolBar->AddTool(ID_RunWithDebugger, "Run with Debugger", )
 
 	this->UpdateTreeControl();
 }
@@ -189,23 +211,41 @@ void EditorFrame::UpdateTreeControl(void)
 
 void EditorFrame::OnRunWithDebugger(wxCommandEvent& event)
 {
+	this->KickoffRunThread(true);
 }
 
 void EditorFrame::OnRunWithoutDebugger(wxCommandEvent& event)
 {
-	SourceFileEditControl* editControl = this->sourceFileNotebookControl->GetSelectedEditControl();
-	if (editControl)
+	this->KickoffRunThread(false);
+}
+
+void EditorFrame::KickoffRunThread(bool debuggingEnabled)
+{
+	if (!wxGetApp().GetRunThread())
 	{
-		RunThread* runThread = new RunThread(editControl->filePath.GetFullPath(), this);
-		wxGetApp().SetRunThread(runThread);
-		runThread->Run();
+		SourceFileEditControl* editControl = this->sourceFileNotebookControl->GetSelectedEditControl();
+		if (editControl)
+		{
+			RunThread* runThread = new RunThread(editControl->filePath.GetFullPath(), this, debuggingEnabled);
+			wxGetApp().SetRunThread(runThread);
+			runThread->Run();
+		}
 	}
+}
+
+void EditorFrame::OnPauseScript(wxCommandEvent& event)
+{
+	wxGetApp().GetRunThread()->MainThread_Pause();
+}
+
+void EditorFrame::OnResumeScript(wxCommandEvent& event)
+{
+	wxGetApp().GetRunThread()->MainThread_Resume();
 }
 
 void EditorFrame::OnKillScript(wxCommandEvent& event)
 {
-	RunThread* runThread = wxGetApp().GetRunThread();
-	runThread->SignalExit();
+	wxGetApp().GetRunThread()->MainThread_ExitNow();
 }
 
 void EditorFrame::OnRunThreadEntering(wxThreadEvent& event)
@@ -216,10 +256,15 @@ void EditorFrame::OnRunThreadEntering(wxThreadEvent& event)
 void EditorFrame::OnRunThreadExiting(wxThreadEvent& event)
 {
 	RunThread* runThread = wxGetApp().GetRunThread();
-	runThread->Wait(wxThreadWait::wxTHREAD_WAIT_BLOCK);
-	this->terminalControl->AppendText(wxString::Format("\n\nExecution time: %d ms", runThread->executionTimeMilliseconds));
-	delete runThread;
-	wxGetApp().SetRunThread(nullptr);
+	if (runThread)
+	{
+		runThread->Wait(wxThreadWait::wxTHREAD_WAIT_BLOCK);
+		this->terminalControl->AppendText(wxString::Format("\n\nExecution time: %d ms", runThread->executionTimeMilliseconds));
+		delete runThread;
+		wxGetApp().SetRunThread(nullptr);
+	}
+
+	this->sourceFileNotebookControl->ClearExecutionMarkers();
 }
 
 void EditorFrame::OnRunThreadOutput(RunThreadOutputEvent& event)
@@ -234,9 +279,8 @@ void EditorFrame::OnRunThreadInput(RunThreadInputEvent& event)
 
 void EditorFrame::OnTerminalInputReady(wxCommandEvent& event)
 {
-	RunThread* runThread = wxGetApp().GetRunThread();
-	if (runThread)
-		runThread->inputSemaphore.Post();
+	if (wxGetApp().GetRunThread())
+		wxGetApp().GetRunThread()->MainThread_Resume();
 }
 
 void EditorFrame::OnRunThreadException(RunThreadExceptionEvent& event)
@@ -244,6 +288,31 @@ void EditorFrame::OnRunThreadException(RunThreadExceptionEvent& event)
 	this->terminalControl->AppendText("-------------------- ERROR --------------------\n");
 	this->terminalControl->AppendText(event.errorMsg);
 	this->terminalControl->AppendText("-------------------- ERROR --------------------\n");
+}
+
+void EditorFrame::OnRunThreadSuspended(RunThreadSuspendedEvent& event)
+{
+	if (this->sourceFileNotebookControl->OpenSourceFile(event.sourceFile))
+	{
+		SourceFileEditControl* editControl = this->sourceFileNotebookControl->FindEditControl(event.sourceFile);
+		if (editControl)
+			editControl->ShowExecutionSuspendedAt(event.lineNumber, event.columnNumber);
+	}
+}
+
+void EditorFrame::OnStepOver(wxCommandEvent& event)
+{
+	wxGetApp().GetRunThread()->MainThread_StepOver();
+}
+
+void EditorFrame::OnStepInto(wxCommandEvent& event)
+{
+	wxGetApp().GetRunThread()->MainThread_StepInto();
+}
+
+void EditorFrame::OnStepOut(wxCommandEvent& event)
+{
+	wxGetApp().GetRunThread()->MainThread_StepOut();
 }
 
 void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
@@ -315,6 +384,25 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 
 			break;
 		}
+		case ID_PauseScript:
+		{
+			if (!wxGetApp().GetRunThread())
+				event.Enable(false);
+			else
+				event.Enable(wxGetApp().GetRunThread()->suspensionState == RunThread::NOT_SUSPENDED);
+			break;
+		}
+		case ID_ResumeScript:
+		case ID_StepOver:
+		case ID_StepInto:
+		case ID_StepOut:
+		{
+			if (!wxGetApp().GetRunThread())
+				event.Enable(false);
+			else
+				event.Enable(wxGetApp().GetRunThread()->suspensionState == RunThread::SUSPENDED_FOR_DEBUG);
+			break;
+		}
 		case ID_KillScript:
 		{
 			event.Enable(wxGetApp().GetRunThread() ? true : false);
@@ -366,6 +454,18 @@ void EditorFrame::OnClose(wxCloseEvent& event)
 	this->SaveWindowAdjustments();
 	this->sourceFileNotebookControl->RememberCurrentlyOpenFiles();
 
-	if (this->sourceFileNotebookControl->CloseAllFiles())
-		wxFrame::OnCloseWindow(event);
+	if (!this->sourceFileNotebookControl->CloseAllFiles())
+		return;
+
+	RunThread* runThread = wxGetApp().GetRunThread();
+	if (runThread)
+	{
+		wxGetApp().SetRunThread(nullptr);
+		this->Unbind(EVT_RUNTHREAD_EXITING, &EditorFrame::OnRunThreadExiting, this);
+		runThread->MainThread_ExitNow();
+		runThread->Wait(wxTHREAD_WAIT_BLOCK);
+		delete runThread;
+	}
+
+	wxFrame::OnCloseWindow(event);
 }

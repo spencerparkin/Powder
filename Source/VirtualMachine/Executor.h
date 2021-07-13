@@ -31,6 +31,7 @@ namespace Powder
 		bool PopScope();
 
 		Scope* GetCurrentScope() { return this->currentScope.Ptr(); }
+		uint64_t GetProgramBufferLocation() { return this->programBufferLocation; }
 
 		void AbsorbScope(Scope* scope);
 

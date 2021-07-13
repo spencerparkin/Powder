@@ -33,16 +33,28 @@ public:
 	wxString* inputText;
 };
 
+class RunThreadSuspendedEvent : public wxThreadEvent
+{
+public:
+	RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber);
+	virtual ~RunThreadSuspendedEvent();
+
+	wxString sourceFile;
+	int lineNumber;
+	int columnNumber;
+};
+
 wxDECLARE_EVENT(EVT_RUNTHREAD_ENTERING, wxThreadEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_EXITING, wxThreadEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_EXCEPTION, RunThreadExceptionEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_OUTPUT, RunThreadOutputEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_INPUT, RunThreadInputEvent);
+wxDECLARE_EVENT(EVT_RUNTHREAD_SUSPENDED, RunThreadSuspendedEvent);
 
 class RunThread : public wxThread, Powder::VirtualMachine::DebuggerTrap, Powder::VirtualMachine::IODevice
 {
 public:
-	RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler);
+	RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler, bool debuggingEnabled);
 	virtual ~RunThread();
 
 	virtual ExitCode Entry() override;
@@ -50,12 +62,40 @@ public:
 	virtual void InputString(std::string& str) override;
 	virtual void OutputString(const std::string& str) override;
 
-	void SignalExit(bool appGoingDown = false);
+	void MainThread_Pause(void);
+	void MainThread_Resume(void);
+	void MainThread_ExitNow(void);
+	void MainThread_StepOver(void);
+	void MainThread_StepInto(void);
+	void MainThread_StepOut(void);
 
+	enum SuspensionState
+	{
+		NOT_SUSPENDED,
+		SUSPENDED_FOR_DEBUG,
+		SUSPENDED_FOR_INPUT
+	};
+
+	enum ResumeState
+	{
+		RESUME_HAPPY,
+		RESUME_STEP_OVER,
+		RESUME_STEP_INTO,
+		RESUME_STEP_OUT
+	};
+
+	bool debuggingEnabled;
+	SuspensionState suspensionState;
+	ResumeState resumeState;
+	bool exitNow;
+	bool suspendNow;
 	wxEvtHandler* eventHandler;
 	wxString sourceFilePath;
-	bool exitNow;
 	Powder::VirtualMachine* vm;
 	long executionTimeMilliseconds;
-	wxSemaphore inputSemaphore;
+	wxSemaphore suspensionSemaphore;
+	int callDepth;
+	int targetCallDepth;
+	int avoidLineNumber;
+	int keepLineNumber;
 };

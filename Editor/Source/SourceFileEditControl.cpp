@@ -9,6 +9,7 @@ SourceFileEditControl::SourceFileEditControl(wxWindow* parent, const wxString& f
 	this->filePath = filePath;
 	this->modified = false;
 	this->ready = false;
+	this->suspensionMarkerHandler = -1;
 
 	wxFont font;
 	font.SetFaceName("Courier New");
@@ -20,6 +21,7 @@ SourceFileEditControl::SourceFileEditControl(wxWindow* parent, const wxString& f
 	this->SetMarginWidth(0, 30);
 	this->SetMarginSensitive(0, true);
 	this->MarkerDefine(0, wxSTC_MARK_CIRCLE, *wxRED, *wxRED);
+	this->MarkerDefine(1, wxSTC_MARK_ARROW, *wxGREEN, *wxGREEN);
 
 	this->Bind(wxEVT_STC_MODIFIED, &SourceFileEditControl::OnModified, this, wxID_ANY);
 	//this->Bind(wxEVT_STC_KEY, &SourceFileEditControl::OnKeyPressed, this, wxID_ANY);
@@ -94,4 +96,19 @@ bool SourceFileEditControl::SaveFile(void)
 		return false;
 	this->modified = false;
 	return true;
+}
+
+void SourceFileEditControl::ShowExecutionSuspendedAt(int lineNumber, int columnNumber)
+{
+	this->ClearExecutionMarker();
+	this->suspensionMarkerHandler = this->MarkerAdd(lineNumber - 1, 1);
+}
+
+void SourceFileEditControl::ClearExecutionMarker()
+{
+	if (this->suspensionMarkerHandler >= 0)
+	{
+		this->MarkerDeleteHandle(this->suspensionMarkerHandler);
+		this->suspensionMarkerHandler = -1;
+	}
 }

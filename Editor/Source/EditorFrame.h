@@ -28,6 +28,11 @@ public:
 		ID_CloseDirectory,
 		ID_RunWithDebugger,
 		ID_RunWithoutDebugger,
+		ID_StepOver,
+		ID_StepInto,
+		ID_StepOut,
+		ID_PauseScript,
+		ID_ResumeScript,
 		ID_KillScript
 	};
 
@@ -42,6 +47,8 @@ public:
 	void OnCloseDirectory(wxCommandEvent& event);
 	void OnRunWithDebugger(wxCommandEvent& event);
 	void OnRunWithoutDebugger(wxCommandEvent& event);
+	void OnPauseScript(wxCommandEvent& event);
+	void OnResumeScript(wxCommandEvent& event);
 	void OnKillScript(wxCommandEvent& event);
 	void OnUpdateMenuItemUI(wxUpdateUIEvent& event);
 	void OnClose(wxCloseEvent& event);
@@ -50,11 +57,16 @@ public:
 	void OnRunThreadException(RunThreadExceptionEvent& event);
 	void OnRunThreadOutput(RunThreadOutputEvent& event);
 	void OnRunThreadInput(RunThreadInputEvent& event);
+	void OnRunThreadSuspended(RunThreadSuspendedEvent& event);
 	void OnTerminalInputReady(wxCommandEvent& event);
+	void OnStepOver(wxCommandEvent& event);
+	void OnStepInto(wxCommandEvent& event);
+	void OnStepOut(wxCommandEvent& event);
 
 	void UpdateTreeControl(void);
 	void SaveWindowAdjustments();
 	void RestoreWindowAdjustments();
+	void KickoffRunThread(bool debuggingEnabled);
 
 	wxSplitterWindow* verticalSplitter;
 	wxSplitterWindow* horizontalSplitter;

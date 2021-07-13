@@ -143,6 +143,9 @@ namespace Powder
 
 		if (programSourceCodePath.length() > 0)
 		{
+			if (executable->debugInfoDoc)
+				executable->debugInfoDoc->AddMember("source_file", rapidjson::Value().SetString(programSourceCodePath.c_str(), executable->debugInfoDoc->GetAllocator()), executable->debugInfoDoc->GetAllocator());
+
 			std::string programByteCodePath = programSourceCodePath.substr(0, programSourceCodePath.find_last_of('.')) + ".pwx";
 			executable->Save(programByteCodePath);
 		}

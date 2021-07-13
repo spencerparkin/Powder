@@ -12,7 +12,6 @@ public:
 	virtual ~TerminalControl();
 
 	void OnCharPressed(wxKeyEvent& event);
-
 	void EditString(wxString* inputText);
 
 private:

@@ -19,7 +19,11 @@ public:
 	void OnKeyPressed(wxStyledTextEvent& event);
 	void OnMarginClicked(wxStyledTextEvent& event);
 
+	void ShowExecutionSuspendedAt(int lineNumber, int columnNumber);
+	void ClearExecutionMarker();
+
 	wxFileName filePath;
 	bool modified;
 	bool ready;
+	int suspensionMarkerHandler;
 };

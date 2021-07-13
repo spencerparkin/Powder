@@ -26,4 +26,5 @@ public:
 	SourceFileEditControl* GetSelectedEditControl();
 	void RememberCurrentlyOpenFiles();
 	void RestoreOpenFiles();
+	void ClearExecutionMarkers();
 };
