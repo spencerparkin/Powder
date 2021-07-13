@@ -1,13 +1,9 @@
 #pragma once
 
 #include <wx/frame.h>
-#include <wx/notebook.h>
-#include <wx/splitter.h>
+#include <wx/aui/aui.h>
 #include "RunThread.h"
-
-class TerminalControl;
-class DirectoryTreeControl;
-class SourceFileNotebookControl;
+#include "Panel.h"
 
 class EditorFrame : public wxFrame
 {
@@ -17,7 +13,7 @@ public:
 
 	enum
 	{
-		ID_Exit,
+		ID_Exit = wxID_HIGHEST,
 		ID_About,
 		ID_Save,
 		ID_Open,
@@ -63,14 +59,21 @@ public:
 	void OnStepInto(wxCommandEvent& event);
 	void OnStepOut(wxCommandEvent& event);
 
-	void UpdateTreeControl(void);
 	void SaveWindowAdjustments();
 	void RestoreWindowAdjustments();
 	void KickoffRunThread(bool debuggingEnabled);
+	void MakePanels(void);
+	void NotifyPanels(Panel::Notification notification);
 
-	wxSplitterWindow* verticalSplitter;
-	wxSplitterWindow* horizontalSplitter;
-	DirectoryTreeControl* directoryTreeControl;
-	SourceFileNotebookControl* sourceFileNotebookControl;
-	TerminalControl* terminalControl;
+	template<typename T>
+	T* FindPanel(const wxString& panelName)
+	{
+		wxAuiPaneInfoArray& paneInfoArray = auiManager->GetAllPanes();
+		for (int i = 0; i < (signed)paneInfoArray.GetCount(); i++)
+			if (paneInfoArray[i].name == panelName)
+				return wxDynamicCast(paneInfoArray[i].window, T);
+		return nullptr;
+	}
+
+	wxAuiManager* auiManager;
 };

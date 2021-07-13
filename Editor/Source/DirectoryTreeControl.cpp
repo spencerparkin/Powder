@@ -1,5 +1,6 @@
 #include "DirectoryTreeControl.h"
 #include "EditorFrame.h"
+#include "SourceFilePanel.h"
 #include "SourceFileNotebookControl.h"
 #include "EditorApp.h"
 #include <wx/dir.h>
@@ -22,7 +23,9 @@ void DirectoryTreeControl::OnItemActivated(wxTreeEvent& event)
 	if (itemId.IsOk())
 	{
 		ItemData* itemData = dynamic_cast<ItemData*>(this->GetItemData(itemId));
-		wxGetApp().GetFrame()->sourceFileNotebookControl->OpenSourceFile(itemData->filePath);
+		SourceFilePanel* sourceFilePanel = wxGetApp().GetFrame()->FindPanel<SourceFilePanel>("SourceFile");
+		if (sourceFilePanel)
+			sourceFilePanel->notebookControl->OpenSourceFile(itemData->filePath);
 	}
 }
 

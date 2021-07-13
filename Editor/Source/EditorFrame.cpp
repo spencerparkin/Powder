@@ -1,7 +1,10 @@
 #include "EditorFrame.h"
+#include "DirectoryTreePanel.h"
 #include "DirectoryTreeControl.h"
+#include "SourceFilePanel.h"
 #include "SourceFileNotebookControl.h"
 #include "SourceFileEditControl.h"
+#include "TerminalPanel.h"
 #include "TerminalControl.h"
 #include "RunThread.h"
 #include "EditorApp.h"
@@ -13,6 +16,8 @@
 
 EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Powder Editor", pos, size)
 {
+	this->auiManager = new wxAuiManager(this, wxAUI_MGR_DEFAULT);
+
 	const int entryCount = 5;
 	wxAcceleratorEntry entries[entryCount];
 	entries[0].Set(wxACCEL_CTRL, 'S', ID_Save);
@@ -115,27 +120,53 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(EVT_RUNTHREAD_SUSPENDED, &EditorFrame::OnRunThreadSuspended, this);
 	this->Bind(EVT_TERMINAL_INPUT_READY, &EditorFrame::OnTerminalInputReady, this);
 
-	this->verticalSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
-	this->directoryTreeControl = new DirectoryTreeControl(this->verticalSplitter);
-	this->horizontalSplitter = new wxSplitterWindow(this->verticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D);
-	this->sourceFileNotebookControl = new SourceFileNotebookControl(this->horizontalSplitter);
-	this->sourceFileNotebookControl->RestoreOpenFiles();
-	this->terminalControl = new TerminalControl(this->horizontalSplitter);
-	this->horizontalSplitter->SplitHorizontally(this->sourceFileNotebookControl, this->terminalControl);
-	this->verticalSplitter->SplitVertically(this->directoryTreeControl, this->horizontalSplitter);
+	this->MakePanels();
+	this->NotifyPanels(Panel::APP_OPENING);
 
-	wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
-	boxSizer->Add(verticalSplitter, 1, wxALL | wxGROW, 0);
-	this->SetSizer(boxSizer);
-
-	verticalSplitter->SetSashPosition(200);
-	horizontalSplitter->SetSashPosition(300);
-
-	this->UpdateTreeControl();
+	this->auiManager->Update();
 }
 
 /*virtual*/ EditorFrame::~EditorFrame()
 {
+	this->auiManager->UnInit();
+	delete this->auiManager;
+}
+
+void EditorFrame::MakePanels(void)
+{
+	wxClassInfo* basePanelClassInfo = wxClassInfo::FindClass("Panel");
+	if (!basePanelClassInfo)
+		return;
+
+	const wxClassInfo* classInfo = wxClassInfo::GetFirst();
+	while (classInfo)
+	{
+		if (classInfo != basePanelClassInfo && classInfo->IsKindOf(basePanelClassInfo))
+		{
+			Panel* panel = (Panel*)classInfo->CreateObject();
+			panel->Create(this);
+			if (!panel->MakeControls())
+				delete panel;
+			else
+			{
+				wxAuiPaneInfo paneInfo;
+				panel->GetPaneInfo(paneInfo);
+				auiManager->AddPane(panel, paneInfo);
+			}
+		}
+		classInfo = classInfo->GetNext();
+	}
+}
+
+void EditorFrame::NotifyPanels(Panel::Notification notification)
+{
+	wxAuiPaneInfoArray& paneInfoArray = auiManager->GetAllPanes();
+	for (int i = 0; i < (signed)paneInfoArray.GetCount(); i++)
+	{
+		Panel* panel = wxDynamicCast(paneInfoArray[i].window, Panel);
+		if (panel)
+			panel->OnNotified(notification);
+	}
 }
 
 void EditorFrame::OnExit(wxCommandEvent& event)
@@ -156,33 +187,49 @@ void EditorFrame::OnAbout(wxCommandEvent& event)
 
 void EditorFrame::OnSaveFile(wxCommandEvent& event)
 {
-	int pageNumber = this->sourceFileNotebookControl->GetSelection();
-	if (pageNumber >= 0)
-		this->sourceFileNotebookControl->SaveSourceFile(pageNumber);
+	SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+	if (sourceFilePanel)
+	{
+		int pageNumber = sourceFilePanel->notebookControl->GetSelection();
+		if (pageNumber >= 0)
+			sourceFilePanel->notebookControl->SaveSourceFile(pageNumber);
+	}
 }
 
 void EditorFrame::OnOpenFile(wxCommandEvent& event)
 {
 	wxFileDialog openFileDialog(this, "Open Powder Source File", "", "", "Powder File (*.pow)|*.pow", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 	if (openFileDialog.ShowModal() == wxID_OK)
-		this->sourceFileNotebookControl->OpenSourceFile(openFileDialog.GetPath());
+	{
+		SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+		if (sourceFilePanel)
+			sourceFilePanel->notebookControl->OpenSourceFile(openFileDialog.GetPath());
+	}
 }
 
 void EditorFrame::OnCloseFile(wxCommandEvent& event)
 {
-	int pageNumber = this->sourceFileNotebookControl->GetSelection();
-	if (pageNumber >= 0)
-		this->sourceFileNotebookControl->CloseSourceFile(pageNumber);
+	SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+	if (sourceFilePanel)
+	{
+		int pageNumber = sourceFilePanel->notebookControl->GetSelection();
+		if (pageNumber >= 0)
+			sourceFilePanel->notebookControl->CloseSourceFile(pageNumber);
+	}
 }
 
 void EditorFrame::OnSaveAllFiles(wxCommandEvent& event)
 {
-	this->sourceFileNotebookControl->SaveAllFiles();
+	SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+	if (sourceFilePanel)
+		sourceFilePanel->notebookControl->SaveAllFiles();
 }
 
 void EditorFrame::OnCloseAllFiles(wxCommandEvent& event)
 {
-	this->sourceFileNotebookControl->CloseAllFiles();
+	SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+	if (sourceFilePanel)
+		sourceFilePanel->notebookControl->CloseAllFiles();
 }
 
 void EditorFrame::OnOpenDirectory(wxCommandEvent& event)
@@ -191,22 +238,21 @@ void EditorFrame::OnOpenDirectory(wxCommandEvent& event)
 	if (wxID_OK == dirDialog.ShowModal())
 	{
 		wxGetApp().SetProjectDirectory(dirDialog.GetPath());
-		this->UpdateTreeControl();
+		this->NotifyPanels(Panel::DIRECTORY_OPENED);
 	}
 }
 
 void EditorFrame::OnCloseDirectory(wxCommandEvent& event)
 {
-	if (this->sourceFileNotebookControl->CloseAllFiles())
+	SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+	if (sourceFilePanel)
 	{
-		wxGetApp().SetProjectDirectory("");
-		this->UpdateTreeControl();
+		if (sourceFilePanel->notebookControl->CloseAllFiles())
+		{
+			this->NotifyPanels(Panel::DIRECTORY_CLOSED);
+			wxGetApp().SetProjectDirectory("");
+		}
 	}
-}
-
-void EditorFrame::UpdateTreeControl(void)
-{
-	this->directoryTreeControl->RebuildForDirectory(wxGetApp().GetProjectDirectory());
 }
 
 void EditorFrame::OnRunWithDebugger(wxCommandEvent& event)
@@ -223,12 +269,16 @@ void EditorFrame::KickoffRunThread(bool debuggingEnabled)
 {
 	if (!wxGetApp().GetRunThread())
 	{
-		SourceFileEditControl* editControl = this->sourceFileNotebookControl->GetSelectedEditControl();
-		if (editControl)
+		SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+		if (sourceFilePanel)
 		{
-			RunThread* runThread = new RunThread(editControl->filePath.GetFullPath(), this, debuggingEnabled);
-			wxGetApp().SetRunThread(runThread);
-			runThread->Run();
+			SourceFileEditControl* editControl = sourceFilePanel->notebookControl->GetSelectedEditControl();
+			if (editControl)
+			{
+				RunThread* runThread = new RunThread(editControl->filePath.GetFullPath(), this, debuggingEnabled);
+				wxGetApp().SetRunThread(runThread);
+				runThread->Run();
+			}
 		}
 	}
 }
@@ -250,7 +300,7 @@ void EditorFrame::OnKillScript(wxCommandEvent& event)
 
 void EditorFrame::OnRunThreadEntering(wxThreadEvent& event)
 {
-	this->terminalControl->Clear();
+	this->NotifyPanels(Panel::RUNTHREAD_STARTED);
 }
 
 void EditorFrame::OnRunThreadExiting(wxThreadEvent& event)
@@ -259,22 +309,24 @@ void EditorFrame::OnRunThreadExiting(wxThreadEvent& event)
 	if (runThread)
 	{
 		runThread->Wait(wxThreadWait::wxTHREAD_WAIT_BLOCK);
-		this->terminalControl->AppendText(wxString::Format("\n\nExecution time: %d ms", runThread->executionTimeMilliseconds));
+		this->NotifyPanels(Panel::RUNTHREAD_ENDED);
 		delete runThread;
 		wxGetApp().SetRunThread(nullptr);
 	}
-
-	this->sourceFileNotebookControl->ClearExecutionMarkers();
 }
 
 void EditorFrame::OnRunThreadOutput(RunThreadOutputEvent& event)
 {
-	this->terminalControl->AppendText(event.outputText);
+	TerminalPanel* terminalPanel = this->FindPanel<TerminalPanel>("Terminal");
+	if (terminalPanel)
+		terminalPanel->terminalControl->AppendText(event.outputText);
 }
 
 void EditorFrame::OnRunThreadInput(RunThreadInputEvent& event)
 {
-	this->terminalControl->EditString(event.inputText);
+	TerminalPanel* terminalPanel = this->FindPanel<TerminalPanel>("Terminal");
+	if (terminalPanel)
+		terminalPanel->terminalControl->EditString(event.inputText);
 }
 
 void EditorFrame::OnTerminalInputReady(wxCommandEvent& event)
@@ -285,18 +337,26 @@ void EditorFrame::OnTerminalInputReady(wxCommandEvent& event)
 
 void EditorFrame::OnRunThreadException(RunThreadExceptionEvent& event)
 {
-	this->terminalControl->AppendText("-------------------- ERROR --------------------\n");
-	this->terminalControl->AppendText(event.errorMsg);
-	this->terminalControl->AppendText("-------------------- ERROR --------------------\n");
+	TerminalPanel* terminalPanel = this->FindPanel<TerminalPanel>("Terminal");
+	if (terminalPanel)
+	{
+		terminalPanel->terminalControl->AppendText("-------------------- ERROR --------------------\n");
+		terminalPanel->terminalControl->AppendText(event.errorMsg);
+		terminalPanel->terminalControl->AppendText("-------------------- ERROR --------------------\n");
+	}
 }
 
 void EditorFrame::OnRunThreadSuspended(RunThreadSuspendedEvent& event)
 {
-	if (this->sourceFileNotebookControl->OpenSourceFile(event.sourceFile))
+	SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+	if (sourceFilePanel)
 	{
-		SourceFileEditControl* editControl = this->sourceFileNotebookControl->FindEditControl(event.sourceFile);
-		if (editControl)
-			editControl->ShowExecutionSuspendedAt(event.lineNumber, event.columnNumber);
+		if (sourceFilePanel->notebookControl->OpenSourceFile(event.sourceFile))
+		{
+			SourceFileEditControl* editControl = sourceFilePanel->notebookControl->FindEditControl(event.sourceFile);
+			if (editControl)
+				editControl->ShowExecutionSuspendedAt(event.lineNumber, event.columnNumber);
+		}
 	}
 }
 
@@ -321,10 +381,14 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 	{
 		case ID_Save:
 		{
-			if (this->sourceFileNotebookControl->OpenFileCount() == 0)
-				event.Enable(false);
-			else
-				event.Enable(this->sourceFileNotebookControl->GetSelectedEditControl()->modified);
+			SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+			if (sourceFilePanel)
+			{
+				if (sourceFilePanel->notebookControl->OpenFileCount() == 0)
+					event.Enable(false);
+				else
+					event.Enable(sourceFilePanel->notebookControl->GetSelectedEditControl()->modified);
+			}
 			break;
 		}
 		case ID_Open:
@@ -334,17 +398,23 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 		}
 		case ID_Close:
 		{
-			event.Enable(this->sourceFileNotebookControl->GetSelectedEditControl() ? true : false);
+			SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+			if (sourceFilePanel)
+				event.Enable(sourceFilePanel->notebookControl->GetSelectedEditControl() ? true : false);
 			break;
 		}
 		case ID_SaveAll:
 		{
-			event.Enable(this->sourceFileNotebookControl->AnyFilesModified());
+			SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+			if (sourceFilePanel)
+				event.Enable(sourceFilePanel->notebookControl->AnyFilesModified());
 			break;
 		}
 		case ID_CloseAll:
 		{
-			event.Enable(this->sourceFileNotebookControl->OpenFileCount() > 0);
+			SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+			if (sourceFilePanel)
+				event.Enable(sourceFilePanel->notebookControl->OpenFileCount() > 0);
 			break;
 		}
 		case ID_OpenDirectory:
@@ -364,21 +434,25 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 				event.Enable(false);
 			else
 			{
-				SourceFileEditControl* editControl = this->sourceFileNotebookControl->GetSelectedEditControl();
-				event.Enable(editControl != nullptr);
-				if (editControl)
+				SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+				if (sourceFilePanel)
 				{
-					if (event.GetId() == ID_RunWithDebugger)
-						event.SetText("Run " + editControl->GetFileName() + " with Debugger");
+					SourceFileEditControl* editControl = sourceFilePanel->notebookControl->GetSelectedEditControl();
+					event.Enable(editControl != nullptr);
+					if (editControl)
+					{
+						if (event.GetId() == ID_RunWithDebugger)
+							event.SetText("Run " + editControl->GetFileName() + " with Debugger");
+						else
+							event.SetText("Run " + editControl->GetFileName() + " without Debugger");
+					}
 					else
-						event.SetText("Run " + editControl->GetFileName() + " without Debugger");
-				}
-				else
-				{
-					if (event.GetId() == ID_RunWithDebugger)
-						event.SetText("Run with Debugger");
-					else
-						event.SetText("Run without Debugger");
+					{
+						if (event.GetId() == ID_RunWithDebugger)
+							event.SetText("Run with Debugger");
+						else
+							event.SetText("Run without Debugger");
+					}
 				}
 			}
 
@@ -413,48 +487,47 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 
 void EditorFrame::SaveWindowAdjustments()
 {
-	wxGetApp().GetConfig()->Write("windowX", this->GetPosition().x);
-	wxGetApp().GetConfig()->Write("windowY", this->GetPosition().y);
-	wxGetApp().GetConfig()->Write("windowWidth", this->GetSize().x);
-	wxGetApp().GetConfig()->Write("windowHeight", this->GetSize().y);
-	wxGetApp().GetConfig()->Write("verticalSplitterSashPos", this->verticalSplitter->GetSashPosition());
-	wxGetApp().GetConfig()->Write("horizontalSplitterSashPos", this->horizontalSplitter->GetSashPosition());
+	wxConfig* config = wxGetApp().GetConfig();
+
+	config->Write("windowX", this->GetPosition().x);
+	config->Write("windowY", this->GetPosition().y);
+	config->Write("windowWidth", this->GetSize().x);
+	config->Write("windowHeight", this->GetSize().y);
+	
+	wxString perspective = this->auiManager->SavePerspective();
+	config->Write("auiManagerPerspective", perspective);
 }
 
 void EditorFrame::RestoreWindowAdjustments()
 {
-	// Note that if the window title bar is off desktop, there is a trick to
-	// getting it back into the desktop.  You have to access the system menu's
-	// move menu item from the task bar when hold the shift key down when
-	// selecting it.  Now locate your cursor, which should be a quad-arrow.
-	// Then press the up-arrow key.
+	wxConfig* config = wxGetApp().GetConfig();
+
+	// TODO: May want command-line argument that, if given, causes us to ignore configs at start-up.
+
 	wxPoint point;
-	point.x = wxGetApp().GetConfig()->Read("windowX", -1);
-	point.y = wxGetApp().GetConfig()->Read("windowY", -1);
+	point.x = config->Read("windowX", -1);
+	point.y = config->Read("windowY", -1);
 	if (point.x >= 0 && point.y >= 0)
 		this->SetPosition(point);
 
 	wxSize size;
-	size.x = wxGetApp().GetConfig()->Read("windowWidth", -1);
-	size.y = wxGetApp().GetConfig()->Read("windowHeight", -1);
+	size.x = config->Read("windowWidth", -1);
+	size.y = config->Read("windowHeight", -1);
 	if (size.x >= 0 && size.y >= 0)
 		this->SetSize(size);
 
-	int sashPos = wxGetApp().GetConfig()->Read("verticalSplitterSashPos", -1);
-	if (sashPos >= 0)
-		this->verticalSplitter->SetSashPosition(sashPos);
-
-	sashPos = wxGetApp().GetConfig()->Read("horizontalSplitterSashPos", -1);
-	if (sashPos >= 0)
-		this->horizontalSplitter->SetSashPosition(sashPos);
+	wxString perspective;
+	if (config->Read("auiManagerPerspective", &perspective))
+		this->auiManager->LoadPerspective(perspective);
 }
 
 void EditorFrame::OnClose(wxCloseEvent& event)
 {
 	this->SaveWindowAdjustments();
-	this->sourceFileNotebookControl->RememberCurrentlyOpenFiles();
+	this->NotifyPanels(Panel::APP_CLOSING);
 
-	if (!this->sourceFileNotebookControl->CloseAllFiles())
+	SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+	if (sourceFilePanel && !sourceFilePanel->notebookControl->CloseAllFiles())
 		return;
 
 	RunThread* runThread = wxGetApp().GetRunThread();

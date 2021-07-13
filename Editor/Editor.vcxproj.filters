@@ -32,6 +32,18 @@
     <ClInclude Include="Source\RunThread.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Panel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TerminalPanel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DirectoryTreePanel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SourceFilePanel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\EditorApp.cpp">
@@ -53,6 +65,18 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\RunThread.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Panel.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TerminalPanel.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DirectoryTreePanel.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SourceFilePanel.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

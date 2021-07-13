@@ -1,7 +1,5 @@
 TODO...
 
--- Get rid of horizontal and vertical splitter windows in favor of the AUI dockable panels.  Remember layout across invocations?
-
 -- Add a way to inspect the values in the scope stack.  Also add a way to modify them?  Make sure inspection is only active when we're suspended.  Otherwise, we'll be non-thread-safe.
 
 -- Add a way to create files and folders in the currently open directory.

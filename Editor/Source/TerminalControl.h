@@ -4,7 +4,6 @@
 
 wxDECLARE_EVENT(EVT_TERMINAL_INPUT_READY, wxCommandEvent);
 
-// I'm hoping that program output as well as input can be managed by this control.
 class TerminalControl : public wxTextCtrl
 {
 public:
