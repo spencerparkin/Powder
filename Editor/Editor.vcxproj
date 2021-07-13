@@ -36,6 +36,9 @@
     <ClInclude Include="Source\SourceFileNotebookControl.h" />
     <ClInclude Include="Source\TerminalControl.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Source\TODO.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

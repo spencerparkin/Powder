@@ -56,4 +56,9 @@
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Source\TODO.txt">
+      <Filter>Source</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
