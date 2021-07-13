@@ -1,0 +1,25 @@
+TODO...
+
+-- Get rid of horizontal and vertical splitter windows in favor of the AUI dockable panels.  Remember layout across invocations?
+
+-- Add a way to inspect the values in the scope stack.  Also add a way to modify them?  Make sure inspection is only active when we're suspended.  Otherwise, we'll be non-thread-safe.
+
+-- Add a way to create files and folders in the currently open directory.
+
+-- Add break-point support.
+
+-- Add cursor hover support in the source control window?  You hover over a symbol long enough and then a bubble shows up with the symbol's current value.  Not needed if the inspection window is good enough.
+
+-- Add a toolbar?  Hard to find art for it.
+
+-- Current state of the debugger (running, suspended, etc) should be refleted in the title bar, or maybe the status bar?
+
+-- There are a few step bugs to be ironed out.  Also, the step locations (line numbers) could be refined by revisiting the instruction generator code.
+
+-- Add column number ranges to the debug info run through and generated from the compiler.  Then highlight the appropriate text in the source file window when stepping.  Also, add ability to step one instruction at a time?  "Atomic step"?
+
+-- Note sure how far to take the language both in terms of extension modules and language features (e.g., OOP.)
+
+-- Revisit the GC.  Can it be faster or threaded?  Better algorithm or stratagy?  Also, I'm noticing some leaking at times.  Is this due to a bug in the algorithm or due to exceptions being thrown during normal errors?  Get rid of all exception throwing?
+
+-- Make a YouTube video that explains what Powder is and then stick it on the GitHub page, FWIW.  Maybe a prospective employer could bare to watch it.
