@@ -25,16 +25,7 @@ namespace Powder
 
 	/*virtual*/ std::string ListValue::ToString() const
 	{
-		std::string listStr = "[";
-		this->RebuildIndexIfNeeded();
-		for (int i = 0; i < (signed)this->valueListIndex->size(); i++)
-		{
-			listStr += (*this->valueListIndex)[i]->value->ToString();
-			if (i + 1 < (signed)this->valueListIndex->size())
-				listStr += ", ";
-		}
-		listStr += "]";
-		return listStr;
+		return FormatString("Length = %d", this->Length());
 	}
 
 	/*virtual*/ Value* ListValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
