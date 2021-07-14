@@ -4,8 +4,6 @@ TODO...
 
 -- Add a way to create files and folders in the currently open directory.
 
--- Add break-point support.
-
 -- Add cursor hover support in the source control window?  You hover over a symbol long enough and then a bubble shows up with the symbol's current value.  Not needed if the inspection window is good enough.
 
 -- Add a toolbar?  Hard to find art for it.
