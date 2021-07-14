@@ -52,8 +52,19 @@ SourceFilePanel::SourceFilePanel()
 	else if (notification == BREAKPOINTS_CHANGED)
 	{
 		wxFileName* sourceFile = (wxFileName*)notifyData;
-		SourceFileEditControl* editControl = this->notebookControl->FindEditControl(*sourceFile);
-		if (editControl)
-			editControl->UpdateBreakpointMarkers();
+		if (sourceFile)
+		{
+			SourceFileEditControl* editControl = this->notebookControl->FindEditControl(*sourceFile);
+			if (editControl)
+				editControl->UpdateBreakpointMarkers();
+		}
+		else
+		{
+			for (int i = 0; i < (signed)this->notebookControl->GetPageCount(); i++)
+			{
+				SourceFileEditControl* editControl = (SourceFileEditControl*)this->notebookControl->GetPage(i);
+				editControl->UpdateBreakpointMarkers();
+			}
+		}
 	}
 }

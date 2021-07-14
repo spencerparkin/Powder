@@ -73,8 +73,9 @@ void BreakpointsPanel::RebuildBreakpointsList()
 
 void BreakpointsPanel::OnDeleteAllBreakpoints(wxCommandEvent& event)
 {
-	//...
-	// TODO: Send BREAKPOINTS_CHANGED notify event.
+	wxCriticalSectionLocker locker(wxGetApp().breakpointListCS);
+	wxGetApp().breakpointList.clear();
+	wxGetApp().GetFrame()->NotifyPanels(Panel::BREAKPOINTS_CHANGED, nullptr);
 }
 
 void BreakpointsPanel::OnBreakpointsListItemActivated(wxListEvent& event)
