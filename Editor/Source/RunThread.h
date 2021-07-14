@@ -6,6 +6,8 @@
 #include <wx/filename.h>
 #include "VirtualMachine.h"
 #include "Exceptions.hpp"
+#include <set>
+#include <map>
 
 class RunThreadExceptionEvent : public wxThreadEvent
 {
@@ -61,8 +63,8 @@ public:
 	virtual ExitCode Entry() override;
 	virtual bool TrapExecution(const Powder::Executable* executable, Powder::Executor* executor) override;
 	virtual void ValueChanged(const Powder::Value* value) override;
-	virtual void ValueStored(const Powder::Value* value) override;
-	virtual void ValueLoaded(const Powder::Value* value) override;
+	virtual void ValueStored(const char* name, const Powder::Value* value) override;
+	virtual void ValueLoaded(const char* name, const Powder::Value* value) override;
 	virtual void InputString(std::string& str) override;
 	virtual void OutputString(const std::string& str) override;
 
@@ -103,4 +105,6 @@ public:
 	int avoidLineNumber;
 	int keepLineNumber;
 	int prevLineNumber;
+	std::set<std::string> refreshValueSet;
+	std::map<void*, std::string> valueMap;
 };

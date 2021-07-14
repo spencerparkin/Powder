@@ -62,8 +62,8 @@ namespace Powder
 
 			virtual bool TrapExecution(const Executable* executable, Executor* executor) = 0;
 			virtual void ValueChanged(const Value* value) = 0;
-			virtual void ValueStored(const Value* value) = 0;
-			virtual void ValueLoaded(const Value* value) = 0;
+			virtual void ValueStored(const char* name, const Value* value) = 0;
+			virtual void ValueLoaded(const char* name, const Value* value) = 0;
 		};
 
 		void ExecuteSourceCodeFile(const std::string& programSourceCodePath, Scope* scope = nullptr);

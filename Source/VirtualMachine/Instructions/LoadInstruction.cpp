@@ -28,7 +28,7 @@ namespace Powder
 		std::string name = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 1);
 		executor->LoadAndPushValueOntoEvaluationStackTop(name.c_str());
 		if (virtualMachine->GetDebuggerTrap())
-			virtualMachine->GetDebuggerTrap()->ValueLoaded(executor->StackTop());
+			virtualMachine->GetDebuggerTrap()->ValueLoaded(name.c_str(), executor->StackTop());
 		programBufferLocation += 1 + name.length() + 1;
 		return Executor::Result::CONTINUE;
 	}

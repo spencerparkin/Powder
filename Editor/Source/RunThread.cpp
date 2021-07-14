@@ -206,13 +206,18 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 
 /*virtual*/ void RunThread::ValueChanged(const Powder::Value* value)
 {
+	std::map<void*, std::string>::iterator iter = this->valueMap.find((void*)value);
+	if (iter != this->valueMap.end())
+		this->refreshValueSet.insert(iter->second);
 }
 
-/*virtual*/ void RunThread::ValueStored(const Powder::Value* value)
+/*virtual*/ void RunThread::ValueStored(const char* name, const Powder::Value* value)
 {
+	this->refreshValueSet.insert(name);
+	this->valueMap.insert(std::pair<void*, std::string>((void*)value, name));
 }
 
-/*virtual*/ void RunThread::ValueLoaded(const Powder::Value* value)
+/*virtual*/ void RunThread::ValueLoaded(const char* name, const Powder::Value* value)
 {
 }
 
