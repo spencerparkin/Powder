@@ -84,6 +84,8 @@ namespace Powder
 		void SetDebuggerTrap(DebuggerTrap* debuggerTrap) { this->debuggerTrap = debuggerTrap; }
 		DebuggerTrap* GetDebuggerTrap() { return this->debuggerTrap; }
 
+		void GetAllCurrentScopes(std::vector<Scope*>& scopeArray);
+
 	protected:
 
 		typedef LinkedList<Executor*> ExecutorList;

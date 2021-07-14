@@ -83,19 +83,25 @@ namespace Powder
 		return Result::HALT;
 	}
 
-	void Executor::LoadAndPushValueOntoEvaluationStackTop(const char* identifier)
+	void Executor::LoadAndPushValueOntoEvaluationStackTop(const char* identifier, void* debuggerTrap)
 	{
 		Value* value = this->currentScope->LookupValue(identifier, true);
 		if (!value)
 			throw new RunTimeException(FormatString("Failed to lookup identifier: %s", identifier));
 
-		return this->PushValueOntoEvaluationStackTop(value);
+		this->PushValueOntoEvaluationStackTop(value);
+
+		if (debuggerTrap)
+			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueLoaded(identifier, value);
 	}
 
-	void Executor::StoreAndPopValueFromEvaluationStackTop(const char* identifier)
+	void Executor::StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap)
 	{
 		Value* value = this->PopValueFromEvaluationStackTop();
 		this->currentScope->StoreValue(identifier, value);
+
+		if (debuggerTrap)
+			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueStored(identifier, value);
 	}
 
 	void Executor::PushValueOntoEvaluationStackTop(Value* value)

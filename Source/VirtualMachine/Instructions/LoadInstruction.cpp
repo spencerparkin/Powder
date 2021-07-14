@@ -26,9 +26,7 @@ namespace Powder
 	{
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		std::string name = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 1);
-		executor->LoadAndPushValueOntoEvaluationStackTop(name.c_str());
-		if (virtualMachine->GetDebuggerTrap())
-			virtualMachine->GetDebuggerTrap()->ValueLoaded(name.c_str(), executor->StackTop());
+		executor->LoadAndPushValueOntoEvaluationStackTop(name.c_str(), virtualMachine->GetDebuggerTrap());
 		programBufferLocation += 1 + name.length() + 1;
 		return Executor::Result::CONTINUE;
 	}

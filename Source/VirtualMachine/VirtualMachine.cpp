@@ -82,10 +82,9 @@ namespace Powder
 		{
 			ExecutorList::Node* node = executorList.GetHead();
 			Executor* executor = node->value;
-			executorList.Remove(node);
-
 			Executor::Result result = executor->Execute(executable, this);
 
+			executorList.Remove(node);
 			if (result == Executor::Result::YIELD)
 				executorList.AddTail(executor);
 			else if (result == Executor::Result::HALT)
@@ -193,6 +192,20 @@ namespace Powder
 	{
 		char key[2] = { (char)programOpCode, '\0' };
 		return this->instructionMap.Lookup(key);
+	}
+
+	void VirtualMachine::GetAllCurrentScopes(std::vector<Scope*>& scopeArray)
+	{
+		for (int i = 0; i < (signed)this->executorListStack->size(); i++)
+		{
+			ExecutorList* executorList = (*this->executorListStack)[i];
+			for(ExecutorList::Node* node = executorList->GetHead(); node; node = node->GetNext())
+			{
+				Executor* executor = node->value;
+				Scope* scope = executor->GetCurrentScope();
+				scopeArray.push_back(scope);
+			}
+		}
 	}
 
 	VirtualMachine::CompilerInterface::CompilerInterface()

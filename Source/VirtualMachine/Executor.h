@@ -35,8 +35,8 @@ namespace Powder
 
 		void AbsorbScope(Scope* scope);
 
-		void LoadAndPushValueOntoEvaluationStackTop(const char* identifier);
-		void StoreAndPopValueFromEvaluationStackTop(const char* identifier);
+		void LoadAndPushValueOntoEvaluationStackTop(const char* identifier, void* debuggerTrap);
+		void StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap);
 
 		void PushValueOntoEvaluationStackTop(Value* value);
 		Value* PopValueFromEvaluationStackTop();

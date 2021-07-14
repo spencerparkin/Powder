@@ -26,11 +26,13 @@ namespace Powder
 
 		void Absorb(Scope* scope);
 
+		typedef HashMap<GCReference<Value>> ValueMap;
+
+		ValueMap* GetValueMap() { return &this->valueMap; }
+
 	private:
 
 		GCSteward<Scope> containingScope;
-
-		typedef HashMap<GCReference<Value>> ValueMap;
 		ValueMap valueMap;
 	};
 }
