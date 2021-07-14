@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\BreakpointsPanel.cpp" />
     <ClCompile Include="Source\DirectoryTreeControl.cpp" />
     <ClCompile Include="Source\DirectoryTreePanel.cpp" />
     <ClCompile Include="Source\EditorApp.cpp" />
@@ -32,6 +33,7 @@
     <ClCompile Include="Source\TerminalPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\BreakpointsPanel.h" />
     <ClInclude Include="Source\DirectoryTreeControl.h" />
     <ClInclude Include="Source\DirectoryTreePanel.h" />
     <ClInclude Include="Source\EditorApp.h" />

@@ -20,6 +20,6 @@ Panel::Panel()
 	return false;
 }
 
-/*virtual*/ void Panel::OnNotified(Notification notification)
+/*virtual*/ void Panel::OnNotified(Notification notification, void* notifyData)
 {
 }

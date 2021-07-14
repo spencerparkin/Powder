@@ -19,9 +19,10 @@ public:
 		DIRECTORY_CLOSED,
 		RUNTHREAD_STARTED,
 		RUNTHREAD_ENDED,
+		BREAKPOINTS_CHANGED
 	};
 
 	virtual bool GetPaneInfo(wxAuiPaneInfo& paneInfo);
 	virtual bool MakeControls(void);
-	virtual void OnNotified(Notification notification);
+	virtual void OnNotified(Notification notification, void* notifyData);
 };

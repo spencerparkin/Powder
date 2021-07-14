@@ -14,7 +14,7 @@ public:
 
 	virtual bool GetPaneInfo(wxAuiPaneInfo& paneInfo) override;
 	virtual bool MakeControls(void) override;
-	virtual void OnNotified(Notification notification) override;
+	virtual void OnNotified(Notification notification, void* notifyData) override;
 
 	SourceFileNotebookControl* notebookControl;
 };

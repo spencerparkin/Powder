@@ -1,4 +1,5 @@
 #include "RunThread.h"
+#include "EditorApp.h"
 #include "GarbageCollector.h"
 #include "Executable.h"
 #include "Executor.h"
@@ -64,6 +65,7 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 	this->targetCallDepth = -1;
 	this->avoidLineNumber = -1;
 	this->keepLineNumber = -1;
+	this->prevLineNumber = -1;
 }
 
 /*virtual*/ RunThread::~RunThread()
@@ -137,7 +139,19 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 			}
 		}
 
-		// TODO: If we're at a break-point, also set the this->suspendNow flag to true.
+		if (this->prevLineNumber != lineNumber)
+		{
+			this->prevLineNumber = lineNumber;
+
+			if (executable->debugInfoDoc->HasMember("source_file"))
+			{
+				wxFileName sourceFile = wxString((*executable->debugInfoDoc)["source_file"].GetString());
+				wxCriticalSectionLocker locker(wxGetApp().breakpointListCS);
+				EditorApp::Breakpoint* breakpoint = wxGetApp().FindBreakpoint(sourceFile, lineNumber);
+				if (breakpoint)
+					this->suspendNow = true;
+			}
+		}
 
 		if (this->resumeState == RESUME_STEP_OUT && this->callDepth == this->targetCallDepth)
 			this->suspendNow = true;

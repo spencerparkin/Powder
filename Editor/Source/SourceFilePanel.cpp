@@ -1,5 +1,6 @@
 #include "SourceFilePanel.h"
 #include "SourceFileNotebookControl.h"
+#include "SourceFileEditControl.h"
 
 wxIMPLEMENT_DYNAMIC_CLASS(SourceFilePanel, Panel);
 
@@ -34,7 +35,7 @@ SourceFilePanel::SourceFilePanel()
 	return true;
 }
 
-/*virtual*/ void SourceFilePanel::OnNotified(Notification notification)
+/*virtual*/ void SourceFilePanel::OnNotified(Notification notification, void* notifyData)
 {
 	if (notification == APP_OPENING)
 	{
@@ -47,5 +48,12 @@ SourceFilePanel::SourceFilePanel()
 	else if (notification == RUNTHREAD_ENDED)
 	{
 		this->notebookControl->ClearExecutionMarkers();
+	}
+	else if (notification == BREAKPOINTS_CHANGED)
+	{
+		wxFileName* sourceFile = (wxFileName*)notifyData;
+		SourceFileEditControl* editControl = this->notebookControl->FindEditControl(*sourceFile);
+		if (editControl)
+			editControl->UpdateBreakpointMarkers();
 	}
 }

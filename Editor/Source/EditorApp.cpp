@@ -53,3 +53,34 @@ const wxString& EditorApp::GetProjectDirectory()
 {
 	return this->projectDirectory;
 }
+
+EditorApp::Breakpoint* EditorApp::FindBreakpoint(const wxFileName& sourceFile, int lineNumber, std::list<Breakpoint>::iterator* foundIter /*= nullptr*/)
+{
+	for (std::list<Breakpoint>::iterator iter = this->breakpointList.begin(); iter != this->breakpointList.end(); iter++)
+	{
+		Breakpoint& breakpoint = *iter;
+		if (breakpoint.lineNumber == lineNumber && breakpoint.sourceFile == sourceFile)
+		{
+			if (foundIter != nullptr)
+				*foundIter = iter;
+			return &breakpoint;
+		}
+	}
+	return nullptr;
+}
+
+void EditorApp::ToggleBreakpoint(const wxFileName& sourceFile, int lineNumber)
+{
+	std::list<Breakpoint>::iterator iter;
+	if (this->FindBreakpoint(sourceFile, lineNumber, &iter))
+		this->breakpointList.erase(iter);
+	else
+	{
+		Breakpoint breakpoint;
+		breakpoint.sourceFile = sourceFile;
+		breakpoint.lineNumber = lineNumber;
+		this->breakpointList.push_back(breakpoint);
+	}
+
+	this->frame->NotifyPanels(Panel::BREAKPOINTS_CHANGED, (void*)&sourceFile);
+}

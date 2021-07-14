@@ -3,6 +3,7 @@
 #include <wx/thread.h>
 #include <wx/string.h>
 #include <wx/event.h>
+#include <wx/filename.h>
 #include "VirtualMachine.h"
 #include "Exceptions.hpp"
 
@@ -98,4 +99,5 @@ public:
 	int targetCallDepth;
 	int avoidLineNumber;
 	int keepLineNumber;
+	int prevLineNumber;
 };

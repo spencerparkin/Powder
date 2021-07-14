@@ -34,7 +34,7 @@ DirectoryTreePanel::DirectoryTreePanel()
 	return true;
 }
 
-/*virtual*/ void DirectoryTreePanel::OnNotified(Notification notification)
+/*virtual*/ void DirectoryTreePanel::OnNotified(Notification notification, void* notifyData)
 {
 	if (notification == DIRECTORY_OPENED || notification == APP_OPENING)
 	{

@@ -20,8 +20,8 @@ SourceFileEditControl::SourceFileEditControl(wxWindow* parent, const wxString& f
 	this->SetMarginType(0, wxSTC_MARGIN_NUMBER);
 	this->SetMarginWidth(0, 30);
 	this->SetMarginSensitive(0, true);
-	this->MarkerDefine(0, wxSTC_MARK_CIRCLE, *wxRED, *wxRED);
-	this->MarkerDefine(1, wxSTC_MARK_ARROW, *wxGREEN, *wxGREEN);
+	this->MarkerDefine(BREAKPOINT_MARKER, wxSTC_MARK_CIRCLE, *wxRED, *wxRED);
+	this->MarkerDefine(EXECUTIONPOINT_MARKER, wxSTC_MARK_ARROW, *wxGREEN, *wxGREEN);
 
 	this->Bind(wxEVT_STC_MODIFIED, &SourceFileEditControl::OnModified, this, wxID_ANY);
 	//this->Bind(wxEVT_STC_KEY, &SourceFileEditControl::OnKeyPressed, this, wxID_ANY);
@@ -36,13 +36,19 @@ void SourceFileEditControl::OnMarginClicked(wxStyledTextEvent& event)
 {
 	if (event.GetMargin() == 0)
 	{
-		int line = this->LineFromPosition(event.GetPosition());
-		int flags = this->MarkerGet(line);
-		if ((flags & 0x1) != 0)
-			this->MarkerDelete(line, 0);
-		else
-			this->MarkerAdd(line, 0);
+		int lineNumber = 1 + this->LineFromPosition(event.GetPosition());
+		wxCriticalSectionLocker locker(wxGetApp().breakpointListCS);
+		wxGetApp().ToggleBreakpoint(this->filePath, lineNumber);
 	}
+}
+
+void SourceFileEditControl::UpdateBreakpointMarkers()
+{
+	this->MarkerDeleteAll(BREAKPOINT_MARKER);
+	wxCriticalSectionLocker locker(wxGetApp().breakpointListCS);
+	for (auto breakpoint : wxGetApp().breakpointList)
+		if (breakpoint.sourceFile == this->filePath)
+			this->MarkerAdd(breakpoint.lineNumber - 1, BREAKPOINT_MARKER);
 }
 
 void SourceFileEditControl::OnKeyPressed(wxStyledTextEvent& event)
@@ -102,11 +108,16 @@ void SourceFileEditControl::ShowExecutionSuspendedAt(int lineNumber, int columnN
 {
 	this->ClearExecutionMarker();
 	this->suspensionMarkerHandler = this->MarkerAdd(lineNumber - 1, 1);
+	this->ShowLineAndColumn(lineNumber, columnNumber);
+}
+
+void SourceFileEditControl::ShowLineAndColumn(int lineNumber, int columnNumber)
+{
 	this->GotoLine(lineNumber - 1);
 	this->GotoPos(columnNumber - 1);
 	int firstVisibleLine = this->GetFirstVisibleLine();
 	int lastVisibleLine = firstVisibleLine + this->LinesOnScreen();
-	if(lineNumber - 1 < firstVisibleLine || lineNumber - 1 > lastVisibleLine)
+	if (lineNumber - 1 < firstVisibleLine || lineNumber - 1 > lastVisibleLine)
 		this->ScrollToLine(lineNumber - 1);
 }
 

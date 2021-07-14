@@ -63,7 +63,7 @@ public:
 	void RestoreWindowAdjustments();
 	void KickoffRunThread(bool debuggingEnabled);
 	void MakePanels(void);
-	void NotifyPanels(Panel::Notification notification);
+	void NotifyPanels(Panel::Notification notification, void* notifyData);
 
 	template<typename T>
 	T* FindPanel(const wxString& panelName)

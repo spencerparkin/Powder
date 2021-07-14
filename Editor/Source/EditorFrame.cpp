@@ -6,6 +6,7 @@
 #include "SourceFileEditControl.h"
 #include "TerminalPanel.h"
 #include "TerminalControl.h"
+#include "BreakpointsPanel.h"
 #include "RunThread.h"
 #include "EditorApp.h"
 #include <wx/menu.h>
@@ -121,7 +122,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(EVT_TERMINAL_INPUT_READY, &EditorFrame::OnTerminalInputReady, this);
 
 	this->MakePanels();
-	this->NotifyPanels(Panel::APP_OPENING);
+	this->NotifyPanels(Panel::APP_OPENING, nullptr);
 
 	this->auiManager->Update();
 }
@@ -144,28 +145,34 @@ void EditorFrame::MakePanels(void)
 		if (classInfo != basePanelClassInfo && classInfo->IsKindOf(basePanelClassInfo))
 		{
 			Panel* panel = (Panel*)classInfo->CreateObject();
-			panel->Create(this);
-			if (!panel->MakeControls())
+			bool created = panel->Create(this);
+			if (!created)
+				delete panel;
+			else if (!panel->MakeControls())
 				delete panel;
 			else
 			{
 				wxAuiPaneInfo paneInfo;
 				panel->GetPaneInfo(paneInfo);
-				auiManager->AddPane(panel, paneInfo);
+				bool paneAdded = auiManager->AddPane(panel, paneInfo);
+				if (!paneAdded)
+				{
+					//...
+				}
 			}
 		}
 		classInfo = classInfo->GetNext();
 	}
 }
 
-void EditorFrame::NotifyPanels(Panel::Notification notification)
+void EditorFrame::NotifyPanels(Panel::Notification notification, void* notifyData)
 {
 	wxAuiPaneInfoArray& paneInfoArray = auiManager->GetAllPanes();
 	for (int i = 0; i < (signed)paneInfoArray.GetCount(); i++)
 	{
 		Panel* panel = wxDynamicCast(paneInfoArray[i].window, Panel);
 		if (panel)
-			panel->OnNotified(notification);
+			panel->OnNotified(notification, notifyData);
 	}
 }
 
@@ -238,7 +245,7 @@ void EditorFrame::OnOpenDirectory(wxCommandEvent& event)
 	if (wxID_OK == dirDialog.ShowModal())
 	{
 		wxGetApp().SetProjectDirectory(dirDialog.GetPath());
-		this->NotifyPanels(Panel::DIRECTORY_OPENED);
+		this->NotifyPanels(Panel::DIRECTORY_OPENED, nullptr);
 	}
 }
 
@@ -249,7 +256,7 @@ void EditorFrame::OnCloseDirectory(wxCommandEvent& event)
 	{
 		if (sourceFilePanel->notebookControl->CloseAllFiles())
 		{
-			this->NotifyPanels(Panel::DIRECTORY_CLOSED);
+			this->NotifyPanels(Panel::DIRECTORY_CLOSED, nullptr);
 			wxGetApp().SetProjectDirectory("");
 		}
 	}
@@ -300,7 +307,7 @@ void EditorFrame::OnKillScript(wxCommandEvent& event)
 
 void EditorFrame::OnRunThreadEntering(wxThreadEvent& event)
 {
-	this->NotifyPanels(Panel::RUNTHREAD_STARTED);
+	this->NotifyPanels(Panel::RUNTHREAD_STARTED, nullptr);
 }
 
 void EditorFrame::OnRunThreadExiting(wxThreadEvent& event)
@@ -309,7 +316,7 @@ void EditorFrame::OnRunThreadExiting(wxThreadEvent& event)
 	if (runThread)
 	{
 		runThread->Wait(wxThreadWait::wxTHREAD_WAIT_BLOCK);
-		this->NotifyPanels(Panel::RUNTHREAD_ENDED);
+		this->NotifyPanels(Panel::RUNTHREAD_ENDED, nullptr);
 		delete runThread;
 		wxGetApp().SetRunThread(nullptr);
 	}
@@ -524,7 +531,7 @@ void EditorFrame::RestoreWindowAdjustments()
 void EditorFrame::OnClose(wxCloseEvent& event)
 {
 	this->SaveWindowAdjustments();
-	this->NotifyPanels(Panel::APP_CLOSING);
+	this->NotifyPanels(Panel::APP_CLOSING, nullptr);
 
 	SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
 	if (sourceFilePanel && !sourceFilePanel->notebookControl->CloseAllFiles())

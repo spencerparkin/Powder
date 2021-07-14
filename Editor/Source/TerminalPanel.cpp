@@ -35,7 +35,7 @@ TerminalPanel::TerminalPanel()
 	return true;
 }
 
-/*virtual*/ void TerminalPanel::OnNotified(Notification notification)
+/*virtual*/ void TerminalPanel::OnNotified(Notification notification, void* notifyData)
 {
 	if (notification == RUNTHREAD_STARTED)
 	{
