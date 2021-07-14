@@ -2,6 +2,8 @@ TODO...
 
 -- Add a way to inspect the values in the scope stack.  Also add a way to modify them?  Make sure inspection is only active when we're suspended.  Otherwise, we'll be non-thread-safe.
 
+-- All but the center panel should be closable and there should be a panels menu to bring back panels.  Does this persist across invocations?
+
 -- Add a way to create files and folders in the currently open directory.
 
 -- Add cursor hover support in the source control window?  You hover over a symbol long enough and then a bubble shows up with the symbol's current value.  Not needed if the inspection window is good enough.
@@ -14,7 +16,7 @@ TODO...
 
 -- Add column number ranges to the debug info run through and generated from the compiler.  Then highlight the appropriate text in the source file window when stepping.  Also, add ability to step one instruction at a time?  "Atomic step"?
 
--- Note sure how far to take the language both in terms of extension modules and language features (e.g., OOP.)
+-- Not sure how far to take the language both in terms of extension modules and language features (e.g., OOP.)  What other extension modules might I add?  Might be good to exploit the fork instruction for blocking I/O.
 
 -- Revisit the GC.  Can it be faster or threaded?  Better algorithm or stratagy?  Also, I'm noticing some leaking at times.  Is this due to a bug in the algorithm or due to exceptions being thrown during normal errors?  Get rid of all exception throwing?
 
