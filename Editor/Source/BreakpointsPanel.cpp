@@ -43,6 +43,7 @@ BreakpointsPanel::BreakpointsPanel()
 
 	this->Bind(wxEVT_BUTTON, &BreakpointsPanel::OnDeleteAllBreakpoints, this);
 	this->Bind(wxEVT_LIST_ITEM_ACTIVATED, &BreakpointsPanel::OnBreakpointsListItemActivated, this);
+	this->listViewControl->Bind(wxEVT_KEY_UP, &BreakpointsPanel::OnKeyUp, this);
 
 	return true;
 }
@@ -53,6 +54,32 @@ BreakpointsPanel::BreakpointsPanel()
 	{
 		this->RebuildBreakpointsList();
 	}
+}
+
+void BreakpointsPanel::OnKeyUp(wxKeyEvent& event)
+{
+	if (event.GetKeyCode() == WXK_DELETE)
+	{
+		wxCriticalSectionLocker locker(wxGetApp().breakpointListCS);
+		std::set<std::string> sourceFileSet;
+		int i = (int)this->listViewControl->GetFirstSelected();
+		while (i >= 0)
+		{
+			EditorApp::Breakpoint* breakpoint = (EditorApp::Breakpoint*)this->listViewControl->GetItemData(i);
+			wxString fullPath = breakpoint->sourceFile.GetFullPath();
+			wxGetApp().ToggleBreakpoint(breakpoint->sourceFile, breakpoint->lineNumber, false);
+			sourceFileSet.insert((const char*)fullPath.c_str());
+			i = (int)this->listViewControl->GetNextSelected(i);
+		}
+		for (auto sourceFile : sourceFileSet)
+		{
+			wxFileName fileName(sourceFile.c_str());
+			wxGetApp().GetFrame()->NotifyPanels(Panel::BREAKPOINTS_CHANGED, &fileName);
+		}
+		return;
+	}
+
+	event.Skip();
 }
 
 void BreakpointsPanel::RebuildBreakpointsList()

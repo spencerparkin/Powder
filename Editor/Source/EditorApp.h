@@ -38,7 +38,7 @@ public:
 	wxCriticalSection breakpointListCS;
 
 	Breakpoint* FindBreakpoint(const wxFileName& sourceFile, int lineNumber, std::list<Breakpoint>::iterator* foundIter = nullptr);
-	void ToggleBreakpoint(const wxFileName& sourceFile, int lineNumber);
+	void ToggleBreakpoint(const wxFileName& sourceFile, int lineNumber, bool notify = true);
 
 private:
 

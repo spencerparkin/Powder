@@ -18,6 +18,7 @@ public:
 
 	void OnDeleteAllBreakpoints(wxCommandEvent& event);
 	void OnBreakpointsListItemActivated(wxListEvent& event);
+	void OnKeyUp(wxKeyEvent& event);
 
 	void RebuildBreakpointsList();
 

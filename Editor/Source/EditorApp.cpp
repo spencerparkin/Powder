@@ -69,7 +69,7 @@ EditorApp::Breakpoint* EditorApp::FindBreakpoint(const wxFileName& sourceFile, i
 	return nullptr;
 }
 
-void EditorApp::ToggleBreakpoint(const wxFileName& sourceFile, int lineNumber)
+void EditorApp::ToggleBreakpoint(const wxFileName& sourceFile, int lineNumber, bool notify /*= true*/)
 {
 	std::list<Breakpoint>::iterator iter;
 	if (this->FindBreakpoint(sourceFile, lineNumber, &iter))
@@ -82,5 +82,6 @@ void EditorApp::ToggleBreakpoint(const wxFileName& sourceFile, int lineNumber)
 		this->breakpointList.push_back(breakpoint);
 	}
 
-	this->frame->NotifyPanels(Panel::BREAKPOINTS_CHANGED, (void*)&sourceFile);
+	if (notify)
+		this->frame->NotifyPanels(Panel::BREAKPOINTS_CHANGED, (void*)&sourceFile);
 }
