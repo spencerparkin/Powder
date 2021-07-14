@@ -105,6 +105,4 @@ public:
 	int avoidLineNumber;
 	int keepLineNumber;
 	int prevLineNumber;
-	std::set<std::string> refreshValueSet;
-	std::map<void*, std::string> valueMap;
 };

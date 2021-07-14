@@ -1,6 +1,7 @@
 #include "SourceFilePanel.h"
 #include "SourceFileNotebookControl.h"
 #include "SourceFileEditControl.h"
+#include "RunThread.h"
 
 wxIMPLEMENT_DYNAMIC_CLASS(SourceFilePanel, Panel);
 
@@ -65,6 +66,16 @@ SourceFilePanel::SourceFilePanel()
 				SourceFileEditControl* editControl = (SourceFileEditControl*)this->notebookControl->GetPage(i);
 				editControl->UpdateBreakpointMarkers();
 			}
+		}
+	}
+	else if (notification == RUNTHREAD_SUSPENDED)
+	{
+		RunThreadSuspendedEvent* event = (RunThreadSuspendedEvent*)notifyData;
+		if (this->notebookControl->OpenSourceFile(event->sourceFile))
+		{
+			SourceFileEditControl* editControl = this->notebookControl->FindEditControl(event->sourceFile);
+			if (editControl)
+				editControl->ShowExecutionSuspendedAt(event->lineNumber, event->columnNumber);
 		}
 	}
 }

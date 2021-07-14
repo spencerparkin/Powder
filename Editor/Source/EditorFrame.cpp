@@ -355,16 +355,7 @@ void EditorFrame::OnRunThreadException(RunThreadExceptionEvent& event)
 
 void EditorFrame::OnRunThreadSuspended(RunThreadSuspendedEvent& event)
 {
-	SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
-	if (sourceFilePanel)
-	{
-		if (sourceFilePanel->notebookControl->OpenSourceFile(event.sourceFile))
-		{
-			SourceFileEditControl* editControl = sourceFilePanel->notebookControl->FindEditControl(event.sourceFile);
-			if (editControl)
-				editControl->ShowExecutionSuspendedAt(event.lineNumber, event.columnNumber);
-		}
-	}
+	this->NotifyPanels(Panel::RUNTHREAD_SUSPENDED, (void*)&event);
 }
 
 void EditorFrame::OnStepOver(wxCommandEvent& event)

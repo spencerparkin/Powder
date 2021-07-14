@@ -47,6 +47,9 @@
     <ClInclude Include="Source\BreakpointsPanel.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ValuesPanel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\EditorApp.cpp">
@@ -83,6 +86,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\BreakpointsPanel.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ValuesPanel.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

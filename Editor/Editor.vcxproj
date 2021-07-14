@@ -31,6 +31,7 @@
     <ClCompile Include="Source\SourceFileEditControl.cpp" />
     <ClCompile Include="Source\SourceFileNotebookControl.cpp" />
     <ClCompile Include="Source\TerminalPanel.cpp" />
+    <ClCompile Include="Source\ValuesPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\BreakpointsPanel.h" />
@@ -45,6 +46,7 @@
     <ClInclude Include="Source\SourceFilePanel.h" />
     <ClInclude Include="Source\TerminalControl.h" />
     <ClInclude Include="Source\TerminalPanel.h" />
+    <ClInclude Include="Source\ValuesPanel.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Source\TODO.txt" />
