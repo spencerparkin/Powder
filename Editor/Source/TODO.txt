@@ -21,3 +21,5 @@ TODO...
 -- Revisit the GC.  Can it be faster or threaded?  Better algorithm or stratagy?  Also, I'm noticing some leaking at times.  Is this due to a bug in the algorithm or due to exceptions being thrown during normal errors?  Get rid of all exception throwing?
 
 -- Make a YouTube video that explains what Powder is and then stick it on the GitHub page, FWIW.  Maybe a prospective employer could bare to watch it.
+
+-- Find and fix all mem leaks.  Is the GC partly to blame?  Also, should add GC leak check code when VM is totally out of scope.
