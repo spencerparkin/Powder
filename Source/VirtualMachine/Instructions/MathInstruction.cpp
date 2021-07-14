@@ -7,6 +7,7 @@
 #include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
+#include "VirtualMachine.h"
 
 namespace Powder
 {
@@ -103,6 +104,8 @@ namespace Powder
 				if (!containerValue)
 					throw new RunTimeException("Set field math operation expected a container value on the evaluation stack.");
 				containerValue->SetField(fieldValue, result);
+				if (virtualMachine->GetDebuggerTrap())
+					virtualMachine->GetDebuggerTrap()->ValueChanged(containerValue);
 				break;
 			}
 			case MathOp::DEL_FIELD:
@@ -112,6 +115,8 @@ namespace Powder
 				if (!containerValue)
 					throw new RunTimeException("Delete field math operation expected a container value on the evaluation stack.");
 				result = containerValue->DelField(fieldValue);
+				if (virtualMachine->GetDebuggerTrap())
+					virtualMachine->GetDebuggerTrap()->ValueChanged(containerValue);
 				break;
 			}
 			case MathOp::CONTAINS:

@@ -4,6 +4,7 @@
 #include "ListValue.h"
 #include "Exceptions.hpp"
 #include "Executable.h"
+#include "VirtualMachine.h"
 
 namespace Powder
 {
@@ -37,6 +38,8 @@ namespace Powder
 					throw new RunTimeException("List instruction can only pop elements from a list value.");
 				Value* elementValue = (action == Action::POP_LEFT) ? listValue->PopLeft() : listValue->PopRight();
 				executor->PushValueOntoEvaluationStackTop(elementValue);
+				if (virtualMachine->GetDebuggerTrap())
+					virtualMachine->GetDebuggerTrap()->ValueChanged(listValue);
 				break;
 			}
 			case Action::PUSH_LEFT:
@@ -51,6 +54,8 @@ namespace Powder
 					listValue->PushLeft(elementValue);
 				else
 					listValue->PushRight(elementValue);
+				if (virtualMachine->GetDebuggerTrap())
+					virtualMachine->GetDebuggerTrap()->ValueChanged(listValue);
 				break;
 			}
 			default:

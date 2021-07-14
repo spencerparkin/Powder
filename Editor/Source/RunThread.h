@@ -60,6 +60,9 @@ public:
 
 	virtual ExitCode Entry() override;
 	virtual bool TrapExecution(const Powder::Executable* executable, Powder::Executor* executor) override;
+	virtual void ValueChanged(const Powder::Value* value) override;
+	virtual void ValueStored(const Powder::Value* value) override;
+	virtual void ValueLoaded(const Powder::Value* value) override;
 	virtual void InputString(std::string& str) override;
 	virtual void OutputString(const std::string& str) override;
 

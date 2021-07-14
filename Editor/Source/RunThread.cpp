@@ -204,6 +204,18 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 	return false;
 }
 
+/*virtual*/ void RunThread::ValueChanged(const Powder::Value* value)
+{
+}
+
+/*virtual*/ void RunThread::ValueStored(const Powder::Value* value)
+{
+}
+
+/*virtual*/ void RunThread::ValueLoaded(const Powder::Value* value)
+{
+}
+
 /*virtual*/ void RunThread::InputString(std::string& str)
 {
 	wxString inputText;

@@ -5,6 +5,7 @@
 #include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
+#include "VirtualMachine.h"
 
 namespace Powder
 {
@@ -26,6 +27,8 @@ namespace Powder
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		std::string name = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 1);
 		executor->StoreAndPopValueFromEvaluationStackTop(name.c_str());
+		if (virtualMachine->GetDebuggerTrap())
+			virtualMachine->GetDebuggerTrap()->ValueStored(executor->StackTop());
 		programBufferLocation += 1 + name.length() + 1;
 		return Executor::Result::CONTINUE;
 	}

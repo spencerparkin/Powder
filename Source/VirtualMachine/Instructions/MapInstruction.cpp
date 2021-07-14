@@ -5,6 +5,7 @@
 #include "ListValue.h"
 #include "Exceptions.hpp"
 #include "Executable.h"
+#include "VirtualMachine.h"
 
 namespace Powder
 {
@@ -37,6 +38,8 @@ namespace Powder
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only remove elements from a map value.");
 				mapValue->DelField(fieldValue);
+				if (virtualMachine->GetDebuggerTrap())
+					virtualMachine->GetDebuggerTrap()->ValueChanged(mapValue);
 				break;
 			}
 			case Action::INSERT:
@@ -48,6 +51,8 @@ namespace Powder
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only insert elements into a map value.");
 				mapValue->SetField(fieldValue, dataValue);
+				if (virtualMachine->GetDebuggerTrap())
+					virtualMachine->GetDebuggerTrap()->ValueChanged(mapValue);
 				break;
 			}
 			case Action::MAKE_KEY_LIST:
