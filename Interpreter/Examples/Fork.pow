@@ -2,25 +2,38 @@
 
 output("Hello!\n");
 
-fork
+fork_a = func()
 {
-    i = 0;
-    while(i < 10)
+	while(i < 10)
     {
         output("fork A: " + i + "\n");
         yield;
         i += 1;
     }
-}
-else
+};
+
+fork_b = func()
 {
-    j = 0;
-    while(j > -10)
+	while(j > -10)
     {
         output("fork B: " + j + "\n");
         yield;
         j -= 1;
-    }
+    };
+};
+
+fork
+{
+    i = 0;
+    fork_a();
+}
+else
+{
+    j = 0;
+    fork_b();
 };
 
 output("Good-bye!\n");
+output("So long!\n");
+yield;
+output("Until tomorrow!\n");

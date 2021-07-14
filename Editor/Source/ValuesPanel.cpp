@@ -103,6 +103,8 @@ wxTreeItemId ValuesPanel::GenerateScopeItems(Powder::Scope* scope)
 			wxTreeItemId rootItemId = this->valueTreeControl->GetRootItem();
 			if (!rootItemId.IsOk())
 				treeItemId = this->valueTreeControl->AddRoot(label, -1, -1, new ScopeTreeItemData(scope));
+			else
+				treeItemId = rootItemId;
 		}
 	}
 
