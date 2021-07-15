@@ -1,9 +1,5 @@
 TODO...
 
--- Add a way to inspect the values in the scope stack.  Also add a way to modify them?  Make sure inspection is only active when we're suspended.  Otherwise, we'll be non-thread-safe.
-
--- All but the center panel should be closable and there should be a panels menu to bring back panels.  Does this persist across invocations?
-
 -- Add a way to create files and folders in the currently open directory.
 
 -- Add cursor hover support in the source control window?  You hover over a symbol long enough and then a bubble shows up with the symbol's current value.  Not needed if the inspection window is good enough.

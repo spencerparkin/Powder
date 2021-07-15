@@ -4,6 +4,7 @@ wxIMPLEMENT_DYNAMIC_CLASS(Panel, wxPanel);
 
 Panel::Panel()
 {
+	this->menuItemId = -1;
 }
 
 /*virtual*/ Panel::~Panel()

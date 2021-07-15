@@ -18,7 +18,6 @@ DirectoryTreePanel::DirectoryTreePanel()
 	paneInfo.Caption("Directory Tree");
 	paneInfo.Dockable();
 	paneInfo.BestSize(600, 300);
-	paneInfo.CloseButton(false);
 	paneInfo.Name("DirectoryTree");
 	return true;
 }

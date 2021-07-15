@@ -23,7 +23,6 @@ BreakpointsPanel::BreakpointsPanel()
 	paneInfo.Dockable();
 	paneInfo.BestSize(300, 300);
 	paneInfo.Name("Breakpoints");
-	paneInfo.CloseButton(false);
 	paneInfo.Dock().Right();
 	return true;
 }

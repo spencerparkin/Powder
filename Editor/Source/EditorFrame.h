@@ -29,7 +29,8 @@ public:
 		ID_StepOut,
 		ID_PauseScript,
 		ID_ResumeScript,
-		ID_KillScript
+		ID_KillScript,
+		ID_PANEL_BASE		// Keep this as the last ID.
 	};
 
 	void OnExit(wxCommandEvent& event);
@@ -58,12 +59,15 @@ public:
 	void OnStepOver(wxCommandEvent& event);
 	void OnStepInto(wxCommandEvent& event);
 	void OnStepOut(wxCommandEvent& event);
+	void OnPanelMenuItemClicked(wxCommandEvent& event);
 
 	void SaveWindowAdjustments();
 	void RestoreWindowAdjustments();
 	void KickoffRunThread(bool debuggingEnabled);
 	void MakePanels(void);
 	void NotifyPanels(Panel::Notification notification, void* notifyData);
+	wxMenu* MakePanelsMenu();
+	bool IsPanelShown(int panelMenuId, wxAuiPaneInfo** foundPaneInfo = nullptr);
 
 	template<typename T>
 	T* FindPanel(const wxString& panelName)
@@ -76,4 +80,5 @@ public:
 	}
 
 	wxAuiManager* auiManager;
+	int panelMenuCount;
 };

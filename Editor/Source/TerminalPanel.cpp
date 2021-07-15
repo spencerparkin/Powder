@@ -19,7 +19,6 @@ TerminalPanel::TerminalPanel()
 	paneInfo.Caption("Terminal");
 	paneInfo.Dockable();
 	paneInfo.BestSize(600, 300);
-	paneInfo.CloseButton(false);
 	paneInfo.Name("Terminal");
 	return true;
 }

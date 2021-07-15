@@ -19,7 +19,6 @@ SourceFilePanel::SourceFilePanel()
 	paneInfo.Caption("Source Files");
 	paneInfo.Dockable();
 	paneInfo.BestSize(600, 300);
-	paneInfo.CloseButton(false);
 	paneInfo.Name("SourceFile");
 	paneInfo.CenterPane();
 	return true;

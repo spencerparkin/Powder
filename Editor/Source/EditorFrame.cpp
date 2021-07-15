@@ -18,6 +18,9 @@
 EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Powder Editor", pos, size)
 {
 	this->auiManager = new wxAuiManager(this, wxAUI_MGR_DEFAULT);
+	this->panelMenuCount = 0;
+
+	this->MakePanels();
 
 	const int entryCount = 5;
 	wxAcceleratorEntry entries[entryCount];
@@ -69,9 +72,12 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about box."));
 
+	wxMenu* panelsMenu = this->MakePanelsMenu();
+
 	wxMenuBar* menuBar = new wxMenuBar();
 	menuBar->Append(fileMenu, "File");
 	menuBar->Append(runMenu, "Run");
+	menuBar->Append(panelsMenu, "Panels");
 	menuBar->Append(helpMenu, "Help");
 	this->SetMenuBar(menuBar);
 
@@ -121,7 +127,6 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(EVT_RUNTHREAD_SUSPENDED, &EditorFrame::OnRunThreadSuspended, this);
 	this->Bind(EVT_TERMINAL_INPUT_READY, &EditorFrame::OnTerminalInputReady, this);
 
-	this->MakePanels();
 	this->NotifyPanels(Panel::APP_OPENING, nullptr);
 
 	this->auiManager->Update();
@@ -131,6 +136,48 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 {
 	this->auiManager->UnInit();
 	delete this->auiManager;
+}
+
+wxMenu* EditorFrame::MakePanelsMenu()
+{
+	wxMenu* panelsMenu = new wxMenu();
+
+	wxAuiPaneInfoArray& paneInfoArray = auiManager->GetAllPanes();
+	int j = 0;
+	for (int i = 0; i < (signed)paneInfoArray.GetCount(); i++)
+	{
+		if (paneInfoArray[i].HasCloseButton())
+		{
+			Panel* panel = wxDynamicCast(paneInfoArray[i].window, Panel);
+			if (panel)
+			{
+				wxClassInfo* classInfo = panel->GetClassInfo();
+				panel->menuItemId = ID_PANEL_BASE + j;
+
+				wxMenuItem* menuItem = new wxMenuItem(panelsMenu, panel->menuItemId, paneInfoArray[i].name, wxEmptyString, wxITEM_CHECK);
+				panelsMenu->Append(menuItem);
+
+				this->Bind(wxEVT_MENU, &EditorFrame::OnPanelMenuItemClicked, this);
+				this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, panel->menuItemId);
+
+				j++;
+			}
+		}
+	}
+
+	this->panelMenuCount = j;
+
+	return panelsMenu;
+}
+
+void EditorFrame::OnPanelMenuItemClicked(wxCommandEvent& event)
+{
+	wxAuiPaneInfo* paneInfo = nullptr;
+	if (this->IsPanelShown(event.GetId(), &paneInfo))
+		paneInfo->Hide();
+	else
+		paneInfo->Show();
+	this->auiManager->Update();
 }
 
 void EditorFrame::MakePanels(void)
@@ -373,112 +420,140 @@ void EditorFrame::OnStepOut(wxCommandEvent& event)
 	wxGetApp().GetRunThread()->MainThread_StepOut();
 }
 
+bool EditorFrame::IsPanelShown(int panelMenuId, wxAuiPaneInfo** foundPaneInfo /*= nullptr*/)
+{
+	if (foundPaneInfo)
+		*foundPaneInfo = nullptr;
+	wxAuiPaneInfoArray& paneInfoArray = auiManager->GetAllPanes();
+	for (int i = 0; i < (signed)paneInfoArray.GetCount(); i++)
+	{
+		wxAuiPaneInfo& paneInfo = paneInfoArray[i];
+		Panel* panel = wxDynamicCast(paneInfo.window, Panel);
+		if (panel && panel->menuItemId == panelMenuId)
+		{
+			if (foundPaneInfo)
+				*foundPaneInfo = &paneInfoArray[i];
+			return paneInfo.IsShown();
+		}
+	}
+	return false;
+}
+
 void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 {
-	switch (event.GetId())
+	int id = event.GetId();
+
+	int panelIdMin = ID_PANEL_BASE;
+	int panelIdMax = ID_PANEL_BASE + this->panelMenuCount - 1;
+	if (panelIdMin <= id && id <= panelIdMax)
+		event.Check(this->IsPanelShown(id));
+	else
 	{
-		case ID_Save:
+		switch (id)
 		{
-			SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
-			if (sourceFilePanel)
-			{
-				if (sourceFilePanel->notebookControl->OpenFileCount() == 0)
-					event.Enable(false);
-				else
-					event.Enable(sourceFilePanel->notebookControl->GetSelectedEditControl()->modified);
-			}
-			break;
-		}
-		case ID_Open:
-		{
-			event.Enable(true);
-			break;
-		}
-		case ID_Close:
-		{
-			SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
-			if (sourceFilePanel)
-				event.Enable(sourceFilePanel->notebookControl->GetSelectedEditControl() ? true : false);
-			break;
-		}
-		case ID_SaveAll:
-		{
-			SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
-			if (sourceFilePanel)
-				event.Enable(sourceFilePanel->notebookControl->AnyFilesModified());
-			break;
-		}
-		case ID_CloseAll:
-		{
-			SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
-			if (sourceFilePanel)
-				event.Enable(sourceFilePanel->notebookControl->OpenFileCount() > 0);
-			break;
-		}
-		case ID_OpenDirectory:
-		{
-			event.Enable(wxGetApp().GetProjectDirectory().IsEmpty());
-			break;
-		}
-		case ID_CloseDirectory:
-		{
-			event.Enable(!wxGetApp().GetProjectDirectory().IsEmpty());
-			break;
-		}
-		case ID_RunWithDebugger:
-		case ID_RunWithoutDebugger:
-		{
-			if (wxGetApp().GetRunThread())
-				event.Enable(false);
-			else
+			case ID_Save:
 			{
 				SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
 				if (sourceFilePanel)
 				{
-					SourceFileEditControl* editControl = sourceFilePanel->notebookControl->GetSelectedEditControl();
-					event.Enable(editControl != nullptr);
-					if (editControl)
-					{
-						if (event.GetId() == ID_RunWithDebugger)
-							event.SetText("Run " + editControl->GetFileName() + " with Debugger");
-						else
-							event.SetText("Run " + editControl->GetFileName() + " without Debugger");
-					}
+					if (sourceFilePanel->notebookControl->OpenFileCount() == 0)
+						event.Enable(false);
 					else
+						event.Enable(sourceFilePanel->notebookControl->GetSelectedEditControl()->modified);
+				}
+				break;
+			}
+			case ID_Open:
+			{
+				event.Enable(true);
+				break;
+			}
+			case ID_Close:
+			{
+				SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+				if (sourceFilePanel)
+					event.Enable(sourceFilePanel->notebookControl->GetSelectedEditControl() ? true : false);
+				break;
+			}
+			case ID_SaveAll:
+			{
+				SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+				if (sourceFilePanel)
+					event.Enable(sourceFilePanel->notebookControl->AnyFilesModified());
+				break;
+			}
+			case ID_CloseAll:
+			{
+				SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+				if (sourceFilePanel)
+					event.Enable(sourceFilePanel->notebookControl->OpenFileCount() > 0);
+				break;
+			}
+			case ID_OpenDirectory:
+			{
+				event.Enable(wxGetApp().GetProjectDirectory().IsEmpty());
+				break;
+			}
+			case ID_CloseDirectory:
+			{
+				event.Enable(!wxGetApp().GetProjectDirectory().IsEmpty());
+				break;
+			}
+			case ID_RunWithDebugger:
+			case ID_RunWithoutDebugger:
+			{
+				if (wxGetApp().GetRunThread())
+					event.Enable(false);
+				else
+				{
+					SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+					if (sourceFilePanel)
 					{
-						if (event.GetId() == ID_RunWithDebugger)
-							event.SetText("Run with Debugger");
+						SourceFileEditControl* editControl = sourceFilePanel->notebookControl->GetSelectedEditControl();
+						event.Enable(editControl != nullptr);
+						if (editControl)
+						{
+							if (event.GetId() == ID_RunWithDebugger)
+								event.SetText("Run " + editControl->GetFileName() + " with Debugger");
+							else
+								event.SetText("Run " + editControl->GetFileName() + " without Debugger");
+						}
 						else
-							event.SetText("Run without Debugger");
+						{
+							if (event.GetId() == ID_RunWithDebugger)
+								event.SetText("Run with Debugger");
+							else
+								event.SetText("Run without Debugger");
+						}
 					}
 				}
-			}
 
-			break;
-		}
-		case ID_PauseScript:
-		{
-			if (!wxGetApp().GetRunThread())
-				event.Enable(false);
-			else
-				event.Enable(wxGetApp().GetRunThread()->suspensionState == RunThread::NOT_SUSPENDED);
-			break;
-		}
-		case ID_ResumeScript:
-		case ID_StepOver:
-		case ID_StepInto:
-		case ID_StepOut:
-		{
-			if (!wxGetApp().GetRunThread())
-				event.Enable(false);
-			else
-				event.Enable(wxGetApp().GetRunThread()->suspensionState == RunThread::SUSPENDED_FOR_DEBUG);
-			break;
-		}
-		case ID_KillScript:
-		{
-			event.Enable(wxGetApp().GetRunThread() ? true : false);
-			break;
+				break;
+			}
+			case ID_PauseScript:
+			{
+				if (!wxGetApp().GetRunThread())
+					event.Enable(false);
+				else
+					event.Enable(wxGetApp().GetRunThread()->suspensionState == RunThread::NOT_SUSPENDED);
+				break;
+			}
+			case ID_ResumeScript:
+			case ID_StepOver:
+			case ID_StepInto:
+			case ID_StepOut:
+			{
+				if (!wxGetApp().GetRunThread())
+					event.Enable(false);
+				else
+					event.Enable(wxGetApp().GetRunThread()->suspensionState == RunThread::SUSPENDED_FOR_DEBUG);
+				break;
+			}
+			case ID_KillScript:
+			{
+				event.Enable(wxGetApp().GetRunThread() ? true : false);
+				break;
+			}
 		}
 	}
 }

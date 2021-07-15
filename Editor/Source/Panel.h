@@ -26,4 +26,6 @@ public:
 	virtual bool GetPaneInfo(wxAuiPaneInfo& paneInfo);
 	virtual bool MakeControls(void);
 	virtual void OnNotified(Notification notification, void* notifyData);
+
+	int menuItemId;
 };

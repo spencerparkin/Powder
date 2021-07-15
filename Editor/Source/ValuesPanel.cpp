@@ -21,7 +21,6 @@ ValuesPanel::ValuesPanel()
 	paneInfo.Caption("Values");
 	paneInfo.Dockable();
 	paneInfo.BestSize(600, 300);
-	paneInfo.CloseButton(false);
 	paneInfo.Name("Values");
 	return true;
 }
