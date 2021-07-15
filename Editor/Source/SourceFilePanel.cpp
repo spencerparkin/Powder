@@ -38,44 +38,54 @@ SourceFilePanel::SourceFilePanel()
 
 /*virtual*/ void SourceFilePanel::OnNotified(Notification notification, void* notifyData)
 {
-	if (notification == APP_OPENING)
+	switch (notification)
 	{
-		this->notebookControl->RestoreOpenFiles();
-	}
-	else if (notification == APP_CLOSING)
-	{
-		this->notebookControl->RememberCurrentlyOpenFiles();
-	}
-	else if (notification == RUNTHREAD_ENDED)
-	{
-		this->notebookControl->ClearExecutionMarkers();
-	}
-	else if (notification == BREAKPOINTS_CHANGED)
-	{
-		wxFileName* sourceFile = (wxFileName*)notifyData;
-		if (sourceFile)
+		case APP_OPENING:
 		{
-			SourceFileEditControl* editControl = this->notebookControl->FindEditControl(*sourceFile);
-			if (editControl)
-				editControl->UpdateBreakpointMarkers();
+			this->notebookControl->RestoreOpenFiles();
+			break;
 		}
-		else
+		case APP_CLOSING:
 		{
-			for (int i = 0; i < (signed)this->notebookControl->GetPageCount(); i++)
+			this->notebookControl->RememberCurrentlyOpenFiles();
+			break;
+		}
+		case RUNTHREAD_ENDED:
+		{
+			this->notebookControl->ClearExecutionMarkers();
+			break;
+		}
+		case BREAKPOINTS_CHANGED:
+		{
+			wxFileName* sourceFile = (wxFileName*)notifyData;
+			if (sourceFile)
 			{
-				SourceFileEditControl* editControl = (SourceFileEditControl*)this->notebookControl->GetPage(i);
-				editControl->UpdateBreakpointMarkers();
+				SourceFileEditControl* editControl = this->notebookControl->FindEditControl(*sourceFile);
+				if (editControl)
+					editControl->UpdateBreakpointMarkers();
 			}
+			else
+			{
+				for (int i = 0; i < (signed)this->notebookControl->GetPageCount(); i++)
+				{
+					SourceFileEditControl* editControl = (SourceFileEditControl*)this->notebookControl->GetPage(i);
+					editControl->UpdateBreakpointMarkers();
+				}
+			}
+
+			break;
 		}
-	}
-	else if (notification == RUNTHREAD_SUSPENDED)
-	{
-		RunThreadSuspendedEvent* event = (RunThreadSuspendedEvent*)notifyData;
-		if (this->notebookControl->OpenSourceFile(event->sourceFile))
+		case RUNTHREAD_SUSPENDED:
 		{
-			SourceFileEditControl* editControl = this->notebookControl->FindEditControl(event->sourceFile);
-			if (editControl)
-				editControl->ShowExecutionSuspendedAt(event->lineNumber, event->columnNumber);
+			RunThreadSuspendedEvent* event = (RunThreadSuspendedEvent*)notifyData;
+			if (this->notebookControl->OpenSourceFile(event->sourceFile))
+			{
+				SourceFileEditControl* editControl = this->notebookControl->FindEditControl(event->sourceFile);
+				if (editControl)
+					editControl->ShowExecutionSuspendedAt(event->lineNumber, event->columnNumber);
+			}
+
+			break;
 		}
 	}
 }

@@ -37,13 +37,18 @@ TerminalPanel::TerminalPanel()
 
 /*virtual*/ void TerminalPanel::OnNotified(Notification notification, void* notifyData)
 {
-	if (notification == RUNTHREAD_STARTED)
+	switch (notification)
 	{
-		this->terminalControl->Clear();
-	}
-	else if (notification == RUNTHREAD_ENDED)
-	{
-		RunThread* runThread = wxGetApp().GetRunThread();
-		this->terminalControl->AppendText(wxString::Format("\n\nExecution time: %d ms", runThread->executionTimeMilliseconds));
+		case RUNTHREAD_STARTED:
+		{
+			this->terminalControl->Clear();
+			break;
+		}
+		case RUNTHREAD_ENDED:
+		{
+			RunThread* runThread = wxGetApp().GetRunThread();
+			this->terminalControl->AppendText(wxString::Format("\n\nExecution time: %d ms", runThread->executionTimeMilliseconds));
+			break;
+		}
 	}
 }

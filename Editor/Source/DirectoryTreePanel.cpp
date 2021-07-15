@@ -36,13 +36,19 @@ DirectoryTreePanel::DirectoryTreePanel()
 
 /*virtual*/ void DirectoryTreePanel::OnNotified(Notification notification, void* notifyData)
 {
-	if (notification == DIRECTORY_OPENED || notification == APP_OPENING)
+	switch (notification)
 	{
-		wxString directoryPath = wxGetApp().GetProjectDirectory();
-		this->directoryTreeControl->RebuildForDirectory(directoryPath);
-	}
-	else if (notification == DIRECTORY_CLOSED)
-	{
-		this->directoryTreeControl->RebuildForDirectory("");
+		case DIRECTORY_OPENED:
+		case APP_OPENING:
+		{
+			wxString directoryPath = wxGetApp().GetProjectDirectory();
+			this->directoryTreeControl->RebuildForDirectory(directoryPath);
+			break;
+		}
+		case DIRECTORY_CLOSED:
+		{
+			this->directoryTreeControl->RebuildForDirectory("");
+			break;
+		}
 	}
 }

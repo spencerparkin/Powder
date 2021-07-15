@@ -36,13 +36,18 @@ ValuesPanel::ValuesPanel()
 
 /*virtual*/ void ValuesPanel::OnNotified(Notification notification, void* notifyData)
 {
-	if (notification == RUNTHREAD_SUSPENDED)
+	switch (notification)
 	{
-		this->RebuildValueTree();
-	}
-	else if (notification == RUNTHREAD_ENDED)
-	{
-		this->valueTreeControl->DeleteAllItems();
+		case RUNTHREAD_SUSPENDED:
+		{
+			this->RebuildValueTree();
+			break;
+		}
+		case RUNTHREAD_ENDED:
+		{
+			this->valueTreeControl->DeleteAllItems();
+			break;
+		}
 	}
 }
 
