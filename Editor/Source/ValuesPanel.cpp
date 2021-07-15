@@ -79,7 +79,8 @@ void ValuesPanel::OnContextMenu_ModifyValue(wxCommandEvent& event)
 	ValueTreeItemData* valueTreeItemData = dynamic_cast<ValueTreeItemData*>(this->contextMenuItemData);
 	if (valueTreeItemData)
 	{
-		wxTextEntryDialog dialog(wxGetApp().GetFrame(), "Please enter the new value", "Modify Value");
+		wxString currentValueStr = valueTreeItemData->value->ToString().c_str();
+		wxTextEntryDialog dialog(wxGetApp().GetFrame(), "Please enter the new value", "Modify Value", currentValueStr);
 		if (wxID_OK == dialog.ShowModal())
 		{
 			std::string valueStr = (const char*)dialog.GetValue().c_str();
