@@ -1,6 +1,6 @@
 TODO...
 
--- Add a way to create files and folders in the currently open directory.
+-- Add way to change values while debugging using context menu in values panel.
 
 -- Add cursor hover support in the source control window?  You hover over a symbol long enough and then a bubble shows up with the symbol's current value.  Not needed if the inspection window is good enough.
 

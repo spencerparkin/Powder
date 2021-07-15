@@ -40,13 +40,14 @@ DirectoryTreePanel::DirectoryTreePanel()
 		case DIRECTORY_OPENED:
 		case APP_OPENING:
 		{
-			wxString directoryPath = wxGetApp().GetProjectDirectory();
-			this->directoryTreeControl->RebuildForDirectory(directoryPath);
+			this->directoryTreeControl->rootPath.AssignDir(wxGetApp().GetProjectDirectory());
+			this->directoryTreeControl->RebuildTree();
 			break;
 		}
 		case DIRECTORY_CLOSED:
 		{
-			this->directoryTreeControl->RebuildForDirectory("");
+			this->directoryTreeControl->rootPath = "";
+			this->directoryTreeControl->RebuildTree();
 			break;
 		}
 	}
