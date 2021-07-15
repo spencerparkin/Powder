@@ -68,6 +68,7 @@ public:
 	void NotifyPanels(Panel::Notification notification, void* notifyData);
 	wxMenu* MakePanelsMenu();
 	bool IsPanelShown(int panelMenuId, wxAuiPaneInfo** foundPaneInfo = nullptr);
+	void UpdateWindowTitlebarText(void);
 
 	template<typename T>
 	T* FindPanel(const wxString& panelName)

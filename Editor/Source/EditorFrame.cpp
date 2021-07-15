@@ -312,11 +312,13 @@ void EditorFrame::OnCloseDirectory(wxCommandEvent& event)
 void EditorFrame::OnRunWithDebugger(wxCommandEvent& event)
 {
 	this->KickoffRunThread(true);
+	this->UpdateWindowTitlebarText();
 }
 
 void EditorFrame::OnRunWithoutDebugger(wxCommandEvent& event)
 {
 	this->KickoffRunThread(false);
+	this->UpdateWindowTitlebarText();
 }
 
 void EditorFrame::KickoffRunThread(bool debuggingEnabled)
@@ -340,20 +342,46 @@ void EditorFrame::KickoffRunThread(bool debuggingEnabled)
 void EditorFrame::OnPauseScript(wxCommandEvent& event)
 {
 	wxGetApp().GetRunThread()->MainThread_Pause();
+	this->UpdateWindowTitlebarText();
 }
 
 void EditorFrame::OnResumeScript(wxCommandEvent& event)
 {
 	wxGetApp().GetRunThread()->MainThread_Resume();
+	this->UpdateWindowTitlebarText();
 }
 
 void EditorFrame::OnKillScript(wxCommandEvent& event)
 {
 	wxGetApp().GetRunThread()->MainThread_ExitNow();
+	this->UpdateWindowTitlebarText();
+}
+
+void EditorFrame::UpdateWindowTitlebarText(void)
+{
+	wxString label = "Powder Editor";
+	if (wxGetApp().GetRunThread())
+	{
+		wxFileName fileName = wxGetApp().GetRunThread()->sourceFilePath;
+		label += " -- Running: " + fileName.GetName() + "." + fileName.GetExt();
+		switch (wxGetApp().GetRunThread()->suspensionState)
+		{
+		case RunThread::NOT_SUSPENDED:
+			label += " [RUNNING]";
+			break;
+		case RunThread::SUSPENDED_FOR_DEBUG:
+		case RunThread::SUSPENDED_FOR_INPUT:
+			label += " [SUSPENDED]";
+			break;
+		}
+	}
+
+	this->SetLabel(label);
 }
 
 void EditorFrame::OnRunThreadEntering(wxThreadEvent& event)
 {
+	this->UpdateWindowTitlebarText();
 	this->NotifyPanels(Panel::RUNTHREAD_STARTED, nullptr);
 }
 
@@ -367,6 +395,8 @@ void EditorFrame::OnRunThreadExiting(wxThreadEvent& event)
 		delete runThread;
 		wxGetApp().SetRunThread(nullptr);
 	}
+
+	this->UpdateWindowTitlebarText();
 }
 
 void EditorFrame::OnRunThreadOutput(RunThreadOutputEvent& event)
@@ -403,6 +433,7 @@ void EditorFrame::OnRunThreadException(RunThreadExceptionEvent& event)
 void EditorFrame::OnRunThreadSuspended(RunThreadSuspendedEvent& event)
 {
 	this->NotifyPanels(Panel::RUNTHREAD_SUSPENDED, (void*)&event);
+	this->UpdateWindowTitlebarText();
 }
 
 void EditorFrame::OnStepOver(wxCommandEvent& event)
@@ -535,7 +566,7 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 				if (!wxGetApp().GetRunThread())
 					event.Enable(false);
 				else
-					event.Enable(wxGetApp().GetRunThread()->suspensionState == RunThread::NOT_SUSPENDED);
+					event.Enable(wxGetApp().GetRunThread()->suspensionState == RunThread::NOT_SUSPENDED && wxGetApp().GetRunThread()->debuggingEnabled);
 				break;
 			}
 			case ID_ResumeScript:
@@ -546,12 +577,12 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 				if (!wxGetApp().GetRunThread())
 					event.Enable(false);
 				else
-					event.Enable(wxGetApp().GetRunThread()->suspensionState == RunThread::SUSPENDED_FOR_DEBUG);
+					event.Enable(wxGetApp().GetRunThread()->suspensionState == RunThread::SUSPENDED_FOR_DEBUG && wxGetApp().GetRunThread()->debuggingEnabled);
 				break;
 			}
 			case ID_KillScript:
 			{
-				event.Enable(wxGetApp().GetRunThread() ? true : false);
+				event.Enable(wxGetApp().GetRunThread() != nullptr);
 				break;
 			}
 		}
