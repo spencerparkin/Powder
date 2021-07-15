@@ -25,7 +25,7 @@ namespace Powder
 
 	/*virtual*/ std::string ListValue::ToString() const
 	{
-		return FormatString("Length = %d", this->Length());
+		return FormatString("List of length %d", this->Length());
 	}
 
 	/*virtual*/ Value* ListValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
@@ -115,6 +115,14 @@ namespace Powder
 		this->DisownObject(dataValue);
 		this->valueListIndexValid = false;
 		return dataValue;
+	}
+
+	Value* ListValue::operator[](int i)
+	{
+		this->RebuildIndexIfNeeded();
+		if (i >= 0 && i < (signed)this->valueList.GetCount())
+			return (*this->valueListIndex)[i]->value;
+		return nullptr;
 	}
 
 	void ListValue::RebuildIndexIfNeeded(void) const

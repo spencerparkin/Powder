@@ -26,6 +26,7 @@ namespace Powder
 		Value* PopRight();
 
 		unsigned int Length() const { return this->valueList.GetCount(); }
+		Value* operator[](int i);
 
 	private:
 		LinkedList<Value*> valueList;

@@ -10,4 +10,9 @@ namespace Powder
 	/*virtual*/ CppFunctionValue::~CppFunctionValue()
 	{
 	}
+
+	/*virtual*/ std::string CppFunctionValue::ToString() const
+	{
+		return "C++ function";
+	}
 }

@@ -13,5 +13,6 @@ namespace Powder
 		virtual ~CppFunctionValue();
 
 		virtual Value* Call(ListValue* argListValue, std::string& errorMsg) = 0;
+		virtual std::string ToString() const override;
 	};
 }

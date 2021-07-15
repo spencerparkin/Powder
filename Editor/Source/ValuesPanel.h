@@ -50,7 +50,8 @@ public:
 	};
 
 	wxTreeItemId GenerateScopeItems(Powder::Scope* scope);
-	void GenerateValueItems(wxTreeItemId treeItemId);
+	void GenerateValueItems(wxTreeItemId parentItemId);
+	void GenerateTreeForValue(wxTreeItemId parentItemId, const wxString& name, Powder::Value* value);
 
 	wxTreeCtrl* valueTreeControl;
 };

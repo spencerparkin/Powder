@@ -23,6 +23,6 @@ namespace Powder
 
 	/*virtual*/ std::string UndefinedValue::ToString() const
 	{
-		return "";
+		return "UNDEFINED";
 	}
 }

@@ -1,6 +1,7 @@
 #include "AddressValue.h"
 #include "UndefinedValue.h"
 #include "Executable.h"
+#include "StringFormat.h"
 
 namespace Powder
 {
@@ -27,5 +28,10 @@ namespace Powder
 	/*virtual*/ Value* AddressValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		return new UndefinedValue();
+	}
+
+	/*virtual*/ std::string AddressValue::ToString() const
+	{
+		return FormatString("Addr: 0x%08x", int(this->programBufferLocation));
 	}
 }
