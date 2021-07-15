@@ -85,7 +85,11 @@ wxString SourceFileEditControl::GetFileName()
 
 bool SourceFileEditControl::LoadFile(void)
 {
+	if (!this->filePath.Exists())
+		return false;
 	wxFile file(this->filePath.GetFullPath(), wxFile::OpenMode::read);
+	if (!file.IsOpened())
+		return false;
 	wxString fileContents;
 	if (!file.ReadAll(&fileContents))
 		return false;

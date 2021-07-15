@@ -58,9 +58,9 @@ bool SourceFileNotebookControl::OpenSourceFile(const wxString& filePath)
 		editControl = new SourceFileEditControl(this, filePath);
 		if (!editControl->LoadFile())
 		{
-			wxString fileName = editControl->GetFileName();
-			wxString messageText = wxString::Format("The file %s could not be loaded from disk.", fileName.c_str());
+			wxString messageText = wxString::Format("The file %s could not be loaded from disk.", filePath);
 			::wxMessageBox(messageText, "Load failed!", wxICON_ERROR | wxOK, wxGetApp().GetFrame());
+			delete editControl;
 			return false;
 		}
 
