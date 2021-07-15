@@ -14,3 +14,8 @@ FileValue::FileValue()
 {
 	return this->fileStream.is_open();
 }
+
+/*virtual*/ std::string FileValue::ToString() const
+{
+	return "File Stream";
+}

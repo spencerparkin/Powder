@@ -10,6 +10,7 @@ public:
 	virtual ~FileValue();
 
 	virtual bool AsBoolean() const override;
+	virtual std::string ToString() const override;
 
 	std::fstream fileStream;
 };
