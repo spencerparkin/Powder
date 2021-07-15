@@ -21,29 +21,6 @@
   <ItemGroup>
     <ClCompile Include="Source\Interpreter.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Examples\Closure.pow" />
-    <None Include="Examples\DoWhile.pow" />
-    <None Include="Examples\Fibbonacci.pow" />
-    <None Include="Examples\Fork.pow" />
-    <None Include="Examples\GCTest.pow" />
-    <None Include="Examples\HelloWorld.pow" />
-    <None Include="Examples\IfThenElse.pow" />
-    <None Include="Examples\IOTest.pow" />
-    <None Include="Examples\ListTests.pow" />
-    <None Include="Examples\MapTests.pow" />
-    <None Include="Examples\MathExpression.pow" />
-    <None Include="Examples\Matrix.pow" />
-    <None Include="Examples\Membership.pow" />
-    <None Include="Examples\Object.pow" />
-    <None Include="Examples\ScopeTest.pow" />
-    <None Include="Examples\TowersOfHanoi.pow" />
-    <None Include="Examples\VectorLibrary.pow" />
-    <None Include="Examples\VectorTest.pow" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Examples\Function.pow" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
