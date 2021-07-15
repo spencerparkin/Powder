@@ -1,12 +1,8 @@
 TODO...
 
--- Add way to change values while debugging using context menu in values panel.
-
 -- Add cursor hover support in the source control window?  You hover over a symbol long enough and then a bubble shows up with the symbol's current value.  Not needed if the inspection window is good enough.
 
 -- Add a toolbar?  Hard to find art for it.
-
--- Current state of the debugger (running, suspended, etc) should be refleted in the title bar, or maybe the status bar?
 
 -- There are a few step bugs to be ironed out.  Also, the step locations (line numbers) could be refined by revisiting the instruction generator code.
 
@@ -15,7 +11,5 @@ TODO...
 -- Not sure how far to take the language both in terms of extension modules and language features (e.g., OOP.)  What other extension modules might I add?  Might be good to exploit the fork instruction for blocking I/O.
 
 -- Revisit the GC.  Can it be faster or threaded?  Better algorithm or stratagy?  Also, I'm noticing some leaking at times.  Is this due to a bug in the algorithm or due to exceptions being thrown during normal errors?  Get rid of all exception throwing?
-
--- Make a YouTube video that explains what Powder is and then stick it on the GitHub page, FWIW.  Maybe a prospective employer could bare to watch it.
 
 -- Find and fix all mem leaks.  Is the GC partly to blame?  Also, should add GC leak check code when VM is totally out of scope.
