@@ -173,11 +173,15 @@ wxMenu* EditorFrame::MakePanelsMenu()
 void EditorFrame::OnPanelMenuItemClicked(wxCommandEvent& event)
 {
 	wxAuiPaneInfo* paneInfo = nullptr;
-	if (this->IsPanelShown(event.GetId(), &paneInfo))
-		paneInfo->Hide();
-	else
-		paneInfo->Show();
-	this->auiManager->Update();
+	bool shown = this->IsPanelShown(event.GetId(), &paneInfo);
+	if (paneInfo)
+	{
+		if (shown)
+			paneInfo->Hide();
+		else
+			paneInfo->Show();
+		this->auiManager->Update();
+	}
 }
 
 void EditorFrame::MakePanels(void)

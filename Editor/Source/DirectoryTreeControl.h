@@ -17,7 +17,7 @@ private:
 	
 	enum
 	{
-		ID_NewFile = wxID_HIGHEST,
+		ID_NewFile = wxID_HIGHEST + 1000,
 		ID_NewFolder,
 		ID_Delete
 	};

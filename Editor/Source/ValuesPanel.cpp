@@ -4,12 +4,17 @@
 #include "ListValue.h"
 #include "MapValue.h"
 #include "ClosureValue.h"
+#include "EditorApp.h"
+#include "EditorFrame.h"
+#include <wx/textdlg.h>
+#include <wx/msgdlg.h>
 
 wxIMPLEMENT_DYNAMIC_CLASS(ValuesPanel, Panel);
 
 ValuesPanel::ValuesPanel()
 {
 	this->valueTreeControl = nullptr;
+	this->contextMenuItemData = nullptr;
 }
 
 /*virtual*/ ValuesPanel::~ValuesPanel()
@@ -28,6 +33,10 @@ ValuesPanel::ValuesPanel()
 /*virtual*/ bool ValuesPanel::MakeControls(void)
 {
 	this->valueTreeControl = new wxTreeCtrl(this, wxID_ANY);
+
+	this->valueTreeControl->Bind(wxEVT_TREE_ITEM_MENU, &ValuesPanel::OnContextMenu, this);
+	this->valueTreeControl->Bind(wxEVT_MENU, &ValuesPanel::OnContextMenu_ModifyValue, this, ID_ModifyValue);
+	this->valueTreeControl->Bind(wxEVT_UPDATE_UI, &ValuesPanel::OnUpdateMenuItemUI, this, ID_ModifyValue);
 
 	wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
 	boxSizer->Add(this->valueTreeControl, 1, wxGROW | wxALL, 0);
@@ -48,6 +57,58 @@ ValuesPanel::ValuesPanel()
 		case RUNTHREAD_ENDED:
 		{
 			this->valueTreeControl->DeleteAllItems();
+			break;
+		}
+	}
+}
+
+void ValuesPanel::OnContextMenu(wxTreeEvent& event)
+{
+	this->contextMenuItemId = event.GetItem();
+	this->contextMenuItemData = this->valueTreeControl->GetItemData(event.GetItem());
+
+	wxMenu contextMenu;
+
+	contextMenu.Append(new wxMenuItem(&contextMenu, ID_ModifyValue, "Modify"));
+
+	this->valueTreeControl->PopupMenu(&contextMenu);
+}
+
+void ValuesPanel::OnContextMenu_ModifyValue(wxCommandEvent& event)
+{
+	ValueTreeItemData* valueTreeItemData = dynamic_cast<ValueTreeItemData*>(this->contextMenuItemData);
+	if (valueTreeItemData)
+	{
+		wxTextEntryDialog dialog(wxGetApp().GetFrame(), "Please enter the new value", "Modify Value");
+		if (wxID_OK == dialog.ShowModal())
+		{
+			std::string valueStr = (const char*)dialog.GetValue().c_str();
+			if (!valueTreeItemData->value->FromString(valueStr))
+				::wxMessageBox("Failed to alter value.  The value class might not support assignment from string.", "Error", wxOK | wxICON_ERROR, wxGetApp().GetFrame());
+			else
+			{
+				if (dynamic_cast<Powder::ListValue*>(valueTreeItemData->value) ||
+					dynamic_cast<Powder::MapValue*>(valueTreeItemData->value) ||
+					dynamic_cast<Powder::ClosureValue*>(valueTreeItemData->value))
+				{
+					this->RebuildValueTree();
+				}
+				else
+				{
+					this->valueTreeControl->SetItemText(this->contextMenuItemId, valueTreeItemData->CalcLabel());
+				}
+			}
+		}
+	}
+}
+
+void ValuesPanel::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
+{
+	switch (event.GetId())
+	{
+		case ID_ModifyValue:
+		{
+			event.Enable(dynamic_cast<ValueTreeItemData*>(this->contextMenuItemData) ? true : false);
 			break;
 		}
 	}
@@ -141,8 +202,8 @@ void ValuesPanel::GenerateValueItems(wxTreeItemId parentItemId)
 
 void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString& name, Powder::Value* value)
 {
-	std::string valueStr = value->ToString();
-	wxTreeItemId childItemId = this->valueTreeControl->AppendItem(parentItemId, wxString::Format("%s (0x%08x): %s", name, int(value), valueStr.c_str()), -1, -1, new ValueTreeItemData(value));
+	ValueTreeItemData* valueTreeItemData = new ValueTreeItemData(name, value);
+	wxTreeItemId childItemId = this->valueTreeControl->AppendItem(parentItemId, valueTreeItemData->CalcLabel(), -1, -1, valueTreeItemData);
 
 	Powder::ListValue* listValue = dynamic_cast<Powder::ListValue*>(value);
 	if (listValue)
