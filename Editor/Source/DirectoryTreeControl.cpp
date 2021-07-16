@@ -175,27 +175,30 @@ void DirectoryTreeControl::RebuildTree(void)
 
 		DirectoryTraverser dirTraversor;
 		wxDir dir(this->rootPath.GetFullPath());
-		dir.Traverse(dirTraversor, "*.pow", wxDIR_FILES | wxDIR_DIRS);
-
-		wxArrayString rootPathPartsArray;
-		this->ParsePathParts(this->rootPath.GetFullPath(), rootPathPartsArray);
-		wxString rootDirName = rootPathPartsArray[rootPathPartsArray.GetCount() - 1];
-		this->AddRoot(rootDirName, -1, -1, new ItemData(this->rootPath));
-
-		for (int i = 0; i < (signed)dirTraversor.pathArray.Count(); i++)
+		if (dir.IsOpened())
 		{
-			wxString path = dirTraversor.pathArray[i];
+			dir.Traverse(dirTraversor, "*.pow", wxDIR_FILES | wxDIR_DIRS);
 
-			wxArrayString pathPartsArray;
-			this->ParsePathParts(path, pathPartsArray);
+			wxArrayString rootPathPartsArray;
+			this->ParsePathParts(this->rootPath.GetFullPath(), rootPathPartsArray);
+			wxString rootDirName = rootPathPartsArray[rootPathPartsArray.GetCount() - 1];
+			this->AddRoot(rootDirName, -1, -1, new ItemData(this->rootPath));
 
-			for (int j = 0; j < (signed)rootPathPartsArray.GetCount(); j++)
-				pathPartsArray.RemoveAt(0);
+			for (int i = 0; i < (signed)dirTraversor.pathArray.Count(); i++)
+			{
+				wxString path = dirTraversor.pathArray[i];
 
-			this->BuildPath(pathPartsArray);
+				wxArrayString pathPartsArray;
+				this->ParsePathParts(path, pathPartsArray);
+
+				for (int j = 0; j < (signed)rootPathPartsArray.GetCount(); j++)
+					pathPartsArray.RemoveAt(0);
+
+				this->BuildPath(pathPartsArray);
+			}
+
+			this->ExpandAll();
 		}
-
-		this->ExpandAll();
 	}
 }
 

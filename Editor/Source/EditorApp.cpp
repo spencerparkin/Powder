@@ -1,6 +1,7 @@
 #include "EditorApp.h"
 #include "EditorFrame.h"
 #include <wx/filename.h>
+#include <wx/dir.h>
 
 wxIMPLEMENT_APP(EditorApp);
 
@@ -24,10 +25,6 @@ EditorApp::EditorApp()
 	this->config = new wxConfig("PowderEditor");
 	this->SetProjectDirectory(this->config->Read("projectDirectory"));
 
-	wxFileName fileName(this->projectDirectory);
-	if (!fileName.Exists())
-		this->projectDirectory = "";
-
 	this->frame = new EditorFrame(nullptr, wxDefaultPosition, wxSize(1000, 800));
 	this->frame->RestoreWindowAdjustments();
 	this->frame->Show();
@@ -43,10 +40,16 @@ EditorApp::EditorApp()
 void EditorApp::SetProjectDirectory(const wxString& projectDirectory)
 {
 	this->projectDirectory = projectDirectory;
-	this->config->Write("projectDirectory", this->projectDirectory);
+	
+	if (this->projectDirectory.Length())
+	{
+		if (wxDir::Exists(projectDirectory))
+			::wxSetWorkingDirectory(this->projectDirectory);
+		else
+			this->projectDirectory = "";
+	}
 
-	if (this->projectDirectory.Length() > 0)
-		::wxSetWorkingDirectory(this->projectDirectory);
+	this->config->Write("projectDirectory", this->projectDirectory);
 }
 
 const wxString& EditorApp::GetProjectDirectory()
