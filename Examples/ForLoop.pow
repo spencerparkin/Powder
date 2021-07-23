@@ -1,0 +1,23 @@
+# ForLoop.pow
+
+my_list = [1, 2, "a", "b", {"orange": 5}, {"apple", [3, 2, 1]}, 3];
+my_map = {"crap": 0, "pooh": 5, "turd": {"flush": "clog"}};
+
+output("--------------------------------\n");
+i = 0;
+for(item in my_list) {
+	output(i + ": " + item + "\n");
+	if(item == my_list[item])
+		output("Flubber!\n");
+	else
+		output("Fewy!\n");
+	i += 1;
+};
+
+output("--------------------------------\n");
+for(key in my_map) {
+	value = my_map[key];
+	output(key + ": " + value + "\n");
+};
+
+output("Let's commit suicide!!!\n");
