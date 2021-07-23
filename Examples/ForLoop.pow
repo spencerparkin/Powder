@@ -1,11 +1,12 @@
 # ForLoop.pow
 
-my_list = [1, 2, "a", "b", {"orange": 5}, {"apple", [3, 2, 1]}, 3];
-my_map = {"crap": 0, "pooh": 5, "turd": {"flush": "clog"}};
-
+#
+# This is how we can iterate a list.
+#
 output("--------------------------------\n");
+my_list = [1, 2, "a", "b", {"orange": 5}, {"apple", [3, 2, 1]}, 3];
 i = 0;
-for(item in my_list) {
+for(item in iterator(my_list)) {
 	output(i + ": " + item + "\n");
 	if(item == my_list[item])
 		output("Flubber!\n");
@@ -14,10 +15,35 @@ for(item in my_list) {
 	i += 1;
 };
 
+#
+# This is how we can iterate a map.
+#
 output("--------------------------------\n");
-for(key in my_map) {
+my_map = {"crap": 0, "pooh": 5, "turd": {"flush": "clog"}};
+for(key in iterator(my_map)) {
 	value = my_map[key];
 	output(key + ": " + value + "\n");
 };
 
-output("Let's commit suicide!!!\n");
+#
+# This is how we can iterate using a function.
+#
+output("--------------------------------\n");
+make_iterator_func = func(start_value, end_value, step_size) {
+	i = undefined;
+	return func[i, start_value, end_value, step_size](action) {
+		if(action == "reset") {
+			i = start_value;
+		} else if(action == "next") {
+			next_value = i;
+			if(next_value > end_value)
+				return undefined;
+			i += step_size;
+			return next_value;
+		}
+	};
+};
+for(i in make_iterator_func(4, 12, 2)) {
+	output("i = " + i + "\n");
+};
+

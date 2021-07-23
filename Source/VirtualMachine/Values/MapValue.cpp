@@ -103,4 +103,9 @@ namespace Powder
 		});
 		return listValue;
 	}
+
+	/*virtual*/ CppFunctionValue* MapValue::MakeIterator(void)
+	{
+		return nullptr;
+	}
 }

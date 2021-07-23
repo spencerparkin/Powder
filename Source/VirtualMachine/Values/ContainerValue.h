@@ -5,6 +5,7 @@
 namespace Powder
 {
 	class BooleanValue;
+	class CppFunctionValue;
 
 	class POWDER_API ContainerValue : public Value
 	{
@@ -16,5 +17,6 @@ namespace Powder
 		virtual Value* GetField(Value* fieldValue) = 0;
 		virtual Value* DelField(Value* fieldValue) = 0;
 		virtual BooleanValue* IsMember(const Value* value) const = 0;
+		virtual CppFunctionValue* MakeIterator(void) = 0;
 	};
 }

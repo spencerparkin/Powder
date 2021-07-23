@@ -173,4 +173,9 @@ namespace Powder
 		this->DisownObject(value);
 		return value;
 	}
+
+	/*virtual*/ CppFunctionValue* ListValue::MakeIterator(void)
+	{
+		return nullptr;
+	}
 }

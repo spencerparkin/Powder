@@ -19,6 +19,7 @@ namespace Powder
 		virtual Value* GetField(Value* fieldValue) override;
 		virtual Value* DelField(Value* fieldValue) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
+		virtual CppFunctionValue* MakeIterator(void) override;
 
 		void PushLeft(Value* value);
 		Value* PopLeft();
