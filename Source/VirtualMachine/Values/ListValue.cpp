@@ -4,6 +4,7 @@
 #include "Exceptions.hpp"
 #include "StringFormat.h"
 #include "BooleanValue.h"
+#include "StringValue.h"
 
 namespace Powder
 {
@@ -125,6 +126,11 @@ namespace Powder
 		return nullptr;
 	}
 
+	const Value* ListValue::operator[](int i) const
+	{
+		return const_cast<ListValue*>(this)->operator[](i);
+	}
+
 	void ListValue::RebuildIndexIfNeeded(void) const
 	{
 		if (!this->valueListIndexValid)
@@ -176,6 +182,40 @@ namespace Powder
 
 	/*virtual*/ CppFunctionValue* ListValue::MakeIterator(void)
 	{
+		return new ListValueIterator(this);
+	}
+
+	ListValueIterator::ListValueIterator(ListValue* listValue) : listValue(this)
+	{
+		this->listValue.Set(listValue);
+		this->i = -1;
+	}
+
+	/*virtual*/ ListValueIterator::~ListValueIterator()
+	{
+	}
+
+	/*virtual*/ Value* ListValueIterator::Call(ListValue* argListValue, std::string& errorMsg)
+	{
+		if (argListValue->Length() != 1)
+			return nullptr;
+
+		const StringValue* actionValue = dynamic_cast<const StringValue*>((*argListValue)[0]);
+		if (!actionValue)
+			return nullptr;
+
+		if (actionValue->GetString() == "reset")
+			this->i = 0;
+		else if (actionValue->GetString() == "next")
+		{
+			Value* nextValue = nullptr;
+			if (this->i < 0 || this->i >= (signed)this->listValue.Get()->Length())
+				nextValue = new UndefinedValue();
+			else
+				nextValue = (*this->listValue.Get())[this->i++];
+			return nextValue;
+		}
+
 		return nullptr;
 	}
 }

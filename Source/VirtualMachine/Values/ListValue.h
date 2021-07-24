@@ -1,7 +1,9 @@
 #pragma once
 
 #include "ContainerValue.h"
+#include "CppFunctionValue.h"
 #include "LinkedList.hpp"
+#include "GCSteward.hpp"
 #include <vector>
 
 namespace Powder
@@ -28,6 +30,7 @@ namespace Powder
 
 		unsigned int Length() const { return this->valueList.GetCount(); }
 		Value* operator[](int i);
+		const Value* operator[](int i) const;
 
 	private:
 		LinkedList<Value*> valueList;
@@ -35,5 +38,17 @@ namespace Powder
 		mutable bool valueListIndexValid;
 
 		void RebuildIndexIfNeeded(void) const;
+	};
+
+	class POWDER_API ListValueIterator : public CppFunctionValue
+	{
+	public:
+		ListValueIterator(ListValue* listValue);
+		virtual ~ListValueIterator();
+
+		virtual Value* Call(ListValue* argListValue, std::string& errorMsg) override;
+
+		GCSteward<ListValue> listValue;
+		int i;
 	};
 }

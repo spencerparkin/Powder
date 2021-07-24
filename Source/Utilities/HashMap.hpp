@@ -91,6 +91,12 @@ namespace Powder
 			return entry ? entry->data : nullptr;
 		}
 
+		const T lookup(const char* key) const
+		{
+			TableEntry* entry = const_cast<HashMap<T>*>(this)->FindEntry(key, false);
+			return entry ? entry->data : nullptr;
+		}
+
 		T* LookupPtr(const char* key)
 		{
 			TableEntry* entry = this->FindEntry(key, false);
