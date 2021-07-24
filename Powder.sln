@@ -20,6 +20,29 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Editor", "Editor\Editor.vcx
 		{FFCE671A-9F49-470A-9D4E-80C5B95038AC} = {FFCE671A-9F49-470A-9D4E-80C5B95038AC}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{90EE8575-6DDF-497D-B766-2776E2EAD463}"
+	ProjectSection(SolutionItems) = preProject
+		Examples\Closure.pow = Examples\Closure.pow
+		Examples\DoWhile.pow = Examples\DoWhile.pow
+		Examples\Fibbonacci.pow = Examples\Fibbonacci.pow
+		Examples\Fork.pow = Examples\Fork.pow
+		Examples\ForLoop.pow = Examples\ForLoop.pow
+		Examples\Function.pow = Examples\Function.pow
+		Examples\GCTest.pow = Examples\GCTest.pow
+		Examples\HelloWorld.pow = Examples\HelloWorld.pow
+		Examples\IfThenElse.pow = Examples\IfThenElse.pow
+		Examples\IOTest.pow = Examples\IOTest.pow
+		Examples\ListTests.pow = Examples\ListTests.pow
+		Examples\MapTests.pow = Examples\MapTests.pow
+		Examples\MathExpression.pow = Examples\MathExpression.pow
+		Examples\Matrix.pow = Examples\Matrix.pow
+		Examples\Membership.pow = Examples\Membership.pow
+		Examples\Object.pow = Examples\Object.pow
+		Examples\ScopeTest.pow = Examples\ScopeTest.pow
+		Examples\VectorLibrary.pow = Examples\VectorLibrary.pow
+		Examples\VectorTest.pow = Examples\VectorTest.pow
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

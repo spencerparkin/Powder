@@ -8,7 +8,7 @@
     [ "if-statement" ],
     [ "while-statement" ],
     [ "do-while-statement" ],
-    [ "foreach-statement" ],
+    [ "for-statement" ],
     [ "fork-statement" ],
     [ "return-statement" ],
     [ "yield-statement" ],
@@ -25,8 +25,11 @@
     [ "do", "embedded-statement", "while", "(", "expression", ")" ],
     [ "do", "embedded-statement", "while", "(", "expression", ")", "embedded-statement" ]
   ],
-  "foreach-statement": [
-    [ "foreach", "(", "identifier", "in", "expression", ")", "embedded-statement" ]
+  "for-statement": [
+    [ "for", "(", "for-iteration-expression", ")", "embedded-statement" ]
+  ],
+  "for-iteration-expression": [
+    [ "identifier", "in", "expression" ]
   ],
   "fork-statement": [
     [ "fork", "embedded-statement" ],
@@ -51,8 +54,7 @@
   ],
   "embedded-statement": [
     [ "block" ],
-    [ "expression" ],
-    [ "return-statement" ]
+    [ "statement" ]
   ],
   "block": [
     [ "{", "}" ],
