@@ -5,6 +5,8 @@
 #include "Value.h"
 #include "NumberValue.h"
 #include "StringValue.h"
+#include "ContainerValue.h"
+#include "CppFunctionValue.h"
 #include "MapValue.h"
 #include "UndefinedValue.h"
 #include "VirtualMachine.h"
@@ -48,6 +50,8 @@ namespace Powder
 			return SysCall::RUN_SCRIPT;
 		else if (funcName == "sleep")
 			return SysCall::SLEEP;
+		else if (funcName == "iterator")
+			return SysCall::ITERATOR;
 
 		return SysCall::UNKNOWN;
 	}
@@ -72,6 +76,8 @@ namespace Powder
 				return 1;
 			case SysCall::SLEEP:
 				return 1;
+			case SysCall::ITERATOR:
+				return 1;
 		}
 
 		return -1;
@@ -91,7 +97,6 @@ namespace Powder
 			{
 				GarbageCollector::GC()->FullPurge();
 				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
-				programBufferLocation += 2;
 				break;
 			}
 			case SysCall::INPUT:
@@ -114,8 +119,6 @@ namespace Powder
 				}
 
 				executor->PushValueOntoEvaluationStackTop(value);
-
-				programBufferLocation += 2;
 				break;
 			}
 			case SysCall::OUTPUT:
@@ -124,7 +127,6 @@ namespace Powder
 				std::string str = value->ToString();
 				virtualMachine->GetIODevice()->OutputString(str);
 				executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()));
-				programBufferLocation += 2;
 				break;
 			}
 			case SysCall::MODULE:
@@ -136,7 +138,6 @@ namespace Powder
 				if (!functionMapValue)
 					throw new RunTimeException(FormatString("Module (%s) did not generate function map value.", moduleAbsolutePath.c_str()));
 				executor->PushValueOntoEvaluationStackTop(functionMapValue);
-				programBufferLocation += 2;
 				break;
 			}
 			case SysCall::RUN_SCRIPT:
@@ -146,7 +147,6 @@ namespace Powder
 				std::string scriptAbsolutePath = pathResolver.ResolvePath(scriptRelativePath, PathResolver::SEARCH_CWD);
 				virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
 				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
-				programBufferLocation += 2;
 				break;
 			}
 			case SysCall::SLEEP:
@@ -156,7 +156,6 @@ namespace Powder
 				if (sleepSeconds > 0.0)
 					::Sleep(DWORD(sleepSeconds * 1000.0f));
 				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
-				programBufferLocation += 2;
 				break;
 			}
 			case SysCall::GC_COUNT:
@@ -164,7 +163,18 @@ namespace Powder
 				uint32_t count = GarbageCollector::GC()->HonestCollectableCount();
 				NumberValue* numberValue = new NumberValue(count);
 				executor->PushValueOntoEvaluationStackTop(numberValue);
-				programBufferLocation += 2;
+				break;
+			}
+			case SysCall::ITERATOR:
+			{
+				Value* value = executor->PopValueFromEvaluationStackTop();
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value);
+				if (!containerValue)
+					throw new RunTimeException("Cannot create iterator for non-container value.");
+				CppFunctionValue* iteratorValue = containerValue->MakeIterator();
+				if (!iteratorValue)
+					throw new RunTimeException("Failed to create iterator for container value.");
+				executor->PushValueOntoEvaluationStackTop(iteratorValue);
 				break;
 			}
 			default:
@@ -173,6 +183,7 @@ namespace Powder
 			}
 		}
 
+		programBufferLocation += 2;
 		return Executor::Result::CONTINUE;
 	}
 
