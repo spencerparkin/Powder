@@ -77,6 +77,15 @@ namespace Powder
 				programBufferLocation += 2 + sizeof(uint64_t);
 				break;
 			}
+			case DataType::EXISTING_VALUE:
+			{
+				int32_t stackOffset = 0;
+				::memcpy_s(&stackOffset, sizeof(int32_t), &programBuffer[programBufferLocation + 2], sizeof(int32_t));
+				Value* value = executor->StackValue(stackOffset);
+				executor->PushValueOntoEvaluationStackTop(value);
+				programBufferLocation += 2 + sizeof(int32_t);
+				break;
+			}
 			default:
 			{
 				throw new RunTimeException(FormatString("Encountered uknown push type: 0x%04x", pushType));
@@ -111,6 +120,8 @@ namespace Powder
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(double), &dataEntry->number, sizeof(double));
 			else if (typeEntry->code == DataType::ADDRESS || typeEntry->code == DataType::CLOSURE)
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(uint64_t), &dataEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
+			else if (typeEntry->code == DataType::EXISTING_VALUE)
+				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(int32_t), &dataEntry->offset, sizeof(int32_t));
 		}
 
 		programBufferLocation += 2L;
@@ -122,6 +133,8 @@ namespace Powder
 			programBufferLocation += sizeof(double);
 		else if (typeEntry->code == DataType::ADDRESS || typeEntry->code == DataType::CLOSURE)
 			programBufferLocation += sizeof(uint64_t);
+		else if (typeEntry->code == DataType::EXISTING_VALUE)
+			programBufferLocation += sizeof(int32_t);
 	}
 
 #if defined POWDER_DEBUG
@@ -147,6 +160,8 @@ namespace Powder
 				detail += "[]";
 			else if (typeEntry->code == DataType::EMPTY_MAP)
 				detail += "{}";
+			else if (typeEntry->code == DataType::EXISTING_VALUE)
+				detail += FormatString("stack(%d)", dataEntry->offset);
 			else
 				detail += "?";
 		}

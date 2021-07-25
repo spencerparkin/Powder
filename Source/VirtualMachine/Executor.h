@@ -42,6 +42,7 @@ namespace Powder
 		Value* PopValueFromEvaluationStackTop();
 
 		Value* StackTop();
+		Value* StackValue(int32_t stackOffset);	// This is relative to the top of the stack.
 
 	protected:
 

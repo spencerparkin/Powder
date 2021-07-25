@@ -121,9 +121,15 @@ namespace Powder
 
 	Value* Executor::StackTop()
 	{
-		if (this->evaluationStack->size() == 0)
-			throw new RunTimeException("No stack top!");
-		Value* value = (*this->evaluationStack)[this->evaluationStack->size() - 1];
-		return value;
+		return this->StackValue(0);
+	}
+
+	Value* Executor::StackValue(int32_t stackOffset)
+	{
+		int32_t i = signed(this->evaluationStack->size()) - 1 - stackOffset;
+		if(0 <= i && i < (signed)this->evaluationStack->size())
+			return (*this->evaluationStack)[i];
+		throw new RunTimeException(FormatString("Stack at size %d cannot use offset %d.", this->evaluationStack->size(), i));
+		return nullptr;
 	}
 }

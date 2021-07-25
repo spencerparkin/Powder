@@ -56,6 +56,7 @@ namespace Powder
 				this->number = 0.0;
 				this->string = "";
 				this->code = 0;
+				this->offset = 0;
 				this->jumpDelta = 0L;
 			}
 
@@ -63,6 +64,7 @@ namespace Powder
 			double number;
 			std::string string;
 			uint8_t code;
+			int32_t offset;
 			int64_t jumpDelta;
 		};
 
