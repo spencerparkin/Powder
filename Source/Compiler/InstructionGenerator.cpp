@@ -66,6 +66,11 @@ namespace Powder
 		this->syntaxHandlerMap.DeleteAndClear();
 	}
 
+	// Note that the fundamental difference between an expression and a statement is
+	// that the former always leaves a new value on the eval stack, while the latter
+	// leaves it alone.  Both may use the stack, but the net result of a statement
+	// should be the eval stack left untouched, while that of an expression is to
+	// leave some new result of a computation.
 	void InstructionGenerator::GenerateInstructionList(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* rootSyntaxNode)
 	{
 		this->GenerateInstructionListRecursively(instructionList, rootSyntaxNode);
