@@ -188,7 +188,7 @@ namespace Powder
 	ListValueIterator::ListValueIterator(ListValue* listValue) : listValue(this)
 	{
 		this->listValue.Set(listValue);
-		this->i = -1;
+		this->listNode = nullptr;
 	}
 
 	/*virtual*/ ListValueIterator::~ListValueIterator()
@@ -205,14 +205,17 @@ namespace Powder
 			return nullptr;
 
 		if (actionValue->GetString() == "reset")
-			this->i = 0;
+			this->listNode = this->listValue.Get()->valueList.GetHead();
 		else if (actionValue->GetString() == "next")
 		{
 			Value* nextValue = nullptr;
-			if (this->i < 0 || this->i >= (signed)this->listValue.Get()->Length())
+			if(!this->listNode)
 				nextValue = new UndefinedValue();
 			else
-				nextValue = (*this->listValue.Get())[this->i++];
+			{
+				nextValue = this->listNode->value;
+				this->listNode = this->listNode->GetNext();
+			}
 			return nextValue;
 		}
 

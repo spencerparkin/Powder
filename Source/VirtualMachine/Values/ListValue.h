@@ -10,6 +10,8 @@ namespace Powder
 {
 	class POWDER_API ListValue : public ContainerValue
 	{
+		friend class ListValueIterator;
+
 	public:
 		ListValue();
 		virtual ~ListValue();
@@ -49,6 +51,6 @@ namespace Powder
 		virtual Value* Call(ListValue* argListValue, std::string& errorMsg) override;
 
 		GCSteward<ListValue> listValue;
-		int i;
+		LinkedList<Value*>::Node* listNode;
 	};
 }

@@ -106,6 +106,41 @@ namespace Powder
 
 	/*virtual*/ CppFunctionValue* MapValue::MakeIterator(void)
 	{
+		return new MapValueIterator(this);
+	}
+
+	MapValueIterator::MapValueIterator(MapValue* mapValue) : mapValue(this)
+	{
+		this->mapValue.Set(mapValue);
+	}
+
+	/*virtual*/ MapValueIterator::~MapValueIterator()
+	{
+	}
+
+	/*virtual*/ Value* MapValueIterator::Call(ListValue* argListValue, std::string& errorMsg)
+	{
+		if (argListValue->Length() != 1)
+			return nullptr;
+
+		const StringValue* actionValue = dynamic_cast<const StringValue*>((*argListValue)[0]);
+		if (!actionValue)
+			return nullptr;
+
+		if (actionValue->GetString() == "reset")
+			this->mapIter = (*mapValue).GetValueMap().begin();
+		else if (actionValue->GetString() == "next")
+		{
+			Value* nextValue = nullptr;
+			if (this->mapIter == mapValue.Get()->GetValueMap().end())
+				nextValue = new UndefinedValue();
+			else
+			{
+				nextValue = this->mapIter.entry->data;
+				this->mapIter++;
+			}
+		}
+
 		return nullptr;
 	}
 }

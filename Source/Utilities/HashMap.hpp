@@ -10,6 +10,8 @@ namespace Powder
 	template<typename T>
 	class POWDER_API HashMap
 	{
+		struct TableEntry;
+
 	public:
 
 		HashMap()
@@ -145,9 +147,55 @@ namespace Powder
 			}
 		}
 
-	private:
+		struct POWDER_API iterator
+		{
+			HashMap<T>* hashMap;
+			uint32_t i;
+			TableEntry* entry;
 
-		struct TableEntry;
+			iterator()
+			{
+				this->hashMap = nullptr;
+				this->i = -1;
+				this->entry = nullptr;
+			}
+
+			void operator++(int)
+			{
+				if (this->entry)
+					this->entry = this->entry->nextEntry;
+				while (this->entry == nullptr && this->i < this->hashMap->tableSize - 1)
+					this->entry = this->hashMap->table[++this->i];
+			}
+
+			bool operator==(const iterator& iter) const
+			{
+				return this->hashMap == iter.hashMap && this->i == iter.i && this->entry == iter.entry;
+			}
+		};
+
+		// By using the begin() and end() methods, this class becomes compatible
+		// with C++'s for-loop special syntax: for(auto item : container), I think.
+
+		iterator begin()
+		{
+			iterator iter;
+			iter.hashMap = this;
+			iter.i = -1;
+			iter.entry = nullptr;
+			return iter;
+		}
+
+		iterator end()
+		{
+			iterator iter;
+			iter.hashMap = this;
+			iter.i = (int32_t)this->tableSize - 1;
+			iter.entry = nullptr;
+			return iter;
+		}
+
+	private:
 
 		TableEntry* FindEntry(const char* key, bool canCreateIfNotFound, uint32_t* tableOffset = nullptr)
 		{

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "ContainerValue.h"
+#include "CppFunctionValue.h"
 #include "HashMap.hpp"
+#include "GCSteward.hpp"
 
 namespace Powder
 {
@@ -32,5 +34,17 @@ namespace Powder
 
 	private:
 		HashMap<Value*> valueMap;
+	};
+
+	class POWDER_API MapValueIterator : public CppFunctionValue
+	{
+	public:
+		MapValueIterator(MapValue* mapValue);
+		virtual ~MapValueIterator();
+
+		virtual Value* Call(ListValue* argListValue, std::string& errorMsg) override;
+
+		GCSteward<MapValue> mapValue;
+		HashMap<Value*>::iterator mapIter;
 	};
 }
