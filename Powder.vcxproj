@@ -30,6 +30,7 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\DeleteFieldExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\DoWhileStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ForkStatementHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\FunctionCallExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\FunctionDefinitionExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\IdentifierExpressionHandler.cpp" />
@@ -94,6 +95,7 @@
     <ClInclude Include="Source\Compiler\SyntaxHandlers\DeleteFieldExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\DoWhileStatementHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ForkStatementHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\FunctionCallExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\FunctionDefinitionExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\IdentifierExpressionHandler.h" />

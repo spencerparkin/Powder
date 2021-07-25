@@ -9,6 +9,7 @@
 #include "DoWhileStatementHandler.h"
 #include "YieldStatementHandler.h"
 #include "ForkStatementHandler.h"
+#include "ForLoopStatementHandler.h"
 #include "AssignmentExpressionHandler.h"
 #include "BinaryExpressionHandler.h"
 #include "UnaryExpressionHandler.h"
@@ -43,6 +44,7 @@ namespace Powder
 		this->syntaxHandlerMap.Insert("do-while-statement", new DoWhileStatementHandler());
 		this->syntaxHandlerMap.Insert("yield-statement", new YieldStatementHandler());
 		this->syntaxHandlerMap.Insert("fork-statement", new ForkStatementHandler());
+		this->syntaxHandlerMap.Insert("for-statement", new ForLoopStatementHandler());
 		this->syntaxHandlerMap.Insert("assignment-expression", new AssignmentExpressionHandler());
 		this->syntaxHandlerMap.Insert("binary-expression", new BinaryExpressionHandler());
 		this->syntaxHandlerMap.Insert("left-unary-expression", new UnaryExpressionHandler());
@@ -68,8 +70,7 @@ namespace Powder
 	{
 		this->GenerateInstructionListRecursively(instructionList, rootSyntaxNode);
 
-		// Always end the program with a halt instruction.  This is so that we don't crash into any debug information
-		// appended to the executable, if any, and so that the last program construct has something to jump to, if needed.
+		// Always end the program with a halt instruction.  This is so that the last program construct has something to jump to, if needed.
 		SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>(rootSyntaxNode->fileLocation);
 		AssemblyData::Entry entry;
 		entry.code = SysCallInstruction::SysCall::EXIT;

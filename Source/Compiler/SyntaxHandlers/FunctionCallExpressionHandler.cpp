@@ -12,7 +12,6 @@ namespace Powder
 {
 	FunctionCallExpressionHandler::FunctionCallExpressionHandler()
 	{
-		this->callNumber = 0;
 	}
 
 	/*virtual*/ FunctionCallExpressionHandler::~FunctionCallExpressionHandler()
@@ -88,51 +87,8 @@ namespace Powder
 			// load instruction, or several instructions that ultimately leave an address on the stack top.
 			instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
 
-			// Push scope so that the called function doesn't pollute the caller's name-space.
-			ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(syntaxNode->fileLocation);
-			entry.Reset();
-			entry.code = ScopeInstruction::ScopeOp::PUSH;
-			scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
-			instructionList.AddTail(scopeInstruction);
-
-			// The return jump should jump to whatever instruction will end-up immediately after the jump instruction we make to actually call the function.
-			pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
-			entry.Reset();
-			entry.code = PushInstruction::DataType::ADDRESS;
-			pushInstruction->assemblyData->configMap.Insert("type", entry);
-			entry.jumpDelta = 3;
-			entry.string = "data";
-			pushInstruction->assemblyData->configMap.Insert("jump-delta", entry);
-			instructionList.AddTail(pushInstruction);
-
-			// Store the return address value in the newly pushed function scope.
-			// Yes, this value could get poked by the calling function, but whatever, I can find a solution to that later.
-			StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(syntaxNode->fileLocation);
-			entry.Reset();
-			entry.string = "__return_address__";
-			storeInstruction->assemblyData->configMap.Insert("name", entry);
-			instructionList.AddTail(storeInstruction);
-
-			// Now make the call by jumping to the function at the run-time evaluated address.  All that
-			// will remain on the eval-stack is the argument list value, which the called function is
-			// responsible for popping off the eval-stack.
-			JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
-			entry.Reset();
-			entry.code = JumpInstruction::JUMP_TO_LOADED_ADDRESS;
-			jumpInstruction->assemblyData->configMap.Insert("type", entry);
-			*jumpInstruction->assemblyData->debuggerHelp = FormatString("function_%d_call", this->callNumber);
-			instructionList.AddTail(jumpInstruction);
-
-			// Here now is the instruction that we will jump to when returning from the call.
-			// The first thing we always do after returning from a call is to pop the function's scope.
-			scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(syntaxNode->fileLocation);
-			entry.Reset();
-			entry.code = ScopeInstruction::ScopeOp::POP;
-			scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
-			*scopeInstruction->assemblyData->debuggerHelp = FormatString("function_%d_return", this->callNumber);
-			instructionList.AddTail(scopeInstruction);
-
-			this->callNumber++;
+			// We're now ready to make the call.
+			this->GenerateCallInstructions(instructionList, syntaxNode->fileLocation);
 		}
 
 		// We now look at the call in context to see if we need to leave the return result or clean it up.
@@ -142,5 +98,52 @@ namespace Powder
 			PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(popInstruction);
 		}
+	}
+
+	/*static*/ void FunctionCallExpressionHandler::GenerateCallInstructions(LinkedList<Instruction*>& instructionList, const FileLocation& fileLocation)
+	{
+		// Push scope so that the called function doesn't pollute the caller's name-space.
+		ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(fileLocation);
+		AssemblyData::Entry entry;
+		entry.code = ScopeInstruction::ScopeOp::PUSH;
+		scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
+		instructionList.AddTail(scopeInstruction);
+
+		// The return jump should jump to whatever instruction will end-up immediately after the jump instruction we make to actually call the function.
+		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(fileLocation);
+		entry.Reset();
+		entry.code = PushInstruction::DataType::ADDRESS;
+		pushInstruction->assemblyData->configMap.Insert("type", entry);
+		entry.jumpDelta = 3;
+		entry.string = "data";
+		pushInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+		instructionList.AddTail(pushInstruction);
+
+		// Store the return address value in the newly pushed function scope.
+		// Yes, this value could get poked by the calling function, but whatever, I can find a solution to that later.
+		StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(fileLocation);
+		entry.Reset();
+		entry.string = "__return_address__";
+		storeInstruction->assemblyData->configMap.Insert("name", entry);
+		instructionList.AddTail(storeInstruction);
+
+		// Now make the call by jumping to the function at the run-time evaluated address.  All that
+		// will remain on the eval-stack is the argument list value, which the called function is
+		// responsible for popping off the eval-stack.
+		JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(fileLocation);
+		entry.Reset();
+		entry.code = JumpInstruction::JUMP_TO_LOADED_ADDRESS;
+		jumpInstruction->assemblyData->configMap.Insert("type", entry);
+		*jumpInstruction->assemblyData->debuggerHelp = "function_call";
+		instructionList.AddTail(jumpInstruction);
+
+		// Here now is the instruction that we will jump to when returning from the call.
+		// The first thing we always do after returning from a call is to pop the function's scope.
+		scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(fileLocation);
+		entry.Reset();
+		entry.code = ScopeInstruction::ScopeOp::POP;
+		scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
+		*scopeInstruction->assemblyData->debuggerHelp = "function_return";
+		instructionList.AddTail(scopeInstruction);
 	}
 }

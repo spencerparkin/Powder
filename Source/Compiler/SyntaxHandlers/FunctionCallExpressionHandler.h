@@ -12,6 +12,8 @@ namespace Powder
 
 		virtual void HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator) override;
 
-		int callNumber;
+		// Assuming we have the argument list and function address already pushed
+		// onto the eval stack, generate the instructions to make the call.
+		static void GenerateCallInstructions(LinkedList<Instruction*>& instructionList, const FileLocation& fileLocation);
 	};
 }
