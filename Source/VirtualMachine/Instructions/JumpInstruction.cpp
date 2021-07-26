@@ -49,7 +49,10 @@ namespace Powder
 
 					ClosureValue* closureValue = dynamic_cast<ClosureValue*>(addressValue);
 					if (closureValue)
-						executor->AbsorbScope(closureValue->scope);
+					{
+						closureValue->scope.Get()->Absorb(executor->GetCurrentScope());		// Grab the return address(!) among, perhaps, other things.
+						executor->ReplaceCurrentScope(closureValue->scope);
+					}
 
 					break;
 				}

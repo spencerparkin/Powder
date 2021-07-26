@@ -7,8 +7,8 @@ output("--------------------------------\n");
 my_list = [1, 2, "a", "b", {"orange": 5}, {"apple": [3, 2, 1]}, 3];
 i = 0;
 for(item in iterator(my_list)) {
-	output(i + ": " + item + "\n");
-	if(item == my_list[item])
+	output(i + ": " + as_str(item) + "\n");
+	if(item == my_list[i])
 		output("Flubber!\n")
 	else
 		output("Fewy!\n");
@@ -22,7 +22,7 @@ output("--------------------------------\n");
 my_map = {"crap": 0, "pooh": 5, "turd": {"flush": "clog"}};
 for(key in iterator(my_map)) {
 	value = my_map[key];
-	output(key + ": " + value + "\n");
+	output(key + ": " + as_str(value) + "\n");
 };
 
 #

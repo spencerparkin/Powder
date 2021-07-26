@@ -483,7 +483,8 @@ namespace Powder
 			*this->name == "argument-list" ||
 			*this->name == "identifier-list" ||
 			*this->name == "list-element-list" ||
-			*this->name == "map-pair-list")
+			*this->name == "map-pair-list" ||
+			*this->name == "capture-list")
 		{
 			LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead();
 			while (node)

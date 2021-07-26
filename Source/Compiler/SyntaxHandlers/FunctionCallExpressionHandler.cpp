@@ -93,7 +93,10 @@ namespace Powder
 
 		// We now look at the call in context to see if we need to leave the return result or clean it up.
 		// Note that all functions will return a result whether a return statement is given or not.
-		if (syntaxNode->FindParent("statement-list", 1) != nullptr)
+		// If no return statement is given, undefined is returned by default.  It is very important that
+		// we do not leak values on the eval-stack.  Statements always leave the eval-stack untouched.
+		// Expressions should always leave exactly one value on top of the eval-stack.
+		if(this->PopNeededForExpression(syntaxNode))
 		{
 			PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(popInstruction);

@@ -69,7 +69,7 @@ namespace Powder
 			instructionList.AddTail(listInstruction);
 
 			// Now check our context.  If we're an immediate child of a statement-list, then no one wants the list anymore.  Don't leak the list on the eval-stack.
-			if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
+			if (this->PopNeededForExpression(syntaxNode))
 			{
 				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 				instructionList.AddTail(popInstruction);

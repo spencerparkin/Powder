@@ -91,4 +91,23 @@ namespace Powder
 
 		syntaxHandler->HandleSyntaxNode(syntaxNode, instructionList, this);
 	}
+
+	// An expression that is not in the context of an expression (but rather, a statement)
+	// needs to be followed by a pop in order to keep us from leaking on the eval-stack.
+	// The only exception to this rule is in the context of a return statement.  In that case,
+	// the "leak" is how the function returns a value.
+	bool InstructionGenerator::SyntaxHandler::PopNeededForExpression(const Parser::SyntaxNode* syntaxNode)
+	{
+		if (syntaxNode->parentNode)
+		{
+			if (*syntaxNode->parentNode->name == "return-statement")
+				return false;
+
+			int i = syntaxNode->parentNode->name->find("statement");
+			if (i >= 0)
+				return true;
+		}
+
+		return false;
+	}
 }

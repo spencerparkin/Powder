@@ -33,7 +33,7 @@ namespace Powder
 		Scope* GetCurrentScope() { return this->currentScope.Ptr(); }
 		uint64_t GetProgramBufferLocation() { return this->programBufferLocation; }
 
-		void AbsorbScope(Scope* scope);
+		void ReplaceCurrentScope(Scope* scope);
 
 		void LoadAndPushValueOntoEvaluationStackTop(const char* identifier, void* debuggerTrap);
 		void StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap);

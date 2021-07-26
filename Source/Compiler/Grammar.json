@@ -139,6 +139,7 @@
     [ "(", "expression", ")" ]
   ],
   "literal": [
+    [ "undefined" ],
     [ "string-literal" ],
     [ "number-literal" ],
     [ "list-literal" ],

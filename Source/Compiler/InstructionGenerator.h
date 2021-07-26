@@ -25,6 +25,8 @@ namespace Powder
 			virtual ~SyntaxHandler() {}
 
 			virtual void HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator) = 0;
+
+			bool PopNeededForExpression(const Parser::SyntaxNode* syntaxNode);
 		};
 
 		void GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode);

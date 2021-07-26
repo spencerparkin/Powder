@@ -136,9 +136,10 @@ namespace Powder
 				nextValue = new UndefinedValue();
 			else
 			{
-				nextValue = this->mapIter.entry->data;
+				nextValue = new StringValue(this->mapIter.entry->key);
 				this->mapIter++;
 			}
+			return nextValue;
 		}
 
 		return nullptr;

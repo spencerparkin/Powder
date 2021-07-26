@@ -41,9 +41,11 @@ namespace Powder
 		return true;
 	}
 
-	void Executor::AbsorbScope(Scope* scope)
+	void Executor::ReplaceCurrentScope(Scope* scope)
 	{
-		this->currentScope->Absorb(scope);
+		scope->SetContainingScope(this->currentScope->GetContainingScope());
+		this->currentScope->SetContainingScope(nullptr);
+		this->currentScope = scope;
 	}
 
 	/*virtual*/ Executor::Result Executor::Execute(const Executable* executable, VirtualMachine* virtualMachine)

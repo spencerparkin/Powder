@@ -43,7 +43,7 @@ namespace Powder
 		// Push an argument list onto the eval stack, then push the iterator function address on top of that.
 		this->GenerateInstructionForIteratorCallSetup(instructionList, "reset", iterationNode->fileLocation);
 
-		// Now we're ready to make the call to the iterator to reset iteration (to set it up for the first time, really.)
+		// We're now ready to make the call to the iterator to reset iteration (to set it up for the first time, really.)
 		FunctionCallExpressionHandler::GenerateCallInstructions(instructionList, iterationNode->fileLocation);
 
 		// The result of resetting iteration is always a value we throw away, so do that now.
@@ -53,9 +53,9 @@ namespace Powder
 		// We're now ready to begin the loop instructions.  Call the iterator to generate the first/next value.
 		LinkedList<Instruction*> forLoopHeadInstructionList;
 		this->GenerateInstructionForIteratorCallSetup(forLoopHeadInstructionList, "next", iterationNode->fileLocation);
-		FunctionCallExpressionHandler::GenerateCallInstructions(instructionList, iterationNode->fileLocation);
+		FunctionCallExpressionHandler::GenerateCallInstructions(forLoopHeadInstructionList, iterationNode->fileLocation);
 
-		// Store the value in the loop iteration variable.
+		// Store the returned value in the loop iteration variable.
 		StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(iterationNode->fileLocation);
 		AssemblyData::Entry entry;
 		entry.string = *identifierNode->childList.GetHead()->value->name;
@@ -67,8 +67,8 @@ namespace Powder
 		entry.Reset();
 		entry.code = PushInstruction::UNDEFINED;
 		pushInstruction->assemblyData->configMap.Insert("type", entry);
+		forLoopHeadInstructionList.AddTail(pushInstruction);
 		LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(iterationNode->fileLocation);
-		forLoopHeadInstructionList.AddTail(loadInstruction);
 		entry.Reset();
 		entry.string = *identifierNode->childList.GetHead()->value->name;
 		loadInstruction->assemblyData->configMap.Insert("name", entry);
@@ -95,11 +95,6 @@ namespace Powder
 		jumpInstruction->assemblyData->configMap.Insert("type", entry);
 		forLoopBodyInstructionList.AddTail(jumpInstruction);
 
-		// We can now patch our branch that takes us out of the for-loop.
-		entry.Reset();
-		entry.jumpDelta = forLoopBodyInstructionList.GetCount() + 1;
-		branchInstruction->assemblyData->configMap.Insert("branch", entry);
-
 		// Okay, now lay down all the loop instructions, head and body.
 		instructionList.Append(forLoopHeadInstructionList);
 		instructionList.Append(forLoopBodyInstructionList);
@@ -107,6 +102,11 @@ namespace Powder
 		// Lastly, pop the iterator function off the eval-stack.
 		popInstruction = Instruction::CreateForAssembly<PopInstruction>(iterationNode->fileLocation);
 		instructionList.AddTail(popInstruction);
+
+		// We can now patch our branch that takes us out of the for-loop.
+		entry.Reset();
+		entry.instruction = popInstruction;
+		branchInstruction->assemblyData->configMap.Insert("branch", entry);
 	}
 
 	void ForLoopStatementHandler::GenerateInstructionForIteratorCallSetup(LinkedList<Instruction*>& instructionList, const char* action, const FileLocation& fileLocation)
@@ -137,7 +137,7 @@ namespace Powder
 		entry.code = PushInstruction::DataType::EXISTING_VALUE;
 		pushInstruction->assemblyData->configMap.Insert("type", entry);
 		entry.Reset();
-		entry.offset = -1;
+		entry.offset = 1;
 		pushInstruction->assemblyData->configMap.Insert("data", entry);
 		instructionList.AddTail(pushInstruction);
 	}

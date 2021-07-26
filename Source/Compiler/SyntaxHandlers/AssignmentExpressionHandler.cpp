@@ -70,7 +70,7 @@ namespace Powder
 			instructionList.AddTail(mathInstruction);
 
 			// Lastly, check out context.  If nothing wants the value we leave on the stack-stop, pop it.
-			if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
+			if (this->PopNeededForExpression(syntaxNode))
 			{
 				PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 				instructionList.AddTail(popInstruction);

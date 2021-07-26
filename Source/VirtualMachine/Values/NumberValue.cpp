@@ -73,6 +73,10 @@ namespace Powder
 				{
 					return new BooleanValue(this->number == numberValue->number);
 				}
+				case MathInstruction::MathOp::NOT_EQUAL:
+				{
+					return new BooleanValue(this->number != numberValue->number);
+				}
 				case MathInstruction::MathOp::LESS_THAN:
 				{
 					return new BooleanValue(this->number < numberValue->number);

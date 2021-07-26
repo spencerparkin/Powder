@@ -23,7 +23,9 @@ namespace Powder
 			MODULE,
 			RUN_SCRIPT,
 			SLEEP,
-			ITERATOR
+			ITERATOR,
+			AS_STRING,
+			AS_NUMBER
 		};
 
 		static SysCall TranslateAsSysCall(const std::string& funcName);

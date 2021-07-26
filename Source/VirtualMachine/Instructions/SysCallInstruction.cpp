@@ -52,6 +52,10 @@ namespace Powder
 			return SysCall::SLEEP;
 		else if (funcName == "iterator")
 			return SysCall::ITERATOR;
+		else if (funcName == "as_str")
+			return SysCall::AS_STRING;
+		else if (funcName == "as_num")
+			return SysCall::AS_NUMBER;
 
 		return SysCall::UNKNOWN;
 	}
@@ -77,6 +81,10 @@ namespace Powder
 			case SysCall::SLEEP:
 				return 1;
 			case SysCall::ITERATOR:
+				return 1;
+			case SysCall::AS_STRING:
+				return 1;
+			case SysCall::AS_NUMBER:
 				return 1;
 		}
 
@@ -175,6 +183,20 @@ namespace Powder
 				if (!iteratorValue)
 					throw new RunTimeException("Failed to create iterator for container value.");
 				executor->PushValueOntoEvaluationStackTop(iteratorValue);
+				break;
+			}
+			case SysCall::AS_STRING:
+			{
+				Value* value = executor->PopValueFromEvaluationStackTop();
+				StringValue* stringValue = new StringValue(value->ToString());
+				executor->PushValueOntoEvaluationStackTop(stringValue);
+				break;
+			}
+			case SysCall::AS_NUMBER:
+			{
+				Value* value = executor->PopValueFromEvaluationStackTop();
+				NumberValue* numberValue = new NumberValue(value->AsNumber());
+				executor->PushValueOntoEvaluationStackTop(numberValue);
 				break;
 			}
 			default:

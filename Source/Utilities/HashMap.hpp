@@ -181,8 +181,9 @@ namespace Powder
 		{
 			iterator iter;
 			iter.hashMap = this;
-			iter.i = -1;
+			iter.i = 0;
 			iter.entry = nullptr;
+			iter++;
 			return iter;
 		}
 

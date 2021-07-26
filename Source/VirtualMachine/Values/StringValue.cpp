@@ -1,5 +1,6 @@
 #include "StringValue.h"
 #include "UndefinedValue.h"
+#include "BooleanValue.h"
 #include "Exceptions.hpp"
 
 namespace Powder
@@ -27,10 +28,40 @@ namespace Powder
 
 	/*virtual*/ Value* StringValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
-		if (mathOp == MathInstruction::MathOp::ADD)
+		const StringValue* stringValue = dynamic_cast<const StringValue*>(value);
+		if (stringValue)
 		{
-			if (!dynamic_cast<const UndefinedValue*>(value))
-				return new StringValue(*this->str + value->ToString());
+			switch (mathOp)
+			{
+				case MathInstruction::MathOp::ADD:
+				{
+					return new StringValue(*this->str + *stringValue->str);
+				}
+				case MathInstruction::MathOp::EQUAL:
+				{
+					return new BooleanValue(*this->str == *stringValue->str);
+				}
+				case MathInstruction::MathOp::NOT_EQUAL:
+				{
+					return new BooleanValue(*this->str != *stringValue->str);
+				}
+				case MathInstruction::MathOp::LESS_THAN:
+				{
+					return new BooleanValue(::strcmp(this->str->c_str(), stringValue->str->c_str()) < 0);
+				}
+				case MathInstruction::MathOp::LESS_THAN_OR_EQUAL:
+				{
+					return new BooleanValue(::strcmp(this->str->c_str(), stringValue->str->c_str()) <= 0);
+				}
+				case MathInstruction::MathOp::GREATER_THAN:
+				{
+					return new BooleanValue(::strcmp(this->str->c_str(), stringValue->str->c_str()) > 0);
+				}
+				case MathInstruction::MathOp::GREATER_THAN_OR_EQUAL:
+				{
+					return new BooleanValue(::strcmp(this->str->c_str(), stringValue->str->c_str()) >= 0);
+				}
+			}
 		}
 
 		return new UndefinedValue();

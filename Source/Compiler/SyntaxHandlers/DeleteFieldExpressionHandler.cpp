@@ -37,7 +37,7 @@ namespace Powder
 		instructionList.AddTail(mathInstruction);
 
 		// Our result is the value in the container at the deleted field value.  But if no one wants it, pop it.
-		if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
+		if (this->PopNeededForExpression(syntaxNode))
 		{
 			PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(popInstruction);

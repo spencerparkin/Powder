@@ -27,7 +27,9 @@ namespace Powder
 		AssemblyData::Entry typeEntry;
 		AssemblyData::Entry dataEntry;
 
-		if (*literalTypeNode->name == "string-literal")
+		if (*literalTypeNode->name == "undefined")
+			typeEntry.code = PushInstruction::DataType::UNDEFINED;
+		else if (*literalTypeNode->name == "string-literal")
 		{
 			typeEntry.code = PushInstruction::DataType::STRING;
 			dataEntry.string = *literalDataNode->name;
@@ -55,7 +57,7 @@ namespace Powder
 
 		// If the literal is not in the context of an assignment or expression of some kind, then we
 		// need to issue a pop instruction here in order to not leak a value on the eval stack.
-		if (syntaxNode->parentNode && *syntaxNode->parentNode->name == "statement-list")
+		if (this->PopNeededForExpression(syntaxNode))
 		{
 			PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(popInstruction);
