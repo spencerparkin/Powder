@@ -103,7 +103,7 @@ namespace Powder
 			if (*syntaxNode->parentNode->name == "return-statement")
 				return false;
 
-			int i = syntaxNode->parentNode->name->find("statement");
+			int i = (int)syntaxNode->parentNode->name->find("statement");
 			if (i >= 0)
 				return true;
 		}

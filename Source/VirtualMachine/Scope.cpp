@@ -44,11 +44,22 @@ namespace Powder
 
 	void Scope::StoreValue(const char* identifier, Value* value)
 	{
+		Value* existingValue = this->valueMap.Lookup(identifier);
+		if (existingValue)
+			this->DisconnectFrom(existingValue);
+
 		this->valueMap.Insert(identifier, value);
+
+		if (value)
+			this->ConnectTo(value);
 	}
 
 	void Scope::DeleteValue(const char* identifier)
 	{
+		Value* existingValue = this->valueMap.Lookup(identifier);
+		if (existingValue)
+			this->DisconnectFrom(existingValue);
+
 		this->valueMap.Remove(identifier);
 	}
 

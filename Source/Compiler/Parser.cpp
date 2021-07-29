@@ -145,7 +145,7 @@ namespace Powder
 		{
 			matchListSize--;
 			i = matchListSize - 1;
-			j = terminalArray.size() - 1;
+			j = (int)terminalArray.size() - 1;
 			delta = -1;
 		}
 		
@@ -661,6 +661,6 @@ namespace Powder
 
 	int Parser::ParseError::SortKey() const
 	{
-		return this->sourceCode.length();
+		return (int)this->sourceCode.length();
 	}
 }

@@ -210,8 +210,8 @@ namespace Powder
 
 	uint32_t GarbageCollector::RemainingObjectCount()
 	{
-		uint32_t unvisitedObjectCount = this->objectSet[this->unvisitedObjectSet]->size();
-		uint32_t visitedObjectCount = this->objectSet[this->visitedObjectSet]->size();
+		uint32_t unvisitedObjectCount = (uint32_t)this->objectSet[this->unvisitedObjectSet]->size();
+		uint32_t visitedObjectCount = (uint32_t)this->objectSet[this->visitedObjectSet]->size();
 		return unvisitedObjectCount + visitedObjectCount;
 	}
 

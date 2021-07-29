@@ -1,7 +1,6 @@
 #pragma once
 
 #include "HashMap.hpp"
-#include "GCReference.hpp"
 #include "GCCollectable.h"
 #include "GCSteward.hpp"
 #include <vector>
@@ -26,7 +25,7 @@ namespace Powder
 
 		void Absorb(Scope* scope);
 
-		typedef HashMap<GCReference<Value>> ValueMap;
+		typedef HashMap<Value*> ValueMap;
 
 		ValueMap* GetValueMap() { return &this->valueMap; }
 
