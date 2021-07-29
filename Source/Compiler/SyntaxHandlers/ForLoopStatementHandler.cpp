@@ -8,6 +8,7 @@
 #include "BranchInstruction.h"
 #include "MathInstruction.h"
 #include "JumpInstruction.h"
+#include "SysCallInstruction.h"
 #include "Assembler.h"
 
 namespace Powder
@@ -36,9 +37,16 @@ namespace Powder
 		if (*identifierNode->name != "identifier")
 			throw new CompileTimeException("Expected \"identifier\" in AST as child of \"for-iteration-expression\" node.", &identifierNode->fileLocation);
 
-		// Push the iterator function onto the eval-stack.
+		// Push the container value or iterator function onto the eval-stack.
 		const Parser::SyntaxNode* iteratorNode = iterationNode->childList.GetHead()->GetNext()->GetNext()->value;
 		instructionGenerator->GenerateInstructionListRecursively(instructionList, iteratorNode);
+
+		// Convert it to an iterator if necessary.
+		SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>(iteratorNode->fileLocation);
+		AssemblyData::Entry entry;
+		entry.code = SysCallInstruction::AS_ITERATOR;
+		sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
+		instructionList.AddTail(sysCallInstruction);
 
 		// Push an argument list onto the eval stack, then push the iterator function address on top of that.
 		this->GenerateInstructionForIteratorCallSetup(instructionList, "reset", iterationNode->fileLocation);
@@ -57,7 +65,7 @@ namespace Powder
 
 		// Store the returned value in the loop iteration variable.
 		StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(iterationNode->fileLocation);
-		AssemblyData::Entry entry;
+		entry.Reset();
 		entry.string = *identifierNode->childList.GetHead()->value->name;
 		storeInstruction->assemblyData->configMap.Insert("name", entry);
 		forLoopHeadInstructionList.AddTail(storeInstruction);

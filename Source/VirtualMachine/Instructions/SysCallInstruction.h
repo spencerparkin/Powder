@@ -23,7 +23,7 @@ namespace Powder
 			MODULE,
 			RUN_SCRIPT,
 			SLEEP,
-			ITERATOR,
+			AS_ITERATOR,
 			AS_STRING,
 			AS_NUMBER
 		};

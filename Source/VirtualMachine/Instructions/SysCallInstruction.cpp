@@ -7,6 +7,7 @@
 #include "StringValue.h"
 #include "ContainerValue.h"
 #include "CppFunctionValue.h"
+#include "AddressValue.h"
 #include "MapValue.h"
 #include "UndefinedValue.h"
 #include "VirtualMachine.h"
@@ -50,8 +51,8 @@ namespace Powder
 			return SysCall::RUN_SCRIPT;
 		else if (funcName == "sleep")
 			return SysCall::SLEEP;
-		else if (funcName == "iterator")
-			return SysCall::ITERATOR;
+		else if (funcName == "as_iter")
+			return SysCall::AS_ITERATOR;
 		else if (funcName == "as_str")
 			return SysCall::AS_STRING;
 		else if (funcName == "as_num")
@@ -80,7 +81,7 @@ namespace Powder
 				return 1;
 			case SysCall::SLEEP:
 				return 1;
-			case SysCall::ITERATOR:
+			case SysCall::AS_ITERATOR:
 				return 1;
 			case SysCall::AS_STRING:
 				return 1;
@@ -173,16 +174,24 @@ namespace Powder
 				executor->PushValueOntoEvaluationStackTop(numberValue);
 				break;
 			}
-			case SysCall::ITERATOR:
+			case SysCall::AS_ITERATOR:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				Value* value = executor->StackTop();
 				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value);
-				if (!containerValue)
-					throw new RunTimeException("Cannot create iterator for non-container value.");
-				CppFunctionValue* iteratorValue = containerValue->MakeIterator();
-				if (!iteratorValue)
-					throw new RunTimeException("Failed to create iterator for container value.");
-				executor->PushValueOntoEvaluationStackTop(iteratorValue);
+				if (containerValue)
+				{
+					CppFunctionValue* iteratorValue = containerValue->MakeIterator();
+					if (iteratorValue)
+					{
+						executor->PopValueFromEvaluationStackTop();
+						executor->PushValueOntoEvaluationStackTop(iteratorValue);
+					}
+				}
+
+				value = executor->StackTop();
+				if (!dynamic_cast<CppFunctionValue*>(value) && !dynamic_cast<AddressValue*>(value))
+					throw new RunTimeException("Eval stack top value is not callable, so it's not an iterator.");
+
 				break;
 			}
 			case SysCall::AS_STRING:
