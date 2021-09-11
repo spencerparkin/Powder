@@ -6,6 +6,8 @@ namespace Powder
 {
 	class GCCollectable;
 
+	// This class helps GCCollectable derivative classes manage
+	// member pointers to other GCCollectable instances.
 	template<typename T>
 	class POWDER_API GCSteward
 	{
@@ -33,20 +35,20 @@ namespace Powder
 		void Set(T* object)
 		{
 			if (this->object)
-				this->owner->DisownObject(this->object);
+				this->owner->DisconnectFrom(this->object);
 
 			this->object = object;
 
 			if (this->object)
-				this->owner->OwnObject(this->object);
+				this->owner->ConnectTo(this->object);
 		}
 
-		operator T* ()
+		operator T*()
 		{
 			return this->object;
 		}
 
-		operator const T* () const
+		operator const T*() const
 		{
 			return this->object;
 		}

@@ -37,7 +37,7 @@ ReadLineFunctionValue::ReadLineFunctionValue()
 	if (!std::getline(fileValue->fileStream, line))
 		line = "";
 
-	Powder::StringValue* stringValue = GCObject::Create<Powder::StringValue>();
+	Powder::StringValue* stringValue = new Powder::StringValue();
 	stringValue->SetString(line);
 	return stringValue;
 }

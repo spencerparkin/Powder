@@ -28,7 +28,7 @@ CloseFileFunctionValue::CloseFileFunctionValue()
 		return nullptr;
 	}
 
-	Powder::BooleanValue* resultValue = GCObject::Create<Powder::BooleanValue>();
+	Powder::BooleanValue* resultValue = new Powder::BooleanValue();
 
 	if (!fileValue->fileStream.is_open())
 		resultValue->SetBool(false);

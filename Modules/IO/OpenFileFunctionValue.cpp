@@ -24,7 +24,7 @@ OpenFileFunctionValue::OpenFileFunctionValue()
 	Value* filePathValue = argListValue->PopLeft();
 	std::string filePath = filePathValue->ToString();
 
-	FileValue* fileValue = GCObject::Create<FileValue>();
+	FileValue* fileValue = new FileValue();
 
 	std::ios_base::openmode openMode = std::fstream::in;
 	Value* openModeValue = argListValue->Length() > 0 ? argListValue->PopLeft() : nullptr;
@@ -50,7 +50,7 @@ OpenFileFunctionValue::OpenFileFunctionValue()
 
 	fileValue->fileStream.open(filePath, openMode);
 	if (!fileValue->fileStream.is_open())
-		return GCObject::Create<Powder::UndefinedValue>();
+		return new Powder::UndefinedValue();
 
 	return fileValue;
 }

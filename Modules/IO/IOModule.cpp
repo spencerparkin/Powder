@@ -7,7 +7,7 @@
 
 __declspec(dllexport) Powder::MapValue* GenerateFunctionMap()
 {
-	Powder::MapValue* mapValue = Powder::GCObject::Create<Powder::MapValue>();
+	Powder::MapValue* mapValue = new Powder::MapValue();
 
 	mapValue->SetField("open", new OpenFileFunctionValue());
 	mapValue->SetField("close", new CloseFileFunctionValue());

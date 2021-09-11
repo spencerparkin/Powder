@@ -104,7 +104,7 @@ namespace Powder
 			}
 			case SysCall::GC:
 			{
-				GarbageCollector::GC()->FullPurge();
+				// TODO: Stall here until GC catches up with the script?
 				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				break;
 			}
@@ -169,7 +169,7 @@ namespace Powder
 			}
 			case SysCall::GC_COUNT:
 			{
-				uint32_t count = GarbageCollector::GC()->HonestCollectableCount();
+				uint32_t count = 0;		// TODO: Get GC stat from GC system and stuff it here.
 				NumberValue* numberValue = new NumberValue(count);
 				executor->PushValueOntoEvaluationStackTop(numberValue);
 				break;

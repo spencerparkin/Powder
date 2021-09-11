@@ -51,26 +51,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	// At this point, a full purge should bring us to zero outstanding objects.
-	GarbageCollector::GC()->FullPurge();
-	uint32_t objectCount = GarbageCollector::GC()->RemainingObjectCount();
-	if (objectCount > 0)
-	{
-		std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-		std::cerr << "GC system did not purge " << objectCount << " object(s)." << std::endl;
-		std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-
-		GarbageCollector::GC()->FullPurge();
-	}
-
-	// Even if the GC system thinks it's done, did it leak anything?
-	uint32_t honestCollectableCount = GarbageCollector::GC()->HonestCollectableCount();
-	if (honestCollectableCount > 0)
-	{
-		std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-		std::cerr << "GC system leaked " << honestCollectableCount << " object(s)." << std::endl;
-		std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-	}
+	// TODO: May want to join GC-thread here.
 
     return 0;
 }

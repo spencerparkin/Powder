@@ -66,20 +66,8 @@ namespace Powder
 			if (result != Executor::Result::CONTINUE)
 				return result;
 
-#if false
-			// This is super slow, but is also a way to test that the GC system doesn't
-			// delete stuff that it shouldn't delete.
-			GarbageCollector::GC()->FullPurge();
-#else
-			// TODO: This will delete objects as the program runs, but the amount of
-			//       allocated memory can still steadily grow as time goes on.  Should
-			//       there be some sort of dynamic system in place to call the GC more
-			//       or less to keep our memory usage within a certain limit?
-			GarbageCollector::GC()->Run();
-			GarbageCollector::GC()->Run();
-			GarbageCollector::GC()->Run();
-			GarbageCollector::GC()->Run();
-#endif
+			// TODO: Run main-thread part of GC here?  This should be ultra-fast and do nothing more than free objects that
+			//       have been determined to be abandoned memory in the gc-thread.
 		}
 
 		return Result::HALT;

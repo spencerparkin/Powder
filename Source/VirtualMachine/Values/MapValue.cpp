@@ -53,13 +53,13 @@ namespace Powder
 		if (existingDataValue)
 		{
 			this->valueMap.Remove(key);
-			this->DisownObject(existingDataValue);
+			this->DisconnectFrom(existingDataValue);
 		}
 
 		if (dataValue)
 		{
 			this->valueMap.Insert(key, dataValue);
-			this->OwnObject(dataValue);
+			this->ConnectTo(dataValue);
 		}
 	}
 
@@ -88,7 +88,7 @@ namespace Powder
 		if (dataValue)
 		{
 			this->valueMap.Remove(key.c_str());
-			this->DisownObject(dataValue);
+			this->DisconnectFrom(dataValue);
 		}
 
 		return dataValue;

@@ -113,7 +113,6 @@ namespace Powder
 				Executable* executable = new Executable();
 				executable->Load(programByteCodePath);
 				this->ExecuteByteCode(executable, scope);
-				GarbageCollector::GC()->FullPurge();
 				return;
 			}
 		}
@@ -150,7 +149,6 @@ namespace Powder
 		}
 
 		this->ExecuteByteCode(executable, scope);
-		GarbageCollector::GC()->FullPurge();
 	}
 
 	MapValue* VirtualMachine::LoadModuleFunctionMap(const std::string& moduleAbsolutePath)
@@ -177,7 +175,7 @@ namespace Powder
 		// We must first purge the GC system of any objects that may
 		// have virtual functions in a module we're about to unload!
 		this->globalScope.Clear();
-		GarbageCollector::GC()->FullPurge();
+		// TODO: Stall here until GC system catches up by removing all reclaimable memory!
 
 		this->moduleMap.ForAllEntries([](const char* key, void* modulePtr) -> bool {
 			HMODULE moduleHandle = (HMODULE)modulePtr;

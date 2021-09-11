@@ -95,7 +95,6 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 	}
 
 	delete this->vm;
-	GarbageCollector::GC()->FullPurge();
 
 	this->executionTimeMilliseconds = stopWatch.Time();
 
