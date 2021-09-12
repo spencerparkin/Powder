@@ -58,9 +58,6 @@
     <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp">
       <Filter>Source\GarbageCollector</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GarbageCollector\GCObject.cpp">
-      <Filter>Source\GarbageCollector</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp">
       <Filter>Source\GarbageCollector</Filter>
     </ClCompile>
@@ -252,9 +249,6 @@
     <ClInclude Include="Source\GarbageCollector\GCReference.hpp">
       <Filter>Source\GarbageCollector</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GarbageCollector\GCObject.h">
-      <Filter>Source\GarbageCollector</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Defines.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -425,6 +419,9 @@
     </ClInclude>
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.h">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GarbageCollector\concurrentqueue.h">
+      <Filter>Source\GarbageCollector</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

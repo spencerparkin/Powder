@@ -86,7 +86,7 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 
 	try
 	{
-		vm->ExecuteSourceCodeFile((const char*)this->sourceFilePath.c_str());
+		this->vm->ExecuteSourceCodeFile((const char*)this->sourceFilePath.c_str());
 	}
 	catch (Exception* exc)
 	{

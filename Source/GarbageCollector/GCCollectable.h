@@ -1,21 +1,34 @@
 #pragma once
 
 #include "Defines.h"
-#include "GCObject.h"
-#include "GCReference.hpp"
+#include "LinkedList.hpp"
+#include <stdint.h>
+#include <set>
 
 namespace Powder
 {
-	// Memory for instances of this class are freed by the GC if
-	// it finds that the object is not connected to a GCReference
-	// object, directly or indirectly.  Being referenced in a way
-	// that retains the memory is a transitive property.
-	class POWDER_API GCCollectable : public GCObject
+	// Half the scope of these class instances is managed by the GC system.
+	// Feel free to allocate them yourself, but do not free them yourself.
+	class POWDER_API GCCollectable
 	{
+		friend class GarbageCollector;
+
 	public:
 		GCCollectable();
 		virtual ~GCCollectable();
 
-		virtual bool IsReference(void) override;
+		void ConnectTo(GCCollectable* collectable);
+		void DisconnectFrom(GCCollectable* collectable);
+
+		void AddRef();
+		void DecRef();
+
+	private:
+
+		uint32_t refCount;
+		uint32_t spanningTreeKey;
+		bool armedForDelete;
+		std::set<GCCollectable*>* adjacencySet;
+		LinkedList<GCCollectable*>::Node* node;
 	};
 }

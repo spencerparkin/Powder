@@ -66,8 +66,7 @@ namespace Powder
 			if (result != Executor::Result::CONTINUE)
 				return result;
 
-			// TODO: Run main-thread part of GC here?  This should be ultra-fast and do nothing more than free objects that
-			//       have been determined to be abandoned memory in the gc-thread.
+			GarbageCollector::GC()->FreeObjects();
 		}
 
 		return Result::HALT;

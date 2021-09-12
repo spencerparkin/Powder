@@ -6,8 +6,6 @@ namespace Powder
 {
 	class GCCollectable;
 
-	// This class helps GCCollectable derivative classes manage
-	// member pointers to other GCCollectable instances.
 	template<typename T>
 	class POWDER_API GCSteward
 	{
