@@ -71,6 +71,11 @@ namespace Powder
 		// TODO: Block on semaphore here.  Semaphore is released by the GC thread when it knows it's caught up.
 	}
 
+	uint32_t GarbageCollector::TrackingCount(void)
+	{
+		return this->collectableList.GetCount();
+	}
+
 	/*static*/ DWORD __stdcall GarbageCollector::ThreadEntryPoint(LPVOID param)
 	{
 		GC()->Run();

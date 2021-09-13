@@ -23,6 +23,7 @@ namespace Powder
 		void FreeObjects(void);
 		void TrackCollectable(GCCollectable* collectable);
 		void RelateCollectables(GCCollectable* collectableA, GCCollectable* collectableB, bool linked);
+		uint32_t TrackingCount(void);
 
 	private:
 		static DWORD __stdcall ThreadEntryPoint(LPVOID param);

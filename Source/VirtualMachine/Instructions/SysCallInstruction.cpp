@@ -169,7 +169,7 @@ namespace Powder
 			}
 			case SysCall::GC_COUNT:
 			{
-				uint32_t count = 0;		// TODO: Get GC stat from GC system and stuff it here.
+				uint32_t count = GarbageCollector::GC()->TrackingCount();
 				NumberValue* numberValue = new NumberValue(count);
 				executor->PushValueOntoEvaluationStackTop(numberValue);
 				break;
