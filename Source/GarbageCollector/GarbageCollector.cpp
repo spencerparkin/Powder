@@ -98,7 +98,7 @@ namespace Powder
 				if (this->CanCollectAll(spanningTreeList))
 				{
 					// Yes!  Throw them on the garbage collection queue to be deleted on the main thread.
-					for (LinkedList<GCCollectable*>::Node* node = this->collectableList.GetHead(); node; node = node->GetNext())
+					for (LinkedList<GCCollectable*>::Node* node = spanningTreeList.GetHead(); node; node = node->GetNext())
 					{
 						GCCollectable* collectable = node->value;
 						this->garbageQueue->enqueue(collectable);
@@ -108,7 +108,7 @@ namespace Powder
 				{
 					// No!  Add them back to our list.  Note, however, that we add the collectables back at the end of
 					// our list so that we're less likely to reconsider them any time soon.
-					for (LinkedList<GCCollectable*>::Node* node = this->collectableList.GetHead(); node; node = node->GetNext())
+					for (LinkedList<GCCollectable*>::Node* node = spanningTreeList.GetHead(); node; node = node->GetNext())
 					{
 						GCCollectable* collectable = node->value;
 						this->collectableList.AddTail(collectable);
