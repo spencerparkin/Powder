@@ -146,6 +146,8 @@ namespace Powder
 		{
 			LinkedList<GCCollectable*>::Node* node = this->collectableList.GetHead();
 			GCCollectable* collectable = node->value;
+			if (collectable->refCount > 0)
+				::fprintf(stderr, "Detected ref-count leak of collectable 0x%08x.\n", uint32_t(collectable));
 			this->collectableList.Remove(node);
 			this->garbageQueue->enqueue(collectable);
 		}
