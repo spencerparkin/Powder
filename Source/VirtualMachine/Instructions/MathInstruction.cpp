@@ -89,43 +89,52 @@ namespace Powder
 		{
 			case MathOp::GET_FIELD:
 			{
-				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				Value* fieldValue = executor->PopValueFromEvaluationStackTop(true);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop(true));
 				if (!containerValue)
 					throw new RunTimeException("Get field math operation expected a container value on the evaluation stack.");
 				result = containerValue->GetField(fieldValue);
+				if (result)
+					result->IncRef();
+				fieldValue->DecRef();
+				containerValue->DecRef();
 				break;
 			}
 			case MathOp::SET_FIELD:
 			{
-				result = executor->PopValueFromEvaluationStackTop();
-				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				result = executor->PopValueFromEvaluationStackTop(true);
+				Value* fieldValue = executor->PopValueFromEvaluationStackTop(true);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop(true));
 				if (!containerValue)
 					throw new RunTimeException("Set field math operation expected a container value on the evaluation stack.");
 				containerValue->SetField(fieldValue, result);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(containerValue);
+				fieldValue->DecRef();
+				containerValue->DecRef();
 				break;
 			}
 			case MathOp::DEL_FIELD:
 			{
-				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				Value* fieldValue = executor->PopValueFromEvaluationStackTop(true);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop(true));
 				if (!containerValue)
 					throw new RunTimeException("Delete field math operation expected a container value on the evaluation stack.");
 				result = containerValue->DelField(fieldValue);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(containerValue);
+				fieldValue->DecRef();
+				containerValue->DecRef();
 				break;
 			}
 			case MathOp::CONTAINS:
 			{
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop(true));
 				if (!containerValue)
 					throw new RunTimeException("Membership math operation expected a container value on the evaluation stack.");
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				Value* value = executor->PopValueFromEvaluationStackTop(true);
 				result = containerValue->IsMember(value);
+				containerValue->DecRef();
 				break;
 			}
 			default:
@@ -134,14 +143,17 @@ namespace Powder
 				mathOp &= ~0x80;
 				if (unary)
 				{
-					Value* value = executor->PopValueFromEvaluationStackTop();
+					Value* value = executor->PopValueFromEvaluationStackTop(true);
 					result = value->CombineWith(nullptr, (MathOp)mathOp, executor);
+					value->DecRef();
 				}
 				else
 				{
-					Value* rightValue = executor->PopValueFromEvaluationStackTop();
-					Value* leftValue = executor->PopValueFromEvaluationStackTop();
+					Value* rightValue = executor->PopValueFromEvaluationStackTop(true);
+					Value* leftValue = executor->PopValueFromEvaluationStackTop(true);
 					result = leftValue->CombineWith(rightValue, (MathOp)mathOp, executor);
+					leftValue->DecRef();
+					rightValue->DecRef();
 				}
 
 				break;
@@ -151,7 +163,7 @@ namespace Powder
 		if (!result)
 			throw new RunTimeException(FormatString("Failed to combine operands in operation: 0x%04x", mathOp));
 
-		executor->PushValueOntoEvaluationStackTop(result);
+		executor->PushValueOntoEvaluationStackTop(result, true);
 		programBufferLocation += 2;
 		return Executor::Result::CONTINUE;
 	}

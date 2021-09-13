@@ -113,6 +113,7 @@ namespace Powder
 		this->RebuildIndexIfNeeded();
 		Value* dataValue = (*this->valueListIndex)[i]->value;
 		this->valueList.Remove((*this->valueListIndex)[i]);
+		dataValue->IncRef();
 		this->DisconnectFrom(dataValue);
 		this->valueListIndexValid = false;
 		return dataValue;
@@ -156,6 +157,7 @@ namespace Powder
 		Value* value = this->valueList.GetHead()->value;
 		this->valueList.Remove(this->valueList.GetHead());
 		this->valueListIndexValid = false;
+		value->IncRef();
 		this->DisconnectFrom(value);
 		return value;
 	}
@@ -176,6 +178,7 @@ namespace Powder
 		this->valueList.Remove(this->valueList.GetTail());
 		if (this->valueListIndexValid)
 			this->valueListIndex->pop_back();
+		value->IncRef();
 		this->DisconnectFrom(value);
 		return value;
 	}

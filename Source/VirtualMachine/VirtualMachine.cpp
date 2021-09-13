@@ -36,6 +36,8 @@ namespace Powder
 		this->debuggerTrap = nullptr;
 		
 		this->globalScope = new Scope();		// This gets deleted by the GC.
+		this->globalScope->DecRef();
+
 		this->executorListStack = new std::vector<ExecutorList*>();
 		
 		this->RegisterInstruction<BranchInstruction>();
@@ -113,6 +115,7 @@ namespace Powder
 				Executable* executable = new Executable();
 				executable->Load(programByteCodePath);
 				this->ExecuteByteCode(executable, scope);
+				executable->DecRef();
 				return;
 			}
 		}

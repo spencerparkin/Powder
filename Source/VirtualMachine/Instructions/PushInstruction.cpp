@@ -35,15 +35,14 @@ namespace Powder
 		{
 			case DataType::UNDEFINED:
 			{
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), true);
 				programBufferLocation += 2;
 				break;
 			}
 			case DataType::STRING:
 			{
 				std::string str = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 2);
-				Value* value = new StringValue(str);
-				executor->PushValueOntoEvaluationStackTop(value);
+				executor->PushValueOntoEvaluationStackTop(new StringValue(str), true);
 				programBufferLocation += 2 + str.length() + 1;
 				break;
 			}
@@ -51,19 +50,19 @@ namespace Powder
 			{
 				double number = 0.0f;
 				::memcpy_s(&number, sizeof(double), &programBuffer[programBufferLocation + 2], sizeof(double));
-				executor->PushValueOntoEvaluationStackTop(new NumberValue(number));
+				executor->PushValueOntoEvaluationStackTop(new NumberValue(number), true);
 				programBufferLocation += 2 + sizeof(double);
 				break;
 			}
 			case DataType::EMPTY_LIST:
 			{
-				executor->PushValueOntoEvaluationStackTop(new ListValue());
+				executor->PushValueOntoEvaluationStackTop(new ListValue(), true);
 				programBufferLocation += 2;
 				break;
 			}
 			case DataType::EMPTY_MAP:
 			{
-				executor->PushValueOntoEvaluationStackTop(new MapValue());
+				executor->PushValueOntoEvaluationStackTop(new MapValue(), true);
 				programBufferLocation += 2;
 				break;
 			}
@@ -73,7 +72,7 @@ namespace Powder
 				uint64_t programBufferAddress = 0L;
 				::memcpy_s(&programBufferAddress, sizeof(uint64_t), &programBuffer[programBufferLocation + 2], sizeof(uint64_t));
 				AddressValue* addressValue = (pushType == DataType::ADDRESS) ? new AddressValue(executable, programBufferAddress) : new ClosureValue(executable, programBufferAddress);
-				executor->PushValueOntoEvaluationStackTop(addressValue);
+				executor->PushValueOntoEvaluationStackTop(addressValue, true);
 				programBufferLocation += 2 + sizeof(uint64_t);
 				break;
 			}
@@ -82,7 +81,7 @@ namespace Powder
 				int32_t stackOffset = 0;
 				::memcpy_s(&stackOffset, sizeof(int32_t), &programBuffer[programBufferLocation + 2], sizeof(int32_t));
 				Value* value = executor->StackValue(stackOffset);
-				executor->PushValueOntoEvaluationStackTop(value);
+				executor->PushValueOntoEvaluationStackTop(value, false);
 				programBufferLocation += 2 + sizeof(int32_t);
 				break;
 			}

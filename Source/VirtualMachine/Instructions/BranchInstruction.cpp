@@ -24,11 +24,12 @@ namespace Powder
 	/*virtual*/ uint32_t BranchInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
-		Value* value = executor->PopValueFromEvaluationStackTop();
+		Value* value = executor->PopValueFromEvaluationStackTop(true);
 		if (value->AsBoolean())
 			programBufferLocation += 1 + sizeof(uint64_t);
 		else
 			::memcpy_s(&programBufferLocation, sizeof(uint64_t), &programBuffer[programBufferLocation + 1], sizeof(uint64_t));
+		value->DecRef();
 		return Executor::Result::CONTINUE;
 	}
 

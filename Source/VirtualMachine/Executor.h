@@ -38,8 +38,8 @@ namespace Powder
 		void LoadAndPushValueOntoEvaluationStackTop(const char* identifier, void* debuggerTrap);
 		void StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap);
 
-		void PushValueOntoEvaluationStackTop(Value* value);
-		Value* PopValueFromEvaluationStackTop();
+		void PushValueOntoEvaluationStackTop(Value* value, bool decRefAfterPush);
+		Value* PopValueFromEvaluationStackTop(bool incRefBeforePop);
 
 		Value* StackTop();
 		Value* StackValue(int32_t stackOffset);	// This is relative to the top of the stack.

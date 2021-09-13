@@ -104,8 +104,8 @@ namespace Powder
 			}
 			case SysCall::GC:
 			{
-				// TODO: Stall here until GC catches up with the script?
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				GarbageCollector::GC()->StallUntilCaughtUp();
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), true);
 				break;
 			}
 			case SysCall::INPUT:
@@ -127,51 +127,54 @@ namespace Powder
 					}
 				}
 
-				executor->PushValueOntoEvaluationStackTop(value);
+				executor->PushValueOntoEvaluationStackTop(value, true);
 				break;
 			}
 			case SysCall::OUTPUT:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				Value* value = executor->PopValueFromEvaluationStackTop(true);
 				std::string str = value->ToString();
 				virtualMachine->GetIODevice()->OutputString(str);
-				executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()));
+				executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()), true);
+				value->DecRef();
 				break;
 			}
 			case SysCall::MODULE:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				Value* value = executor->PopValueFromEvaluationStackTop(true);
 				std::string moduleRelativePath = value->ToString();
 				std::string moduleAbsolutePath = pathResolver.ResolvePath(moduleRelativePath, PathResolver::SEARCH_BASE | PathResolver::SEARCH_CWD);
 				MapValue* functionMapValue = virtualMachine->LoadModuleFunctionMap(moduleAbsolutePath);
 				if (!functionMapValue)
 					throw new RunTimeException(FormatString("Module (%s) did not generate function map value.", moduleAbsolutePath.c_str()));
-				executor->PushValueOntoEvaluationStackTop(functionMapValue);
+				executor->PushValueOntoEvaluationStackTop(functionMapValue, true);
+				value->DecRef();
 				break;
 			}
 			case SysCall::RUN_SCRIPT:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				Value* value = executor->PopValueFromEvaluationStackTop(true);
 				std::string scriptRelativePath = value->ToString();
 				std::string scriptAbsolutePath = pathResolver.ResolvePath(scriptRelativePath, PathResolver::SEARCH_CWD);
 				virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), true);
+				value->DecRef();
 				break;
 			}
 			case SysCall::SLEEP:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				Value* value = executor->PopValueFromEvaluationStackTop(true);
 				double sleepSeconds = value->AsNumber();
+				value->DecRef();
 				if (sleepSeconds > 0.0)
 					::Sleep(DWORD(sleepSeconds * 1000.0f));
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), true);
 				break;
 			}
 			case SysCall::GC_COUNT:
 			{
 				uint32_t count = GarbageCollector::GC()->TrackingCount();
-				NumberValue* numberValue = new NumberValue(count);
-				executor->PushValueOntoEvaluationStackTop(numberValue);
+				executor->PushValueOntoEvaluationStackTop(new NumberValue(count), true);
 				break;
 			}
 			case SysCall::AS_ITERATOR:
@@ -183,8 +186,8 @@ namespace Powder
 					CppFunctionValue* iteratorValue = containerValue->MakeIterator();
 					if (iteratorValue)
 					{
-						executor->PopValueFromEvaluationStackTop();
-						executor->PushValueOntoEvaluationStackTop(iteratorValue);
+						executor->PopValueFromEvaluationStackTop(false);
+						executor->PushValueOntoEvaluationStackTop(iteratorValue, true);
 					}
 				}
 
@@ -196,16 +199,18 @@ namespace Powder
 			}
 			case SysCall::AS_STRING:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				Value* value = executor->PopValueFromEvaluationStackTop(true);
 				StringValue* stringValue = new StringValue(value->ToString());
-				executor->PushValueOntoEvaluationStackTop(stringValue);
+				executor->PushValueOntoEvaluationStackTop(stringValue, true);
+				value->DecRef();
 				break;
 			}
 			case SysCall::AS_NUMBER:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				Value* value = executor->PopValueFromEvaluationStackTop(true);
 				NumberValue* numberValue = new NumberValue(value->AsNumber());
-				executor->PushValueOntoEvaluationStackTop(numberValue);
+				executor->PushValueOntoEvaluationStackTop(numberValue, true);
+				value->DecRef();
 				break;
 			}
 			default:
