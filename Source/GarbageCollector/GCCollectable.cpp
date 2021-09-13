@@ -31,12 +31,11 @@ namespace Powder
 
 	void GCCollectable::IncRef()
 	{
-		this->refCount++;
+		GarbageCollector::GC()->IncRef(this);
 	}
 
 	void GCCollectable::DecRef()
 	{
-		assert(this->refCount > 0);
-		this->refCount--;
+		GarbageCollector::GC()->DecRef(this);
 	}
 }

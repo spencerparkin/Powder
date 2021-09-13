@@ -24,7 +24,6 @@ namespace Powder
 		void DecRef();
 
 	private:
-
 		uint32_t refCount;
 		uint32_t spanningTreeKey;
 		std::set<GCCollectable*>* adjacencySet;

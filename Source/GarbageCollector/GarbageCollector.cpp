@@ -10,8 +10,8 @@ namespace Powder
 		this->threadHandle = nullptr;
 		this->threadExitSignaled = false;
 		this->spanningTreeKey = 0;
-		this->graphModQueue = new moodycamel::ConcurrentQueue<GraphModification>();
-		this->garbageQueue = new moodycamel::ConcurrentQueue<GCCollectable*>();
+		this->graphModQueue = new GraphModQueue();
+		this->garbageQueue = new GarbageQueue();
 	}
 
 	/*virtual*/ GarbageCollector::~GarbageCollector()
@@ -40,6 +40,24 @@ namespace Powder
 		graphMod.collectableA = collectableA;
 		graphMod.collectableB = collectableB;
 		graphMod.type = linked ? GraphModification::ADD_EDGE : GraphModification::DELETE_EDGE;
+		this->graphModQueue->enqueue(graphMod);
+	}
+
+	void GarbageCollector::IncRef(GCCollectable* collectable)
+	{
+		GraphModification graphMod;
+		graphMod.collectableA = collectable;
+		graphMod.collectableB = nullptr;
+		graphMod.type = GraphModification::INC_REF;
+		this->graphModQueue->enqueue(graphMod);
+	}
+
+	void GarbageCollector::DecRef(GCCollectable* collectable)
+	{
+		GraphModification graphMod;
+		graphMod.collectableA = collectable;
+		graphMod.collectableB = nullptr;
+		graphMod.type = GraphModification::DEC_REF;
 		this->graphModQueue->enqueue(graphMod);
 	}
 
@@ -88,15 +106,13 @@ namespace Powder
 		{
 			this->UpdateGraph();
 
-			GCCollectable* rootCollectable = this->FindUnvisitedCollectable();
-			if (!rootCollectable)
-				this->spanningTreeKey++;
-			else
+			if (this->collectableList.GetCount() > 0)
 			{
+				GCCollectable* rootCollectable = this->collectableList.GetHead()->value;
 				LinkedList<GCCollectable*> spanningTreeList;
 				
-				// In addition to update the spanning tree key of all found collectables,
-				// this will also remove them from our list of collectables.
+				// In addition to finding the spanning tree containing the given collectable,
+				// this will also remove the spanning tree members from our list of collectables.
 				this->FindSpanningTree(rootCollectable, spanningTreeList);
 
 				// Are the collectables ready to be garbage collected?
@@ -111,7 +127,7 @@ namespace Powder
 				}
 				else
 				{
-					// No!  Add them back to our list.  Note, however, that we add the collectables back at the end of
+					// No!  Add them back to our list.  Note, however, that we add the collectables to the end of
 					// our list so that we're less likely to reconsider them any time soon.
 					for (LinkedList<GCCollectable*>::Node* node = spanningTreeList.GetHead(); node; node = node->GetNext())
 					{
@@ -137,6 +153,8 @@ namespace Powder
 
 	void GarbageCollector::FindSpanningTree(GCCollectable* rootCollectable, LinkedList<GCCollectable*>& spanningTreeList)
 	{
+		this->spanningTreeKey++;
+
 		LinkedList<GCCollectable*> collectableQueue;
 		collectableQueue.AddTail(rootCollectable);
 		rootCollectable->spanningTreeKey = this->spanningTreeKey;
@@ -174,20 +192,6 @@ namespace Powder
 		return true;
 	}
 
-	GCCollectable* GarbageCollector::FindUnvisitedCollectable(void)
-	{
-		// Note that since newly tracked collectables are always added to the front of
-		// our list, here we're generally searching from newest to oldest.
-		for (LinkedList<GCCollectable*>::Node* node = collectableList.GetHead(); node; node = node->GetNext())
-		{
-			GCCollectable* collectable = node->value;
-			if (collectable->spanningTreeKey != this->spanningTreeKey)
-				return collectable;
-		}
-
-		return nullptr;
-	}
-
 	void GarbageCollector::UpdateGraph(void)
 	{
 		GraphModification graphMod;
@@ -211,6 +215,17 @@ namespace Powder
 				{
 					graphMod.collectableA->adjacencySet->erase(graphMod.collectableB);
 					graphMod.collectableB->adjacencySet->erase(graphMod.collectableA);
+					break;
+				}
+				case GraphModification::INC_REF:
+				{
+					graphMod.collectableA->refCount++;
+					break;
+				}
+				case GraphModification::DEC_REF:
+				{
+					assert(graphMod.collectableA->refCount > 0);
+					graphMod.collectableA->refCount--;
 					break;
 				}
 			}
