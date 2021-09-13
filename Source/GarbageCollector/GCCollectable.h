@@ -20,8 +20,8 @@ namespace Powder
 		void ConnectTo(GCCollectable* collectable);
 		void DisconnectFrom(GCCollectable* collectable);
 
-		void IncRef();
-		void DecRef();
+		void IncRef(uint32_t count = 1);
+		void DecRef(uint32_t count = 1);
 
 	private:
 		uint32_t refCount;

@@ -43,20 +43,20 @@ namespace Powder
 		this->graphModQueue->enqueue(graphMod);
 	}
 
-	void GarbageCollector::IncRef(GCCollectable* collectable)
+	void GarbageCollector::IncRef(GCCollectable* collectable, uint32_t count)
 	{
 		GraphModification graphMod;
 		graphMod.collectableA = collectable;
-		graphMod.collectableB = nullptr;
+		graphMod.count = count;
 		graphMod.type = GraphModification::INC_REF;
 		this->graphModQueue->enqueue(graphMod);
 	}
 
-	void GarbageCollector::DecRef(GCCollectable* collectable)
+	void GarbageCollector::DecRef(GCCollectable* collectable, uint32_t count)
 	{
 		GraphModification graphMod;
 		graphMod.collectableA = collectable;
-		graphMod.collectableB = nullptr;
+		graphMod.count = count;
 		graphMod.type = GraphModification::DEC_REF;
 		this->graphModQueue->enqueue(graphMod);
 	}
@@ -221,13 +221,20 @@ namespace Powder
 				}
 				case GraphModification::INC_REF:
 				{
-					graphMod.collectableA->refCount++;
+					graphMod.collectableA->refCount += graphMod.count;
 					break;
 				}
 				case GraphModification::DEC_REF:
 				{
-					assert(graphMod.collectableA->refCount > 0);
-					graphMod.collectableA->refCount--;
+					//assert(graphMod.collectableA->refCount > 0);
+
+					if (graphMod.collectableA->refCount > 0)
+						graphMod.collectableA->refCount -= graphMod.count;
+					else
+					{
+						::fprintf(stderr, "Ref-count underflow: 0x%08x\n", uint32_t(graphMod.collectableA));
+					}
+
 					break;
 				}
 			}

@@ -152,6 +152,8 @@ namespace Powder
 		}
 
 		this->ExecuteByteCode(executable, scope);
+
+		executable->DecRef();
 	}
 
 	MapValue* VirtualMachine::LoadModuleFunctionMap(const std::string& moduleAbsolutePath)

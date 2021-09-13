@@ -3,7 +3,6 @@
 #include "ListValue.h"
 #include "FileValue.h"
 #include "BooleanValue.h"
-#include "GCObject.h"
 
 CloseFileFunctionValue::CloseFileFunctionValue()
 {

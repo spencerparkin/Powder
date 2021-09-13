@@ -77,9 +77,8 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 	using namespace Powder;
 
 	::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_ENTERING));
-
 	wxStopWatch stopWatch;
-
+	GarbageCollector::GC()->Startup();
 	this->vm = new VirtualMachine();
 	this->vm->SetDebuggerTrap(this);
 	this->vm->SetIODevice(this);
@@ -95,9 +94,8 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 	}
 
 	delete this->vm;
-
+	GarbageCollector::GC()->Shutdown();
 	this->executionTimeMilliseconds = stopWatch.Time();
-
 	::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_EXITING));
 
 	return 0;

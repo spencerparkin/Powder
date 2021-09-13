@@ -25,8 +25,8 @@ namespace Powder
 		void TrackCollectable(GCCollectable* collectable);
 		void RelateCollectables(GCCollectable* collectableA, GCCollectable* collectableB, bool linked);
 		uint32_t TrackingCount(void);
-		void IncRef(GCCollectable* collectable);
-		void DecRef(GCCollectable* collectable);
+		void IncRef(GCCollectable* collectable, uint32_t count);
+		void DecRef(GCCollectable* collectable, uint32_t count);
 
 	private:
 		static DWORD __stdcall ThreadEntryPoint(LPVOID param);
@@ -42,7 +42,12 @@ namespace Powder
 		struct GraphModification
 		{
 			GCCollectable* collectableA;
-			GCCollectable* collectableB;
+
+			union
+			{
+				GCCollectable* collectableB;
+				uint32_t count;
+			};
 			
 			enum Type
 			{

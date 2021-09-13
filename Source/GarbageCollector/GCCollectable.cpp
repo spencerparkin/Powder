@@ -29,13 +29,13 @@ namespace Powder
 		GarbageCollector::GC()->RelateCollectables(this, collectable, false);
 	}
 
-	void GCCollectable::IncRef()
+	void GCCollectable::IncRef(uint32_t count /*= 1*/)
 	{
-		GarbageCollector::GC()->IncRef(this);
+		GarbageCollector::GC()->IncRef(this, count);
 	}
 
-	void GCCollectable::DecRef()
+	void GCCollectable::DecRef(uint32_t count /*= 1*/)
 	{
-		GarbageCollector::GC()->DecRef(this);
+		GarbageCollector::GC()->DecRef(this, count);
 	}
 }
