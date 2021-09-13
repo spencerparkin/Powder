@@ -21,7 +21,7 @@ namespace Powder
 			this->pointer = pointer;
 
 			if (this->pointer)
-				this->pointer->AddRef();
+				this->pointer->IncRef();
 		}
 
 		GCReference(const GCReference<T>& reference)
@@ -29,7 +29,7 @@ namespace Powder
 			this->pointer = reference.pointer;
 
 			if (this->pointer)
-				this->pointer->AddRef();
+				this->pointer->IncRef();
 		}
 
 		virtual ~GCReference()
@@ -46,7 +46,7 @@ namespace Powder
 			this->pointer = reference.pointer;
 
 			if (this->pointer)
-				this->pointer->AddRef();
+				this->pointer->IncRef();
 		}
 
 		void operator=(T* pointer)
@@ -57,7 +57,7 @@ namespace Powder
 			this->pointer = pointer;
 
 			if (this->pointer)
-				this->pointer->AddRef();
+				this->pointer->IncRef();
 		}
 
 		void Clear(void)

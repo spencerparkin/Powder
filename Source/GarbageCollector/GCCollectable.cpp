@@ -29,7 +29,7 @@ namespace Powder
 		GarbageCollector::GC()->RelateCollectables(this, collectable, false);
 	}
 
-	void GCCollectable::AddRef()
+	void GCCollectable::IncRef()
 	{
 		this->refCount++;
 	}

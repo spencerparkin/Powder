@@ -20,7 +20,7 @@ namespace Powder
 		void ConnectTo(GCCollectable* collectable);
 		void DisconnectFrom(GCCollectable* collectable);
 
-		void AddRef();
+		void IncRef();
 		void DecRef();
 
 	private:
