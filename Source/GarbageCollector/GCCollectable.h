@@ -27,7 +27,6 @@ namespace Powder
 
 		uint32_t refCount;
 		uint32_t spanningTreeKey;
-		bool armedForDelete;
 		std::set<GCCollectable*>* adjacencySet;
 		LinkedList<GCCollectable*>::Node* node;
 	};

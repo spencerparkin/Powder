@@ -49,7 +49,7 @@ namespace Powder
 			return false;
 
 		this->threadExitSignaled = false;
-		this->threadHandle = ::CreateThread(nullptr, 0, &GarbageCollector::ThreadMain, this, 0, nullptr);
+		this->threadHandle = ::CreateThread(nullptr, 0, &GarbageCollector::ThreadEntryPoint, this, 0, nullptr);
 		return true;
 	}
 
@@ -71,7 +71,7 @@ namespace Powder
 		// TODO: Block on semaphore here.  Semaphore is released by the GC thread when it knows it's caught up.
 	}
 
-	/*static*/ DWORD __stdcall GarbageCollector::ThreadMain(LPVOID param)
+	/*static*/ DWORD __stdcall GarbageCollector::ThreadEntryPoint(LPVOID param)
 	{
 		GC()->Run();
 		return 0;
@@ -162,7 +162,7 @@ namespace Powder
 		for (LinkedList<GCCollectable*>::Node* node = collectableList.GetHead(); node; node = node->GetNext())
 		{
 			GCCollectable* collectable = node->value;
-			if (!collectable->armedForDelete || collectable->refCount > 0)
+			if (collectable->refCount > 0)
 				return false;
 		}
 
@@ -200,8 +200,6 @@ namespace Powder
 				{
 					graphMod.collectableA->adjacencySet->insert(graphMod.collectableB);
 					graphMod.collectableB->adjacencySet->insert(graphMod.collectableA);
-					graphMod.collectableA->armedForDelete = true;
-					graphMod.collectableB->armedForDelete = true;
 					break;
 				}
 				case GraphModification::DELETE_EDGE:

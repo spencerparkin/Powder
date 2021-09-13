@@ -25,7 +25,7 @@ namespace Powder
 		void RelateCollectables(GCCollectable* collectableA, GCCollectable* collectableB, bool linked);
 
 	private:
-		static DWORD __stdcall ThreadMain(LPVOID param);
+		static DWORD __stdcall ThreadEntryPoint(LPVOID param);
 
 		void Run(void);
 		void UpdateGraph(void);

@@ -5,9 +5,8 @@ namespace Powder
 {
 	GCCollectable::GCCollectable()
 	{
-		this->refCount = 0;
+		this->refCount = 1;
 		this->spanningTreeKey = 0;
-		this->armedForDelete = false;
 		this->node = nullptr;
 		this->adjacencySet = new std::set<GCCollectable*>();
 
@@ -33,7 +32,6 @@ namespace Powder
 	void GCCollectable::AddRef()
 	{
 		this->refCount++;
-		this->armedForDelete = true;
 	}
 
 	void GCCollectable::DecRef()
