@@ -8,7 +8,7 @@
 
 namespace Powder
 {
-	class GCCollectable;
+	class GCObject;
 
 	class POWDER_API GarbageCollector
 	{
@@ -22,40 +22,33 @@ namespace Powder
 		bool Shutdown(void);
 		void StallUntilCaughtUp(void);
 		void FreeObjects(void);
-		void TrackCollectable(GCCollectable* collectable);
-		void RelateCollectables(GCCollectable* collectableA, GCCollectable* collectableB, bool linked);
-		uint32_t TrackingCount(void);
-		void IncRef(GCCollectable* collectable, uint32_t count);
-		void DecRef(GCCollectable* collectable, uint32_t count);
+		void AddObject(GCObject* object);
+		void RemoveObject(GCObject* object);
+		void RelateObjects(GCObject* objectA, GCObject* objectB, bool linked);
+		uint32_t ObjectCount(void);
 
 	private:
 		static DWORD __stdcall ThreadEntryPoint(LPVOID param);
 
 		void Run(void);
 		void UpdateGraph(void);
-		void FindSpanningTree(GCCollectable* rootCollectable, LinkedList<GCCollectable*>& spanningTreeList);
-		bool CanCollectAll(LinkedList<GCCollectable*>& collectableList);
+		void FindSpanningTree(GCObject* rootObject, LinkedList<GCObject*>& spanningTreeList);
+		bool CanCollectAll(LinkedList<GCObject*>& objectList);
 
 		HANDLE threadHandle;
 		bool threadExitSignaled;
 		
 		struct GraphModification
 		{
-			GCCollectable* collectableA;
-
-			union
-			{
-				GCCollectable* collectableB;
-				uint32_t count;
-			};
+			GCObject* objectA;
+			GCObject* objectB;
 			
 			enum Type
 			{
 				ADD_VERTEX,
+				DEL_VERTEX,
 				ADD_EDGE,
-				DELETE_EDGE,
-				INC_REF,
-				DEC_REF
+				DEL_EDGE
 			};
 
 			Type type;
@@ -63,15 +56,15 @@ namespace Powder
 
 #if 1
 		typedef moodycamel::ConcurrentQueue<GraphModification> GraphModQueue;
-		typedef moodycamel::ConcurrentQueue<GCCollectable*> GarbageQueue;
+		typedef moodycamel::ConcurrentQueue<GCObject*> GarbageQueue;
 #else
 		typedef ThreadSafeQueue<GraphModification> GraphModQueue;
-		typedef ThreadSafeQueue<GCCollectable*> GarbageQueue;
+		typedef ThreadSafeQueue<GCObject*> GarbageQueue;
 #endif
 
 		GraphModQueue* graphModQueue;
 		GarbageQueue* garbageQueue;
 		uint32_t spanningTreeKey;
-		LinkedList<GCCollectable*> collectableList;
+		LinkedList<GCObject*> objectList;
 	};
 }

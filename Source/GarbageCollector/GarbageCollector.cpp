@@ -25,39 +25,30 @@ namespace Powder
 		return &theGC;
 	}
 
-	void GarbageCollector::TrackCollectable(GCCollectable* collectable)
+	void GarbageCollector::AddObject(GCObject* object)
 	{
 		GraphModification graphMod;
-		graphMod.collectableA = collectable;
-		graphMod.collectableB = nullptr;
+		graphMod.objectA = object;
+		graphMod.objectB = nullptr;
 		graphMod.type = GraphModification::ADD_VERTEX;
 		this->graphModQueue->enqueue(graphMod);
 	}
 
-	void GarbageCollector::RelateCollectables(GCCollectable* collectableA, GCCollectable* collectableB, bool linked)
+	void GarbageCollector::RemoveObject(GCObject* object)
 	{
 		GraphModification graphMod;
-		graphMod.collectableA = collectableA;
-		graphMod.collectableB = collectableB;
-		graphMod.type = linked ? GraphModification::ADD_EDGE : GraphModification::DELETE_EDGE;
+		graphMod.objectA = object;
+		graphMod.objectB = nullptr;
+		graphMod.type = GraphModification::DEL_VERTEX;
 		this->graphModQueue->enqueue(graphMod);
 	}
 
-	void GarbageCollector::IncRef(GCCollectable* collectable, uint32_t count)
+	void GarbageCollector::RelateObjects(GCObject* objectA, GCObject* objectB, bool linked)
 	{
 		GraphModification graphMod;
-		graphMod.collectableA = collectable;
-		graphMod.count = count;
-		graphMod.type = GraphModification::INC_REF;
-		this->graphModQueue->enqueue(graphMod);
-	}
-
-	void GarbageCollector::DecRef(GCCollectable* collectable, uint32_t count)
-	{
-		GraphModification graphMod;
-		graphMod.collectableA = collectable;
-		graphMod.count = count;
-		graphMod.type = GraphModification::DEC_REF;
+		graphMod.objectA = objectA;
+		graphMod.objectB = objectB;
+		graphMod.type = linked ? GraphModification::ADD_EDGE : GraphModification::DEL_EDGE;
 		this->graphModQueue->enqueue(graphMod);
 	}
 
@@ -89,9 +80,9 @@ namespace Powder
 		// TODO: Block on semaphore here.  Semaphore is released by the GC thread when it knows it's caught up.
 	}
 
-	uint32_t GarbageCollector::TrackingCount(void)
+	uint32_t GarbageCollector::ObjectCount(void)
 	{
-		return this->collectableList.GetCount();
+		return this->objectList.GetCount();
 	}
 
 	/*static*/ DWORD __stdcall GarbageCollector::ThreadEntryPoint(LPVOID param)
@@ -106,34 +97,34 @@ namespace Powder
 		{
 			this->UpdateGraph();
 
-			if (this->collectableList.GetCount() > 0)
+			if (this->objectList.GetCount() > 0)
 			{
-				GCCollectable* rootCollectable = this->collectableList.GetHead()->value;
-				LinkedList<GCCollectable*> spanningTreeList;
+				GCObject* rootObject = this->objectList.GetHead()->value;
+				LinkedList<GCObject*> spanningTreeList;
 				
-				// In addition to finding the spanning tree containing the given collectable,
-				// this will also remove the spanning tree members from our list of collectables.
-				this->FindSpanningTree(rootCollectable, spanningTreeList);
+				// In addition to finding the spanning tree containing the given object,
+				// this will also remove the spanning tree members from our list of objects.
+				this->FindSpanningTree(rootObject, spanningTreeList);
 
-				// Are the collectables ready to be garbage collected?
+				// Are the objects ready to be garbage collected?
 				if (this->CanCollectAll(spanningTreeList))
 				{
 					// Yes!  Throw them on the garbage collection queue to be deleted on the main thread.
-					for (LinkedList<GCCollectable*>::Node* node = spanningTreeList.GetHead(); node; node = node->GetNext())
+					for (LinkedList<GCObject*>::Node* node = spanningTreeList.GetHead(); node; node = node->GetNext())
 					{
-						GCCollectable* collectable = node->value;
-						this->garbageQueue->enqueue(collectable);
+						GCObject* object = node->value;
+						this->garbageQueue->enqueue(object);	// This is lock-free.
 					}
 				}
 				else
 				{
-					// No!  Add them back to our list.  Note, however, that we add the collectables to the end of
+					// No!  Add them back to our list.  Note, however, that we add the objects to the end of
 					// our list so that we're less likely to reconsider them any time soon.
-					for (LinkedList<GCCollectable*>::Node* node = spanningTreeList.GetHead(); node; node = node->GetNext())
+					for (LinkedList<GCObject*>::Node* node = spanningTreeList.GetHead(); node; node = node->GetNext())
 					{
-						GCCollectable* collectable = node->value;
-						this->collectableList.AddTail(collectable);
-						collectable->node = this->collectableList.GetTail();
+						GCObject* object = node->value;
+						this->objectList.AddTail(object);
+						object->node = this->objectList.GetTail();
 					}
 				}
 			}
@@ -142,52 +133,50 @@ namespace Powder
 		this->UpdateGraph();
 
 		// If we're going down, then it should be safe to unconditionally dump everything onto the garbage collection queue.
-		while (this->collectableList.GetCount() > 0)
+		while (this->objectList.GetCount() > 0)
 		{
-			LinkedList<GCCollectable*>::Node* node = this->collectableList.GetHead();
-			GCCollectable* collectable = node->value;
-			if (collectable->refCount > 0)
-				::fprintf(stderr, "Detected ref-count leak of collectable 0x%08x.\n", uint32_t(collectable));
-			this->collectableList.Remove(node);
-			this->garbageQueue->enqueue(collectable);
+			LinkedList<GCObject*>::Node* node = this->objectList.GetHead();
+			GCObject* object = node->value;
+			this->objectList.Remove(node);
+			this->garbageQueue->enqueue(object);
 		}
 	}
 
-	void GarbageCollector::FindSpanningTree(GCCollectable* rootCollectable, LinkedList<GCCollectable*>& spanningTreeList)
+	void GarbageCollector::FindSpanningTree(GCObject* rootObject, LinkedList<GCObject*>& spanningTreeList)
 	{
 		this->spanningTreeKey++;
 
-		LinkedList<GCCollectable*> collectableQueue;
-		collectableQueue.AddTail(rootCollectable);
-		rootCollectable->spanningTreeKey = this->spanningTreeKey;
+		LinkedList<GCObject*> objectQueue;
+		objectQueue.AddTail(rootObject);
+		rootObject->spanningTreeKey = this->spanningTreeKey;
 
-		while (collectableQueue.GetCount() > 0)
+		while (objectQueue.GetCount() > 0)
 		{
-			LinkedList<GCCollectable*>::Node* node = collectableQueue.GetHead();
-			GCCollectable* collectable = node->value;
-			collectableQueue.Remove(node);
+			LinkedList<GCObject*>::Node* node = objectQueue.GetHead();
+			GCObject* object = node->value;
+			objectQueue.Remove(node);
 
-			spanningTreeList.AddTail(collectable);
-			this->collectableList.Remove(collectable->node);
-			collectable->node = nullptr;
+			spanningTreeList.AddTail(object);
+			this->objectList.Remove(object->node);
+			object->node = nullptr;
 
-			for (GCCollectable* adjacentCollectable : *collectable->adjacencySet)
+			for (GCObject* adjacentObject : *object->adjacencySet)
 			{
-				if (adjacentCollectable->spanningTreeKey != this->spanningTreeKey)
+				if (adjacentObject->spanningTreeKey != this->spanningTreeKey)
 				{
-					collectableQueue.AddTail(adjacentCollectable);
-					adjacentCollectable->spanningTreeKey = this->spanningTreeKey;
+					objectQueue.AddTail(adjacentObject);
+					adjacentObject->spanningTreeKey = this->spanningTreeKey;
 				}
 			}
 		}
 	}
 
-	bool GarbageCollector::CanCollectAll(LinkedList<GCCollectable*>& collectableList)
+	bool GarbageCollector::CanCollectAll(LinkedList<GCObject*>& objectList)
 	{
-		for (LinkedList<GCCollectable*>::Node* node = collectableList.GetHead(); node; node = node->GetNext())
+		for (LinkedList<GCObject*>::Node* node = objectList.GetHead(); node; node = node->GetNext())
 		{
-			GCCollectable* collectable = node->value;
-			if (collectable->refCount > 0)
+			GCObject* object = node->value;
+			if (!object->CanBeCollected())
 				return false;
 		}
 
@@ -203,36 +192,31 @@ namespace Powder
 			{
 				case GraphModification::ADD_VERTEX:
 				{
-					this->collectableList.AddHead(graphMod.collectableA);
-					graphMod.collectableA->node = this->collectableList.GetHead();
+					this->objectList.AddHead(graphMod.objectA);
+					graphMod.objectA->node = this->objectList.GetHead();
 					break;
 				}
 				case GraphModification::ADD_EDGE:
 				{
-					graphMod.collectableA->adjacencySet->insert(graphMod.collectableB);
-					graphMod.collectableB->adjacencySet->insert(graphMod.collectableA);
+					graphMod.objectA->adjacencySet->insert(graphMod.objectB);
+					graphMod.objectB->adjacencySet->insert(graphMod.objectA);
+					graphMod.objectA->PossiblyArmForDelete(graphMod.objectB);
+					graphMod.objectB->PossiblyArmForDelete(graphMod.objectA);
 					break;
 				}
-				case GraphModification::DELETE_EDGE:
+				case GraphModification::DEL_EDGE:
 				{
-					graphMod.collectableA->adjacencySet->erase(graphMod.collectableB);
-					graphMod.collectableB->adjacencySet->erase(graphMod.collectableA);
+					graphMod.objectA->adjacencySet->erase(graphMod.objectB);
+					graphMod.objectB->adjacencySet->erase(graphMod.objectA);
 					break;
 				}
-				case GraphModification::INC_REF:
+				case GraphModification::DEL_VERTEX:
 				{
-					graphMod.collectableA->refCount += graphMod.count;
-					break;
-				}
-				case GraphModification::DEC_REF:
-				{
-					if (graphMod.collectableA->refCount >= graphMod.count)
-						graphMod.collectableA->refCount -= graphMod.count;
-					else
-					{
-						::fprintf(stderr, "Ref-count underflow: 0x%08x\n", uint32_t(graphMod.collectableA));
-					}
-
+					this->objectList.RemoveNode(graphMod.objectA->node);
+					for (GCObject* adjacentObject : *graphMod.objectA->adjacencySet)
+						adjacentObject->adjacencySet->erase(graphMod.objectA);
+					graphMod.objectA->adjacencySet->clear();
+					this->garbageQueue->enqueue(graphMod.objectA);
 					break;
 				}
 			}
@@ -241,8 +225,8 @@ namespace Powder
 
 	void GarbageCollector::FreeObjects(void)
 	{
-		GCCollectable* collectable = nullptr;
-		while (this->garbageQueue->try_dequeue(collectable))
-			delete collectable;
+		GCObject* object = nullptr;
+		while (this->garbageQueue->try_dequeue(object))
+			delete object;
 	}
 }

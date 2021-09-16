@@ -5,37 +5,26 @@ namespace Powder
 {
 	GCCollectable::GCCollectable()
 	{
-		this->refCount = 1;
-		this->spanningTreeKey = 0;
-		this->node = nullptr;
-		this->adjacencySet = new std::set<GCCollectable*>();
-
-		// This should be a lock-free operation.
-		GarbageCollector::GC()->TrackCollectable(this);
+		this->armedForDelete = false;
 	}
 
 	/*virtual*/ GCCollectable::~GCCollectable()
 	{
-		delete this->adjacencySet;
 	}
 
-	void GCCollectable::ConnectTo(GCCollectable* collectable)
+	/*virtual*/ bool GCCollectable::CanBeCollected() const
 	{
-		GarbageCollector::GC()->RelateCollectables(this, collectable, true);
+		return this->armedForDelete;
 	}
 
-	void GCCollectable::DisconnectFrom(GCCollectable* collectable)
+	/*virtual*/ bool GCCollectable::IsAnchor() const
 	{
-		GarbageCollector::GC()->RelateCollectables(this, collectable, false);
+		return false;
 	}
 
-	void GCCollectable::IncRef(uint32_t count /*= 1*/)
+	/*virtual*/ void GCCollectable::PossiblyArmForDelete(GCObject* adjacentObject)
 	{
-		GarbageCollector::GC()->IncRef(this, count);
-	}
-
-	void GCCollectable::DecRef(uint32_t count /*= 1*/)
-	{
-		GarbageCollector::GC()->DecRef(this, count);
+		if (adjacentObject->CanBeCollected() || adjacentObject->IsAnchor())
+			this->armedForDelete = true;
 	}
 }

@@ -33,39 +33,36 @@ namespace Powder
 			case Action::REMOVE:
 			{
 				// Notice we pop the field value, but leave the map value.
-				Value* fieldValue = executor->PopValueFromEvaluationStackTop(true);
+				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
 				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only remove elements from a map value.");
-				mapValue->DelField(fieldValue, false);
+				mapValue->DelField(fieldValue);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(mapValue);
-				fieldValue->DecRef();
 				break;
 			}
 			case Action::INSERT:
 			{
 				// Notice we pop the field and data values, but leave the map value.
-				Value* dataValue = executor->PopValueFromEvaluationStackTop(true);
-				Value* fieldValue = executor->PopValueFromEvaluationStackTop(true);
+				Value* dataValue = executor->PopValueFromEvaluationStackTop();
+				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
 				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only insert elements into a map value.");
-				mapValue->SetField(fieldValue, dataValue, true);
+				mapValue->SetField(fieldValue, dataValue);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(mapValue);
-				fieldValue->DecRef();
 				break;
 			}
 			case Action::MAKE_KEY_LIST:
 			{
 				// In this case, the map value is replaced with the list value.
-				MapValue* mapValue = dynamic_cast<MapValue*>(executor->PopValueFromEvaluationStackTop(true));
+				MapValue* mapValue = dynamic_cast<MapValue*>(executor->PopValueFromEvaluationStackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only generate key lists for map values.");
 				ListValue* listValue = mapValue->GenerateKeyListValue();
-				executor->PushValueOntoEvaluationStackTop(listValue, true);
-				mapValue->DecRef();
+				executor->PushValueOntoEvaluationStackTop(listValue);
 				break;
 			}
 			default:
