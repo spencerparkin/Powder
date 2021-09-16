@@ -1,0 +1,7 @@
+# RefTest.pow
+
+list = [1, 2, 3];
+for(item in list)
+{
+    output("item = " + as_str(item) + "\n");
+}

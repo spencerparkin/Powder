@@ -217,6 +217,7 @@ namespace Powder
 			else
 			{
 				nextValue = this->listNode->value;
+				nextValue->IncRef();
 				this->listNode = this->listNode->GetNext();
 			}
 			return nextValue;

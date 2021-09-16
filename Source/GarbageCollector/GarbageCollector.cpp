@@ -226,9 +226,7 @@ namespace Powder
 				}
 				case GraphModification::DEC_REF:
 				{
-					//assert(graphMod.collectableA->refCount > 0);
-
-					if (graphMod.collectableA->refCount > 0)
+					if (graphMod.collectableA->refCount >= graphMod.count)
 						graphMod.collectableA->refCount -= graphMod.count;
 					else
 					{

@@ -57,8 +57,11 @@
     [ "statement" ]
   ],
   "block": [
-    [ "{", "}" ],
+    [ "empty-block" ],
     [ "{", "statement-list", "}" ]
+  ],
+  "empty-block": [
+    [ "{", "}" ]
   ],
   "expression": [
     [ "literal" ],
