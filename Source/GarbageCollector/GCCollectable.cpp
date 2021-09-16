@@ -22,9 +22,8 @@ namespace Powder
 		return false;
 	}
 
-	/*virtual*/ void GCCollectable::PossiblyArmForDelete(GCObject* adjacentObject)
+	/*virtual*/ void GCCollectable::ArmForDelete()
 	{
-		if (adjacentObject->CanBeCollected() || adjacentObject->IsAnchor())
-			this->armedForDelete = true;
+		this->armedForDelete = true;
 	}
 }

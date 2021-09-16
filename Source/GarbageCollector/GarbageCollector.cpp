@@ -78,6 +78,7 @@ namespace Powder
 	void GarbageCollector::StallUntilCaughtUp(void)
 	{
 		// TODO: Block on semaphore here.  Semaphore is released by the GC thread when it knows it's caught up.
+		//       Note that until this is implemented, the IOTest.pow script will crash.
 	}
 
 	uint32_t GarbageCollector::ObjectCount(void)
@@ -105,6 +106,9 @@ namespace Powder
 				// In addition to finding the spanning tree containing the given object,
 				// this will also remove the spanning tree members from our list of objects.
 				this->FindSpanningTree(rootObject, spanningTreeList);
+
+				// Invoke the arming rules.
+				this->ArmObjectsForDeleteIfNeeded(spanningTreeList);		// TODO: Why isn't this working?  The GCTest.pow script shows our object list growing bigger and bigger.  :(
 
 				// Are the objects ready to be garbage collected?
 				if (this->CanCollectAll(spanningTreeList))
@@ -171,6 +175,29 @@ namespace Powder
 		}
 	}
 
+	void GarbageCollector::ArmObjectsForDeleteIfNeeded(LinkedList<GCObject*>& objectList)
+	{
+		bool anyAnchorFound = false;
+		for (LinkedList<GCObject*>::Node* node = objectList.GetHead(); node; node = node->GetNext())
+		{
+			GCObject* object = node->value;
+			if (object->IsAnchor())
+			{
+				anyAnchorFound = true;
+				break;
+			}
+		}
+
+		if (anyAnchorFound)
+		{
+			for (LinkedList<GCObject*>::Node* node = objectList.GetHead(); node; node = node->GetNext())
+			{
+				GCObject* object = node->value;
+				object->ArmForDelete();
+			}
+		}
+	}
+
 	bool GarbageCollector::CanCollectAll(LinkedList<GCObject*>& objectList)
 	{
 		for (LinkedList<GCObject*>::Node* node = objectList.GetHead(); node; node = node->GetNext())
@@ -200,8 +227,6 @@ namespace Powder
 				{
 					graphMod.objectA->adjacencySet->insert(graphMod.objectB);
 					graphMod.objectB->adjacencySet->insert(graphMod.objectA);
-					graphMod.objectA->PossiblyArmForDelete(graphMod.objectB);
-					graphMod.objectB->PossiblyArmForDelete(graphMod.objectA);
 					break;
 				}
 				case GraphModification::DEL_EDGE:

@@ -175,7 +175,7 @@ namespace Powder
 		// We must first purge the GC system of any objects that may
 		// have virtual functions in a module we're about to unload!
 		this->globalScope.Clear();
-		// TODO: Stall here until GC system catches up by removing all reclaimable memory!
+		GarbageCollector::GC()->StallUntilCaughtUp();
 
 		this->moduleMap.ForAllEntries([](const char* key, void* modulePtr) -> bool {
 			HMODULE moduleHandle = (HMODULE)modulePtr;

@@ -15,7 +15,7 @@ namespace Powder
 
 		virtual bool CanBeCollected() const override;
 		virtual bool IsAnchor() const override;
-		virtual void PossiblyArmForDelete(GCObject* adjacentObject) override;
+		virtual void ArmForDelete() override;
 
 	private:
 		bool armedForDelete;

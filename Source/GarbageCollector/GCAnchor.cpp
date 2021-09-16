@@ -20,7 +20,7 @@ namespace Powder
 		return true;
 	}
 
-	/*virtual*/ void GCAnchor::PossiblyArmForDelete(GCObject* adjacentObject)
+	/*virtual*/ void GCAnchor::ArmForDelete()
 	{
 		// We do nothing here.
 	}
