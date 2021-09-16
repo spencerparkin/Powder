@@ -51,10 +51,9 @@ namespace Powder
 				if (!listValue)
 					throw new RunTimeException("List instruction can only push elements to a list value.");
 				if (action == Action::PUSH_LEFT)
-					listValue->PushLeft(elementValue);
+					listValue->PushLeft(elementValue, true);
 				else
-					listValue->PushRight(elementValue);
-				elementValue->DecRef();
+					listValue->PushRight(elementValue, true);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(listValue);
 				break;

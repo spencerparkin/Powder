@@ -107,7 +107,7 @@ namespace Powder
 				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop(true));
 				if (!containerValue)
 					throw new RunTimeException("Set field math operation expected a container value on the evaluation stack.");
-				containerValue->SetField(fieldValue, result);
+				containerValue->SetField(fieldValue, result, true);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(containerValue);
 				fieldValue->DecRef();
@@ -120,7 +120,7 @@ namespace Powder
 				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop(true));
 				if (!containerValue)
 					throw new RunTimeException("Delete field math operation expected a container value on the evaluation stack.");
-				result = containerValue->DelField(fieldValue);
+				result = containerValue->DelField(fieldValue, true);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(containerValue);
 				fieldValue->DecRef();

@@ -47,7 +47,7 @@ namespace Powder
 		return new BooleanValue(dataValue != nullptr);
 	}
 
-	void MapValue::SetField(const char* key, Value* dataValue)
+	void MapValue::SetField(const char* key, Value* dataValue, bool decRefAfterSet)
 	{
 		Value* existingDataValue = this->valueMap.Lookup(key);
 		if (existingDataValue)
@@ -60,6 +60,8 @@ namespace Powder
 		{
 			this->valueMap.Insert(key, dataValue);
 			this->ConnectTo(dataValue);
+			if (decRefAfterSet)
+				dataValue->DecRef();
 		}
 	}
 
@@ -69,10 +71,23 @@ namespace Powder
 		return dataValue;
 	}
 
-	/*virtual*/ void MapValue::SetField(Value* fieldValue, Value* dataValue)
+	Value* MapValue::DelField(const char* key, bool incRefBeforeDel)
+	{
+		Value* dataValue = this->valueMap.Lookup(key);
+		if (dataValue)
+		{
+			if (incRefBeforeDel)
+				dataValue->IncRef();
+			this->valueMap.Remove(key);
+			this->DisconnectFrom(dataValue);
+		}
+		return dataValue;
+	}
+
+	/*virtual*/ void MapValue::SetField(Value* fieldValue, Value* dataValue, bool decRefAfterSet)
 	{
 		std::string key = fieldValue->ToString();
-		this->SetField(key.c_str(), dataValue);
+		this->SetField(key.c_str(), dataValue, decRefAfterSet);
 	}
 
 	/*virtual*/ Value* MapValue::GetField(Value* fieldValue)
@@ -81,24 +96,17 @@ namespace Powder
 		return this->GetField(key.c_str());
 	}
 
-	/*virtual*/ Value* MapValue::DelField(Value* fieldValue)
+	/*virtual*/ Value* MapValue::DelField(Value* fieldValue, bool incRefBeforeDel)
 	{
 		std::string key = fieldValue->ToString();
-		Value* dataValue = this->valueMap.Lookup(key.c_str());
-		if (dataValue)
-		{
-			this->valueMap.Remove(key.c_str());
-			this->DisconnectFrom(dataValue);
-		}
-
-		return dataValue;
+		return this->DelField(key.c_str(), incRefBeforeDel);
 	}
 
 	ListValue* MapValue::GenerateKeyListValue()
 	{
 		ListValue* listValue = new ListValue();
 		this->valueMap.ForAllEntries([=](const char* key, Value* value) -> bool {
-			listValue->PushRight(new StringValue(key));
+			listValue->PushRight(new StringValue(key), true);
 			return true;
 		});
 		return listValue;

@@ -37,7 +37,7 @@ namespace Powder
 				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only remove elements from a map value.");
-				mapValue->DelField(fieldValue);
+				mapValue->DelField(fieldValue, false);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(mapValue);
 				fieldValue->DecRef();
@@ -51,10 +51,9 @@ namespace Powder
 				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only insert elements into a map value.");
-				mapValue->SetField(fieldValue, dataValue);
+				mapValue->SetField(fieldValue, dataValue, true);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(mapValue);
-				dataValue->DecRef();
 				fieldValue->DecRef();
 				break;
 			}

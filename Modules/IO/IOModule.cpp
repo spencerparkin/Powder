@@ -9,10 +9,10 @@ __declspec(dllexport) Powder::MapValue* GenerateFunctionMap()
 {
 	Powder::MapValue* mapValue = new Powder::MapValue();
 
-	mapValue->SetField("open", new OpenFileFunctionValue());
-	mapValue->SetField("close", new CloseFileFunctionValue());
-	mapValue->SetField("read_line", new ReadLineFunctionValue());
-	mapValue->SetField("write_line", new WriteLineFunctionValue());
+	mapValue->SetField("open", new OpenFileFunctionValue(), true);
+	mapValue->SetField("close", new CloseFileFunctionValue(), true);
+	mapValue->SetField("read_line", new ReadLineFunctionValue(), true);
+	mapValue->SetField("write_line", new WriteLineFunctionValue(), true);
 
 	return mapValue;
 }

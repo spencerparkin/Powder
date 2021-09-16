@@ -18,16 +18,17 @@ namespace Powder
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 		virtual std::string ToString() const override;
-		virtual void SetField(Value* fieldValue, Value* dataValue) override;
+		virtual void SetField(Value* fieldValue, Value* dataValue, bool decRefAfterSet) override;
 		virtual Value* GetField(Value* fieldValue) override;
-		virtual Value* DelField(Value* fieldValue) override;
+		virtual Value* DelField(Value* fieldValue, bool incRefBeforeDel) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 
 		ListValue* GenerateKeyListValue();
 
-		void SetField(const char* key, Value* dataValue);
+		void SetField(const char* key, Value* dataValue, bool decRefAfterSet);
 		Value* GetField(const char* key);
+		Value* DelField(const char* key, bool incRefBeforeDel);
 
 		HashMap<Value*>& GetValueMap() { return this->valueMap; }
 		const HashMap<Value*>& GetValueMap() const { return this->valueMap; }
