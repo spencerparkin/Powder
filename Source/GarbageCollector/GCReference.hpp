@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Defines.h"
+#include "GCAnchor.h"
+#include "GarbageCollector.h"
 
 namespace Powder
 {
@@ -14,56 +16,58 @@ namespace Powder
 		GCReference()
 		{
 			this->pointer = nullptr;
+			this->anchor = new GCAnchor();
 		}
 
 		GCReference(T* pointer)
 		{
 			this->pointer = pointer;
+			this->anchor = new GCAnchor();
 
 			if (this->pointer)
-				this->pointer->IncRef();
+				this->pointer->ConnectTo(this->anchor);
 		}
 
 		GCReference(const GCReference<T>& reference)
 		{
 			this->pointer = reference.pointer;
+			this->anchor = new GCAnchor();
 
 			if (this->pointer)
-				this->pointer->IncRef();
+				this->pointer->ConnectTo(this->anchor);
 		}
 
 		virtual ~GCReference()
 		{
-			if (this->pointer)
-				this->pointer->DecRef();
+			GarbageCollector::GC()->RemoveObject(this->anchor);
 		}
 
 		void operator=(const GCReference& reference)
 		{
 			if (this->pointer)
-				this->pointer->DecRef();
+				this->pointer->DisconnectFrom(this->anchor);
 
 			this->pointer = reference.pointer;
 
 			if (this->pointer)
-				this->pointer->IncRef();
+				this->pointer->ConnectTo(this->anchor);
 		}
 
 		void operator=(T* pointer)
 		{
 			if (this->pointer)
-				this->pointer->DecRef();
+				this->pointer->DisconnectFrom(this->anchor);
 
 			this->pointer = pointer;
 
 			if (this->pointer)
-				this->pointer->IncRef();
+				this->pointer->ConnectTo(this->anchor);
 		}
 
 		void Clear(void)
 		{
 			if (this->pointer)
-				this->pointer->DecRef();
+				this->pointer->DisconnectFrom(this->anchor);
 
 			this->pointer = nullptr;
 		}
@@ -101,5 +105,6 @@ namespace Powder
 	private:
 
 		T* pointer;
+		GCAnchor* anchor;
 	};
 }

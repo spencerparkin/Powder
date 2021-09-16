@@ -27,7 +27,6 @@ namespace Powder
 		Scope* newScope = new Scope();
 		newScope->SetContainingScope(this->currentScope);
 		this->currentScope = newScope;
-		newScope->DecRef();
 		return true;
 	}
 
@@ -78,35 +77,30 @@ namespace Powder
 		Value* value = this->currentScope->LookupValue(identifier, true);
 		if (!value)
 			throw new RunTimeException(FormatString("Failed to lookup identifier: %s", identifier));
-		this->PushValueOntoEvaluationStackTop(value, false);
+		this->PushValueOntoEvaluationStackTop(value);
 		if (debuggerTrap)
 			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueLoaded(identifier, value);
 	}
 
 	void Executor::StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap)
 	{
-		Value* value = this->PopValueFromEvaluationStackTop(true);
+		Value* value = this->PopValueFromEvaluationStackTop();
 		this->currentScope->StoreValue(identifier, value);
 		if (debuggerTrap)
 			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueStored(identifier, value);
-		value->DecRef();
 	}
 
-	void Executor::PushValueOntoEvaluationStackTop(Value* value, bool decRefAfterPush)
+	void Executor::PushValueOntoEvaluationStackTop(Value* value)
 	{
 		this->evaluationStack->push_back(value);
-		if (decRefAfterPush)
-			value->DecRef();
 	}
 
-	Value* Executor::PopValueFromEvaluationStackTop(bool incRefBeforePop)
+	Value* Executor::PopValueFromEvaluationStackTop()
 	{
 		Value* value = nullptr;
 		if (this->evaluationStack->size() == 0)
 			throw new RunTimeException("Evaluation stack underflow!");
 		value = (*this->evaluationStack)[this->evaluationStack->size() - 1];
-		if (incRefBeforePop)
-			value->IncRef();
 		this->evaluationStack->pop_back();
 		return value;
 	}

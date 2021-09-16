@@ -37,7 +37,7 @@ namespace Powder
 				if (!listValue)
 					throw new RunTimeException("List instruction can only pop elements from a list value.");
 				Value* elementValue = (action == Action::POP_LEFT) ? listValue->PopLeft() : listValue->PopRight();
-				executor->PushValueOntoEvaluationStackTop(elementValue, true);
+				executor->PushValueOntoEvaluationStackTop(elementValue);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(listValue);
 				break;
@@ -46,14 +46,14 @@ namespace Powder
 			case Action::PUSH_RIGHT:
 			{
 				// Notice that we pop the pushed value, but leave the list value.
-				Value* elementValue = executor->PopValueFromEvaluationStackTop(true);
+				Value* elementValue = executor->PopValueFromEvaluationStackTop();
 				ListValue* listValue = dynamic_cast<ListValue*>(executor->StackTop());
 				if (!listValue)
 					throw new RunTimeException("List instruction can only push elements to a list value.");
 				if (action == Action::PUSH_LEFT)
-					listValue->PushLeft(elementValue, true);
+					listValue->PushLeft(elementValue);
 				else
-					listValue->PushRight(elementValue, true);
+					listValue->PushRight(elementValue);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(listValue);
 				break;

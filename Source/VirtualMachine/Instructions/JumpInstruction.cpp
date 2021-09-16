@@ -39,7 +39,7 @@ namespace Powder
 			}
 			case Type::JUMP_TO_LOADED_ADDRESS:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop(true);
+				Value* value = executor->PopValueFromEvaluationStackTop();
 
 				AddressValue* addressValue = dynamic_cast<AddressValue*>(value);
 				if (addressValue)
@@ -54,14 +54,13 @@ namespace Powder
 						executor->ReplaceCurrentScope(closureValue->scope);
 					}
 
-					value->DecRef();
 					break;
 				}
 				
 				CppFunctionValue* cppFunctionValue = dynamic_cast<CppFunctionValue*>(value);
 				if (cppFunctionValue)
 				{
-					ListValue* argListValue = dynamic_cast<ListValue*>(executor->PopValueFromEvaluationStackTop(true));
+					ListValue* argListValue = dynamic_cast<ListValue*>(executor->PopValueFromEvaluationStackTop());
 					if (!argListValue)
 						throw new RunTimeException("Did not get argument list value from evaluation stack top for module function call.");
 
@@ -73,10 +72,8 @@ namespace Powder
 					if (!resultValue)
 						resultValue = new UndefinedValue();
 
-					executor->PushValueOntoEvaluationStackTop(resultValue, true);
+					executor->PushValueOntoEvaluationStackTop(resultValue);
 					programBufferLocation += 2;
-					argListValue->DecRef();
-					value->DecRef();
 					break;
 				}
 				

@@ -105,7 +105,7 @@ namespace Powder
 			case SysCall::GC:
 			{
 				GarbageCollector::GC()->StallUntilCaughtUp();
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), true);
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				break;
 			}
 			case SysCall::INPUT:
@@ -127,54 +127,50 @@ namespace Powder
 					}
 				}
 
-				executor->PushValueOntoEvaluationStackTop(value, true);
+				executor->PushValueOntoEvaluationStackTop(value);
 				break;
 			}
 			case SysCall::OUTPUT:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop(true);
+				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string str = value->ToString();
 				virtualMachine->GetIODevice()->OutputString(str);
-				executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()), true);
-				value->DecRef();
+				executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()));
 				break;
 			}
 			case SysCall::MODULE:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop(true);
+				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string moduleRelativePath = value->ToString();
 				std::string moduleAbsolutePath = pathResolver.ResolvePath(moduleRelativePath, PathResolver::SEARCH_BASE | PathResolver::SEARCH_CWD);
 				MapValue* functionMapValue = virtualMachine->LoadModuleFunctionMap(moduleAbsolutePath);
 				if (!functionMapValue)
 					throw new RunTimeException(FormatString("Module (%s) did not generate function map value.", moduleAbsolutePath.c_str()));
-				executor->PushValueOntoEvaluationStackTop(functionMapValue, true);
-				value->DecRef();
+				executor->PushValueOntoEvaluationStackTop(functionMapValue);
 				break;
 			}
 			case SysCall::RUN_SCRIPT:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop(true);
+				Value* value = executor->PopValueFromEvaluationStackTop();
 				std::string scriptRelativePath = value->ToString();
 				std::string scriptAbsolutePath = pathResolver.ResolvePath(scriptRelativePath, PathResolver::SEARCH_CWD);
 				virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), true);
-				value->DecRef();
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				break;
 			}
 			case SysCall::SLEEP:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop(true);
+				Value* value = executor->PopValueFromEvaluationStackTop();
 				double sleepSeconds = value->AsNumber();
-				value->DecRef();
 				if (sleepSeconds > 0.0)
 					::Sleep(DWORD(sleepSeconds * 1000.0f));
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), true);
+				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
 				break;
 			}
 			case SysCall::GC_COUNT:
 			{
-				uint32_t count = GarbageCollector::GC()->TrackingCount();
-				executor->PushValueOntoEvaluationStackTop(new NumberValue(count), true);
+				uint32_t count = GarbageCollector::GC()->ObjectCount();
+				executor->PushValueOntoEvaluationStackTop(new NumberValue(count));
 				break;
 			}
 			case SysCall::AS_ITERATOR:
@@ -186,8 +182,8 @@ namespace Powder
 					CppFunctionValue* iteratorValue = containerValue->MakeIterator();
 					if (iteratorValue)
 					{
-						executor->PopValueFromEvaluationStackTop(false);
-						executor->PushValueOntoEvaluationStackTop(iteratorValue, true);
+						executor->PopValueFromEvaluationStackTop();
+						executor->PushValueOntoEvaluationStackTop(iteratorValue);
 					}
 				}
 
@@ -199,18 +195,16 @@ namespace Powder
 			}
 			case SysCall::AS_STRING:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop(true);
+				Value* value = executor->PopValueFromEvaluationStackTop();
 				StringValue* stringValue = new StringValue(value->ToString());
-				executor->PushValueOntoEvaluationStackTop(stringValue, true);
-				value->DecRef();
+				executor->PushValueOntoEvaluationStackTop(stringValue);
 				break;
 			}
 			case SysCall::AS_NUMBER:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop(true);
+				Value* value = executor->PopValueFromEvaluationStackTop();
 				NumberValue* numberValue = new NumberValue(value->AsNumber());
-				executor->PushValueOntoEvaluationStackTop(numberValue, true);
-				value->DecRef();
+				executor->PushValueOntoEvaluationStackTop(numberValue);
 				break;
 			}
 			default:

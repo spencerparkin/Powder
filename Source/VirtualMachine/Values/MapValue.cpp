@@ -47,7 +47,7 @@ namespace Powder
 		return new BooleanValue(dataValue != nullptr);
 	}
 
-	void MapValue::SetField(const char* key, Value* dataValue, bool decRefAfterSet)
+	void MapValue::SetField(const char* key, Value* dataValue)
 	{
 		Value* existingDataValue = this->valueMap.Lookup(key);
 		if (existingDataValue)
@@ -60,8 +60,6 @@ namespace Powder
 		{
 			this->valueMap.Insert(key, dataValue);
 			this->ConnectTo(dataValue);
-			if (decRefAfterSet)
-				dataValue->DecRef();
 		}
 	}
 
@@ -71,23 +69,21 @@ namespace Powder
 		return dataValue;
 	}
 
-	Value* MapValue::DelField(const char* key, bool incRefBeforeDel)
+	Value* MapValue::DelField(const char* key)
 	{
 		Value* dataValue = this->valueMap.Lookup(key);
 		if (dataValue)
 		{
-			if (incRefBeforeDel)
-				dataValue->IncRef();
 			this->valueMap.Remove(key);
 			this->DisconnectFrom(dataValue);
 		}
 		return dataValue;
 	}
 
-	/*virtual*/ void MapValue::SetField(Value* fieldValue, Value* dataValue, bool decRefAfterSet)
+	/*virtual*/ void MapValue::SetField(Value* fieldValue, Value* dataValue)
 	{
 		std::string key = fieldValue->ToString();
-		this->SetField(key.c_str(), dataValue, decRefAfterSet);
+		this->SetField(key.c_str(), dataValue);
 	}
 
 	/*virtual*/ Value* MapValue::GetField(Value* fieldValue)
@@ -96,17 +92,17 @@ namespace Powder
 		return this->GetField(key.c_str());
 	}
 
-	/*virtual*/ Value* MapValue::DelField(Value* fieldValue, bool incRefBeforeDel)
+	/*virtual*/ Value* MapValue::DelField(Value* fieldValue)
 	{
 		std::string key = fieldValue->ToString();
-		return this->DelField(key.c_str(), incRefBeforeDel);
+		return this->DelField(key.c_str());
 	}
 
 	ListValue* MapValue::GenerateKeyListValue()
 	{
 		ListValue* listValue = new ListValue();
 		this->valueMap.ForAllEntries([=](const char* key, Value* value) -> bool {
-			listValue->PushRight(new StringValue(key), true);
+			listValue->PushRight(new StringValue(key));
 			return true;
 		});
 		return listValue;

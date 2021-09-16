@@ -68,7 +68,7 @@ namespace Powder
 		return new BooleanValue(false);
 	}
 
-	/*virtual*/ void ListValue::SetField(Value* fieldValue, Value* dataValue, bool decRefAfterSet)
+	/*virtual*/ void ListValue::SetField(Value* fieldValue, Value* dataValue)
 	{
 		NumberValue* numberValue = dynamic_cast<NumberValue*>(fieldValue);
 		if (!numberValue)
@@ -83,8 +83,6 @@ namespace Powder
 		this->DisconnectFrom(existingValue);
 		(*this->valueListIndex)[i]->value = dataValue;
 		this->ConnectTo(dataValue);
-		if (decRefAfterSet)
-			dataValue->DecRef();
 	}
 
 	/*virtual*/ Value* ListValue::GetField(Value* fieldValue)
@@ -102,7 +100,7 @@ namespace Powder
 		return dataValue;
 	}
 
-	/*virtual*/ Value* ListValue::DelField(Value* fieldValue, bool incRefBeforeDel)
+	/*virtual*/ Value* ListValue::DelField(Value* fieldValue)
 	{
 		NumberValue* numberValue = dynamic_cast<NumberValue*>(fieldValue);
 		if (!numberValue)
@@ -114,8 +112,6 @@ namespace Powder
 
 		this->RebuildIndexIfNeeded();
 		Value* dataValue = (*this->valueListIndex)[i]->value;
-		if (incRefBeforeDel)
-			dataValue->IncRef();
 		this->valueList.Remove((*this->valueListIndex)[i]);
 		this->DisconnectFrom(dataValue);
 		this->valueListIndexValid = false;
@@ -146,13 +142,11 @@ namespace Powder
 		}
 	}
 
-	void ListValue::PushLeft(Value* value, bool decRefAfterPush)
+	void ListValue::PushLeft(Value* value)
 	{
 		this->valueList.AddHead(value);
 		this->valueListIndexValid = false;
 		this->ConnectTo(value);
-		if (decRefAfterPush)
-			value->DecRef();
 	}
 
 	Value* ListValue::PopLeft()
@@ -162,19 +156,16 @@ namespace Powder
 		Value* value = this->valueList.GetHead()->value;
 		this->valueList.Remove(this->valueList.GetHead());
 		this->valueListIndexValid = false;
-		value->IncRef();
 		this->DisconnectFrom(value);
 		return value;
 	}
 
-	void ListValue::PushRight(Value* value, bool decRefAfterPush)
+	void ListValue::PushRight(Value* value)
 	{
 		this->valueList.AddTail(value);
 		if (this->valueListIndexValid)
 			this->valueListIndex->push_back(this->valueList.GetTail());
 		this->ConnectTo(value);
-		if (decRefAfterPush)
-			value->DecRef();
 	}
 
 	Value* ListValue::PopRight()
@@ -185,7 +176,6 @@ namespace Powder
 		this->valueList.Remove(this->valueList.GetTail());
 		if (this->valueListIndexValid)
 			this->valueListIndex->pop_back();
-		value->IncRef();
 		this->DisconnectFrom(value);
 		return value;
 	}
@@ -224,7 +214,6 @@ namespace Powder
 			else
 			{
 				nextValue = this->listNode->value;
-				nextValue->IncRef();
 				this->listNode = this->listNode->GetNext();
 			}
 			return nextValue;
