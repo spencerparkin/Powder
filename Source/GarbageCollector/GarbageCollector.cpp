@@ -206,6 +206,11 @@ namespace Powder
 					graphMod.objectA->adjacencySet->insert(graphMod.objectB);
 					graphMod.objectB->adjacencySet->insert(graphMod.objectA);
 
+					// TODO: This is potentially just terribly, terribly slow.  Imagine adding a new value
+					//       to a list as the list grows very large.  Every time the value is added, we have
+					//       to iterate the entire list.  There has to be a better way to let the "armed" flag
+					//       spread over all the object in the graph.  I'm thinking some sort of iterative growth.
+					//       Doing this with every connection made is just way too slow.
 					if (graphMod.objectA->CanBeArmedForDelete() || graphMod.objectB->CanBeArmedForDelete())
 					{
 						LinkedList<GCObject*> spanningTreeList;
