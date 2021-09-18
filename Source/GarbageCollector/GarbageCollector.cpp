@@ -105,10 +105,7 @@ namespace Powder
 				
 				// In addition to finding the spanning tree containing the given object,
 				// this will also remove the spanning tree members from our list of objects.
-				this->FindSpanningTree(rootObject, spanningTreeList);
-
-				// Invoke the arming rules.
-				this->ArmObjectsForDeleteIfNeeded(spanningTreeList);		// TODO: Why isn't this working?  The GCTest.pow script shows our object list growing bigger and bigger.  :(
+				this->FindSpanningTree(rootObject, spanningTreeList, true);
 
 				// Are the objects ready to be garbage collected?
 				if (this->CanCollectAll(spanningTreeList))
@@ -146,7 +143,7 @@ namespace Powder
 		}
 	}
 
-	void GarbageCollector::FindSpanningTree(GCObject* rootObject, LinkedList<GCObject*>& spanningTreeList)
+	void GarbageCollector::FindSpanningTree(GCObject* rootObject, LinkedList<GCObject*>& spanningTreeList, bool removeFromObjectList)
 	{
 		this->spanningTreeKey++;
 
@@ -161,8 +158,12 @@ namespace Powder
 			objectQueue.Remove(node);
 
 			spanningTreeList.AddTail(object);
-			this->objectList.Remove(object->node);
-			object->node = nullptr;
+
+			if (removeFromObjectList)
+			{
+				this->objectList.Remove(object->node);
+				object->node = nullptr;
+			}
 
 			for (GCObject* adjacentObject : *object->adjacencySet)
 			{
@@ -171,29 +172,6 @@ namespace Powder
 					objectQueue.AddTail(adjacentObject);
 					adjacentObject->spanningTreeKey = this->spanningTreeKey;
 				}
-			}
-		}
-	}
-
-	void GarbageCollector::ArmObjectsForDeleteIfNeeded(LinkedList<GCObject*>& objectList)
-	{
-		bool anyAnchorFound = false;
-		for (LinkedList<GCObject*>::Node* node = objectList.GetHead(); node; node = node->GetNext())
-		{
-			GCObject* object = node->value;
-			if (object->IsAnchor())
-			{
-				anyAnchorFound = true;
-				break;
-			}
-		}
-
-		if (anyAnchorFound)
-		{
-			for (LinkedList<GCObject*>::Node* node = objectList.GetHead(); node; node = node->GetNext())
-			{
-				GCObject* object = node->value;
-				object->ArmForDelete();
 			}
 		}
 	}
@@ -227,6 +205,18 @@ namespace Powder
 				{
 					graphMod.objectA->adjacencySet->insert(graphMod.objectB);
 					graphMod.objectB->adjacencySet->insert(graphMod.objectA);
+
+					if (graphMod.objectA->CanBeArmedForDelete() || graphMod.objectB->CanBeArmedForDelete())
+					{
+						LinkedList<GCObject*> spanningTreeList;
+						this->FindSpanningTree(graphMod.objectA, spanningTreeList, false);
+						for (LinkedList<GCObject*>::Node* node = spanningTreeList.GetHead(); node; node = node->GetNext())
+						{
+							GCObject* object = node->value;
+							object->ArmIfPossible();
+						}
+					}
+
 					break;
 				}
 				case GraphModification::DEL_EDGE:

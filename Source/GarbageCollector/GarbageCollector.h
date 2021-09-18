@@ -32,9 +32,8 @@ namespace Powder
 
 		void Run(void);
 		void UpdateGraph(void);
-		void FindSpanningTree(GCObject* rootObject, LinkedList<GCObject*>& spanningTreeList);
+		void FindSpanningTree(GCObject* rootObject, LinkedList<GCObject*>& spanningTreeList, bool removeFromObjectList);
 		bool CanCollectAll(LinkedList<GCObject*>& objectList);
-		void ArmObjectsForDeleteIfNeeded(LinkedList<GCObject*>& objectList);
 
 		HANDLE threadHandle;
 		bool threadExitSignaled;

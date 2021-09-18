@@ -22,7 +22,12 @@ namespace Powder
 		return false;
 	}
 
-	/*virtual*/ void GCCollectable::ArmForDelete()
+	/*virtual*/ bool GCCollectable::CanBeArmedForDelete() const
+	{
+		return !this->armedForDelete;
+	}
+
+	/*virtual*/ void GCCollectable::ArmIfPossible()
 	{
 		this->armedForDelete = true;
 	}

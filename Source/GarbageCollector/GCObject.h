@@ -17,7 +17,8 @@ namespace Powder
 
 		virtual bool CanBeCollected() const = 0;
 		virtual bool IsAnchor() const = 0;
-		virtual void ArmForDelete() = 0;
+		virtual bool CanBeArmedForDelete() const = 0;
+		virtual void ArmIfPossible() = 0;
 
 		void ConnectTo(GCObject* object);
 		void DisconnectFrom(GCObject* object);

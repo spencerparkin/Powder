@@ -12,6 +12,7 @@ namespace Powder
 
 		virtual bool CanBeCollected() const override;
 		virtual bool IsAnchor() const override;
-		virtual void ArmForDelete() override;
+		virtual bool CanBeArmedForDelete() const override;
+		virtual void ArmIfPossible() override;
 	};
 }

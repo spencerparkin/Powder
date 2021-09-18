@@ -20,8 +20,13 @@ namespace Powder
 		return true;
 	}
 
-	/*virtual*/ void GCAnchor::ArmForDelete()
+	/*virtual*/ bool GCAnchor::CanBeArmedForDelete() const
 	{
-		// We do nothing here.
+		return false;
+	}
+
+	/*virtual*/ void GCAnchor::ArmIfPossible()
+	{
+		// Do nothing.
 	}
 }
