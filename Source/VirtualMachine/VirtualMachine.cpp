@@ -176,6 +176,7 @@ namespace Powder
 		// have virtual functions in a module we're about to unload!
 		this->globalScope.Clear();
 		GarbageCollector::GC()->StallUntilCaughtUp();
+		GarbageCollector::GC()->FreeObjects();
 
 		this->moduleMap.ForAllEntries([](const char* key, void* modulePtr) -> bool {
 			HMODULE moduleHandle = (HMODULE)modulePtr;
