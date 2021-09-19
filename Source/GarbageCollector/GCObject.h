@@ -15,17 +15,24 @@ namespace Powder
 		GCObject();
 		virtual ~GCObject();
 
-		virtual bool CanBeCollected() const = 0;
-		virtual bool IsAnchor() const = 0;
-		virtual bool CanBeArmedForDelete() const = 0;
-		virtual void ArmIfPossible() = 0;
+		enum Type
+		{
+			ANCHOR,
+			COLLECTABLE
+		};
+
+		virtual Type ReturnType() const = 0;
 
 		void ConnectTo(GCObject* object);
 		void DisconnectFrom(GCObject* object);
 
-	private:
+	protected:
 		uint32_t spanningTreeKey;
 		std::set<GCObject*>* adjacencySet;
 		LinkedList<GCObject*>::Node* node;
+
+		// We maintain the property that if any node is (un)marked, then all
+		// nodes connected to it, directly or indirectly, are also (un)marked.
+		bool marked;
 	};
 }

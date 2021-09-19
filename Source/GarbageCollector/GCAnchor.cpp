@@ -4,29 +4,15 @@ namespace Powder
 {
 	GCAnchor::GCAnchor()
 	{
+		this->marked = true;
 	}
 
 	/*virtual*/ GCAnchor::~GCAnchor()
 	{
 	}
 
-	/*virtual*/ bool GCAnchor::CanBeCollected() const
+	/*virtual*/ GCObject::Type GCAnchor::ReturnType() const
 	{
-		return false;
-	}
-
-	/*virtual*/ bool GCAnchor::IsAnchor() const
-	{
-		return true;
-	}
-
-	/*virtual*/ bool GCAnchor::CanBeArmedForDelete() const
-	{
-		return false;
-	}
-
-	/*virtual*/ void GCAnchor::ArmIfPossible()
-	{
-		// Do nothing.
+		return ANCHOR;
 	}
 }

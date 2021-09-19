@@ -10,9 +10,6 @@ namespace Powder
 		GCAnchor();
 		virtual ~GCAnchor();
 
-		virtual bool CanBeCollected() const override;
-		virtual bool IsAnchor() const override;
-		virtual bool CanBeArmedForDelete() const override;
-		virtual void ArmIfPossible() override;
+		virtual Type ReturnType() const override;
 	};
 }

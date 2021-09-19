@@ -8,6 +8,7 @@ namespace Powder
 		this->spanningTreeKey = 0;
 		this->node = nullptr;
 		this->adjacencySet = new std::set<GCObject*>();
+		this->marked = false;
 
 		// This should be a lock-free operation.
 		GarbageCollector::GC()->AddObject(this);

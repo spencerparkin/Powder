@@ -181,7 +181,7 @@ namespace Powder
 		for (LinkedList<GCObject*>::Node* node = objectList.GetHead(); node; node = node->GetNext())
 		{
 			GCObject* object = node->value;
-			if (!object->CanBeCollected())
+			if (object->ReturnType() == GCObject::ANCHOR || !object->marked)
 				return false;
 		}
 
@@ -203,25 +203,21 @@ namespace Powder
 				}
 				case GraphModification::ADD_EDGE:
 				{
-					graphMod.objectA->adjacencySet->insert(graphMod.objectB);
-					graphMod.objectB->adjacencySet->insert(graphMod.objectA);
+					LinkedList<GCObject*> spanningTreeList;
 
-					// TODO: This is potentially just terribly, terribly slow.  Imagine adding a new value
-					//       to a list as the list grows very large.  Every time the value is added, we have
-					//       to iterate the entire list.  There has to be a better way to let the "armed" flag
-					//       spread over all the object in the graph.  I'm thinking some sort of iterative growth.
-					//       Doing this with every connection made is just way too slow.
-					if (graphMod.objectA->CanBeArmedForDelete() || graphMod.objectB->CanBeArmedForDelete())
-					{
-						LinkedList<GCObject*> spanningTreeList;
+					if (!graphMod.objectA->marked && graphMod.objectB->marked)
 						this->FindSpanningTree(graphMod.objectA, spanningTreeList, false);
-						for (LinkedList<GCObject*>::Node* node = spanningTreeList.GetHead(); node; node = node->GetNext())
-						{
-							GCObject* object = node->value;
-							object->ArmIfPossible();
-						}
+					else if (graphMod.objectA->marked && !graphMod.objectB->marked)
+						this->FindSpanningTree(graphMod.objectB, spanningTreeList, false);
+
+					for (LinkedList<GCObject*>::Node* node = spanningTreeList.GetHead(); node; node = node->GetNext())
+					{
+						GCObject* object = node->value;
+						object->marked = true;
 					}
 
+					graphMod.objectA->adjacencySet->insert(graphMod.objectB);
+					graphMod.objectB->adjacencySet->insert(graphMod.objectA);
 					break;
 				}
 				case GraphModification::DEL_EDGE:
@@ -236,6 +232,7 @@ namespace Powder
 					for (GCObject* adjacentObject : *graphMod.objectA->adjacencySet)
 						adjacentObject->adjacencySet->erase(graphMod.objectA);
 					graphMod.objectA->adjacencySet->clear();
+					assert(graphMod.objectA->ReturnType() == GCObject::ANCHOR);
 					this->garbageQueue->enqueue(graphMod.objectA);
 					break;
 				}
