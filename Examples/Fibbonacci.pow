@@ -10,5 +10,5 @@ calc_fib = func(x)
 
 i = 8;
 j = calc_fib(i);
-message = "Fibbonacci's " + i + "(th) number is " + j;
+message = "Fibbonacci's " + as_str(i) + "(th) number is " + as_str(j);
 output(message);

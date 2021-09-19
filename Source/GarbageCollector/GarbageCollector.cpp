@@ -179,6 +179,7 @@ namespace Powder
 
 			if (removeFromObjectList)
 			{
+				assert(object->node != nullptr);
 				this->objectList.Remove(object->node);
 				object->node = nullptr;
 			}
@@ -249,6 +250,7 @@ namespace Powder
 				case GraphModification::DEL_VERTEX:
 				{
 					this->objectList.RemoveNode(graphMod.objectA->node);
+					graphMod.objectA->node = nullptr;
 					for (GCObject* adjacentObject : *graphMod.objectA->adjacencySet)
 						adjacentObject->adjacencySet->erase(graphMod.objectA);
 					graphMod.objectA->adjacencySet->clear();
