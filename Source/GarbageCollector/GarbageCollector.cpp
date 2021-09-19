@@ -12,6 +12,9 @@ namespace Powder
 		this->spanningTreeKey = 0;
 		this->graphModQueue = new GraphModQueue();
 		this->garbageQueue = new GarbageQueue();
+		this->workCount = 0;
+		this->targetWorkCount = 0;
+		this->caughtUpSemaphore = nullptr;
 	}
 
 	/*virtual*/ GarbageCollector::~GarbageCollector()
@@ -77,8 +80,11 @@ namespace Powder
 
 	void GarbageCollector::StallUntilCaughtUp(void)
 	{
-		// TODO: Block on semaphore here.  Semaphore is released by the GC thread when it knows it's caught up.
-		//       Note that until this is implemented, the IOTest.pow script will crash.
+		// We might need a mutex to protect access to the semaphore, but I'm just going to leave this as is for now.
+		this->caughtUpSemaphore = ::CreateSemaphore(nullptr, 0, 1, nullptr);
+		::WaitForSingleObject(this->caughtUpSemaphore, INFINITE);
+		::CloseHandle(this->caughtUpSemaphore);
+		this->caughtUpSemaphore = nullptr;
 	}
 
 	uint32_t GarbageCollector::ObjectCount(void)
@@ -96,7 +102,12 @@ namespace Powder
 	{
 		while (!this->threadExitSignaled)
 		{
-			this->UpdateGraph();
+			if (this->UpdateGraph())
+			{
+				// If the graph changes, all bets are off.  Reset our counts.
+				this->workCount = 0;
+				this->targetWorkCount = this->objectList.GetCount();
+			}
 
 			if (this->objectList.GetCount() > 0)
 			{
@@ -106,6 +117,9 @@ namespace Powder
 				// In addition to finding the spanning tree containing the given object,
 				// this will also remove the spanning tree members from our list of objects.
 				this->FindSpanningTree(rootObject, spanningTreeList, true);
+
+				// Collectable or not, bump our count telling us how far away we are from being caught up.
+				this->workCount += spanningTreeList.GetCount();
 
 				// Are the objects ready to be garbage collected?
 				if (this->CanCollectAll(spanningTreeList))
@@ -129,6 +143,10 @@ namespace Powder
 					}
 				}
 			}
+
+			// If we're caught up, signal the main thread if it cares.
+			if (this->workCount >= this->targetWorkCount && this->caughtUpSemaphore != nullptr)
+				::ReleaseSemaphore(this->caughtUpSemaphore, 1, nullptr);
 		}
 
 		this->UpdateGraph();
@@ -188,11 +206,13 @@ namespace Powder
 		return true;
 	}
 
-	void GarbageCollector::UpdateGraph(void)
+	bool GarbageCollector::UpdateGraph(void)
 	{
+		bool graphUpdated = false;
 		GraphModification graphMod;
 		while (this->graphModQueue->try_dequeue(graphMod))
 		{
+			graphUpdated = true;
 			switch (graphMod.type)
 			{
 				case GraphModification::ADD_VERTEX:
@@ -238,6 +258,8 @@ namespace Powder
 				}
 			}
 		}
+
+		return graphUpdated;
 	}
 
 	void GarbageCollector::FreeObjects(void)

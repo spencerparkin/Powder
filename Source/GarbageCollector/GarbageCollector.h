@@ -31,7 +31,7 @@ namespace Powder
 		static DWORD __stdcall ThreadEntryPoint(LPVOID param);
 
 		void Run(void);
-		void UpdateGraph(void);
+		bool UpdateGraph(void);
 		void FindSpanningTree(GCObject* rootObject, LinkedList<GCObject*>& spanningTreeList, bool removeFromObjectList);
 		bool CanCollectAll(LinkedList<GCObject*>& objectList);
 
@@ -66,5 +66,8 @@ namespace Powder
 		GarbageQueue* garbageQueue;
 		uint32_t spanningTreeKey;
 		LinkedList<GCObject*> objectList;
+		uint32_t workCount;
+		uint32_t targetWorkCount;
+		HANDLE caughtUpSemaphore;
 	};
 }
