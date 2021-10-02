@@ -21,7 +21,8 @@ namespace Powder
 
 	/*virtual*/ uint32_t PopInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
-		executor->PopValueFromEvaluationStackTop();
+		GCReference<Value> value;
+		executor->PopValueFromEvaluationStackTop(value);
 		programBufferLocation += 1;
 		return Executor::Result::CONTINUE;
 	}

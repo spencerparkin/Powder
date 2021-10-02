@@ -84,7 +84,8 @@ namespace Powder
 
 	void Executor::StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap)
 	{
-		Value* value = this->PopValueFromEvaluationStackTop();
+		GCReference<Value> value;
+		this->PopValueFromEvaluationStackTop(value);
 		this->currentScope->StoreValue(identifier, value);
 		if (debuggerTrap)
 			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueStored(identifier, value);
@@ -95,14 +96,12 @@ namespace Powder
 		this->evaluationStack->push_back(value);
 	}
 
-	Value* Executor::PopValueFromEvaluationStackTop()
+	void Executor::PopValueFromEvaluationStackTop(GCReference<Value>& value)
 	{
-		Value* value = nullptr;
 		if (this->evaluationStack->size() == 0)
 			throw new RunTimeException("Evaluation stack underflow!");
 		value = (*this->evaluationStack)[this->evaluationStack->size() - 1];
 		this->evaluationStack->pop_back();
-		return value;
 	}
 
 	Value* Executor::StackTop()

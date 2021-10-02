@@ -83,7 +83,7 @@ namespace Powder
 	{
 		// We might need a mutex to protect access to the semaphore, but I'm just going to leave this as is for now.
 		this->caughtUpSemaphore = ::CreateSemaphore(nullptr, 0, 1, nullptr);
-		::WaitForSingleObject(this->caughtUpSemaphore INFINITE);		// TODO: Block a few milliseconds in a spin-wait and each loop, check to make sure the thread is still running.
+		::WaitForSingleObject(this->caughtUpSemaphore, INFINITE);		// TODO: Block a few milliseconds in a spin-wait and each loop, check to make sure the thread is still running.
 		::CloseHandle(this->caughtUpSemaphore);
 		this->caughtUpSemaphore = nullptr;
 	}

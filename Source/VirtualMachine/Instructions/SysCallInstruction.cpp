@@ -132,7 +132,8 @@ namespace Powder
 			}
 			case SysCall::OUTPUT:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				GCReference<Value> value;
+				executor->PopValueFromEvaluationStackTop(value);
 				std::string str = value->ToString();
 				virtualMachine->GetIODevice()->OutputString(str);
 				executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()));
@@ -140,7 +141,8 @@ namespace Powder
 			}
 			case SysCall::MODULE:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				GCReference<Value> value;
+				executor->PopValueFromEvaluationStackTop(value);
 				std::string moduleRelativePath = value->ToString();
 				std::string moduleAbsolutePath = pathResolver.ResolvePath(moduleRelativePath, PathResolver::SEARCH_BASE | PathResolver::SEARCH_CWD);
 				MapValue* functionMapValue = virtualMachine->LoadModuleFunctionMap(moduleAbsolutePath);
@@ -151,7 +153,8 @@ namespace Powder
 			}
 			case SysCall::RUN_SCRIPT:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				GCReference<Value> value;
+				executor->PopValueFromEvaluationStackTop(value);
 				std::string scriptRelativePath = value->ToString();
 				std::string scriptAbsolutePath = pathResolver.ResolvePath(scriptRelativePath, PathResolver::SEARCH_CWD);
 				virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
@@ -160,7 +163,8 @@ namespace Powder
 			}
 			case SysCall::SLEEP:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				GCReference<Value> value;
+				executor->PopValueFromEvaluationStackTop(value);
 				double sleepSeconds = value->AsNumber();
 				if (sleepSeconds > 0.0)
 					::Sleep(DWORD(sleepSeconds * 1000.0f));
@@ -182,7 +186,8 @@ namespace Powder
 					CppFunctionValue* iteratorValue = containerValue->MakeIterator();
 					if (iteratorValue)
 					{
-						executor->PopValueFromEvaluationStackTop();
+						GCReference<Value> poppedValue;
+						executor->PopValueFromEvaluationStackTop(poppedValue);
 						executor->PushValueOntoEvaluationStackTop(iteratorValue);
 					}
 				}
@@ -195,14 +200,16 @@ namespace Powder
 			}
 			case SysCall::AS_STRING:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				GCReference<Value> value;
+				executor->PopValueFromEvaluationStackTop(value);
 				StringValue* stringValue = new StringValue(value->ToString());
 				executor->PushValueOntoEvaluationStackTop(stringValue);
 				break;
 			}
 			case SysCall::AS_NUMBER:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				GCReference<Value> value;
+				executor->PopValueFromEvaluationStackTop(value);
 				NumberValue* numberValue = new NumberValue(value->AsNumber());
 				executor->PushValueOntoEvaluationStackTop(numberValue);
 				break;

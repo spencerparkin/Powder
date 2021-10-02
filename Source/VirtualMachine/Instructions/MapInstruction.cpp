@@ -33,7 +33,8 @@ namespace Powder
 			case Action::REMOVE:
 			{
 				// Notice we pop the field value, but leave the map value.
-				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
+				GCReference<Value> fieldValue;
+				executor->PopValueFromEvaluationStackTop(fieldValue);
 				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only remove elements from a map value.");
@@ -45,8 +46,9 @@ namespace Powder
 			case Action::INSERT:
 			{
 				// Notice we pop the field and data values, but leave the map value.
-				Value* dataValue = executor->PopValueFromEvaluationStackTop();
-				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
+				GCReference<Value> dataValue, fieldValue;
+				executor->PopValueFromEvaluationStackTop(dataValue);
+				executor->PopValueFromEvaluationStackTop(fieldValue);
 				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only insert elements into a map value.");
@@ -58,7 +60,9 @@ namespace Powder
 			case Action::MAKE_KEY_LIST:
 			{
 				// In this case, the map value is replaced with the list value.
-				MapValue* mapValue = dynamic_cast<MapValue*>(executor->PopValueFromEvaluationStackTop());
+				GCReference<Value> value;
+				executor->PopValueFromEvaluationStackTop(value);
+				MapValue* mapValue = dynamic_cast<MapValue*>(value.Ptr());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only generate key lists for map values.");
 				ListValue* listValue = mapValue->GenerateKeyListValue();
