@@ -127,7 +127,6 @@
     <ClInclude Include="Source\Utilities\HashMap.hpp" />
     <ClInclude Include="Source\Utilities\LinkedList.hpp" />
     <ClInclude Include="Source\Utilities\StringFormat.h" />
-    <ClInclude Include="Source\Utilities\ThreadSafeQueue.hpp" />
     <ClInclude Include="Source\VirtualMachine\Executable.h" />
     <ClInclude Include="Source\VirtualMachine\Executor.h" />
     <ClInclude Include="Source\VirtualMachine\Instruction.h" />

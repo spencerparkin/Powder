@@ -429,9 +429,6 @@
     <ClInclude Include="Source\GarbageCollector\concurrentqueue.h">
       <Filter>Source\GarbageCollector</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Utilities\ThreadSafeQueue.hpp">
-      <Filter>Source\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="Source\GarbageCollector\GCObject.h">
       <Filter>Source\GarbageCollector</Filter>
     </ClInclude>

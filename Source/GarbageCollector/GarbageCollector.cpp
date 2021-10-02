@@ -1,5 +1,6 @@
 #include "GarbageCollector.h"
 #include "GCCollectable.h"
+#include <Windows.h>
 
 namespace Powder
 {
@@ -92,7 +93,7 @@ namespace Powder
 		return this->objectList.GetCount();
 	}
 
-	/*static*/ DWORD __stdcall GarbageCollector::ThreadEntryPoint(LPVOID param)
+	/*static*/ unsigned long __stdcall GarbageCollector::ThreadEntryPoint(LPVOID param)
 	{
 		GC()->Run();
 		return 0;

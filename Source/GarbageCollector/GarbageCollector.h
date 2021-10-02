@@ -2,9 +2,8 @@
 
 #include "Defines.h"
 #include "concurrentqueue.h"
-#include <Windows.h>
+#include <stdint.h>
 #include "LinkedList.hpp"
-#include "ThreadSafeQueue.hpp"
 
 namespace Powder
 {
@@ -28,14 +27,14 @@ namespace Powder
 		uint32_t ObjectCount(void);
 
 	private:
-		static DWORD __stdcall ThreadEntryPoint(LPVOID param);
+		static unsigned long __stdcall ThreadEntryPoint(void* param);
 
 		void Run(void);
 		bool UpdateGraph(void);
 		void FindSpanningTree(GCObject* rootObject, LinkedList<GCObject*>& spanningTreeList, bool removeFromObjectList);
 		bool CanCollectAll(LinkedList<GCObject*>& objectList);
 
-		HANDLE threadHandle;
+		void* threadHandle;
 		bool threadExitSignaled;
 		
 		struct GraphModification
@@ -54,13 +53,8 @@ namespace Powder
 			Type type;
 		};
 
-#if 1
 		typedef moodycamel::ConcurrentQueue<GraphModification> GraphModQueue;
 		typedef moodycamel::ConcurrentQueue<GCObject*> GarbageQueue;
-#else
-		typedef ThreadSafeQueue<GraphModification> GraphModQueue;
-		typedef ThreadSafeQueue<GCObject*> GarbageQueue;
-#endif
 
 		GraphModQueue* graphModQueue;
 		GarbageQueue* garbageQueue;
@@ -68,6 +62,6 @@ namespace Powder
 		LinkedList<GCObject*> objectList;
 		uint32_t workCount;
 		uint32_t targetWorkCount;
-		HANDLE caughtUpSemaphore;
+		void* caughtUpSemaphore;
 	};
 }
