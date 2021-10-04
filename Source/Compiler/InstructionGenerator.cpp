@@ -108,7 +108,7 @@ namespace Powder
 				return false;
 
 			int i = (int)syntaxNode->parentNode->name->find("statement");
-			if (i >= 0)
+			if (i == 0)
 				return true;
 		}
 
