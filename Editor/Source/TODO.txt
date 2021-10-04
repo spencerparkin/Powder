@@ -1,5 +1,8 @@
 TODO...
 
+-- I'm seeing a 16 byte allocation leaked about a million times after running scripts in the editor.  Every such allocation has the same first few bytes "0CX{", so that has to be a clue.
+   This is a horrendous leak.  It really needs to be tracked down.  Fortunately, I think it's just one kind of allocation made somewhere and never freed.
+
 -- Add cursor hover support in the source control window?  You hover over a symbol long enough and then a bubble shows up with the symbol's current value.  Not needed if the inspection window is good enough.
 
 -- Add a toolbar?  Hard to find art for it.
