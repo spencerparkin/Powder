@@ -32,7 +32,7 @@ namespace Powder
 		void Run(void);
 		bool UpdateGraph(void);
 		void FindSpanningTree(GCObject* rootObject, LinkedList<GCObject*>& spanningTreeList, bool removeFromObjectList);
-		bool CanCollectAll(LinkedList<GCObject*>& objectList);
+		bool CanCollectAll(const LinkedList<GCObject*>& givenObjectList);
 
 		void* threadHandle;
 		bool threadExitSignaled;
@@ -63,5 +63,8 @@ namespace Powder
 		uint32_t workCount;
 		uint32_t targetWorkCount;
 		void* caughtUpSemaphore;
+#if defined GC_DEBUG
+		GCObject* debugObject;
+#endif
 	};
 }

@@ -16,6 +16,9 @@ namespace Powder
 		this->workCount = 0;
 		this->targetWorkCount = 0;
 		this->caughtUpSemaphore = nullptr;
+#if defined GC_DEBUG
+		this->debugObject = nullptr;
+#endif
 	}
 
 	/*virtual*/ GarbageCollector::~GarbageCollector()
@@ -31,6 +34,11 @@ namespace Powder
 
 	void GarbageCollector::AddObject(GCObject* object)
 	{
+#if defined GC_DEBUG
+		if (object == this->debugObject)
+			::fprintf(stderr, "Debug object added to GC!\n");
+#endif
+
 		GraphModification graphMod;
 		graphMod.objectA = object;
 		graphMod.objectB = nullptr;
@@ -40,6 +48,11 @@ namespace Powder
 
 	void GarbageCollector::RemoveObject(GCObject* object)
 	{
+#if defined GC_DEBUG
+		if (object == this->debugObject)
+			::fprintf(stderr, "Debug object removed from GC!\n");
+#endif
+
 		GraphModification graphMod;
 		graphMod.objectA = object;
 		graphMod.objectB = nullptr;
@@ -49,6 +62,14 @@ namespace Powder
 
 	void GarbageCollector::RelateObjects(GCObject* objectA, GCObject* objectB, bool linked)
 	{
+#if defined GC_DEBUG
+		if (objectA == this->debugObject || objectB == this->debugObject)
+			if (linked)
+				::fprintf(stderr, "Debug object linked!\n");
+			else
+				::fprintf(stderr, "Debug object unlinked!\n");
+#endif
+
 		GraphModification graphMod;
 		graphMod.objectA = objectA;
 		graphMod.objectB = objectB;
@@ -73,6 +94,7 @@ namespace Powder
 
 		this->threadExitSignaled = true;
 		::WaitForSingleObject(this->threadHandle, INFINITE);
+		this->threadHandle = nullptr;
 
 		this->FreeObjects();
 
@@ -83,7 +105,12 @@ namespace Powder
 	{
 		// We might need a mutex to protect access to the semaphore, but I'm just going to leave this as is for now.
 		this->caughtUpSemaphore = ::CreateSemaphore(nullptr, 0, 1, nullptr);
-		::WaitForSingleObject(this->caughtUpSemaphore, INFINITE);		// TODO: Block a few milliseconds in a spin-wait and each loop, check to make sure the thread is still running.
+		while (WAIT_TIMEOUT == ::WaitForSingleObject(this->caughtUpSemaphore, 128))
+		{
+			DWORD result = ::WaitForSingleObject(this->threadHandle, 0);
+			if (result != WAIT_TIMEOUT)
+				break;		// The thread is no longer running, so bail out.
+		}
 		::CloseHandle(this->caughtUpSemaphore);
 		this->caughtUpSemaphore = nullptr;
 	}
@@ -185,8 +212,9 @@ namespace Powder
 				object->node = nullptr;
 			}
 
-			for (GCObject* adjacentObject : *object->adjacencySet)
+			for (std::pair<GCObject*, uint32_t> pair : *object->adjacencyMap)
 			{
+				GCObject* adjacentObject = pair.first;
 				if (adjacentObject->spanningTreeKey != this->spanningTreeKey)
 				{
 					objectQueue.AddTail(adjacentObject);
@@ -196,11 +224,11 @@ namespace Powder
 		}
 	}
 
-	bool GarbageCollector::CanCollectAll(LinkedList<GCObject*>& objectList)
+	bool GarbageCollector::CanCollectAll(const LinkedList<GCObject*>& givenObjectList)
 	{
-		for (LinkedList<GCObject*>::Node* node = objectList.GetHead(); node; node = node->GetNext())
+		for (const LinkedList<GCObject*>::Node* node = givenObjectList.GetHead(); node; node = node->GetNext())
 		{
-			GCObject* object = node->value;
+			const GCObject* object = node->value;
 			if (object->ReturnType() == GCObject::ANCHOR || !object->marked)
 				return false;
 		}
@@ -225,8 +253,12 @@ namespace Powder
 				}
 				case GraphModification::ADD_EDGE:
 				{
-					LinkedList<GCObject*> spanningTreeList;
+#if defined GC_DEBUG
+					if (graphMod.objectA->deleted || graphMod.objectB->deleted)
+						::fprintf(stderr, "Deleted object(s) being added back to GC graph!\n");
+#endif
 
+					LinkedList<GCObject*> spanningTreeList;
 					if (!graphMod.objectA->marked && graphMod.objectB->marked)
 						this->FindSpanningTree(graphMod.objectA, spanningTreeList, false);
 					else if (graphMod.objectA->marked && !graphMod.objectB->marked)
@@ -238,24 +270,28 @@ namespace Powder
 						object->marked = true;
 					}
 
-					graphMod.objectA->adjacencySet->insert(graphMod.objectB);
-					graphMod.objectB->adjacencySet->insert(graphMod.objectA);
+					graphMod.objectA->AddAdjacency(graphMod.objectB);
+					graphMod.objectB->AddAdjacency(graphMod.objectA);
 					break;
 				}
 				case GraphModification::DEL_EDGE:
 				{
-					graphMod.objectA->adjacencySet->erase(graphMod.objectB);
-					graphMod.objectB->adjacencySet->erase(graphMod.objectA);
+					graphMod.objectA->RemoveAdjacency(graphMod.objectB);
+					graphMod.objectB->RemoveAdjacency(graphMod.objectA);
 					break;
 				}
 				case GraphModification::DEL_VERTEX:
 				{
+					assert(graphMod.objectA->ReturnType() == GCObject::ANCHOR);
 					this->objectList.RemoveNode(graphMod.objectA->node);
 					graphMod.objectA->node = nullptr;
-					for (GCObject* adjacentObject : *graphMod.objectA->adjacencySet)
-						adjacentObject->adjacencySet->erase(graphMod.objectA);
-					graphMod.objectA->adjacencySet->clear();
-					assert(graphMod.objectA->ReturnType() == GCObject::ANCHOR);
+					for (std::pair<GCObject*, uint32_t> pair : *graphMod.objectA->adjacencyMap)
+					{
+						GCObject* adjacentObject = pair.first;
+						while (adjacentObject->RemoveAdjacency(graphMod.objectA))
+						{
+						}
+					}
 					this->garbageQueue->enqueue(graphMod.objectA);
 					break;
 				}
@@ -269,6 +305,14 @@ namespace Powder
 	{
 		GCObject* object = nullptr;
 		while (this->garbageQueue->try_dequeue(object))
+		{
+#if defined GC_DEBUG
+			object->deleted = true;
+			if (object == this->debugObject)
+				::fprintf(stderr, "Debug object deleted!\n");
+#else
 			delete object;
+#endif
+		}
 	}
 }
