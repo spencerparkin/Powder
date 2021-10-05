@@ -5,16 +5,14 @@ namespace Powder
 {
 	GCCollectable::GCCollectable()
 	{
-		GarbageCollector::GC()->honestCollectableCount++;
 	}
 
 	/*virtual*/ GCCollectable::~GCCollectable()
 	{
-		GarbageCollector::GC()->honestCollectableCount--;
 	}
 
-	/*virtual*/ bool GCCollectable::IsReference(void)
+	/*virtual*/ GCObject::Type GCCollectable::ReturnType() const
 	{
-		return false;
+		return COLLECTABLE;
 	}
 }

@@ -1,5 +1,8 @@
 TODO...
 
+-- I'm seeing a 16 byte allocation leaked about a million times after running scripts in the editor.  Every such allocation has the same first few bytes "0CX{", so that has to be a clue.
+   This is a horrendous leak.  It really needs to be tracked down.  Fortunately, I think it's just one kind of allocation made somewhere and never freed.
+
 -- Add cursor hover support in the source control window?  You hover over a symbol long enough and then a bubble shows up with the symbol's current value.  Not needed if the inspection window is good enough.
 
 -- Add a toolbar?  Hard to find art for it.
@@ -10,6 +13,6 @@ TODO...
 
 -- Not sure how far to take the language both in terms of extension modules and language features (e.g., OOP.)  What other extension modules might I add?  Might be good to exploit the fork instruction for blocking I/O.
 
--- Revisit the GC.  Can it be faster or threaded?  Better algorithm or stratagy?  Also, I'm noticing some leaking at times.  Is this due to a bug in the algorithm or due to exceptions being thrown during normal errors?  Get rid of all exception throwing?
+-- Maybe remove all exception throwing.
 
 -- Find and fix all mem leaks.  Is the GC partly to blame?  Also, should add GC leak check code when VM is totally out of scope.

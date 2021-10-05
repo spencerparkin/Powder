@@ -1,62 +1,70 @@
 #pragma once
 
 #include "Defines.h"
-#include <cstdint>
-#include <set>
-#include <list>
+#include "concurrentqueue.h"
+#include <stdint.h>
+#include "LinkedList.hpp"
 
 namespace Powder
 {
+	class GCObject;
+
 	class POWDER_API GarbageCollector
 	{
-		friend class GCObject;
-		friend class GCCollectable;
-
 	public:
 		GarbageCollector();
 		virtual ~GarbageCollector();
 
 		static GarbageCollector* GC();
-		static void GC(GarbageCollector* gc);
 
-		// This can and should be run periodically or as needed.
-		void Run();
+		bool Startup(void);
+		bool Shutdown(void);
+		void StallUntilCaughtUp(void);
+		void FreeObjects(void);
+		void AddObject(GCObject* object);
+		void RemoveObject(GCObject* object);
+		void RelateObjects(GCObject* objectA, GCObject* objectB, bool linked);
+		uint32_t ObjectCount(void);
 
-		// This will take the time to purge as much memory as can possibly be
-		// reclaimed at the point of being called.
-		void FullPurge();
+	private:
+		static unsigned long __stdcall ThreadEntryPoint(void* param);
 
-		virtual void Delete(GCObject* object);
+		void Run(void);
+		bool UpdateGraph(void);
+		void FindSpanningTree(GCObject* rootObject, LinkedList<GCObject*>& spanningTreeList, bool removeFromObjectList);
+		bool CanCollectAll(const LinkedList<GCObject*>& givenObjectList);
 
-		uint32_t RemainingObjectCount();
-		uint32_t HonestCollectableCount() { return this->honestCollectableCount; }
-
-	protected:
-
-		void Remember(GCObject* object);
-		void Forget(GCObject* object);
-		void AdjacenciesChanged(GCObject* object);
-
-		enum State
+		void* threadHandle;
+		bool threadExitSignaled;
+		
+		struct GraphModification
 		{
-			STAND_BY,
-			INITIATE_BFS,
-			CONTINUE_BFS,
-			INITIATE_ADJACENCY_WALK,
-			CONTINUE_ADJACENCY_WALK,
-			CONSUME_SPANNING_TREE_SET
+			GCObject* objectA;
+			GCObject* objectB;
+			
+			enum Type
+			{
+				ADD_VERTEX,
+				DEL_VERTEX,
+				ADD_EDGE,
+				DEL_EDGE
+			};
+
+			Type type;
 		};
 
-		State state;
-		uint32_t unvisitedObjectSet;
-		uint32_t visitedObjectSet;
-		std::set<GCObject*>* objectSet[2];
-		std::set<GCObject*>* spanningTreeSet;
-		std::set<GCObject*>* objectQueue;
-		std::set<GCObject*>::iterator* objectSetIter;
-		GCObject* visitingObject;
-		uint32_t visitNumber;
-		bool referenceFound;
-		uint32_t honestCollectableCount;
+		typedef moodycamel::ConcurrentQueue<GraphModification> GraphModQueue;
+		typedef moodycamel::ConcurrentQueue<GCObject*> GarbageQueue;
+
+		GraphModQueue* graphModQueue;
+		GarbageQueue* garbageQueue;
+		uint32_t spanningTreeKey;
+		LinkedList<GCObject*> objectList;
+		uint32_t workCount;
+		uint32_t targetWorkCount;
+		void* caughtUpSemaphore;
+#if defined GC_DEBUG
+		GCObject* debugObject;
+#endif
 	};
 }

@@ -50,7 +50,7 @@ namespace Powder
 					newListValue->valueList.Append(this->valueList);
 					newListValue->valueList.Append(listValue->valueList);
 					for (LinkedList<Value*>::Node* node = newListValue->valueList.GetHead(); node; node = node->GetNext())
-						newListValue->OwnObject(node->value);
+						newListValue->ConnectTo(node->value);
 					return newListValue;
 				}
 			}
@@ -80,9 +80,9 @@ namespace Powder
 
 		this->RebuildIndexIfNeeded();
 		Value* existingValue = (*this->valueListIndex)[i]->value;
-		this->DisownObject(existingValue);
+		this->DisconnectFrom(existingValue);
 		(*this->valueListIndex)[i]->value = dataValue;
-		this->OwnObject(dataValue);
+		this->ConnectTo(dataValue);
 	}
 
 	/*virtual*/ Value* ListValue::GetField(Value* fieldValue)
@@ -113,7 +113,7 @@ namespace Powder
 		this->RebuildIndexIfNeeded();
 		Value* dataValue = (*this->valueListIndex)[i]->value;
 		this->valueList.Remove((*this->valueListIndex)[i]);
-		this->DisownObject(dataValue);
+		this->DisconnectFrom(dataValue);
 		this->valueListIndexValid = false;
 		return dataValue;
 	}
@@ -146,7 +146,7 @@ namespace Powder
 	{
 		this->valueList.AddHead(value);
 		this->valueListIndexValid = false;
-		this->OwnObject(value);
+		this->ConnectTo(value);
 	}
 
 	Value* ListValue::PopLeft()
@@ -156,7 +156,7 @@ namespace Powder
 		Value* value = this->valueList.GetHead()->value;
 		this->valueList.Remove(this->valueList.GetHead());
 		this->valueListIndexValid = false;
-		this->DisownObject(value);
+		this->DisconnectFrom(value);
 		return value;
 	}
 
@@ -165,7 +165,7 @@ namespace Powder
 		this->valueList.AddTail(value);
 		if (this->valueListIndexValid)
 			this->valueListIndex->push_back(this->valueList.GetTail());
-		this->OwnObject(value);
+		this->ConnectTo(value);
 	}
 
 	Value* ListValue::PopRight()
@@ -176,7 +176,7 @@ namespace Powder
 		this->valueList.Remove(this->valueList.GetTail());
 		if (this->valueListIndexValid)
 			this->valueListIndex->pop_back();
-		this->DisownObject(value);
+		this->DisconnectFrom(value);
 		return value;
 	}
 

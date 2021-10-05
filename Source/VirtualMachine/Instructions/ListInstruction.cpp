@@ -46,7 +46,8 @@ namespace Powder
 			case Action::PUSH_RIGHT:
 			{
 				// Notice that we pop the pushed value, but leave the list value.
-				Value* elementValue = executor->PopValueFromEvaluationStackTop();
+				GCReference<Value> elementValue;
+				executor->PopValueFromEvaluationStackTop(elementValue);
 				ListValue* listValue = dynamic_cast<ListValue*>(executor->StackTop());
 				if (!listValue)
 					throw new RunTimeException("List instruction can only push elements to a list value.");

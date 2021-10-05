@@ -74,7 +74,7 @@ namespace Powder
 
 	/*virtual*/ uint32_t MathInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
-		Value* result = nullptr;
+		GCReference<Value> result;
 
 		// It was decided that loading and storing (assignment), to and from scope,
 		// would not be a math operation, and so it seems contradictory here to support
@@ -89,8 +89,10 @@ namespace Powder
 		{
 			case MathOp::GET_FIELD:
 			{
-				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				GCReference<Value> fieldValue, value;
+				executor->PopValueFromEvaluationStackTop(fieldValue);
+				executor->PopValueFromEvaluationStackTop(value);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value.Ptr());
 				if (!containerValue)
 					throw new RunTimeException("Get field math operation expected a container value on the evaluation stack.");
 				result = containerValue->GetField(fieldValue);
@@ -98,9 +100,11 @@ namespace Powder
 			}
 			case MathOp::SET_FIELD:
 			{
-				result = executor->PopValueFromEvaluationStackTop();
-				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				executor->PopValueFromEvaluationStackTop(result);
+				GCReference<Value> fieldValue, value;
+				executor->PopValueFromEvaluationStackTop(fieldValue);
+				executor->PopValueFromEvaluationStackTop(value);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value.Ptr());
 				if (!containerValue)
 					throw new RunTimeException("Set field math operation expected a container value on the evaluation stack.");
 				containerValue->SetField(fieldValue, result);
@@ -110,8 +114,10 @@ namespace Powder
 			}
 			case MathOp::DEL_FIELD:
 			{
-				Value* fieldValue = executor->PopValueFromEvaluationStackTop();
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				GCReference<Value> fieldValue, value;
+				executor->PopValueFromEvaluationStackTop(fieldValue);
+				executor->PopValueFromEvaluationStackTop(value);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value.Ptr());
 				if (!containerValue)
 					throw new RunTimeException("Delete field math operation expected a container value on the evaluation stack.");
 				result = containerValue->DelField(fieldValue);
@@ -121,11 +127,14 @@ namespace Powder
 			}
 			case MathOp::CONTAINS:
 			{
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(executor->PopValueFromEvaluationStackTop());
+				GCReference<Value> value;
+				executor->PopValueFromEvaluationStackTop(value);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value.Ptr());
 				if (!containerValue)
 					throw new RunTimeException("Membership math operation expected a container value on the evaluation stack.");
-				Value* value = executor->PopValueFromEvaluationStackTop();
-				result = containerValue->IsMember(value);
+				GCReference<Value> memberValue;
+				executor->PopValueFromEvaluationStackTop(memberValue);
+				result = containerValue->IsMember(memberValue);
 				break;
 			}
 			default:
@@ -134,13 +143,15 @@ namespace Powder
 				mathOp &= ~0x80;
 				if (unary)
 				{
-					Value* value = executor->PopValueFromEvaluationStackTop();
+					GCReference<Value> value;
+					executor->PopValueFromEvaluationStackTop(value);
 					result = value->CombineWith(nullptr, (MathOp)mathOp, executor);
 				}
 				else
 				{
-					Value* rightValue = executor->PopValueFromEvaluationStackTop();
-					Value* leftValue = executor->PopValueFromEvaluationStackTop();
+					GCReference<Value> rightValue, leftValue;
+					executor->PopValueFromEvaluationStackTop(rightValue);
+					executor->PopValueFromEvaluationStackTop(leftValue);
 					result = leftValue->CombineWith(rightValue, (MathOp)mathOp, executor);
 				}
 

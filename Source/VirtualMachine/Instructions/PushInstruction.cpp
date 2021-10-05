@@ -42,8 +42,7 @@ namespace Powder
 			case DataType::STRING:
 			{
 				std::string str = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 2);
-				Value* value = new StringValue(str);
-				executor->PushValueOntoEvaluationStackTop(value);
+				executor->PushValueOntoEvaluationStackTop(new StringValue(str));
 				programBufferLocation += 2 + str.length() + 1;
 				break;
 			}

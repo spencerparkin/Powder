@@ -77,16 +77,15 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 	using namespace Powder;
 
 	::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_ENTERING));
-
 	wxStopWatch stopWatch;
-
+	GarbageCollector::GC()->Startup();
 	this->vm = new VirtualMachine();
 	this->vm->SetDebuggerTrap(this);
 	this->vm->SetIODevice(this);
 
 	try
 	{
-		vm->ExecuteSourceCodeFile((const char*)this->sourceFilePath.c_str());
+		this->vm->ExecuteSourceCodeFile((const char*)this->sourceFilePath.c_str());
 	}
 	catch (Exception* exc)
 	{
@@ -95,10 +94,8 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 	}
 
 	delete this->vm;
-	GarbageCollector::GC()->FullPurge();
-
+	GarbageCollector::GC()->Shutdown();
 	this->executionTimeMilliseconds = stopWatch.Time();
-
 	::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_EXITING));
 
 	return 0;

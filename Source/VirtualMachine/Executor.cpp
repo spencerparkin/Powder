@@ -22,9 +22,9 @@ namespace Powder
 		delete this->evaluationStack;
 	}
 
-	bool Executor::PushScope(Scope* scope /*= nullptr*/)
+	bool Executor::PushScope()
 	{
-		Scope* newScope = scope ? scope : new Scope();
+		Scope* newScope = new Scope();
 		newScope->SetContainingScope(this->currentScope);
 		this->currentScope = newScope;
 		return true;
@@ -66,20 +66,7 @@ namespace Powder
 			if (result != Executor::Result::CONTINUE)
 				return result;
 
-#if false
-			// This is super slow, but is also a way to test that the GC system doesn't
-			// delete stuff that it shouldn't delete.
-			GarbageCollector::GC()->FullPurge();
-#else
-			// TODO: This will delete objects as the program runs, but the amount of
-			//       allocated memory can still steadily grow as time goes on.  Should
-			//       there be some sort of dynamic system in place to call the GC more
-			//       or less to keep our memory usage within a certain limit?
-			GarbageCollector::GC()->Run();
-			GarbageCollector::GC()->Run();
-			GarbageCollector::GC()->Run();
-			GarbageCollector::GC()->Run();
-#endif
+			GarbageCollector::GC()->FreeObjects();
 		}
 
 		return Result::HALT;
@@ -90,18 +77,16 @@ namespace Powder
 		Value* value = this->currentScope->LookupValue(identifier, true);
 		if (!value)
 			throw new RunTimeException(FormatString("Failed to lookup identifier: %s", identifier));
-
 		this->PushValueOntoEvaluationStackTop(value);
-
 		if (debuggerTrap)
 			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueLoaded(identifier, value);
 	}
 
 	void Executor::StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap)
 	{
-		Value* value = this->PopValueFromEvaluationStackTop();
+		GCReference<Value> value;
+		this->PopValueFromEvaluationStackTop(value);
 		this->currentScope->StoreValue(identifier, value);
-
 		if (debuggerTrap)
 			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueStored(identifier, value);
 	}
@@ -111,14 +96,12 @@ namespace Powder
 		this->evaluationStack->push_back(value);
 	}
 
-	Value* Executor::PopValueFromEvaluationStackTop()
+	void Executor::PopValueFromEvaluationStackTop(GCReference<Value>& value)
 	{
-		Value* value = nullptr;
 		if (this->evaluationStack->size() == 0)
 			throw new RunTimeException("Evaluation stack underflow!");
 		value = (*this->evaluationStack)[this->evaluationStack->size() - 1];
 		this->evaluationStack->pop_back();
-		return value;
 	}
 
 	Value* Executor::StackTop()

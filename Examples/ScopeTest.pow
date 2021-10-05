@@ -9,4 +9,4 @@ blah = func(a)
 
 blah(a);
 
-output("a = " + a);
+output("a = " + as_str(a));

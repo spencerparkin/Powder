@@ -429,7 +429,7 @@ void EditorFrame::OnRunThreadException(RunThreadExceptionEvent& event)
 	if (terminalPanel)
 	{
 		terminalPanel->terminalControl->AppendText("-------------------- ERROR --------------------\n");
-		terminalPanel->terminalControl->AppendText(event.errorMsg);
+		terminalPanel->terminalControl->AppendText(event.errorMsg + "\n");
 		terminalPanel->terminalControl->AppendText("-------------------- ERROR --------------------\n");
 	}
 }
