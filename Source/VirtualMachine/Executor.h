@@ -27,7 +27,7 @@ namespace Powder
 
 		virtual Result Execute(const Executable* executable, VirtualMachine* virtualMachine);
 
-		bool PushScope(Scope* scope = nullptr);
+		bool PushScope();
 		bool PopScope();
 
 		Scope* GetCurrentScope() { return this->currentScope.Ptr(); }
@@ -39,7 +39,7 @@ namespace Powder
 		void StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap);
 
 		void PushValueOntoEvaluationStackTop(Value* value);
-		Value* PopValueFromEvaluationStackTop();
+		void PopValueFromEvaluationStackTop(GCReference<Value>& value);
 
 		Value* StackTop();
 		Value* StackValue(int32_t stackOffset);	// This is relative to the top of the stack.

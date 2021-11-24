@@ -24,7 +24,8 @@ namespace Powder
 	/*virtual*/ uint32_t BranchInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
-		Value* value = executor->PopValueFromEvaluationStackTop();
+		GCReference<Value> value;
+		executor->PopValueFromEvaluationStackTop(value);
 		if (value->AsBoolean())
 			programBufferLocation += 1 + sizeof(uint64_t);
 		else

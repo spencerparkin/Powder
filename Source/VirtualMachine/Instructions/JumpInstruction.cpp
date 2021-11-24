@@ -39,9 +39,10 @@ namespace Powder
 			}
 			case Type::JUMP_TO_LOADED_ADDRESS:
 			{
-				Value* value = executor->PopValueFromEvaluationStackTop();
+				GCReference<Value> value;
+				executor->PopValueFromEvaluationStackTop(value);
 
-				AddressValue* addressValue = dynamic_cast<AddressValue*>(value);
+				AddressValue* addressValue = dynamic_cast<AddressValue*>(value.Ptr());
 				if (addressValue)
 				{
 					programBufferLocation = addressValue->programBufferLocation;
@@ -57,10 +58,12 @@ namespace Powder
 					break;
 				}
 				
-				CppFunctionValue* cppFunctionValue = dynamic_cast<CppFunctionValue*>(value);
+				CppFunctionValue* cppFunctionValue = dynamic_cast<CppFunctionValue*>(value.Ptr());
 				if (cppFunctionValue)
 				{
-					ListValue* argListValue = dynamic_cast<ListValue*>(executor->PopValueFromEvaluationStackTop());
+					GCReference<Value> argValue;
+					executor->PopValueFromEvaluationStackTop(argValue);
+					ListValue* argListValue = dynamic_cast<ListValue*>(argValue.Ptr());
 					if (!argListValue)
 						throw new RunTimeException("Did not get argument list value from evaluation stack top for module function call.");
 

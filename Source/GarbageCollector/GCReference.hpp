@@ -1,77 +1,73 @@
 #pragma once
 
 #include "Defines.h"
-#include "GCObject.h"
+#include "GCAnchor.h"
+#include "GarbageCollector.h"
 
 namespace Powder
 {
-	// Memory for instances of this class are not freed by the GC.
-	// Rather, the calling program is responsible for managing their scope.
-	// The purpose of this class in the GC is to keep GCCollectable class
-	// instances in memory for as long as the reference object references
-	// them, directly or indirectly.
+	// The scope of these objects is managed by the user, not the GC system.
+	// Furthermore, no GCCollectable derivative should ever own an instance of this class.
+	// Rather, such a class should own a GCSteward class instance.
 	template<typename T>
-	class POWDER_API GCReference : public GCObject
+	class POWDER_API GCReference
 	{
 	public:
 		GCReference()
 		{
 			this->pointer = nullptr;
+			this->anchor = new GCAnchor();
 		}
 
 		GCReference(T* pointer)
 		{
 			this->pointer = pointer;
+			this->anchor = new GCAnchor();
 
 			if (this->pointer)
-				this->pointer->ConnectTo(this);
+				this->pointer->ConnectTo(this->anchor);
 		}
 
 		GCReference(const GCReference<T>& reference)
 		{
 			this->pointer = reference.pointer;
+			this->anchor = new GCAnchor();
 
 			if (this->pointer)
-				this->pointer->ConnectTo(this);
+				this->pointer->ConnectTo(this->anchor);
 		}
 
 		virtual ~GCReference()
 		{
-			if (this->pointer)
-				this->pointer->DisconnectFrom(this);
-		}
-
-		virtual bool IsReference(void) override
-		{
-			return true;
+			GarbageCollector::GC()->RemoveObject(this->anchor);
 		}
 
 		void operator=(const GCReference& reference)
 		{
 			if (this->pointer)
-				this->pointer->DisconnectFrom(this);
+				this->pointer->DisconnectFrom(this->anchor);
 
 			this->pointer = reference.pointer;
 
 			if (this->pointer)
-				this->pointer->ConnectTo(this);
+				this->pointer->ConnectTo(this->anchor);
 		}
 
 		void operator=(T* pointer)
 		{
 			if (this->pointer)
-				this->pointer->DisconnectFrom(this);
+				this->pointer->DisconnectFrom(this->anchor);
 
 			this->pointer = pointer;
 
 			if (this->pointer)
-				this->pointer->ConnectTo(this);
+				this->pointer->ConnectTo(this->anchor);
 		}
 
 		void Clear(void)
 		{
 			if (this->pointer)
-				this->pointer->DisconnectFrom(this);
+				this->pointer->DisconnectFrom(this->anchor);
 
 			this->pointer = nullptr;
 		}
@@ -109,5 +105,6 @@ namespace Powder
 	private:
 
 		T* pointer;
+		GCAnchor* anchor;
 	};
 }

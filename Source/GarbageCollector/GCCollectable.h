@@ -2,25 +2,17 @@
 
 #include "Defines.h"
 #include "GCObject.h"
-#include "GCReference.hpp"
 
 namespace Powder
 {
-	// Memory for instances of this class are freed by the GC if
-	// it finds that the object is not connected to a reference
-	// object, directly or indirectly.  Being referenced in a way
-	// that retains the memory is a transitive property.
+	// Half the scope of these class instances is managed by the GC system.
+	// Feel free to allocate them yourself, but do not free them yourself.
 	class POWDER_API GCCollectable : public GCObject
 	{
 	public:
 		GCCollectable();
 		virtual ~GCCollectable();
 
-		virtual bool IsReference(void) override;
-
-		// Never call these in a destructor.  The GC will
-		// delete objects in an indeterminant order.
-		void OwnObject(GCObject* object) { this->ConnectTo(object); }
-		void DisownObject(GCObject* object) { this->DisconnectFrom(object); }
+		virtual Type ReturnType() const override;
 	};
 }

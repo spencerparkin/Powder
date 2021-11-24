@@ -48,6 +48,7 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\Tokenizer.cpp" />
     <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp" />
+    <ClCompile Include="Source\GarbageCollector\GCAnchor.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCObject.cpp" />
     <ClCompile Include="Source\ModuleMain.cpp" />
@@ -114,7 +115,9 @@
     <ClInclude Include="Source\Compiler\Tokenizer.h" />
     <ClInclude Include="Source\Defines.h" />
     <ClInclude Include="Source\Exceptions.hpp" />
+    <ClInclude Include="Source\GarbageCollector\concurrentqueue.h" />
     <ClInclude Include="Source\GarbageCollector\GarbageCollector.h" />
+    <ClInclude Include="Source\GarbageCollector\GCAnchor.h" />
     <ClInclude Include="Source\GarbageCollector\GCCollectable.h" />
     <ClInclude Include="Source\GarbageCollector\GCObject.h" />
     <ClInclude Include="Source\GarbageCollector\GCSteward.hpp" />

@@ -85,7 +85,11 @@ namespace Powder
 
 	void InstructionGenerator::GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode)
 	{
-		SyntaxHandler* syntaxHandler = this->syntaxHandlerMap.Lookup(syntaxNode->name->c_str());
+		const char* name = syntaxNode->name->c_str();
+		if (::strcmp(name, "empty-block") == 0)
+			return;
+
+		SyntaxHandler* syntaxHandler = this->syntaxHandlerMap.Lookup(name);
 		if (!syntaxHandler)
 			throw new CompileTimeException(FormatString("No syntax handler found for AST node with name \"%s\".", syntaxNode->name->c_str()), &syntaxNode->fileLocation);
 
@@ -104,7 +108,7 @@ namespace Powder
 				return false;
 
 			int i = (int)syntaxNode->parentNode->name->find("statement");
-			if (i >= 0)
+			if (i == 0)
 				return true;
 		}
 

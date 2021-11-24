@@ -43,7 +43,7 @@ move_disks = func(towers, tower_ranges, src_tower, dst_tower)
 	if(src_tower_height > 1)
 	{
 		tower_ranges[dst_tower][0] += 1;
-        move_disks(towers, tower_ranges, other_tower(src_tower, dst_tower), dst_tower);
+		move_disks(towers, tower_ranges, other_tower(src_tower, dst_tower), dst_tower);
 		tower_ranges[dst_tower][0] -= 1;
 	}
 };

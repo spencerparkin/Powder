@@ -46,7 +46,12 @@ namespace Powder
 	{
 		Value* existingValue = this->valueMap.Lookup(identifier);
 		if (existingValue)
+		{
+			if (value == existingValue)
+				return;
+
 			this->DisconnectFrom(existingValue);
+		}
 
 		this->valueMap.Insert(identifier, value);
 

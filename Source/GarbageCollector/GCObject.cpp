@@ -5,41 +5,50 @@ namespace Powder
 {
 	GCObject::GCObject()
 	{
-		this->placementNewUsed = false;
-		this->visitNumber = 0;
-		this->adjacencies = new std::set<GCObject*>();
-		GarbageCollector::GC()->Remember(this);
+		this->spanningTreeKey = 0;
+		this->node = nullptr;
+		this->adjacencyMap = new std::map<GCObject*, uint32_t>();
+		this->marked = false;
+#if defined GC_DEBUG
+		this->deleted = false;
+#endif
+
+		// This should be a lock-free operation.
+		GarbageCollector::GC()->AddObject(this);
 	}
-	
+
 	/*virtual*/ GCObject::~GCObject()
 	{
-		delete this->adjacencies;
-		GarbageCollector::GC()->Forget(this);
+		// Notice that we do not remove ourselves from the GC system when we go out of scope!
+		delete this->adjacencyMap;
 	}
 
 	void GCObject::ConnectTo(GCObject* object)
 	{
-		this->adjacencies->insert(object);
-		object->adjacencies->insert(this);
-		GarbageCollector::GC()->AdjacenciesChanged(object);
-		GarbageCollector::GC()->AdjacenciesChanged(this);
+		GarbageCollector::GC()->RelateObjects(this, object, true);
 	}
 
 	void GCObject::DisconnectFrom(GCObject* object)
 	{
-		this->adjacencies->erase(object);
-		object->adjacencies->erase(this);
-		GarbageCollector::GC()->AdjacenciesChanged(object);
-		GarbageCollector::GC()->AdjacenciesChanged(this);
+		GarbageCollector::GC()->RelateObjects(this, object, false);
 	}
 
-	/*static*/ void* GCObject::Allocate(uint64_t size)
+	void GCObject::AddAdjacency(GCObject* object)
 	{
-		return ::malloc((size_t)size);
+		std::map<GCObject*, uint32_t>::iterator iter = this->adjacencyMap->find(object);
+		if (iter != this->adjacencyMap->end())
+			iter->second++;
+		else
+			this->adjacencyMap->insert(std::pair<GCObject*, uint32_t>(object, 1));
 	}
 
-	/*static*/ void GCObject::Deallocate(void* memory)
+	bool GCObject::RemoveAdjacency(GCObject* object)
 	{
-		::free(memory);
+		std::map<GCObject*, uint32_t>::iterator iter = this->adjacencyMap->find(object);
+		if (iter == this->adjacencyMap->end())
+			return false;
+		if (--iter->second == 0)
+			this->adjacencyMap->erase(iter);
+		return true;
 	}
 }

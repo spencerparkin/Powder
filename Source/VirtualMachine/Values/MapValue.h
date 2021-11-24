@@ -28,6 +28,7 @@ namespace Powder
 
 		void SetField(const char* key, Value* dataValue);
 		Value* GetField(const char* key);
+		Value* DelField(const char* key);
 
 		HashMap<Value*>& GetValueMap() { return this->valueMap; }
 		const HashMap<Value*>& GetValueMap() const { return this->valueMap; }

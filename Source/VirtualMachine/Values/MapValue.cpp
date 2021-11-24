@@ -53,19 +53,30 @@ namespace Powder
 		if (existingDataValue)
 		{
 			this->valueMap.Remove(key);
-			this->DisownObject(existingDataValue);
+			this->DisconnectFrom(existingDataValue);
 		}
 
 		if (dataValue)
 		{
 			this->valueMap.Insert(key, dataValue);
-			this->OwnObject(dataValue);
+			this->ConnectTo(dataValue);
 		}
 	}
 
 	Value* MapValue::GetField(const char* key)
 	{
 		Value* dataValue = this->valueMap.Lookup(key);
+		return dataValue;
+	}
+
+	Value* MapValue::DelField(const char* key)
+	{
+		Value* dataValue = this->valueMap.Lookup(key);
+		if (dataValue)
+		{
+			this->valueMap.Remove(key);
+			this->DisconnectFrom(dataValue);
+		}
 		return dataValue;
 	}
 
@@ -84,14 +95,7 @@ namespace Powder
 	/*virtual*/ Value* MapValue::DelField(Value* fieldValue)
 	{
 		std::string key = fieldValue->ToString();
-		Value* dataValue = this->valueMap.Lookup(key.c_str());
-		if (dataValue)
-		{
-			this->valueMap.Remove(key.c_str());
-			this->DisownObject(dataValue);
-		}
-
-		return dataValue;
+		return this->DelField(key.c_str());
 	}
 
 	ListValue* MapValue::GenerateKeyListValue()

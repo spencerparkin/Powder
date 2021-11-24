@@ -38,6 +38,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{90
 		Examples\Matrix.pow = Examples\Matrix.pow
 		Examples\Membership.pow = Examples\Membership.pow
 		Examples\Object.pow = Examples\Object.pow
+		Examples\RefTest.pow = Examples\RefTest.pow
 		Examples\ScopeTest.pow = Examples\ScopeTest.pow
 		Examples\VectorLibrary.pow = Examples\VectorLibrary.pow
 		Examples\VectorTest.pow = Examples\VectorTest.pow
