@@ -1,0 +1,3 @@
+[submodule "ThirdParty/ParseParty"]
+	path = ThirdParty/ParseParty
+	url = http://github.com/spencerparkin/ParseParty
