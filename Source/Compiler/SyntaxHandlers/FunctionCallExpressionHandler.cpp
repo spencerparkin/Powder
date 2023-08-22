@@ -28,9 +28,9 @@ namespace Powder
 
 		// Special case: Is this a system call?
 		SysCallInstruction::SysCall sysCall = SysCallInstruction::SysCall::UNKNOWN;
-		if (*syntaxNode->childList.GetHead()->value->name == "identifier")
+		if (*syntaxNode->GetChild(0)->name == "identifier")
 		{
-			std::string funcName = *syntaxNode->childList.GetHead()->value->childList.GetHead()->value->name;
+			std::string funcName = *syntaxNode->GetChild(0)->childList.GetHead()->value->name;
 			sysCall = SysCallInstruction::TranslateAsSysCall(funcName);
 		}
 
@@ -49,7 +49,7 @@ namespace Powder
 			uint32_t argCountGiven = argListNode ? argListNode->childList.GetCount() : 0;
 			uint32_t argCountExpected = SysCallInstruction::ArgumentCount(sysCall);
 			if (argCountGiven != argCountExpected)
-				throw new CompileTimeException(FormatString("System call 0x%04x takes %d arguments, not %d.", uint8_t(sysCall), argCountExpected, argCountGiven), &syntaxNode->childList.GetHead()->value->childList.GetHead()->value->fileLocation);
+				throw new CompileTimeException(FormatString("System call 0x%04x takes %d arguments, not %d.", uint8_t(sysCall), argCountExpected, argCountGiven), &syntaxNode->GetChild(0)->childList.GetHead()->value->fileLocation);
 
 			// The system call should pop all its arguments off the evaluation stack.
 			SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>(syntaxNode->fileLocation);
@@ -85,7 +85,7 @@ namespace Powder
 
 			// Push onto the eval-stack the address of the function to be called.  This could be a single
 			// load instruction, or several instructions that ultimately leave an address on the stack top.
-			instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->value);
+			instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(0));
 
 			// We're now ready to make the call.
 			this->GenerateCallInstructions(instructionList, syntaxNode->fileLocation);

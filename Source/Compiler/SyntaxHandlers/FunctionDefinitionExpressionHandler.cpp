@@ -47,11 +47,11 @@ namespace Powder
 			for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = captureListNode->childList.GetHead(); node; node = node->GetNext())
 			{
 				const ParseParty::Parser::SyntaxNode* captureNode = node->value;
-				if (*captureNode->name != "identifier")
+				if (*captureNode->text != "identifier")
 					throw new CompileTimeException("Expected all children of \"capture-list\" in AST to be \"identifier\".", &captureNode->fileLocation);
 
 				entry.Reset();
-				entry.string = *captureNode->childList.GetHead()->value->name;
+				entry.string = *captureNode->GetChild(0)->name;
 				LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(captureNode->fileLocation);
 				loadInstruction->assemblyData->configMap.Insert("name", entry);
 				instructionList.AddTail(loadInstruction);
@@ -97,7 +97,7 @@ namespace Powder
 			for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
 			{
 				const ParseParty::Parser::SyntaxNode* argNode = node->value;
-				if (*argNode->name != "identifier")
+				if (*argNode->text != "identifier")
 					throw new CompileTimeException("Expected all children of \"identifier-list\" in AST to be \"identifier\".", &argNode->fileLocation);
 
 				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(argNode->fileLocation);
@@ -108,7 +108,7 @@ namespace Powder
 
 				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(argNode->fileLocation);
 				entry.Reset();
-				entry.string = *argNode->childList.GetHead()->value->name;
+				entry.string = *argNode->GetChild(0)->name;
 				storeInstruction->assemblyData->configMap.Insert("name", entry);
 				functionInstructionList.AddTail(storeInstruction);
 			}

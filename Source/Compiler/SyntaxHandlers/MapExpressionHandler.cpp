@@ -21,17 +21,17 @@ namespace Powder
 			for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = mapPairListNode->childList.GetHead(); node; node = node->GetNext())
 			{
 				const ParseParty::Parser::SyntaxNode* mapPairNode = node->value;
-				if (*mapPairNode->name != "map-pair")
+				if (*mapPairNode->text != "map-pair")
 					throw new CompileTimeException("Expected all children of \"map-pair-list\" to be \"map-pair\" in AST.", &mapPairNode->fileLocation);
 
 				if (mapPairNode->childList.GetCount() != 3)
 					throw new CompileTimeException("Expected \"map-pair\" node in AST to have exactly 3 children.", &mapPairNode->fileLocation);
 
 				// Push the field value.
-				instructionGenerator->GenerateInstructionListRecursively(instructionList, mapPairNode->childList.GetHead()->value);
+				instructionGenerator->GenerateInstructionListRecursively(instructionList, mapPairNode->GetChild(0));
 
 				// Push the data value.
-				instructionGenerator->GenerateInstructionListRecursively(instructionList, mapPairNode->childList.GetHead()->GetNext()->GetNext()->value);
+				instructionGenerator->GenerateInstructionListRecursively(instructionList, mapPairNode->GetChild(2));
 
 				// Now insert the data value at the field value.  Field and data values are popped; the map value remains on the stack top.
 				MapInstruction* mapInstruction = Instruction::CreateForAssembly<MapInstruction>(syntaxNode->fileLocation);

@@ -21,7 +21,7 @@ namespace Powder
 		AssemblyData::Entry entry;
 
 		// Execute conditional instructions.  What remains on the evaluation stack top gets consumed by the branch instruction.
-		instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(1));
 
 		// The branch instruction falls through if the condition passes, and jumps if the condition fails.
 		BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>(syntaxNode->fileLocation);
@@ -29,7 +29,7 @@ namespace Powder
 
 		// Lay down condition-pass instructions.
 		LinkedList<Instruction*> passInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(passInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(passInstructionList, syntaxNode->GetChild(2));
 		instructionList.Append(passInstructionList);
 
 		// Else clause?

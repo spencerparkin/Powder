@@ -25,7 +25,7 @@ namespace Powder
 		instructionList.AddTail(forkInstruction);
 
 		LinkedList<Instruction*> forkedInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(forkedInstructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(forkedInstructionList, syntaxNode->GetChild(1));
 		instructionList.Append(forkedInstructionList);
 
 		if (syntaxNode->childList.GetCount() == 2)
@@ -49,7 +49,7 @@ namespace Powder
 			instructionList.AddTail(jumpInstruction);
 
 			LinkedList<Instruction*> elseInstructionList;
-			instructionGenerator->GenerateInstructionListRecursively(elseInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->value);
+			instructionGenerator->GenerateInstructionListRecursively(elseInstructionList, syntaxNode->GetChild(3));
 			instructionList.Append(elseInstructionList);
 
 			entry.Reset();

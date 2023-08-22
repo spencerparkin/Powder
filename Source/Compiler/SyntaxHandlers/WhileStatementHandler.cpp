@@ -22,7 +22,7 @@ namespace Powder
 
 		// Lay down the conditional instructions first.  What remains is a value on the eval stack who's truthiness we'll use in a branch instruction.
 		LinkedList<Instruction*> conditionalInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->GetChild(1));
 		instructionList.Append(conditionalInstructionList);
 
 		// The branch falls through if the bool is true, or jumps in the bool is false.  We don't yet know how far to jump to get over the while-loop body.
@@ -31,7 +31,7 @@ namespace Powder
 
 		// Lay down while-loop body instructions.
 		LinkedList<Instruction*> whileLoopBodyInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(whileLoopBodyInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(whileLoopBodyInstructionList, syntaxNode->GetChild(2));
 		instructionList.Append(whileLoopBodyInstructionList);
 
 		// Unconditionally jump back to the top of the while-loop where the conditional is evaluated.

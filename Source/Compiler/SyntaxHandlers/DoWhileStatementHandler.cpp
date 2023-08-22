@@ -22,12 +22,12 @@ namespace Powder
 
 		// Lay down the first half of the loop instructions.
 		LinkedList<Instruction*> initialLoopInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(initialLoopInstructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(initialLoopInstructionList, syntaxNode->GetChild(1));
 		instructionList.Append(initialLoopInstructionList);
 
 		// Now lay down the conditional instructions of the loop.  What should remain is a single value on the eval stack for our branch instruction.
 		LinkedList<Instruction*> conditionalInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->GetChild(3));
 		instructionList.Append(conditionalInstructionList);
 
 		// Condition failure means we jump; success, we fall through.

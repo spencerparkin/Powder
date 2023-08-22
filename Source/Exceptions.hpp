@@ -2,7 +2,9 @@
 
 #include "Defines.h"
 #include "StringFormat.h"
+#include "Lexer.h"
 #include <string>
+#include <format>
 
 namespace Powder
 {
@@ -48,8 +50,9 @@ namespace Powder
 	class POWDER_API CompileTimeException : public Exception
 	{
 	public:
-		CompileTimeException(const std::string& errorMsg) : Exception(errorMsg)
+		CompileTimeException(const std::string& errorMsg, const ParseParty::Lexer::FileLocation* fileLocation) : Exception(errorMsg)
 		{
+			this->fileLocation = *fileLocation;
 		}
 
 		virtual ~CompileTimeException()
@@ -58,7 +61,9 @@ namespace Powder
 
 		virtual std::string GetErrorMessage() override
 		{
-			return "Compile-time error: " + *this->errorMsg;
+			return std::format("(Ln {}, Col {}): Compile-time error: " + *this->errorMsg, this->fileLocation.line, this->fileLocation.column);
 		}
+
+		ParseParty::Lexer::FileLocation fileLocation;
 	};
 }

@@ -72,10 +72,10 @@ namespace Powder
 			{
 				const std::string& assignmentModifier = assignmentModifyArray[i];
 				SyntaxNode* assignmentModifierNode = this->childList.GetHead()->GetNext()->value;
-				if (*assignmentModifierNode->name == assignmentModifier)
+				if (*assignmentModifierNode->text == assignmentModifier)
 				{
 					*this->name = "assignment-expression";
-					*assignmentModifierNode->name = "=";
+					*assignmentModifierNode->text = "=";
 					std::string assignmentStr = assignmentModifier.substr(0, 1);
 					SyntaxNode* syntaxNode = new SyntaxNode("binary-expression", assignmentModifierNode->fileLocation);
 					syntaxNode->childList.AddTail(this->childList.GetHead()->value->Copy());
@@ -91,14 +91,14 @@ namespace Powder
 		if (*this->name == "member-access-expression" && this->childList.GetCount() == 3)
 		{
 			SyntaxNode* identifierNode = this->childList.GetHead()->GetNext()->GetNext()->value;
-			if (*identifierNode->name == "identifier")
+			if (*identifierNode->text == "identifier")
 			{
 				*this->name = "container-field-expression";
 				delete this->childList.GetHead()->GetNext()->value;
 				this->childList.Remove(this->childList.GetHead()->GetNext());
 				SyntaxNode* literalNode = new SyntaxNode("literal", identifierNode->fileLocation);
 				literalNode->childList.AddTail(new SyntaxNode("string-literal", identifierNode->fileLocation));
-				literalNode->childList.GetHead()->value->childList.AddTail(new SyntaxNode(identifierNode->childList.GetHead()->value->name->c_str(), identifierNode->fileLocation));
+				literalNode->GetChild(0)->childList.AddTail(new SyntaxNode(identifierNode->GetChild(0)->name->c_str(), identifierNode->fileLocation));
 				delete identifierNode;
 				this->childList.GetHead()->GetNext()->value = literalNode;
 				performedExpansion = true;
@@ -148,18 +148,18 @@ namespace Powder
 		for (LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
 		{
 			SyntaxNode* childNode = node->value;
-			if (*childNode->name != "function-call")
+			if (*childNode->text != "function-call")
 			{
 				if (childNode->childList.GetCount() == 1 &&
-					(*childNode->name == *this->name ||
-						*childNode->name == "expression" ||
-						*childNode->name == "statement" ||
-						*childNode->name == "embedded-statement" ||
-						*childNode->name == "block" ||
-						*childNode->name == "unary-expression" ||
-						*childNode->name == "argument"))
+					(*childNode->text == *this->name ||
+						*childNode->text == "expression" ||
+						*childNode->text == "statement" ||
+						*childNode->text == "embedded-statement" ||
+						*childNode->text == "block" ||
+						*childNode->text == "unary-expression" ||
+						*childNode->text == "argument"))
 				{
-					SyntaxNode* newChildNode = childNode->childList.GetHead()->value;
+					SyntaxNode* newChildNode = childNode->GetChild(0);
 					childNode->childList.RemoveAll();
 					delete childNode;
 					node->value = newChildNode;
@@ -171,10 +171,10 @@ namespace Powder
 		for (LinkedList<SyntaxNode*>::Node* node = this->childList.GetHead(); node; node = node->GetNext())
 		{
 			SyntaxNode* childNode = node->value;
-			if (*childNode->name == "wrapped-expression" && childNode->childList.GetCount() == 3)
+			if (*childNode->text == "wrapped-expression" && childNode->childList.GetCount() == 3)
 			{
-				SyntaxNode* newChildNode = childNode->childList.GetHead()->GetNext()->value;
-				delete childNode->childList.GetHead()->value;
+				SyntaxNode* newChildNode = childNode->GetChild(1);
+				delete childNode->GetChild(0);
 				delete childNode->childList.GetTail()->value;
 				childNode->childList.RemoveAll();
 				node->value = newChildNode;

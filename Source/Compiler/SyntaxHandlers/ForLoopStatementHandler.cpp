@@ -26,19 +26,19 @@ namespace Powder
 		if (syntaxNode->childList.GetCount() != 3)
 			throw new CompileTimeException("Expected \"for-statement\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
 
-		const ParseParty::Parser::SyntaxNode* iterationNode = syntaxNode->childList.GetHead()->GetNext()->value;
-		if (*iterationNode->name != "for-iteration-expression")
+		const ParseParty::Parser::SyntaxNode* iterationNode = syntaxNode->GetChild(1);
+		if (*iterationNode->text != "for-iteration-expression")
 			throw new CompileTimeException("Expected \"for-statement\" in AST to have \"for-iteration-expression\" child.", &syntaxNode->fileLocation);
 
 		if (iterationNode->childList.GetCount() != 3)
 			throw new CompileTimeException("Exected \"for-iteration-expression\" in AST to have exactly 3 children.", &iterationNode->fileLocation);
 
-		const ParseParty::Parser::SyntaxNode* identifierNode = iterationNode->childList.GetHead()->value;
-		if (*identifierNode->name != "identifier")
+		const ParseParty::Parser::SyntaxNode* identifierNode = iterationNode->GetChild(0);
+		if (*identifierNode->text != "identifier")
 			throw new CompileTimeException("Expected \"identifier\" in AST as child of \"for-iteration-expression\" node.", &identifierNode->fileLocation);
 
 		// Push the container value or iterator function onto the eval-stack.
-		const ParseParty::Parser::SyntaxNode* iteratorNode = iterationNode->childList.GetHead()->GetNext()->GetNext()->value;
+		const ParseParty::Parser::SyntaxNode* iteratorNode = iterationNode->GetChild(2);
 		instructionGenerator->GenerateInstructionListRecursively(instructionList, iteratorNode);
 
 		// Convert it to an iterator if necessary.
@@ -66,7 +66,7 @@ namespace Powder
 		// Store the returned value in the loop iteration variable.
 		StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(iterationNode->fileLocation);
 		entry.Reset();
-		entry.string = *identifierNode->childList.GetHead()->value->name;
+		entry.string = *identifierNode->GetChild(0)->name;
 		storeInstruction->assemblyData->configMap.Insert("name", entry);
 		forLoopHeadInstructionList.AddTail(storeInstruction);
 
@@ -78,7 +78,7 @@ namespace Powder
 		forLoopHeadInstructionList.AddTail(pushInstruction);
 		LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(iterationNode->fileLocation);
 		entry.Reset();
-		entry.string = *identifierNode->childList.GetHead()->value->name;
+		entry.string = *identifierNode->GetChild(0)->name;
 		loadInstruction->assemblyData->configMap.Insert("name", entry);
 		forLoopHeadInstructionList.AddTail(loadInstruction);
 		MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(iterationNode->fileLocation);
@@ -91,7 +91,7 @@ namespace Powder
 
 		// Finally, we can now execute the body of the for-loop.
 		LinkedList<Instruction*> forLoopBodyInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(forLoopBodyInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(forLoopBodyInstructionList, syntaxNode->GetChild(2));
 
 		// Lastly, unconditionally jump back up to the top of the for-loop and do it all over again.
 		JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(iterationNode->fileLocation);
