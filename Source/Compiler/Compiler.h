@@ -15,6 +15,11 @@ namespace Powder
 		virtual Executable* CompileCode(const char* programSourceCode) override;
 
 		bool generateDebugInfo;
+
+	private:
+
+		//bool PerformReductions();
+		//bool PerformSugarExpansions();
 	};
 
 	extern Compiler theDefaultCompiler;

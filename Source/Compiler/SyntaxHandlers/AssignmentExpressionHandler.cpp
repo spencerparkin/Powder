@@ -14,7 +14,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void AssignmentExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void AssignmentExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() != 3)
 			throw new CompileTimeException("Expected \"assignment-expression\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
@@ -25,17 +25,17 @@ namespace Powder
 		// around in the VM, and have the math instruction store variables when given an assignment operation to perform, or
 		// load concrete values when it encounters a symbolic variable value, but I think that starts to violate a clear separation
 		// of concerns, and furthermore, it makes one instruction (in this case, the math instruction), more complicated than it needs to be.
-		const Parser::SyntaxNode* operationNode = syntaxNode->childList.GetHead()->GetNext()->value;
+		const ParseParty::Parser::SyntaxNode* operationNode = syntaxNode->childList.GetHead()->GetNext()->value;
 		if (*operationNode->name != "=")
 			throw new CompileTimeException("Expected \"assignment-expression\" to have quality child node in AST.", &operationNode->fileLocation);
 		
-		const Parser::SyntaxNode* storeLocationNode = syntaxNode->childList.GetHead()->value;
+		const ParseParty::Parser::SyntaxNode* storeLocationNode = syntaxNode->childList.GetHead()->value;
 		if (*storeLocationNode->name != "identifier" && *storeLocationNode->name != "container-field-expression")
 			throw new CompileTimeException(FormatString("Expected left operand of \"assignment-expression\" in AST to be a storable location (not \"%s\".)", storeLocationNode->name->c_str()), &storeLocationNode->fileLocation);
 
 		if (*storeLocationNode->name == "identifier")
 		{
-			const Parser::SyntaxNode* storeLocationNameNode = storeLocationNode->childList.GetHead()->value;
+			const ParseParty::Parser::SyntaxNode* storeLocationNameNode = storeLocationNode->childList.GetHead()->value;
 
 			// Lay down the instructions that will generate the value to be stored on top of the evaluation stack.
 			instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->value);

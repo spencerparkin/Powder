@@ -13,7 +13,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void DoWhileStatementHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void DoWhileStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() != 4 && syntaxNode->childList.GetCount() != 5)
 			throw new CompileTimeException("Expected \"do-while-statement\" in AST to have exactly 4 or 5 children.", &syntaxNode->fileLocation);

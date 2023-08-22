@@ -12,7 +12,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void ContainerFieldExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void ContainerFieldExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() != 2)
 			throw new CompileTimeException("Expected \"container-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);

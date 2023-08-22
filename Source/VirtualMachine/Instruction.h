@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Defines.h"
+#include "Lexer.h"
 #include <cstdint>
 #include <string>
 
@@ -10,7 +11,6 @@ namespace Powder
 	class Executor;
 	class Executable;
 	struct AssemblyData;
-	struct FileLocation;
 
 	// Derivatives of this class are responsible for both the decoding
 	// and encoding of a Powder VM instructions.
@@ -63,7 +63,7 @@ namespace Powder
 		AssemblyData* assemblyData;
 
 		template<typename T>
-		static T* CreateForAssembly(const FileLocation& fileLocation)
+		static T* CreateForAssembly(const ParseParty::Lexer::FileLocation& fileLocation)
 		{
 			T* instruction = new T;
 			instruction->assemblyData = new AssemblyData;

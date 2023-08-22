@@ -71,7 +71,7 @@ namespace Powder
 	// leaves it alone.  Both may use the stack, but the net result of a statement
 	// should be the eval stack left untouched, while that of an expression is to
 	// leave some new result of a computation.
-	void InstructionGenerator::GenerateInstructionList(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* rootSyntaxNode)
+	void InstructionGenerator::GenerateInstructionList(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* rootSyntaxNode)
 	{
 		this->GenerateInstructionListRecursively(instructionList, rootSyntaxNode);
 
@@ -83,15 +83,15 @@ namespace Powder
 		instructionList.AddTail(sysCallInstruction);
 	}
 
-	void InstructionGenerator::GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode)
+	void InstructionGenerator::GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* syntaxNode)
 	{
-		const char* name = syntaxNode->name->c_str();
+		const char* name = syntaxNode->text->c_str();
 		if (::strcmp(name, "empty-block") == 0)
 			return;
 
 		SyntaxHandler* syntaxHandler = this->syntaxHandlerMap.Lookup(name);
 		if (!syntaxHandler)
-			throw new CompileTimeException(FormatString("No syntax handler found for AST node with name \"%s\".", syntaxNode->name->c_str()), &syntaxNode->fileLocation);
+			throw new CompileTimeException(FormatString("No syntax handler found for AST node with name \"%s\".", syntaxNode->text->c_str()), &syntaxNode->fileLocation);
 
 		syntaxHandler->HandleSyntaxNode(syntaxNode, instructionList, this);
 	}
@@ -100,14 +100,14 @@ namespace Powder
 	// needs to be followed by a pop in order to keep us from leaking on the eval-stack.
 	// The only exception to this rule is in the context of a return statement.  In that case,
 	// the "leak" is how the function returns a value.
-	bool InstructionGenerator::SyntaxHandler::PopNeededForExpression(const Parser::SyntaxNode* syntaxNode)
+	bool InstructionGenerator::SyntaxHandler::PopNeededForExpression(const ParseParty::Parser::SyntaxNode* syntaxNode)
 	{
 		if (syntaxNode->parentNode)
 		{
-			if (*syntaxNode->parentNode->name == "return-statement")
+			if (*syntaxNode->parentNode->text == "return-statement")
 				return false;
 
-			int i = (int)syntaxNode->parentNode->name->find("statement");
+			int i = (int)syntaxNode->parentNode->text->find("statement");
 			if (i == 0)
 				return true;
 		}

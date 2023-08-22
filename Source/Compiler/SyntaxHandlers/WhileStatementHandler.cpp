@@ -13,7 +13,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void WhileStatementHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void WhileStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() != 3)
 			throw new CompileTimeException("Expected \"while-statement\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);

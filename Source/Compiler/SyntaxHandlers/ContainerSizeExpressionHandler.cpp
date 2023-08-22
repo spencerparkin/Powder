@@ -12,7 +12,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void ContainerSizeExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void ContainerSizeExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() != 2)
 			throw new CompileTimeException("Expected \"container-size-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);

@@ -21,24 +21,24 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void ForLoopStatementHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void ForLoopStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() != 3)
 			throw new CompileTimeException("Expected \"for-statement\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
 
-		const Parser::SyntaxNode* iterationNode = syntaxNode->childList.GetHead()->GetNext()->value;
+		const ParseParty::Parser::SyntaxNode* iterationNode = syntaxNode->childList.GetHead()->GetNext()->value;
 		if (*iterationNode->name != "for-iteration-expression")
 			throw new CompileTimeException("Expected \"for-statement\" in AST to have \"for-iteration-expression\" child.", &syntaxNode->fileLocation);
 
 		if (iterationNode->childList.GetCount() != 3)
 			throw new CompileTimeException("Exected \"for-iteration-expression\" in AST to have exactly 3 children.", &iterationNode->fileLocation);
 
-		const Parser::SyntaxNode* identifierNode = iterationNode->childList.GetHead()->value;
+		const ParseParty::Parser::SyntaxNode* identifierNode = iterationNode->childList.GetHead()->value;
 		if (*identifierNode->name != "identifier")
 			throw new CompileTimeException("Expected \"identifier\" in AST as child of \"for-iteration-expression\" node.", &identifierNode->fileLocation);
 
 		// Push the container value or iterator function onto the eval-stack.
-		const Parser::SyntaxNode* iteratorNode = iterationNode->childList.GetHead()->GetNext()->GetNext()->value;
+		const ParseParty::Parser::SyntaxNode* iteratorNode = iterationNode->childList.GetHead()->GetNext()->GetNext()->value;
 		instructionGenerator->GenerateInstructionListRecursively(instructionList, iteratorNode);
 
 		// Convert it to an iterator if necessary.
@@ -117,7 +117,7 @@ namespace Powder
 		branchInstruction->assemblyData->configMap.Insert("branch", entry);
 	}
 
-	void ForLoopStatementHandler::GenerateInstructionForIteratorCallSetup(LinkedList<Instruction*>& instructionList, const char* action, const FileLocation& fileLocation)
+	void ForLoopStatementHandler::GenerateInstructionForIteratorCallSetup(LinkedList<Instruction*>& instructionList, const char* action, const ParseParty::Lexer::FileLocation& fileLocation)
 	{
 		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(fileLocation);
 		AssemblyData::Entry entry;

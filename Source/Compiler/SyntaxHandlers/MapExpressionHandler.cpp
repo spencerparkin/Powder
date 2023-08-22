@@ -12,15 +12,15 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void MapExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void MapExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		// The map may be empty, in which case, we don't find the node.
-		const Parser::SyntaxNode* mapPairListNode = syntaxNode->FindChild("map-pair-list", 1);
+		const ParseParty::Parser::SyntaxNode* mapPairListNode = syntaxNode->FindChild("map-pair-list", 1);
 		if (mapPairListNode)
 		{
-			for (const LinkedList<Parser::SyntaxNode*>::Node* node = mapPairListNode->childList.GetHead(); node; node = node->GetNext())
+			for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = mapPairListNode->childList.GetHead(); node; node = node->GetNext())
 			{
-				const Parser::SyntaxNode* mapPairNode = node->value;
+				const ParseParty::Parser::SyntaxNode* mapPairNode = node->value;
 				if (*mapPairNode->name != "map-pair")
 					throw new CompileTimeException("Expected all children of \"map-pair-list\" to be \"map-pair\" in AST.", &mapPairNode->fileLocation);
 

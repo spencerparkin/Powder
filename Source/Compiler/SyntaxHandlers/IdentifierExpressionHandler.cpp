@@ -12,7 +12,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void IdentifierExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void IdentifierExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() != 1)
 			throw new CompileTimeException("Expected \"identifier\" in AST to have exactly one child.", &syntaxNode->fileLocation);
@@ -22,7 +22,7 @@ namespace Powder
 		// introducing more fluff back into the AST.  Much of the fluff was removed before we were handed the AST.
 		// Of course, identifiers can appear in other contexts, such as a function call or function definition.
 		// Note that we also generate this code in the context of a system call, which is looking for values on the eval stack.
-		const Parser::SyntaxNode* identifierNode = syntaxNode->childList.GetHead()->value;
+		const ParseParty::Parser::SyntaxNode* identifierNode = syntaxNode->childList.GetHead()->value;
 		LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(syntaxNode->fileLocation);
 		AssemblyData::Entry entry;
 		entry.string = *identifierNode->name;

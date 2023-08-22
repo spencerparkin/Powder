@@ -103,9 +103,6 @@
     <ClCompile Include="Source\VirtualMachine\Values\AddressValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Compiler\Tokenizer.cpp">
-      <Filter>Source\Compiler</Filter>
-    </ClCompile>
     <ClCompile Include="Source\VirtualMachine\Values\BooleanValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
@@ -308,9 +305,6 @@
     </ClInclude>
     <ClInclude Include="Source\Utilities\LinkedList.hpp">
       <Filter>Source\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\Tokenizer.h">
-      <Filter>Source\Compiler</Filter>
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\BooleanValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>

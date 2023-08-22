@@ -14,7 +14,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void BinaryExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void BinaryExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() != 3)
 			throw new CompileTimeException("Expected \"binary-expression\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
@@ -28,7 +28,7 @@ namespace Powder
 		// At this point, we should have our left and right operands as the two top values of the evaluation stack, in proper order.
 		// So here we simply issue the appropriate math instruction to pop both those off, combine them in the operation at hand, and then push the result.
 		AssemblyData::Entry entry;
-		const Parser::SyntaxNode* operationNode = syntaxNode->childList.GetHead()->GetNext()->value;
+		const ParseParty::Parser::SyntaxNode* operationNode = syntaxNode->childList.GetHead()->GetNext()->value;
 		entry.code = MathInstruction::TranslateBinaryOperatorInfixToken(*operationNode->name);
 		if (entry.code == MathInstruction::MathOp::UNKNOWN)
 			throw new CompileTimeException(FormatString("Failed to recognize math operation \"%s\" for \"binary-expression\" in AST.", operationNode->name->c_str()), &operationNode->fileLocation);

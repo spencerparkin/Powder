@@ -13,7 +13,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void DeleteFieldExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void DeleteFieldExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() != 2)
 			throw new CompileTimeException("Expected \"delete-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
@@ -21,7 +21,7 @@ namespace Powder
 		if (*syntaxNode->childList.GetHead()->GetNext()->value->name != "container-field-expression")
 			throw new CompileTimeException("Expected \"container-field-expression\" to be second child of \"delete-field-expression\" in AST.", &syntaxNode->childList.GetHead()->GetNext()->value->fileLocation);
 
-		const Parser::SyntaxNode* containerFieldNode = syntaxNode->childList.GetHead()->GetNext()->value;
+		const ParseParty::Parser::SyntaxNode* containerFieldNode = syntaxNode->childList.GetHead()->GetNext()->value;
 
 		// Push the container value.
 		instructionGenerator->GenerateInstructionListRecursively(instructionList, containerFieldNode->childList.GetHead()->value);

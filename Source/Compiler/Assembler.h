@@ -69,7 +69,7 @@ namespace Powder
 		};
 
 		HashMap<Entry> configMap;
-		FileLocation fileLocation;
+		ParseParty::Lexer::FileLocation fileLocation;
 		std::string* debuggerHelp;
 	};
 }

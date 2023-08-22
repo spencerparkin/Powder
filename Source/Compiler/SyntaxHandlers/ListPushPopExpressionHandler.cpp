@@ -14,16 +14,16 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void ListPushPopExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void ListPushPopExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() != 3)
 			throw new CompileTimeException("Expected \"list-push-pop-expression\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
 
-		const Parser::SyntaxNode* actionNode = syntaxNode->childList.GetHead()->GetNext()->value;
+		const ParseParty::Parser::SyntaxNode* actionNode = syntaxNode->childList.GetHead()->GetNext()->value;
 		if (*actionNode->name == "-->" || *actionNode->name == "<--")
 		{
 			// Push the list onto the eval stack.  Note that if it's not a list, we'll only know at run-time.
-			const Parser::SyntaxNode* listNode = (*actionNode->name == "-->") ? syntaxNode->childList.GetHead()->value : syntaxNode->childList.GetHead()->GetNext()->GetNext()->value;
+			const ParseParty::Parser::SyntaxNode* listNode = (*actionNode->name == "-->") ? syntaxNode->childList.GetHead()->value : syntaxNode->childList.GetHead()->GetNext()->GetNext()->value;
 			LinkedList<Instruction*> listInstructionList;
 			instructionGenerator->GenerateInstructionListRecursively(listInstructionList, listNode);
 			instructionList.Append(listInstructionList);
@@ -38,7 +38,7 @@ namespace Powder
 			// TODO: Support "list --> other_container[key]"?
 
 			// Lastly, store the popped value into the given identifier.
-			const Parser::SyntaxNode* identifierNode = (*actionNode->name == "-->") ? syntaxNode->childList.GetHead()->GetNext()->GetNext()->value : syntaxNode->childList.GetHead()->value;
+			const ParseParty::Parser::SyntaxNode* identifierNode = (*actionNode->name == "-->") ? syntaxNode->childList.GetHead()->GetNext()->GetNext()->value : syntaxNode->childList.GetHead()->value;
 			if (*identifierNode->name != "identifier")
 				throw new CompileTimeException(FormatString("List pop expected to store value in location given by name, but got no identifier.  Got \"%s\" instead.", identifierNode->name->c_str()), &syntaxNode->fileLocation);
 			StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(syntaxNode->fileLocation);
@@ -50,13 +50,13 @@ namespace Powder
 		else if (*actionNode->name == "--<" || *actionNode->name == ">--")
 		{
 			// Push the list onto the eval stack.  Note that if it's not a list, we'll only know at run-time.
-			const Parser::SyntaxNode* listNode = (*actionNode->name == "--<") ? syntaxNode->childList.GetHead()->value : syntaxNode->childList.GetHead()->GetNext()->GetNext()->value;
+			const ParseParty::Parser::SyntaxNode* listNode = (*actionNode->name == "--<") ? syntaxNode->childList.GetHead()->value : syntaxNode->childList.GetHead()->GetNext()->GetNext()->value;
 			LinkedList<Instruction*> listInstructionList;
 			instructionGenerator->GenerateInstructionListRecursively(listInstructionList, listNode);
 			instructionList.Append(listInstructionList);
 
 			// Now push the element onto the eval stack.  This can be anything, even another list or map.
-			const Parser::SyntaxNode* elementNode = (*actionNode->name == "--<") ? syntaxNode->childList.GetHead()->GetNext()->GetNext()->value : syntaxNode->childList.GetHead()->value;
+			const ParseParty::Parser::SyntaxNode* elementNode = (*actionNode->name == "--<") ? syntaxNode->childList.GetHead()->GetNext()->GetNext()->value : syntaxNode->childList.GetHead()->value;
 			LinkedList<Instruction*> elementInstructionList;
 			instructionGenerator->GenerateInstructionListRecursively(elementInstructionList, elementNode);
 			instructionList.Append(elementInstructionList);

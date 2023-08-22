@@ -18,13 +18,13 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void FunctionCallExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void FunctionCallExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->childList.GetCount() == 0)
 			throw new CompileTimeException("Expected \"function-call\" in AST to have at least 1 child.", &syntaxNode->fileLocation);
 
 		// This node may or may not be present.  Its absense simply means the call takes no arguments.
-		const Parser::SyntaxNode* argListNode = syntaxNode->FindChild("argument-list", 1);
+		const ParseParty::Parser::SyntaxNode* argListNode = syntaxNode->FindChild("argument-list", 1);
 
 		// Special case: Is this a system call?
 		SysCallInstruction::SysCall sysCall = SysCallInstruction::SysCall::UNKNOWN;
@@ -39,9 +39,9 @@ namespace Powder
 			// In the case of a system call, we pass all arguments on the eval-stack.
 			if (argListNode)
 			{
-				for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
+				for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
 				{
-					const Parser::SyntaxNode* argNode = node->value;
+					const ParseParty::Parser::SyntaxNode* argNode = node->value;
 					instructionGenerator->GenerateInstructionListRecursively(instructionList, argNode);
 				}
 			}
@@ -71,9 +71,9 @@ namespace Powder
 			instructionList.AddTail(pushInstruction);
 			if (argListNode)
 			{
-				for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
+				for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
 				{
-					const Parser::SyntaxNode* argNode = node->value;
+					const ParseParty::Parser::SyntaxNode* argNode = node->value;
 					instructionGenerator->GenerateInstructionListRecursively(instructionList, argNode);
 					ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(syntaxNode->fileLocation);
 					entry.Reset();
@@ -103,7 +103,7 @@ namespace Powder
 		}
 	}
 
-	/*static*/ void FunctionCallExpressionHandler::GenerateCallInstructions(LinkedList<Instruction*>& instructionList, const FileLocation& fileLocation)
+	/*static*/ void FunctionCallExpressionHandler::GenerateCallInstructions(LinkedList<Instruction*>& instructionList, const ParseParty::Lexer::FileLocation& fileLocation)
 	{
 		// Push scope so that the called function doesn't pollute the caller's name-space.
 		ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(fileLocation);

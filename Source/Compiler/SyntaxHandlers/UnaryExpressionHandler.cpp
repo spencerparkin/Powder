@@ -12,10 +12,10 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void UnaryExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void UnaryExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		const Parser::SyntaxNode* operationNode = nullptr;
-		const Parser::SyntaxNode* operandNode = nullptr;
+		const ParseParty::Parser::SyntaxNode* operationNode = nullptr;
+		const ParseParty::Parser::SyntaxNode* operandNode = nullptr;
 
 		AssemblyData::Entry entry;
 
