@@ -1,185 +1,189 @@
 {
-  "statement-list": [
-    [ "statement-list", ";", "statement-list" ],
-    [ "statement" ],
-    [ "statement", ";" ]
-  ],
-  "statement": [
-    [ "if-statement" ],
-    [ "while-statement" ],
-    [ "do-while-statement" ],
-    [ "for-statement" ],
-    [ "fork-statement" ],
-    [ "return-statement" ],
-    [ "yield-statement" ],
-    [ "expression" ]
-  ],
-  "if-statement": [
-    [ "if", "(", "expression", ")", "embedded-statement" ],
-    [ "if", "(", "expression", ")", "embedded-statement", "else", "embedded-statement" ]
-  ],
-  "while-statement": [
-    [ "while", "(", "expression", ")", "embedded-statement" ]
-  ],
-  "do-while-statement": [
-    [ "do", "embedded-statement", "while", "(", "expression", ")" ],
-    [ "do", "embedded-statement", "while", "(", "expression", ")", "embedded-statement" ]
-  ],
-  "for-statement": [
-    [ "for", "(", "for-iteration-expression", ")", "embedded-statement" ]
-  ],
-  "for-iteration-expression": [
-    [ "identifier", "in", "expression" ]
-  ],
-  "fork-statement": [
-    [ "fork", "embedded-statement" ],
-    [ "fork", "embedded-statement", "else", "embedded-statement" ]
-  ],
-  "return-statement": [
-    [ "return", "expression" ],
-    [ "return" ]
-  ],
-  "yield-statement": [
-    [ "yield" ]
-  ],
-  "function-definition": [
-    [ "func", "(", ")", "block" ],
-    [ "func", "(", "identifier-list", ")", "block" ],
-    [ "func", "[", "capture-list", "]", "(", ")", "block" ],
-    [ "func", "[", "capture-list", "]", "(", "identifier-list", ")", "block" ]
-  ],
-  "identifier-list": [
-    [ "identifier-list", ",", "identifier-list" ],
-    [ "identifier" ]
-  ],
-  "embedded-statement": [
-    [ "block" ],
-    [ "statement" ]
-  ],
-  "block": [
-    [ "empty-block" ],
-    [ "{", "statement-list", "}" ]
-  ],
-  "empty-block": [
-    [ "{", "}" ]
-  ],
-  "expression": [
-    [ "literal" ],
-    [ "identifier" ],
-    [ "wrapped-expression" ],
-    [ "assignment-expression" ],
-    [ "membership-expression" ],
-    [ "container-size-expression" ],
-    [ "list-push-pop-expression" ],
-    [ "binary-expression" ],
-    [ "unary-expression" ],
-    [ "member-access-expression" ],
-    [ "map-keys-expression" ],
-    [ "function-call" ],
-    [ "delete-field-expression" ],
-    [ "container-field-expression" ],
-    [ "function-definition" ]
-  ],
-  "membership-expression": [
-    [ "expression", "in", "expression" ]
-  ],
-  "member-access-expression": [
-    [ "expression", ".", "identifier", -1 ]
-  ],
-  "list-push-pop-expression": [
-    [ "expression", "-->", "expression" ],
-    [ "expression", "<--", "expression" ],
-    [ "expression", "--<", "expression" ],
-    [ "expression", ">--", "expression" ]
-  ],
-  "container-size-expression": [
-    [ "len", "(", "expression", ")" ]
-  ],
-  "delete-field-expression": [
-    [ "del", "expression" ]
-  ],
-  "map-keys-expression": [
-    [ "keys", "(", "expression", ")" ]
-  ],
-  "container-field-expression": [
-    [ "expression", "[", "expression", "]", -1 ]
-  ],
-  "assignment-expression": [
-    [ "expression", "=", "expression" ]
-  ],
-  "binary-expression": [
-    [ "expression", "+=", "expression" ],
-    [ "expression", "-=", "expression" ],
-    [ "expression", "*=", "expression" ],
-    [ "expression", "/=", "expression" ],
-    [ "expression", "%=", "expression" ],
-    [ "expression", "&&", "expression" ],
-    [ "expression", "||", "expression" ],
-    [ "expression", "==", "expression" ],
-    [ "expression", "<", "expression" ],
-    [ "expression", ">", "expression" ],
-    [ "expression", "<=", "expression" ],
-    [ "expression", ">=", "expression" ],
-    [ "expression", "+", "expression" ],
-    [ "expression", "-", "expression" ],
-    [ "expression", "*", "expression" ],
-    [ "expression", "/", "expression" ],
-    [ "expression", "%", "expression" ]
-  ],
-  "unary-expression": [
-    [ "left-unary-expression" ],
-    [ "right-unary-expression" ]
-  ],
-  "left-unary-expression": [
-    [ "-", "expression" ],
-    [ "~", "expression" ],
-    [ "!", "expression" ]
-  ],
-  "right-unary-expression": [
-    [ "expression", "!" ]
-  ],
-  "wrapped-expression": [
-    [ "(", "expression", ")" ]
-  ],
-  "literal": [
-    [ "undefined" ],
-    [ "string-literal" ],
-    [ "number-literal" ],
-    [ "list-literal" ],
-    [ "map-literal" ]
-  ],
-  "list-literal": [
-    [ "[", "]" ],
-    [ "[", "list-element-list", "]" ]
-  ],
-  "list-element-list": [
-    [ "list-element-list", ",", "list-element-list" ],
-    [ "expression" ]
-  ],
-  "map-literal": [
-    [ "{", "}" ],
-    [ "{", "map-pair-list", "}" ]
-  ],
-  "map-pair-list": [
-    [ "map-pair-list", ",", "map-pair-list" ],
-    [ "map-pair" ]
-  ],
-  "map-pair": [
-    [ "expression", ":", "expression" ]
-  ],
-  "function-call": [
-    [ "expression", "(", ")", -1 ],
-    [ "expression", "(", "argument-list", ")", -1 ]
-  ],
-  "argument-list": [
-    [ "argument-list", ",", "argument-list" ],
-    [ "argument" ]
-  ],
-  "argument": [
-    [ "expression" ]
-  ],
-  "capture-list": [
-    [ "capture-list", ",", "capture-list" ],
-    [ "identifier" ]
-  ]
+  "initial_rule": "statement-list",
+  "algorithm": "slow",
+  "rules": {
+    "statement-list": [
+      [ "statement-list", ";", "statement-list" ],
+      [ "statement" ],
+      [ "statement", ";" ]
+    ],
+    "statement": [
+      [ "if-statement" ],
+      [ "while-statement" ],
+      [ "do-while-statement" ],
+      [ "for-statement" ],
+      [ "fork-statement" ],
+      [ "return-statement" ],
+      [ "yield-statement" ],
+      [ "expression" ]
+    ],
+    "if-statement": [
+      [ "if", "(", "expression", ")", "embedded-statement" ],
+      [ "if", "(", "expression", ")", "embedded-statement", "else", "embedded-statement" ]
+    ],
+    "while-statement": [
+      [ "while", "(", "expression", ")", "embedded-statement" ]
+    ],
+    "do-while-statement": [
+      [ "do", "embedded-statement", "while", "(", "expression", ")" ],
+      [ "do", "embedded-statement", "while", "(", "expression", ")", "embedded-statement" ]
+    ],
+    "for-statement": [
+      [ "for", "(", "for-iteration-expression", ")", "embedded-statement" ]
+    ],
+    "for-iteration-expression": [
+      [ "identifier", "in", "expression" ]
+    ],
+    "fork-statement": [
+      [ "fork", "embedded-statement" ],
+      [ "fork", "embedded-statement", "else", "embedded-statement" ]
+    ],
+    "return-statement": [
+      [ "return", "expression" ],
+      [ "return" ]
+    ],
+    "yield-statement": [
+      [ "yield" ]
+    ],
+    "function-definition": [
+      [ "func", "(", ")", "block" ],
+      [ "func", "(", "identifier-list", ")", "block" ],
+      [ "func", "[", "capture-list", "]", "(", ")", "block" ],
+      [ "func", "[", "capture-list", "]", "(", "identifier-list", ")", "block" ]
+    ],
+    "identifier-list": [
+      [ "identifier-list", ",", "identifier-list" ],
+      [ "identifier" ]
+    ],
+    "embedded-statement": [
+      [ "block" ],
+      [ "statement" ]
+    ],
+    "block": [
+      [ "empty-block" ],
+      [ "{", "statement-list", "}" ]
+    ],
+    "empty-block": [
+      [ "{", "}" ]
+    ],
+    "expression": [
+      [ "literal" ],
+      [ "identifier" ],
+      [ "wrapped-expression" ],
+      [ "assignment-expression" ],
+      [ "membership-expression" ],
+      [ "container-size-expression" ],
+      [ "list-push-pop-expression" ],
+      [ "binary-expression" ],
+      [ "unary-expression" ],
+      [ "member-access-expression" ],
+      [ "map-keys-expression" ],
+      [ "function-call" ],
+      [ "delete-field-expression" ],
+      [ "container-field-expression" ],
+      [ "function-definition" ]
+    ],
+    "membership-expression": [
+      [ "expression", "in", "expression" ]
+    ],
+    "member-access-expression": [
+      [ "expression", ".", "identifier", -1 ]
+    ],
+    "list-push-pop-expression": [
+      [ "expression", "-->", "expression" ],
+      [ "expression", "<--", "expression" ],
+      [ "expression", "--<", "expression" ],
+      [ "expression", ">--", "expression" ]
+    ],
+    "container-size-expression": [
+      [ "len", "(", "expression", ")" ]
+    ],
+    "delete-field-expression": [
+      [ "del", "expression" ]
+    ],
+    "map-keys-expression": [
+      [ "keys", "(", "expression", ")" ]
+    ],
+    "container-field-expression": [
+      [ "expression", "[", "expression", "]", -1 ]
+    ],
+    "assignment-expression": [
+      [ "expression", "=", "expression" ]
+    ],
+    "binary-expression": [
+      [ "expression", "+=", "expression" ],
+      [ "expression", "-=", "expression" ],
+      [ "expression", "*=", "expression" ],
+      [ "expression", "/=", "expression" ],
+      [ "expression", "%=", "expression" ],
+      [ "expression", "&&", "expression" ],
+      [ "expression", "||", "expression" ],
+      [ "expression", "==", "expression" ],
+      [ "expression", "<", "expression" ],
+      [ "expression", ">", "expression" ],
+      [ "expression", "<=", "expression" ],
+      [ "expression", ">=", "expression" ],
+      [ "expression", "+", "expression" ],
+      [ "expression", "-", "expression" ],
+      [ "expression", "*", "expression" ],
+      [ "expression", "/", "expression" ],
+      [ "expression", "%", "expression" ]
+    ],
+    "unary-expression": [
+      [ "left-unary-expression" ],
+      [ "right-unary-expression" ]
+    ],
+    "left-unary-expression": [
+      [ "-", "expression" ],
+      [ "~", "expression" ],
+      [ "!", "expression" ]
+    ],
+    "right-unary-expression": [
+      [ "expression", "!" ]
+    ],
+    "wrapped-expression": [
+      [ "(", "expression", ")" ]
+    ],
+    "literal": [
+      [ "undefined" ],
+      [ "string-literal" ],
+      [ "number-literal" ],
+      [ "list-literal" ],
+      [ "map-literal" ]
+    ],
+    "list-literal": [
+      [ "[", "]" ],
+      [ "[", "list-element-list", "]" ]
+    ],
+    "list-element-list": [
+      [ "list-element-list", ",", "list-element-list" ],
+      [ "expression" ]
+    ],
+    "map-literal": [
+      [ "{", "}" ],
+      [ "{", "map-pair-list", "}" ]
+    ],
+    "map-pair-list": [
+      [ "map-pair-list", ",", "map-pair-list" ],
+      [ "map-pair" ]
+    ],
+    "map-pair": [
+      [ "expression", ":", "expression" ]
+    ],
+    "function-call": [
+      [ "expression", "(", ")", -1 ],
+      [ "expression", "(", "argument-list", ")", -1 ]
+    ],
+    "argument-list": [
+      [ "argument-list", ",", "argument-list" ],
+      [ "argument" ]
+    ],
+    "argument": [
+      [ "expression" ]
+    ],
+    "capture-list": [
+      [ "capture-list", ",", "capture-list" ],
+      [ "identifier" ]
+    ]
+  }
 }

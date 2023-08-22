@@ -15,7 +15,7 @@ namespace Powder
 
 	/*virtual*/ void DoWhileStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 4 && syntaxNode->childList.GetCount() != 5)
+		if (syntaxNode->GetChildCount() != 4 && syntaxNode->GetChildCount() != 5)
 			throw new CompileTimeException("Expected \"do-while-statement\" in AST to have exactly 4 or 5 children.", &syntaxNode->fileLocation);
 
 		AssemblyData::Entry entry;
@@ -36,9 +36,9 @@ namespace Powder
 
 		// Now lay down the last half of the loop instructions, if given.
 		LinkedList<Instruction*> finalLoopInstructionList;
-		if (syntaxNode->childList.GetCount() == 5)
+		if (syntaxNode->GetChildCount() == 5)
 		{
-			instructionGenerator->GenerateInstructionListRecursively(finalLoopInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->GetNext()->value);
+			instructionGenerator->GenerateInstructionListRecursively(finalLoopInstructionList, syntaxNode->GetChild(4));
 			instructionList.Append(finalLoopInstructionList);
 		}
 

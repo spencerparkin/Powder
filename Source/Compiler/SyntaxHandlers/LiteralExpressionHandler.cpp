@@ -15,14 +15,14 @@ namespace Powder
 
 	/*virtual*/ void LiteralExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 1)
+		if (syntaxNode->GetChildCount() != 1)
 			throw new CompileTimeException("Expected \"literal\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
 		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
 		instructionList.AddTail(pushInstruction);
 
 		const ParseParty::Parser::SyntaxNode* literalTypeNode = syntaxNode->GetChild(0);
-		const ParseParty::Parser::SyntaxNode* literalDataNode = (literalTypeNode->childList.GetCount() == 1) ? literalTypeNode->GetChild(0) : nullptr;
+		const ParseParty::Parser::SyntaxNode* literalDataNode = (literalTypeNode->GetChildCount() == 1) ? literalTypeNode->GetChild(0) : nullptr;
 
 		AssemblyData::Entry typeEntry;
 		AssemblyData::Entry dataEntry;

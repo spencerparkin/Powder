@@ -14,7 +14,7 @@ namespace Powder
 
 	/*virtual*/ void MembershipExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 3)
+		if (syntaxNode->GetChildCount() != 3)
 			throw new CompileTimeException("Expected \"membership-expression\" node in AST to have exactly 3 children.", &syntaxNode->fileLocation);
 
 		instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(0));

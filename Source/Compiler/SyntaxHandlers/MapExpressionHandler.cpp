@@ -18,13 +18,12 @@ namespace Powder
 		const ParseParty::Parser::SyntaxNode* mapPairListNode = syntaxNode->FindChild("map-pair-list", 1);
 		if (mapPairListNode)
 		{
-			for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = mapPairListNode->childList.GetHead(); node; node = node->GetNext())
+			for (const ParseParty::Parser::SyntaxNode* mapPairNode : *mapPairListNode->childList)
 			{
-				const ParseParty::Parser::SyntaxNode* mapPairNode = node->value;
 				if (*mapPairNode->text != "map-pair")
 					throw new CompileTimeException("Expected all children of \"map-pair-list\" to be \"map-pair\" in AST.", &mapPairNode->fileLocation);
 
-				if (mapPairNode->childList.GetCount() != 3)
+				if (mapPairNode->GetChildCount() != 3)
 					throw new CompileTimeException("Expected \"map-pair\" node in AST to have exactly 3 children.", &mapPairNode->fileLocation);
 
 				// Push the field value.

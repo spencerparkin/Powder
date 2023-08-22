@@ -12,10 +12,10 @@ namespace Powder
 
 	/*virtual*/ void StatementListHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = syntaxNode->childList.GetHead(); node; node = node->GetNext())
+		for (const ParseParty::Parser::SyntaxNode* childNode : *syntaxNode->childList)
 		{
 			// We simply execute the code for each statement in order.
-			instructionGenerator->GenerateInstructionListRecursively(instructionList, node->value);
+			instructionGenerator->GenerateInstructionListRecursively(instructionList, childNode);
 		}
 	}
 }

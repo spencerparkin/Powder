@@ -15,10 +15,10 @@ namespace Powder
 
 	/*virtual*/ void DeleteFieldExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 2)
+		if (syntaxNode->GetChildCount() != 2)
 			throw new CompileTimeException("Expected \"delete-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
 
-		if (*syntaxNode->GetChild(1)->name != "container-field-expression")
+		if (*syntaxNode->GetChild(1)->text != "container-field-expression")
 			throw new CompileTimeException("Expected \"container-field-expression\" to be second child of \"delete-field-expression\" in AST.", &syntaxNode->GetChild(1)->fileLocation);
 
 		const ParseParty::Parser::SyntaxNode* containerFieldNode = syntaxNode->GetChild(1);

@@ -15,7 +15,7 @@ namespace Powder
 
 	/*virtual*/ void IfStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 3 && syntaxNode->childList.GetCount() != 5)
+		if (syntaxNode->GetChildCount() != 3 && syntaxNode->GetChildCount() != 5)
 			throw new CompileTimeException("Expected \"if-statement\" in AST to have exactly 3 or 5 children.", &syntaxNode->fileLocation);
 
 		AssemblyData::Entry entry;
@@ -33,7 +33,7 @@ namespace Powder
 		instructionList.Append(passInstructionList);
 
 		// Else clause?
-		if (syntaxNode->childList.GetCount() != 5)
+		if (syntaxNode->GetChildCount() != 5)
 		{
 			// No.  Setup jump-hint on the branch instruction to jump to instruction just after the last condition-pass instruction.
 			entry.Reset();
@@ -52,7 +52,7 @@ namespace Powder
 
 			// Okay, now lay down the condition-fail instructions.
 			LinkedList<Instruction*> failInstructionList;
-			instructionGenerator->GenerateInstructionListRecursively(failInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->GetNext()->value);
+			instructionGenerator->GenerateInstructionListRecursively(failInstructionList, syntaxNode->GetChild(4));
 			instructionList.Append(failInstructionList);
 
 			// We have enough now to resolve the jump-delta for getting over the else-clause.

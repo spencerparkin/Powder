@@ -31,8 +31,8 @@ namespace Powder
 		AssemblyData()
 		{
 			this->programBufferLocation = 0L;
-			this->fileLocation.lineNumber = -1;
-			this->fileLocation.columnNumber = -1;
+			this->fileLocation.line = -1;
+			this->fileLocation.column = -1;
 			this->debuggerHelp = new std::string;
 		}
 

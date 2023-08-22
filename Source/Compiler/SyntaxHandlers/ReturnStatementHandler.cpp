@@ -16,7 +16,7 @@ namespace Powder
 
 	/*virtual*/ void ReturnStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() == 2)
+		if (syntaxNode->GetChildCount() == 2)
 			instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(1));
 		else
 		{

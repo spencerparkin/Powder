@@ -16,7 +16,7 @@ namespace Powder
 
 	/*virtual*/ void ListPushPopExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 3)
+		if (syntaxNode->GetChildCount() != 3)
 			throw new CompileTimeException("Expected \"list-push-pop-expression\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
 
 		const ParseParty::Parser::SyntaxNode* actionNode = syntaxNode->GetChild(1);
@@ -43,7 +43,7 @@ namespace Powder
 				throw new CompileTimeException(FormatString("List pop expected to store value in location given by name, but got no identifier.  Got \"%s\" instead.", identifierNode->text->c_str()), &syntaxNode->fileLocation);
 			StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(syntaxNode->fileLocation);
 			entry.Reset();
-			entry.string = *identifierNode->GetChild(0)->name;
+			entry.string = *identifierNode->GetChild(0)->text;
 			storeInstruction->assemblyData->configMap.Insert("name", entry);
 			instructionList.AddTail(storeInstruction);
 		}

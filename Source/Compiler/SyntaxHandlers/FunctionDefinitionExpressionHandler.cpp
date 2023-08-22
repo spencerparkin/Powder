@@ -44,14 +44,13 @@ namespace Powder
 			instructionList.AddTail(scopeInstruction);
 
 			// Capture the desired values from the scope containing the current scope in the current scope.
-			for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = captureListNode->childList.GetHead(); node; node = node->GetNext())
+			for (const ParseParty::Parser::SyntaxNode* captureNode : *captureListNode->childList)
 			{
-				const ParseParty::Parser::SyntaxNode* captureNode = node->value;
 				if (*captureNode->text != "identifier")
 					throw new CompileTimeException("Expected all children of \"capture-list\" in AST to be \"identifier\".", &captureNode->fileLocation);
 
 				entry.Reset();
-				entry.string = *captureNode->GetChild(0)->name;
+				entry.string = *captureNode->GetChild(0)->text;
 				LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(captureNode->fileLocation);
 				loadInstruction->assemblyData->configMap.Insert("name", entry);
 				instructionList.AddTail(loadInstruction);
@@ -94,9 +93,8 @@ namespace Powder
 		const ParseParty::Parser::SyntaxNode* argListNode = syntaxNode->FindChild("identifier-list", 1);
 		if (argListNode)
 		{
-			for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
+			for (const ParseParty::Parser::SyntaxNode* argNode : *argListNode->childList)
 			{
-				const ParseParty::Parser::SyntaxNode* argNode = node->value;
 				if (*argNode->text != "identifier")
 					throw new CompileTimeException("Expected all children of \"identifier-list\" in AST to be \"identifier\".", &argNode->fileLocation);
 
@@ -108,7 +106,7 @@ namespace Powder
 
 				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(argNode->fileLocation);
 				entry.Reset();
-				entry.string = *argNode->GetChild(0)->name;
+				entry.string = *argNode->GetChild(0)->text;
 				storeInstruction->assemblyData->configMap.Insert("name", entry);
 				functionInstructionList.AddTail(storeInstruction);
 			}

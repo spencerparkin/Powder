@@ -57,13 +57,13 @@ namespace Powder
 		executable->byteCodeBufferSize = programBufferLocation;
 		executable->byteCodeBuffer = new uint8_t[(uint32_t)executable->byteCodeBufferSize];
 
-		rapidjson::Value instructionMapValue;
-		instructionMapValue.SetObject();
+		ParseParty::JsonObject* instructionMapValue = nullptr;
 
 		if (generateDebugInfo)
 		{
-			executable->debugInfoDoc = new rapidjson::Document();
-			executable->debugInfoDoc->SetObject();
+			executable->debugInfoDoc = new ParseParty::JsonObject();
+			instructionMapValue = new ParseParty::JsonObject();
+			executable->debugInfoDoc->SetValue("instruction_map", instructionMapValue);
 		}
 
 		programBufferLocation = 0L;
@@ -76,20 +76,17 @@ namespace Powder
 #endif
 			if (generateDebugInfo)
 			{
-				rapidjson::Value instructionMapEntryValue;
-				instructionMapEntryValue.SetObject();
-				instructionMapEntryValue.AddMember("line", rapidjson::Value().SetInt(instruction->assemblyData->fileLocation.lineNumber), executable->debugInfoDoc->GetAllocator());
-				instructionMapEntryValue.AddMember("col", rapidjson::Value().SetInt(instruction->assemblyData->fileLocation.columnNumber), executable->debugInfoDoc->GetAllocator());
+				ParseParty::JsonObject* instructionMapEntryValue = new ParseParty::JsonObject();
+				instructionMapEntryValue->SetValue("line", new ParseParty::JsonInt(instruction->assemblyData->fileLocation.line));
+				instructionMapEntryValue->SetValue("col", new ParseParty::JsonInt(instruction->assemblyData->fileLocation.column));
 				if (instruction->assemblyData->debuggerHelp->length() > 0)
-					instructionMapEntryValue.AddMember("debugger_help", rapidjson::Value().SetString(instruction->assemblyData->debuggerHelp->c_str(), executable->debugInfoDoc->GetAllocator()), executable->debugInfoDoc->GetAllocator());
+					instructionMapEntryValue->SetValue("debugger_help", new ParseParty::JsonString(instruction->assemblyData->debuggerHelp->c_str()));
 				std::string addressStr = FormatString("%d", programBufferLocation);
-				instructionMapValue.AddMember(rapidjson::Value().SetString(addressStr.c_str(), executable->debugInfoDoc->GetAllocator()), instructionMapEntryValue, executable->debugInfoDoc->GetAllocator());
+				instructionMapValue->SetValue(addressStr, instructionMapEntryValue);
 			}
+
 			instruction->Assemble(executable, programBufferLocation, Instruction::AssemblyPass::RENDER);
 		}
-
-		if (generateDebugInfo)
-			executable->debugInfoDoc->AddMember("instruction_map", instructionMapValue, executable->debugInfoDoc->GetAllocator());
 
 		return executable;
 	}

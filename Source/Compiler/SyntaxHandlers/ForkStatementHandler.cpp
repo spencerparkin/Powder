@@ -15,7 +15,7 @@ namespace Powder
 
 	/*virtual*/ void ForkStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 2 && syntaxNode->childList.GetCount() != 4)
+		if (syntaxNode->GetChildCount() != 2 && syntaxNode->GetChildCount() != 4)
 			throw new CompileTimeException("Expected \"fork-statement\" in AST to have exactly 2 or 4 children.", &syntaxNode->fileLocation);
 
 		AssemblyData::Entry entry;
@@ -28,14 +28,14 @@ namespace Powder
 		instructionGenerator->GenerateInstructionListRecursively(forkedInstructionList, syntaxNode->GetChild(1));
 		instructionList.Append(forkedInstructionList);
 
-		if (syntaxNode->childList.GetCount() == 2)
+		if (syntaxNode->GetChildCount() == 2)
 		{
 			entry.Reset();
 			entry.jumpDelta = forkedInstructionList.GetCount() + 1;
 			entry.string = "fork";
 			forkInstruction->assemblyData->configMap.Insert("jump-delta", entry);
 		}
-		else if (syntaxNode->childList.GetCount() == 4)
+		else if (syntaxNode->GetChildCount() == 4)
 		{
 			entry.Reset();
 			entry.jumpDelta = forkedInstructionList.GetCount() + 2;

@@ -20,7 +20,7 @@ namespace Powder
 
 	/*virtual*/ void FunctionCallExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() == 0)
+		if (syntaxNode->GetChildCount() == 0)
 			throw new CompileTimeException("Expected \"function-call\" in AST to have at least 1 child.", &syntaxNode->fileLocation);
 
 		// This node may or may not be present.  Its absense simply means the call takes no arguments.
@@ -28,9 +28,9 @@ namespace Powder
 
 		// Special case: Is this a system call?
 		SysCallInstruction::SysCall sysCall = SysCallInstruction::SysCall::UNKNOWN;
-		if (*syntaxNode->GetChild(0)->name == "identifier")
+		if (*syntaxNode->GetChild(0)->text == "identifier")
 		{
-			std::string funcName = *syntaxNode->GetChild(0)->childList.GetHead()->value->name;
+			std::string funcName = *syntaxNode->GetChild(0)->GetChild(0)->text;
 			sysCall = SysCallInstruction::TranslateAsSysCall(funcName);
 		}
 
@@ -39,17 +39,14 @@ namespace Powder
 			// In the case of a system call, we pass all arguments on the eval-stack.
 			if (argListNode)
 			{
-				for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
-				{
-					const ParseParty::Parser::SyntaxNode* argNode = node->value;
+				for(const ParseParty::Parser::SyntaxNode* argNode : *argListNode->childList)
 					instructionGenerator->GenerateInstructionListRecursively(instructionList, argNode);
-				}
 			}
 
-			uint32_t argCountGiven = argListNode ? argListNode->childList.GetCount() : 0;
+			uint32_t argCountGiven = argListNode ? argListNode->GetChildCount() : 0;
 			uint32_t argCountExpected = SysCallInstruction::ArgumentCount(sysCall);
 			if (argCountGiven != argCountExpected)
-				throw new CompileTimeException(FormatString("System call 0x%04x takes %d arguments, not %d.", uint8_t(sysCall), argCountExpected, argCountGiven), &syntaxNode->GetChild(0)->childList.GetHead()->value->fileLocation);
+				throw new CompileTimeException(FormatString("System call 0x%04x takes %d arguments, not %d.", uint8_t(sysCall), argCountExpected, argCountGiven), &syntaxNode->GetChild(0)->GetChild(0)->fileLocation);
 
 			// The system call should pop all its arguments off the evaluation stack.
 			SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>(syntaxNode->fileLocation);
@@ -71,9 +68,8 @@ namespace Powder
 			instructionList.AddTail(pushInstruction);
 			if (argListNode)
 			{
-				for (const LinkedList<ParseParty::Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
+				for (const ParseParty::Parser::SyntaxNode* argNode : *argListNode->childList)
 				{
-					const ParseParty::Parser::SyntaxNode* argNode = node->value;
 					instructionGenerator->GenerateInstructionListRecursively(instructionList, argNode);
 					ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(syntaxNode->fileLocation);
 					entry.Reset();

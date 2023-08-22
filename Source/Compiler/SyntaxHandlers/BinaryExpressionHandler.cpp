@@ -16,7 +16,7 @@ namespace Powder
 
 	/*virtual*/ void BinaryExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 3)
+		if (syntaxNode->GetChildCount() != 3)
 			throw new CompileTimeException("Expected \"binary-expression\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
 
 		// We first lay down the instruction(s) that generate the left operand on top of the evaluation stack.

@@ -50,9 +50,12 @@ namespace Powder
 	class POWDER_API CompileTimeException : public Exception
 	{
 	public:
-		CompileTimeException(const std::string& errorMsg, const ParseParty::Lexer::FileLocation* fileLocation) : Exception(errorMsg)
+		CompileTimeException(const std::string& errorMsg, const ParseParty::Lexer::FileLocation* fileLocation = nullptr) : Exception(errorMsg)
 		{
-			this->fileLocation = *fileLocation;
+			if (fileLocation)
+				this->fileLocation = *fileLocation;
+			else
+				this->fileLocation = ParseParty::Lexer::FileLocation{ -1, -1 };
 		}
 
 		virtual ~CompileTimeException()
@@ -61,7 +64,10 @@ namespace Powder
 
 		virtual std::string GetErrorMessage() override
 		{
-			return std::format("(Ln {}, Col {}): Compile-time error: " + *this->errorMsg, this->fileLocation.line, this->fileLocation.column);
+			if (this->fileLocation.line >= 0)
+				return std::format("(Ln {}, Col {}): Compile-time error: ", this->fileLocation.line, this->fileLocation.column) + *this->errorMsg;
+			else
+				return "Compile-time error: " + *this->errorMsg;
 		}
 
 		ParseParty::Lexer::FileLocation fileLocation;

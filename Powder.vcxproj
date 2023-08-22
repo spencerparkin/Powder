@@ -22,7 +22,6 @@
     <ClCompile Include="Source\Compiler\Assembler.cpp" />
     <ClCompile Include="Source\Compiler\Compiler.cpp" />
     <ClCompile Include="Source\Compiler\InstructionGenerator.cpp" />
-    <ClCompile Include="Source\Compiler\Parser.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\AssignmentExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.cpp" />
@@ -87,7 +86,6 @@
     <ClInclude Include="Source\Compiler\Assembler.h" />
     <ClInclude Include="Source\Compiler\Compiler.h" />
     <ClInclude Include="Source\Compiler\InstructionGenerator.h" />
-    <ClInclude Include="Source\Compiler\Parser.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\AssignmentExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.h" />
@@ -170,13 +168,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -238,7 +236,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;ParseParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -260,7 +259,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;ParseParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

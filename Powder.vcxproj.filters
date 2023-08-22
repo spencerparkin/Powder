@@ -106,9 +106,6 @@
     <ClCompile Include="Source\VirtualMachine\Values\BooleanValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Compiler\Parser.cpp">
-      <Filter>Source\Compiler</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Utilities\StringFormat.cpp">
       <Filter>Source\Utilities</Filter>
     </ClCompile>
@@ -311,9 +308,6 @@
     </ClInclude>
     <ClInclude Include="Source\Exceptions.hpp">
       <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\Parser.h">
-      <Filter>Source\Compiler</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utilities\StringFormat.h">
       <Filter>Source\Utilities</Filter>

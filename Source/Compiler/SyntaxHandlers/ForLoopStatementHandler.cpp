@@ -23,14 +23,14 @@ namespace Powder
 
 	/*virtual*/ void ForLoopStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 3)
+		if (syntaxNode->GetChildCount() != 3)
 			throw new CompileTimeException("Expected \"for-statement\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
 
 		const ParseParty::Parser::SyntaxNode* iterationNode = syntaxNode->GetChild(1);
 		if (*iterationNode->text != "for-iteration-expression")
 			throw new CompileTimeException("Expected \"for-statement\" in AST to have \"for-iteration-expression\" child.", &syntaxNode->fileLocation);
 
-		if (iterationNode->childList.GetCount() != 3)
+		if (iterationNode->GetChildCount() != 3)
 			throw new CompileTimeException("Exected \"for-iteration-expression\" in AST to have exactly 3 children.", &iterationNode->fileLocation);
 
 		const ParseParty::Parser::SyntaxNode* identifierNode = iterationNode->GetChild(0);
@@ -66,7 +66,7 @@ namespace Powder
 		// Store the returned value in the loop iteration variable.
 		StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(iterationNode->fileLocation);
 		entry.Reset();
-		entry.string = *identifierNode->GetChild(0)->name;
+		entry.string = *identifierNode->GetChild(0)->text;
 		storeInstruction->assemblyData->configMap.Insert("name", entry);
 		forLoopHeadInstructionList.AddTail(storeInstruction);
 
@@ -78,7 +78,7 @@ namespace Powder
 		forLoopHeadInstructionList.AddTail(pushInstruction);
 		LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(iterationNode->fileLocation);
 		entry.Reset();
-		entry.string = *identifierNode->GetChild(0)->name;
+		entry.string = *identifierNode->GetChild(0)->text;
 		loadInstruction->assemblyData->configMap.Insert("name", entry);
 		forLoopHeadInstructionList.AddTail(loadInstruction);
 		MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(iterationNode->fileLocation);
