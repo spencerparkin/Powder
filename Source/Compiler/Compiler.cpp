@@ -30,6 +30,8 @@ namespace Powder
 		if (!grammar.ReadFile(grammarFilePath, error))
 			throw new CompileTimeException(FormatString("Could not open grammar file: %s\n\n%s", grammarFilePath.c_str(), error.c_str()));
 
+		// TODO: Let the grammar object setup the lexer.
+
 		// Now setup our parser.  Note the order here ensures that "-1" is parsed as two token, and unary
 		// operator folowed by a token.  This is so that "1 - 1" parses correctly as well.
 		ParseParty::Parser parser;

@@ -35,7 +35,7 @@
       [ "for", "(", "for-iteration-expression", ")", "embedded-statement" ]
     ],
     "for-iteration-expression": [
-      [ "identifier", "in", "expression" ]
+      [ "@identifier", "in", "expression" ]
     ],
     "fork-statement": [
       [ "fork", "embedded-statement" ],
@@ -56,7 +56,7 @@
     ],
     "identifier-list": [
       [ "identifier-list", ",", "identifier-list" ],
-      [ "identifier" ]
+      [ "@identifier" ]
     ],
     "embedded-statement": [
       [ "block" ],
@@ -71,7 +71,7 @@
     ],
     "expression": [
       [ "literal" ],
-      [ "identifier" ],
+      [ "@identifier" ],
       [ "wrapped-expression" ],
       [ "assignment-expression" ],
       [ "membership-expression" ],
@@ -149,8 +149,8 @@
     ],
     "literal": [
       [ "undefined" ],
-      [ "string-literal" ],
-      [ "number-literal" ],
+      [ "@string" ],
+      [ "@number" ],
       [ "list-literal" ],
       [ "map-literal" ]
     ],
@@ -186,7 +186,7 @@
     ],
     "capture-list": [
       [ "capture-list", ",", "capture-list" ],
-      [ "identifier" ]
+      [ "@identifier" ]
     ]
   }
 }
