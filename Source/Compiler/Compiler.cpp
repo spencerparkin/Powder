@@ -28,20 +28,13 @@ namespace Powder
 		std::string grammarFilePath = pathResolver.ResolvePath("Compiler\\Grammar.json", PathResolver::SEARCH_BASE);
 		ParseParty::Grammar grammar;
 		if (!grammar.ReadFile(grammarFilePath, error))
-			throw new CompileTimeException(FormatString("Could not open grammar file: %s\n\n%s", grammarFilePath.c_str(), error.c_str()));
+			throw new CompileTimeException(FormatString("Could not read grammar file: %s\n\n%s", grammarFilePath.c_str(), error.c_str()));
 
-		// TODO: Let the grammar object setup the lexer.
-
-		// Now setup our parser.  Note the order here ensures that "-1" is parsed as two token, and unary
-		// operator folowed by a token.  This is so that "1 - 1" parses correctly as well.
+		// Next, configure the lexer.
 		ParseParty::Parser parser;
-		parser.lexer.tokenGeneratorList->push_back(new ParseParty::Lexer::ParanTokenGenerator());
-		parser.lexer.tokenGeneratorList->push_back(new ParseParty::Lexer::DelimeterTokenGenerator());
-		parser.lexer.tokenGeneratorList->push_back(new ParseParty::Lexer::StringTokenGenerator());
-		parser.lexer.tokenGeneratorList->push_back(this->MakeOperatorTokenGenerator());
-		parser.lexer.tokenGeneratorList->push_back(new ParseParty::Lexer::NumberTokenGenerator());
-		parser.lexer.tokenGeneratorList->push_back(new ParseParty::Lexer::IdentifierTokenGenerator());
-		parser.lexer.tokenGeneratorList->push_back(new ParseParty::Lexer::CommentTokenGenerator());
+		std::string lexiconFilePath = pathResolver.ResolvePath("Compiler\\Lexicon.json", PathResolver::SEARCH_BASE);
+		if (!parser.lexer.ReadFile(lexiconFilePath, error))
+			throw new CompileTimeException(FormatString("Could not read lexicon file: %s\n\n%s", lexiconFilePath.c_str(), error.c_str()));
 
 		// It's a parse-party, brah!
 		ParseParty::Parser::SyntaxNode* rootSyntaxNode = parser.Parse(std::string(programSourceCode), grammar, &error);
@@ -65,18 +58,6 @@ namespace Powder
 		// And finally, go assemble the program into an executable.
 		Assembler assembler;
 		return assembler.AssembleExecutable(instructionList, this->generateDebugInfo);
-	}
-
-	ParseParty::Lexer::TokenGenerator* Compiler::MakeOperatorTokenGenerator()
-	{
-		ParseParty::Lexer::OperatorTokenGenerator* opTokenGenerator = new ParseParty::Lexer::OperatorTokenGenerator();
-
-		opTokenGenerator->operatorSet->insert("-->");
-		opTokenGenerator->operatorSet->insert("--<");
-		opTokenGenerator->operatorSet->insert("<--");
-		opTokenGenerator->operatorSet->insert(">--");
-
-		return opTokenGenerator;
 	}
 
 	bool Compiler::PerformSugarExpansions(ParseParty::Parser::SyntaxNode* parentNode)

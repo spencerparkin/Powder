@@ -22,8 +22,6 @@ namespace Powder
 
 		bool PerformReductions(ParseParty::Parser::SyntaxNode* parentNode);
 		bool PerformSugarExpansions(ParseParty::Parser::SyntaxNode* parentNode);
-
-		ParseParty::Lexer::TokenGenerator* MakeOperatorTokenGenerator();
 	};
 
 	extern Compiler theDefaultCompiler;

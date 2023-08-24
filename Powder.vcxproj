@@ -156,6 +156,7 @@
   <ItemGroup>
     <None Include="Readme.md" />
     <None Include="Source\Compiler\Grammar.json" />
+    <None Include="Source\Compiler\Lexicon.json" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
