@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Defines.h"
-#include "Lexer.h"
+#include "Lexer.h"		// TODO: We should probably remove our dependency on this header.
 #include <cstdint>
 #include <string>
 
