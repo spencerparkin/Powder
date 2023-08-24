@@ -135,7 +135,7 @@ namespace Powder
 						*childNode->text == "argument"))
 				{
 					ParseParty::Parser::SyntaxNode* newChildNode = childNode->GetChild(0);
-					newChildNode->WipeChildren();
+					childNode->SetChild(0, nullptr);
 					delete childNode;
 					*iter = newChildNode;
 					performedReduction = true;
@@ -156,7 +156,7 @@ namespace Powder
 			}
 		}
 
-		if (*parentNode->text != "string-literal")
+		if (*parentNode->text != "literal")
 		{
 			std::list<ParseParty::Parser::SyntaxNode*>::iterator nextIter;
 			for (std::list<ParseParty::Parser::SyntaxNode*>::iterator iter = parentNode->childList->begin(); iter != parentNode->childList->end(); iter = nextIter)
