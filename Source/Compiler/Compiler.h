@@ -2,6 +2,8 @@
 
 #include "Defines.h"
 #include "VirtualMachine.h"
+#include "Lexer.h"
+#include "Parser.h"
 #include <cstdint>
 
 namespace Powder
@@ -18,8 +20,10 @@ namespace Powder
 
 	private:
 
-		//bool PerformReductions();
-		//bool PerformSugarExpansions();
+		bool PerformReductions(ParseParty::Parser::SyntaxNode* parentNode);
+		bool PerformSugarExpansions(ParseParty::Parser::SyntaxNode* parentNode);
+
+		ParseParty::Lexer::TokenGenerator* MakeOperatorTokenGenerator();
 	};
 
 	extern Compiler theDefaultCompiler;

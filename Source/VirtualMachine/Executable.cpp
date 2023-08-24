@@ -88,10 +88,10 @@ namespace Powder
 			stringStream << fileStream.rdbuf();
 			std::string jsonString = stringStream.str();
 
-			// TODO: Get JSON error message here and relay it to user if necessary.
-			ParseParty::JsonValue* jsonValue = ParseParty::JsonValue::ParseJson(jsonString);
+			std::string parseError;
+			ParseParty::JsonValue* jsonValue = ParseParty::JsonValue::ParseJson(jsonString, parseError);
 			if (!jsonValue)
-				throw new RunTimeException(FormatString("Parse error in JSON file: %s", debugInfoFile.c_str()));
+				throw new RunTimeException(FormatString("Parse error in JSON file: %s\n\n%s", debugInfoFile.c_str(), parseError.c_str()));
 
 			this->debugInfoDoc = dynamic_cast<ParseParty::JsonObject*>(jsonValue);
 			if (!this->debugInfoDoc)

@@ -1,6 +1,9 @@
 {
   "initial_rule": "statement-list",
   "algorithm": "slow",
+  "flags": {
+    "flatten": true
+  },
   "rules": {
     "statement-list": [
       [ "statement-list", ";", "statement-list" ],
