@@ -49,6 +49,10 @@ namespace Powder
 		while (this->PerformReductions(rootSyntaxNode)) {}
 		while (this->PerformSugarExpansions(rootSyntaxNode)) {}
 
+#if defined POWDER_DEBUG
+		ParseParty::Parser::SyntaxNode::WriteToFile("ast.json", rootSyntaxNode);
+#endif
+
 		// Organize the program as a sequence of instructions.
 		LinkedList<Instruction*> instructionList;
 		InstructionGenerator instructionGenerator;
