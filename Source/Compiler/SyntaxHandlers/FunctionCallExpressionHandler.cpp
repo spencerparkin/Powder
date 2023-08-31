@@ -28,7 +28,7 @@ namespace Powder
 
 		// Special case: Is this a system call?
 		SysCallInstruction::SysCall sysCall = SysCallInstruction::SysCall::UNKNOWN;
-		if (*syntaxNode->GetChild(0)->text == "identifier")
+		if (*syntaxNode->GetChild(0)->text == "@identifier")
 		{
 			std::string funcName = *syntaxNode->GetChild(0)->GetChild(0)->text;
 			sysCall = SysCallInstruction::TranslateAsSysCall(funcName);

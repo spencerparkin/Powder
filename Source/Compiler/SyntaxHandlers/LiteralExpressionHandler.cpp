@@ -29,12 +29,12 @@ namespace Powder
 
 		if (*literalTypeNode->text == "undefined")
 			typeEntry.code = PushInstruction::DataType::UNDEFINED;
-		else if (*literalTypeNode->text == "string-literal")
+		else if (*literalTypeNode->text == "@string")
 		{
 			typeEntry.code = PushInstruction::DataType::STRING;
 			dataEntry.string = *literalDataNode->text;
 		}
-		else if (*literalTypeNode->text == "number-literal")
+		else if (*literalTypeNode->text == "@number")
 		{
 			typeEntry.code = PushInstruction::DataType::NUMBER;
 			dataEntry.number = ::strtod(literalDataNode->text->c_str(), nullptr);
