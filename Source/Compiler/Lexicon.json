@@ -11,7 +11,9 @@
     },
     {
       "name": "StringTokenGenerator",
-      "config": {}
+      "config": {
+        "process_escape_sequences": true
+      }
     },
     {
       "name": "OperatorTokenGenerator",
