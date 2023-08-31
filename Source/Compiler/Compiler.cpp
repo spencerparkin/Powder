@@ -91,6 +91,7 @@ namespace Powder
 					syntaxNode->childList->push_back(new ParseParty::Parser::SyntaxNode(assignmentStr.c_str(), assignmentModifierNode->fileLocation));
 					syntaxNode->childList->push_back(parentNode->GetChild(2));
 					parentNode->SetChild(2, syntaxNode);
+					syntaxNode->parentNode = parentNode;
 					performedExpansion = true;
 					break;
 				}
@@ -109,6 +110,7 @@ namespace Powder
 				literalNode->GetChild(0)->childList->push_back(new ParseParty::Parser::SyntaxNode(*identifierNode->GetChild(0)->text, identifierNode->fileLocation));
 				delete identifierNode;
 				parentNode->SetChild(1, literalNode);
+				literalNode->parentNode = parentNode;
 				performedExpansion = true;
 			}
 		}
@@ -140,6 +142,7 @@ namespace Powder
 				{
 					ParseParty::Parser::SyntaxNode* newChildNode = childNode->GetChild(0);
 					childNode->SetChild(0, nullptr);
+					newChildNode->parentNode = parentNode;
 					delete childNode;
 					*iter = newChildNode;
 					performedReduction = true;
@@ -154,6 +157,7 @@ namespace Powder
 			{
 				ParseParty::Parser::SyntaxNode* newChildNode = childNode->GetChild(1);
 				childNode->SetChild(1, nullptr);
+				newChildNode->parentNode = parentNode;
 				delete childNode;
 				*iter = newChildNode;
 				performedReduction = true;
