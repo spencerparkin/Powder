@@ -39,7 +39,7 @@ namespace Powder
 
 			// Lastly, store the popped value into the given identifier.
 			const ParseParty::Parser::SyntaxNode* identifierNode = (*actionNode->text == "-->") ? syntaxNode->GetChild(2) : syntaxNode->GetChild(0);
-			if (*identifierNode->text != "identifier")
+			if (*identifierNode->text != "@identifier")
 				throw new CompileTimeException(FormatString("List pop expected to store value in location given by name, but got no identifier.  Got \"%s\" instead.", identifierNode->text->c_str()), &syntaxNode->fileLocation);
 			StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(syntaxNode->fileLocation);
 			entry.Reset();

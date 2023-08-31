@@ -30,10 +30,10 @@ namespace Powder
 			throw new CompileTimeException("Expected \"assignment-expression\" to have quality child node in AST.", &operationNode->fileLocation);
 		
 		const ParseParty::Parser::SyntaxNode* storeLocationNode = syntaxNode->GetChild(0);
-		if (*storeLocationNode->text != "identifier" && *storeLocationNode->text != "container-field-expression")
+		if (*storeLocationNode->text != "@identifier" && *storeLocationNode->text != "container-field-expression")
 			throw new CompileTimeException(FormatString("Expected left operand of \"assignment-expression\" in AST to be a storable location (not \"%s\".)", storeLocationNode->text->c_str()), &storeLocationNode->fileLocation);
 
-		if (*storeLocationNode->text == "identifier")
+		if (*storeLocationNode->text == "@identifier")
 		{
 			const ParseParty::Parser::SyntaxNode* storeLocationNameNode = storeLocationNode->GetChild(0);
 

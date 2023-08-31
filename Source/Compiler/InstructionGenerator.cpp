@@ -50,7 +50,7 @@ namespace Powder
 		this->syntaxHandlerMap.Insert("left-unary-expression", new UnaryExpressionHandler());
 		this->syntaxHandlerMap.Insert("right-unary-expression", new UnaryExpressionHandler());
 		this->syntaxHandlerMap.Insert("literal", new LiteralExpressionHandler());
-		this->syntaxHandlerMap.Insert("identifier", new IdentifierExpressionHandler());
+		this->syntaxHandlerMap.Insert("@identifier", new IdentifierExpressionHandler());
 		this->syntaxHandlerMap.Insert("list-literal", new ListExpressionHandler());
 		this->syntaxHandlerMap.Insert("map-literal", new MapExpressionHandler());
 		this->syntaxHandlerMap.Insert("map-keys-expression", new MapKeysExpressionHandler());

@@ -15,7 +15,7 @@ namespace Powder
 	/*virtual*/ void IdentifierExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		if (syntaxNode->GetChildCount() != 1)
-			throw new CompileTimeException("Expected \"identifier\" in AST to have exactly one child.", &syntaxNode->fileLocation);
+			throw new CompileTimeException("Expected \"@identifier\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
 		// Note that we assume we're generating code here in the context of an expression, but we're not
 		// going to check that, because there's no obvious way I can think of at the moment without

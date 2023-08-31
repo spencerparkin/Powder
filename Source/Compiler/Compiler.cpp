@@ -101,7 +101,7 @@ namespace Powder
 		if (*parentNode->text == "member-access-expression" && parentNode->GetChildCount() == 3)
 		{
 			ParseParty::Parser::SyntaxNode* identifierNode = parentNode->GetChild(2);
-			if (*identifierNode->text == "identifier")
+			if (*identifierNode->text == "@identifier")
 			{
 				*parentNode->text = "container-field-expression";
 				parentNode->DelChild(1);

@@ -46,8 +46,8 @@ namespace Powder
 			// Capture the desired values from the scope containing the current scope in the current scope.
 			for (const ParseParty::Parser::SyntaxNode* captureNode : *captureListNode->childList)
 			{
-				if (*captureNode->text != "identifier")
-					throw new CompileTimeException("Expected all children of \"capture-list\" in AST to be \"identifier\".", &captureNode->fileLocation);
+				if (*captureNode->text != "@identifier")
+					throw new CompileTimeException("Expected all children of \"capture-list\" in AST to be \"@identifier\".", &captureNode->fileLocation);
 
 				entry.Reset();
 				entry.string = *captureNode->GetChild(0)->text;
@@ -95,8 +95,8 @@ namespace Powder
 		{
 			for (const ParseParty::Parser::SyntaxNode* argNode : *argListNode->childList)
 			{
-				if (*argNode->text != "identifier")
-					throw new CompileTimeException("Expected all children of \"identifier-list\" in AST to be \"identifier\".", &argNode->fileLocation);
+				if (*argNode->text != "@identifier")
+					throw new CompileTimeException("Expected all children of \"identifier-list\" in AST to be \"@identifier\".", &argNode->fileLocation);
 
 				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(argNode->fileLocation);
 				AssemblyData::Entry entry;

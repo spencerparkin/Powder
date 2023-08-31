@@ -34,8 +34,8 @@ namespace Powder
 			throw new CompileTimeException("Exected \"for-iteration-expression\" in AST to have exactly 3 children.", &iterationNode->fileLocation);
 
 		const ParseParty::Parser::SyntaxNode* identifierNode = iterationNode->GetChild(0);
-		if (*identifierNode->text != "identifier")
-			throw new CompileTimeException("Expected \"identifier\" in AST as child of \"for-iteration-expression\" node.", &identifierNode->fileLocation);
+		if (*identifierNode->text != "@identifier")
+			throw new CompileTimeException("Expected \"@identifier\" in AST as child of \"for-iteration-expression\" node.", &identifierNode->fileLocation);
 
 		// Push the container value or iterator function onto the eval-stack.
 		const ParseParty::Parser::SyntaxNode* iteratorNode = iterationNode->GetChild(2);
