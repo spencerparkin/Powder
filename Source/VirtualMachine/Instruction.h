@@ -2,6 +2,7 @@
 
 #include "Defines.h"
 #include "Lexer.h"		// TODO: We should probably remove our dependency on this header.
+#include "Assembler.h"
 #include <cstdint>
 #include <string>
 
@@ -10,7 +11,6 @@ namespace Powder
 	class VirtualMachine;
 	class Executor;
 	class Executable;
-	struct AssemblyData;
 
 	// Derivatives of this class are responsible for both the decoding
 	// and encoding of a Powder VM instructions.
