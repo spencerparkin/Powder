@@ -25,6 +25,7 @@
     <ClCompile Include="Source\DirectoryTreePanel.cpp" />
     <ClCompile Include="Source\EditorApp.cpp" />
     <ClCompile Include="Source\EditorFrame.cpp" />
+    <ClCompile Include="Source\FileFinder.cpp" />
     <ClCompile Include="Source\Panel.cpp" />
     <ClCompile Include="Source\RunThread.cpp" />
     <ClCompile Include="Source\SourceFilePanel.cpp" />
@@ -41,6 +42,7 @@
     <ClInclude Include="Source\DirectoryTreePanel.h" />
     <ClInclude Include="Source\EditorApp.h" />
     <ClInclude Include="Source\EditorFrame.h" />
+    <ClInclude Include="Source\FileFinder.h" />
     <ClInclude Include="Source\Panel.h" />
     <ClInclude Include="Source\RunThread.h" />
     <ClInclude Include="Source\SourceFileEditControl.h" />

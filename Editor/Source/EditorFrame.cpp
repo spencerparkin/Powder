@@ -10,12 +10,15 @@
 #include "RunThread.h"
 #include "EditorApp.h"
 #include "ArtProvider.h"
+#include "FileFinder.h"
 #include <wx/menu.h>
 #include <wx/sizer.h>
 #include <wx/dirdlg.h>
 #include <wx/aboutdlg.h>
 #include <wx/filedlg.h>
+#include <wx/textdlg.h>
 #include <wx/toolbar.h>
+#include <wx/msgdlg.h>
 
 EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Powder Editor", pos, size)
 {
@@ -50,6 +53,8 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_OpenDirectory, "Open Directory", "Open a given directory to work with and edit all powder files in that directory."));
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_CloseDirectory, "Close Directory", "Close the currently open directory, if any."));
 	fileMenu->AppendSeparator();
+	fileMenu->Append(new wxMenuItem(fileMenu, ID_DeleteExecutables, "Delete Executables", "Delete all compilation targets in the project directory."));
+	fileMenu->AppendSeparator();
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_Exit, "Exit", "Go skiing."));
 
 	fileMenu->FindItem(ID_New)->SetAccel(&entries[0]);
@@ -60,6 +65,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	fileMenu->FindItem(ID_New)->SetBitmap(wxArtProvider::GetBitmap(wxART_NEW, wxART_MENU, wxSize(16, 16)));
 	fileMenu->FindItem(ID_Save)->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_MENU, wxSize(16, 16)));
 	fileMenu->FindItem(ID_Open)->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_MENU, wxSize(16, 16)));
+	fileMenu->FindItem(ID_DeleteExecutables)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_DELETE_TARGETS, wxART_MENU));
 
 	wxMenu* runMenu = new wxMenu();
 	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithDebugger, "Run with Debugger", "Run the currently shown script with the debugger attached."));
@@ -111,6 +117,8 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	toolBar->AddTool(ID_Save, "Save", wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_TOOLBAR, wxSize(16, 16)));
 	toolBar->AddTool(ID_Open, "Open", wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_TOOLBAR, wxSize(16, 16)));
 	//toolBar->AddTool(ID_Close, "Close", ...
+	toolBar->AddSeparator();
+	toolBar->AddTool(ID_DeleteExecutables, "Delete Executables", wxArtProvider::GetBitmap(ART_EDITOR_DELETE_TARGETS, wxART_TOOLBAR));
 	toolBar->AddSeparator();
 	toolBar->AddTool(ID_RunWithDebugger, "Run with Debugger", wxArtProvider::GetBitmap(ART_EDITOR_RUN_WITH_DEBUGGER, wxART_TOOLBAR));
 	toolBar->AddTool(ID_RunWithoutDebugger, "Run without Debugger", wxArtProvider::GetBitmap(ART_EDITOR_RUN_WITHOUT_DEBUGGER, wxART_TOOLBAR));
@@ -289,7 +297,22 @@ void EditorFrame::OnAbout(wxCommandEvent& event)
 
 void EditorFrame::OnNewFile(wxCommandEvent& event)
 {
-	// TODO: Write this.
+	wxTextEntryDialog textDialog(this, "Please enter source file name.", "New File");
+	if (wxID_OK == textDialog.ShowModal())
+	{
+		wxFileName fileName(wxGetApp().GetProjectDirectory() + "/" + textDialog.GetValue());
+		if (fileName.GetExt().size() == 0)
+			fileName.SetExt("pow");
+
+		SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
+		if (sourceFilePanel)
+		{
+			if (sourceFilePanel->notebookControl->NewSourceFile(fileName.GetFullPath()))
+			{
+				this->NotifyPanels(Panel::DIRECTORY_CHANGED, nullptr);
+			}
+		}
+	}
 }
 
 void EditorFrame::OnSaveFile(wxCommandEvent& event)
@@ -306,7 +329,7 @@ void EditorFrame::OnSaveFile(wxCommandEvent& event)
 void EditorFrame::OnOpenFile(wxCommandEvent& event)
 {
 	wxFileDialog openFileDialog(this, "Open Powder Source File", "", "", "Powder File (*.pow)|*.pow", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-	if (openFileDialog.ShowModal() == wxID_OK)
+	if (wxID_OK == openFileDialog.ShowModal())
 	{
 		SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
 		if (sourceFilePanel)
@@ -364,7 +387,34 @@ void EditorFrame::OnCloseDirectory(wxCommandEvent& event)
 
 void EditorFrame::OnDeleteExecutables(wxCommandEvent& event)
 {
-	// TODO: Write this.
+	wxDir projectDir(wxGetApp().GetProjectDirectory());
+	if (!projectDir.IsOpened())
+		wxMessageBox("Failed to open project directory: " + wxGetApp().GetProjectDirectory(), "Error!", wxICON_ERROR | wxOK, this);
+	else
+	{
+		FileFinder fileFinder;
+		fileFinder.extensionArray.Add("pwx");
+		fileFinder.extensionArray.Add("debuginfo");
+		projectDir.Traverse(fileFinder, wxEmptyString, wxDIR_DEFAULT);
+		if (fileFinder.foundFileArray.size() == 0)
+			wxMessageBox("No files found to delete!", "Success!", wxICON_INFORMATION | wxOK, this);
+		else
+		{
+			wxString errorMsg;
+
+			for (int i = 0; i < (signed)fileFinder.foundFileArray.size(); i++)
+			{
+				wxString doomedFile = fileFinder.foundFileArray[i];
+				if (!wxRemoveFile(doomedFile))
+					errorMsg += "Failed to delete file: " + doomedFile + "\n";
+			}
+
+			if (errorMsg.length() > 0)
+				wxMessageBox("Some files could not be deleted!\n\n" + errorMsg, "Error!", wxICON_ERROR | wxOK, this);
+			else
+				wxMessageBox(wxString::Format("Deleted %d files!", fileFinder.foundFileArray.size()), "Success!", wxICON_INFORMATION | wxOK, this);
+		}		
+	}
 }
 
 void EditorFrame::OnRunWithDebugger(wxCommandEvent& event)
@@ -588,6 +638,7 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 				event.Enable(wxGetApp().GetProjectDirectory().IsEmpty());
 				break;
 			}
+			case ID_DeleteExecutables:
 			case ID_CloseDirectory:
 			{
 				event.Enable(!wxGetApp().GetProjectDirectory().IsEmpty());

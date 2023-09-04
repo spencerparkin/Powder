@@ -44,6 +44,22 @@ void SourceFileNotebookControl::OnPageCloseButtonPushed(wxAuiNotebookEvent& even
 		event.Skip();	// Pretend like we didn't handle the event and let the base class handle it as usual.
 }
 
+bool SourceFileNotebookControl::NewSourceFile(const wxString& filePath)
+{
+	int pageNumber = -1;
+	SourceFileEditControl* editControl = this->FindEditControl(filePath, &pageNumber);
+	if (editControl)
+	{
+		wxMessageBox(wxString::Format("A file with name \"%s\" already exists.", wxFileName(filePath).GetName()), "Error!", wxICON_ERROR | wxOK, wxGetApp().GetFrame());
+		return false;
+	}
+
+	editControl = new SourceFileEditControl(this, filePath);
+	editControl->NewFile();
+	this->AddPage(editControl, editControl->GetTabLabel(), true);
+	return true;
+}
+
 bool SourceFileNotebookControl::OpenSourceFile(const wxString& filePath)
 {
 	int pageNumber = -1;

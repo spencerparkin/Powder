@@ -9,6 +9,7 @@ public:
 	SourceFileEditControl(wxWindow* parent, const wxString& filePath);
 	virtual ~SourceFileEditControl();
 
+	bool NewFile(void);
 	bool LoadFile(void);
 	bool SaveFile(void);
 

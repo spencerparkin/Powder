@@ -53,6 +53,9 @@
     <ClInclude Include="Source\ArtProvider.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\FileFinder.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\EditorApp.cpp">
@@ -95,6 +98,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\ArtProvider.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FileFinder.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

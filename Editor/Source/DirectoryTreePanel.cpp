@@ -38,6 +38,7 @@ DirectoryTreePanel::DirectoryTreePanel()
 	switch (notification)
 	{
 		case DIRECTORY_OPENED:
+		case DIRECTORY_CHANGED:
 		case APP_OPENING:
 		{
 			this->directoryTreeControl->rootPath.AssignDir(wxGetApp().GetProjectDirectory());

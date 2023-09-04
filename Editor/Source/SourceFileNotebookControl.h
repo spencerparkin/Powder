@@ -13,6 +13,7 @@ public:
 
 	void OnPageCloseButtonPushed(wxAuiNotebookEvent& event);
 
+	bool NewSourceFile(const wxString& filePath);
 	bool OpenSourceFile(const wxString& filePath);
 	bool CloseSourceFile(int pageNumber);
 	void SaveSourceFile(int pageNumber);

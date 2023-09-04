@@ -83,6 +83,22 @@ wxString SourceFileEditControl::GetFileName()
 	return this->filePath.GetName() + "." + this->filePath.GetExt();
 }
 
+bool SourceFileEditControl::NewFile(void)
+{
+	if (this->filePath.Exists())
+		return false;
+	wxFile file(this->filePath.GetFullPath(), wxFile::OpenMode::write);
+	if (!file.IsOpened())
+		return false;
+	wxString fileContents = "# " + this->filePath.GetName() + "." + this->filePath.GetExt() + "\n\n";
+	file.Write(fileContents);
+	file.Close();
+	this->SetText(fileContents);
+	this->ready = true;
+	this->modified = false;
+	return true;
+}
+
 bool SourceFileEditControl::LoadFile(void)
 {
 	if (!this->filePath.Exists())
@@ -93,6 +109,7 @@ bool SourceFileEditControl::LoadFile(void)
 	wxString fileContents;
 	if (!file.ReadAll(&fileContents))
 		return false;
+	file.Close();
 	this->SetText(fileContents);
 	this->ready = true;
 	return true;
@@ -104,6 +121,7 @@ bool SourceFileEditControl::SaveFile(void)
 	wxString fileContent = this->GetText();
 	if (!file.Write(fileContent))
 		return false;
+	file.Close();
 	this->modified = false;
 	return true;
 }
