@@ -12,7 +12,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void YieldStatementHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void YieldStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		YieldInstruction* yeildInstruction = Instruction::CreateForAssembly<YieldInstruction>(syntaxNode->fileLocation);
 		instructionList.AddTail(yeildInstruction);

@@ -19,7 +19,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void FunctionDefinitionExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void FunctionDefinitionExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		// This isn't a fool-proof check, but it's something.
 		if (syntaxNode->FindParent("statement-list", 1) != nullptr)
@@ -27,7 +27,7 @@ namespace Powder
 
 		// Push the address of the function onto the eval-stack.  This allows for storing it in a variable or just immediately calling it.
 		PushInstruction* funcAddressPushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
-		const Parser::SyntaxNode* captureListNode = syntaxNode->FindChild("capture-list", 1);
+		const ParseParty::Parser::SyntaxNode* captureListNode = syntaxNode->FindChild("capture-list", 1);
 		AssemblyData::Entry entry;
 		entry.code = (captureListNode != nullptr) ? PushInstruction::DataType::CLOSURE : PushInstruction::DataType::ADDRESS;
 		funcAddressPushInstruction->assemblyData->configMap.Insert("type", entry);
@@ -44,14 +44,13 @@ namespace Powder
 			instructionList.AddTail(scopeInstruction);
 
 			// Capture the desired values from the scope containing the current scope in the current scope.
-			for (const LinkedList<Parser::SyntaxNode*>::Node* node = captureListNode->childList.GetHead(); node; node = node->GetNext())
+			for (const ParseParty::Parser::SyntaxNode* captureNode : *captureListNode->childList)
 			{
-				const Parser::SyntaxNode* captureNode = node->value;
-				if (*captureNode->name != "identifier")
-					throw new CompileTimeException("Expected all children of \"capture-list\" in AST to be \"identifier\".", &captureNode->fileLocation);
+				if (*captureNode->text != "@identifier")
+					throw new CompileTimeException("Expected all children of \"capture-list\" in AST to be \"@identifier\".", &captureNode->fileLocation);
 
 				entry.Reset();
-				entry.string = *captureNode->childList.GetHead()->value->name;
+				entry.string = *captureNode->GetChild(0)->text;
 				LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(captureNode->fileLocation);
 				loadInstruction->assemblyData->configMap.Insert("name", entry);
 				instructionList.AddTail(loadInstruction);
@@ -83,7 +82,7 @@ namespace Powder
 		instructionList.AddTail(hopeOverFuncInstruction);
 
 		// Make sure a definition is given in the AST.
-		const Parser::SyntaxNode* functionStatementListNode = syntaxNode->FindChild("statement-list", 2);
+		const ParseParty::Parser::SyntaxNode* functionStatementListNode = syntaxNode->FindChild("statement-list", 2);
 		if (!functionStatementListNode)
 			throw new CompileTimeException("Expected \"function-definition\" to have \"statement-list\" in AST.", &syntaxNode->fileLocation);
 
@@ -91,14 +90,13 @@ namespace Powder
 		LinkedList<Instruction*> functionInstructionList;
 		
 		// If this doesn't exist, then the function doesn't take any arguments.
-		const Parser::SyntaxNode* argListNode = syntaxNode->FindChild("identifier-list", 1);
+		const ParseParty::Parser::SyntaxNode* argListNode = syntaxNode->FindChild("identifier-list", 1);
 		if (argListNode)
 		{
-			for (const LinkedList<Parser::SyntaxNode*>::Node* node = argListNode->childList.GetHead(); node; node = node->GetNext())
+			for (const ParseParty::Parser::SyntaxNode* argNode : *argListNode->childList)
 			{
-				const Parser::SyntaxNode* argNode = node->value;
-				if (*argNode->name != "identifier")
-					throw new CompileTimeException("Expected all children of \"identifier-list\" in AST to be \"identifier\".", &argNode->fileLocation);
+				if (*argNode->text != "@identifier")
+					throw new CompileTimeException("Expected all children of \"identifier-list\" in AST to be \"@identifier\".", &argNode->fileLocation);
 
 				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(argNode->fileLocation);
 				AssemblyData::Entry entry;
@@ -108,7 +106,7 @@ namespace Powder
 
 				StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(argNode->fileLocation);
 				entry.Reset();
-				entry.string = *argNode->childList.GetHead()->value->name;
+				entry.string = *argNode->GetChild(0)->text;
 				storeInstruction->assemblyData->configMap.Insert("name", entry);
 				functionInstructionList.AddTail(storeInstruction);
 			}

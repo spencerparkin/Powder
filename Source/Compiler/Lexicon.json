@@ -1,0 +1,63 @@
+{
+  "comment": "The order of the generators matters in some cases.",
+  "token_generators": [
+    {
+      "name": "ParanTokenGenerator",
+      "config": {}
+    },
+    {
+      "name": "DelimeterTokenGenerator",
+      "config": {}
+    },
+    {
+      "name": "StringTokenGenerator",
+      "config": {
+        "process_escape_sequences": true
+      }
+    },
+    {
+      "name": "OperatorTokenGenerator",
+      "config": {
+        "operators": [
+          ".",
+          "=",
+          "+=",
+          "-=",
+          "*=",
+          "/=",
+          "%=",
+          "==",
+          "+",
+          "-",
+          "*",
+          "/",
+          "%",
+          ":",
+          "<",
+          "<=",
+          ">",
+          ">=",
+          "&&",
+          "||",
+          "!",
+          ">--",
+          "<--",
+          "-->",
+          "--<"
+        ]
+      }
+    },
+    {
+      "name": "IdentifierTokenGenerator",
+      "config": {}
+    },
+    {
+      "name": "CommentTokenGenerator",
+      "config": {}
+    },
+    {
+      "name": "NumberTokenGenerator",
+      "config": {}
+    }
+  ]
+}

@@ -13,21 +13,21 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void DoWhileStatementHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void DoWhileStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 4 && syntaxNode->childList.GetCount() != 5)
+		if (syntaxNode->GetChildCount() != 4 && syntaxNode->GetChildCount() != 5)
 			throw new CompileTimeException("Expected \"do-while-statement\" in AST to have exactly 4 or 5 children.", &syntaxNode->fileLocation);
 
 		AssemblyData::Entry entry;
 
 		// Lay down the first half of the loop instructions.
 		LinkedList<Instruction*> initialLoopInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(initialLoopInstructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(initialLoopInstructionList, syntaxNode->GetChild(1));
 		instructionList.Append(initialLoopInstructionList);
 
 		// Now lay down the conditional instructions of the loop.  What should remain is a single value on the eval stack for our branch instruction.
 		LinkedList<Instruction*> conditionalInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->GetChild(3));
 		instructionList.Append(conditionalInstructionList);
 
 		// Condition failure means we jump; success, we fall through.
@@ -36,9 +36,9 @@ namespace Powder
 
 		// Now lay down the last half of the loop instructions, if given.
 		LinkedList<Instruction*> finalLoopInstructionList;
-		if (syntaxNode->childList.GetCount() == 5)
+		if (syntaxNode->GetChildCount() == 5)
 		{
-			instructionGenerator->GenerateInstructionListRecursively(finalLoopInstructionList, syntaxNode->childList.GetHead()->GetNext()->GetNext()->GetNext()->GetNext()->value);
+			instructionGenerator->GenerateInstructionListRecursively(finalLoopInstructionList, syntaxNode->GetChild(4));
 			instructionList.Append(finalLoopInstructionList);
 		}
 

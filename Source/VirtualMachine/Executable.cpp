@@ -3,8 +3,6 @@
 #include <fstream>
 #include <filesystem>
 #include <sstream>
-#include "rapidjson/cursorstreamwrapper.h"
-#include "rapidjson/prettywriter.h"
 
 namespace Powder
 {
@@ -46,16 +44,16 @@ namespace Powder
 
 			if (this->debugInfoDoc)
 			{
-				rapidjson::StringBuffer stringBuffer;
-				rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(stringBuffer);
-				this->debugInfoDoc->Accept(writer);
+				std::string jsonString;
+				if (!this->debugInfoDoc->PrintJson(jsonString))
+					throw new RunTimeException("Failed to print debug info JSON string.");
 
 				std::string debugInfoFile = byteCodeFile.substr(0, byteCodeFile.find_last_of('.')) + ".debuginfo";
 				fileStream.open(debugInfoFile, std::fstream::out);
 				if (!fileStream.is_open())
 					throw new RunTimeException(FormatString("Failed to open file: %s", debugInfoFile.c_str()));
 
-				fileStream.write(stringBuffer.GetString(), stringBuffer.GetLength());
+				fileStream.write(jsonString.c_str(), jsonString.length());
 				fileStream.close();
 			}
 		}
@@ -88,14 +86,16 @@ namespace Powder
 
 			std::stringstream stringStream;
 			stringStream << fileStream.rdbuf();
-			std::string debugInfoJsonText = stringStream.str();
+			std::string jsonString = stringStream.str();
 
-			rapidjson::StringStream stream(debugInfoJsonText.c_str());
-			rapidjson::CursorStreamWrapper<rapidjson::StringStream> streamWrapper(stream);
-			this->debugInfoDoc = new rapidjson::Document();
-			this->debugInfoDoc->ParseStream(streamWrapper);
-			if (this->debugInfoDoc->HasParseError())
-				throw new RunTimeException(FormatString("Parse error in JSON file: %s", debugInfoFile.c_str()));
+			std::string parseError;
+			ParseParty::JsonValue* jsonValue = ParseParty::JsonValue::ParseJson(jsonString, parseError);
+			if (!jsonValue)
+				throw new RunTimeException(FormatString("Parse error in JSON file: %s\n\n%s", debugInfoFile.c_str(), parseError.c_str()));
+
+			this->debugInfoDoc = dynamic_cast<ParseParty::JsonObject*>(jsonValue);
+			if (!this->debugInfoDoc)
+				throw new RunTimeException("Expected debug JSON info to be an object type.");
 		}
 	}
 }

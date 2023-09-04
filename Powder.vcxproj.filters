@@ -103,14 +103,8 @@
     <ClCompile Include="Source\VirtualMachine\Values\AddressValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Compiler\Tokenizer.cpp">
-      <Filter>Source\Compiler</Filter>
-    </ClCompile>
     <ClCompile Include="Source\VirtualMachine\Values\BooleanValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Compiler\Parser.cpp">
-      <Filter>Source\Compiler</Filter>
     </ClCompile>
     <ClCompile Include="Source\Utilities\StringFormat.cpp">
       <Filter>Source\Utilities</Filter>
@@ -309,17 +303,11 @@
     <ClInclude Include="Source\Utilities\LinkedList.hpp">
       <Filter>Source\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Compiler\Tokenizer.h">
-      <Filter>Source\Compiler</Filter>
-    </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\BooleanValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
     <ClInclude Include="Source\Exceptions.hpp">
       <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Compiler\Parser.h">
-      <Filter>Source\Compiler</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utilities\StringFormat.h">
       <Filter>Source\Utilities</Filter>
@@ -439,6 +427,9 @@
   <ItemGroup>
     <None Include="Readme.md" />
     <None Include="Source\Compiler\Grammar.json">
+      <Filter>Source\Compiler</Filter>
+    </None>
+    <None Include="Source\Compiler\Lexicon.json">
       <Filter>Source\Compiler</Filter>
     </None>
   </ItemGroup>

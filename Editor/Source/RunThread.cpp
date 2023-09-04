@@ -111,28 +111,31 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 		int lineNumber = -1;
 		int columnNumber = -1;
 
-		if (executable->debugInfoDoc->HasMember("instruction_map"))
+		const ParseParty::JsonObject* instructionMapValue = dynamic_cast<const ParseParty::JsonObject*>(executable->debugInfoDoc->GetValue("instruction_map"));
+		if (instructionMapValue)
 		{
-			const rapidjson::Value& instructionMapValue = (*executable->debugInfoDoc)["instruction_map"];
 			char key[32];
 			::sprintf_s(key, sizeof(key), "%lu", (unsigned long)executor->GetProgramBufferLocation());
-			if (instructionMapValue.HasMember(key))
+			const ParseParty::JsonObject* instructionEntryValue = dynamic_cast<const ParseParty::JsonObject*>(instructionMapValue->GetValue(key));
+			if (instructionEntryValue)
 			{
-				const rapidjson::Value& instructionEntryValue = instructionMapValue[key];
-				if (instructionEntryValue.HasMember("debugger_help"))
+				const ParseParty::JsonString* debuggerHelpValue = dynamic_cast<const ParseParty::JsonString*>(instructionEntryValue->GetValue("debugger_help"));
+				if (debuggerHelpValue)
 				{
-					wxString debuggerHelp = instructionEntryValue["debugger_help"].GetString();
+					wxString debuggerHelp = debuggerHelpValue->GetValue();
 					if (debuggerHelp.EndsWith("_call"))
 						this->callDepth++;
 					else if (debuggerHelp.EndsWith("_return"))
 						this->callDepth--;
 				}
 
-				if (instructionEntryValue.HasMember("line"))
-					lineNumber = instructionEntryValue["line"].GetInt();
+				const ParseParty::JsonInt* lineValue = dynamic_cast<const ParseParty::JsonInt*>(instructionEntryValue->GetValue("line"));
+				if (lineValue)
+					lineNumber = lineValue->GetValue();
 
-				if (instructionEntryValue.HasMember("col"))
-					columnNumber = instructionEntryValue["col"].GetInt();
+				const ParseParty::JsonInt* colValue = dynamic_cast<const ParseParty::JsonInt*>(instructionEntryValue->GetValue("col"));
+				if (colValue)
+					columnNumber = colValue->GetValue();
 			}
 		}
 
@@ -140,9 +143,10 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 		{
 			this->prevLineNumber = lineNumber;
 
-			if (executable->debugInfoDoc->HasMember("source_file"))
+			const ParseParty::JsonString* sourceFileValue = dynamic_cast<const ParseParty::JsonString*>(executable->debugInfoDoc->GetValue("source_file"));
+			if (sourceFileValue)
 			{
-				wxFileName sourceFile = wxString((*executable->debugInfoDoc)["source_file"].GetString());
+				wxFileName sourceFile = wxString(sourceFileValue->GetValue());
 				wxCriticalSectionLocker locker(wxGetApp().breakpointListCS);
 				EditorApp::Breakpoint* breakpoint = wxGetApp().FindBreakpoint(sourceFile, lineNumber);
 				if (breakpoint)
@@ -158,8 +162,9 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 			this->suspensionState = SUSPENDED_FOR_DEBUG;
 
 			wxString sourceFile;
-			if (executable->debugInfoDoc->HasMember("source_file"))
-				sourceFile = (*executable->debugInfoDoc)["source_file"].GetString();
+			const ParseParty::JsonString* sourceFileValue = dynamic_cast<const ParseParty::JsonString*>(executable->debugInfoDoc->GetValue("source_file"));
+			if (sourceFileValue)
+				sourceFile = sourceFileValue->GetValue();
 
 			::wxQueueEvent(this->eventHandler, new RunThreadSuspendedEvent(sourceFile, lineNumber, columnNumber));
 

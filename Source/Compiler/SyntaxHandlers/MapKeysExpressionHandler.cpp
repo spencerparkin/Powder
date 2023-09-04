@@ -12,12 +12,12 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void MapKeysExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void MapKeysExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 2)
+		if (syntaxNode->GetChildCount() != 2)
 			throw new CompileTimeException("Expected \"map-keys-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
 
-		instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->childList.GetHead()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(1));
 
 		MapInstruction* mapInstruction = Instruction::CreateForAssembly<MapInstruction>(syntaxNode->fileLocation);
 		AssemblyData::Entry entry;

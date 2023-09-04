@@ -13,43 +13,43 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void LiteralExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void LiteralExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 1)
+		if (syntaxNode->GetChildCount() != 1)
 			throw new CompileTimeException("Expected \"literal\" in AST to have exactly one child.", &syntaxNode->fileLocation);
 
 		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
 		instructionList.AddTail(pushInstruction);
 
-		const Parser::SyntaxNode* literalTypeNode = syntaxNode->childList.GetHead()->value;
-		const Parser::SyntaxNode* literalDataNode = (literalTypeNode->childList.GetCount() == 1) ? literalTypeNode->childList.GetHead()->value : nullptr;
+		const ParseParty::Parser::SyntaxNode* literalTypeNode = syntaxNode->GetChild(0);
+		const ParseParty::Parser::SyntaxNode* literalDataNode = (literalTypeNode->GetChildCount() == 1) ? literalTypeNode->GetChild(0) : nullptr;
 
 		AssemblyData::Entry typeEntry;
 		AssemblyData::Entry dataEntry;
 
-		if (*literalTypeNode->name == "undefined")
+		if (*literalTypeNode->text == "undefined")
 			typeEntry.code = PushInstruction::DataType::UNDEFINED;
-		else if (*literalTypeNode->name == "string-literal")
+		else if (*literalTypeNode->text == "@string")
 		{
 			typeEntry.code = PushInstruction::DataType::STRING;
-			dataEntry.string = *literalDataNode->name;
+			dataEntry.string = *literalDataNode->text;
 		}
-		else if (*literalTypeNode->name == "number-literal")
+		else if (*literalTypeNode->text == "@number")
 		{
 			typeEntry.code = PushInstruction::DataType::NUMBER;
-			dataEntry.number = ::strtod(literalDataNode->name->c_str(), nullptr);
+			dataEntry.number = ::strtod(literalDataNode->text->c_str(), nullptr);
 		}
-		else if (*literalTypeNode->name == "list-literal")
+		else if (*literalTypeNode->text == "list-literal")
 			typeEntry.code = PushInstruction::DataType::EMPTY_LIST;
-		else if (*literalTypeNode->name == "map-literal")
+		else if (*literalTypeNode->text == "map-literal")
 			typeEntry.code = PushInstruction::DataType::EMPTY_MAP;
 		else
-			throw new CompileTimeException(FormatString("Did not recognize \"%s\" data-type under \"literal\" in AST.", literalTypeNode->name->c_str()), &literalTypeNode->fileLocation);
+			throw new CompileTimeException(FormatString("Did not recognize \"%s\" data-type under \"literal\" in AST.", literalTypeNode->text->c_str()), &literalTypeNode->fileLocation);
 
 		pushInstruction->assemblyData->configMap.Insert("type", typeEntry);
 		pushInstruction->assemblyData->configMap.Insert("data", dataEntry);
 
-		if (*literalTypeNode->name == "list-literal" || *literalTypeNode->name == "map-literal")
+		if (*literalTypeNode->text == "list-literal" || *literalTypeNode->text == "map-literal")
 		{
 			// In this case, next come the instructions that populate the list or map.
 			instructionGenerator->GenerateInstructionListRecursively(instructionList, literalTypeNode);

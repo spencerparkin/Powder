@@ -2,6 +2,8 @@
 
 #include "Defines.h"
 #include "VirtualMachine.h"
+#include "Lexer.h"
+#include "Parser.h"
 #include <cstdint>
 
 namespace Powder
@@ -15,6 +17,11 @@ namespace Powder
 		virtual Executable* CompileCode(const char* programSourceCode) override;
 
 		bool generateDebugInfo;
+
+	private:
+
+		bool PerformReductions(ParseParty::Parser::SyntaxNode* parentNode);
+		bool PerformSugarExpansions(ParseParty::Parser::SyntaxNode* parentNode);
 	};
 
 	extern Compiler theDefaultCompiler;

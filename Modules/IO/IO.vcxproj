@@ -106,8 +106,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../Source;../../Source/VirtualMachine;../../Source/VirtualMachine/Values;../../Source/GarbageCollector;../../Source/VirtualMachine/Instructions;../../Source/Utilities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>../../Source;../../Source/VirtualMachine;../../Source/VirtualMachine/Values;../../Source/GarbageCollector;../../Source/VirtualMachine/Instructions;../../Source/Utilities;$(SolutionDir)\ThirdParty\ParseParty\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -127,7 +127,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../Source;../../Source/VirtualMachine;../../Source/VirtualMachine/Values;../../Source/GarbageCollector;../../Source/VirtualMachine/Instructions;../../Source/Utilities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Source;../../Source/VirtualMachine;../../Source/VirtualMachine/Values;../../Source/GarbageCollector;../../Source/VirtualMachine/Instructions;../../Source/Utilities;$(SolutionDir)\ThirdParty\ParseParty\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

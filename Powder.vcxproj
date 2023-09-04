@@ -22,7 +22,6 @@
     <ClCompile Include="Source\Compiler\Assembler.cpp" />
     <ClCompile Include="Source\Compiler\Compiler.cpp" />
     <ClCompile Include="Source\Compiler\InstructionGenerator.cpp" />
-    <ClCompile Include="Source\Compiler\Parser.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\AssignmentExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.cpp" />
@@ -46,7 +45,6 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\UnaryExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.cpp" />
-    <ClCompile Include="Source\Compiler\Tokenizer.cpp" />
     <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCAnchor.cpp" />
     <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp" />
@@ -88,7 +86,6 @@
     <ClInclude Include="Source\Compiler\Assembler.h" />
     <ClInclude Include="Source\Compiler\Compiler.h" />
     <ClInclude Include="Source\Compiler\InstructionGenerator.h" />
-    <ClInclude Include="Source\Compiler\Parser.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\AssignmentExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.h" />
@@ -112,7 +109,6 @@
     <ClInclude Include="Source\Compiler\SyntaxHandlers\UnaryExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.h" />
-    <ClInclude Include="Source\Compiler\Tokenizer.h" />
     <ClInclude Include="Source\Defines.h" />
     <ClInclude Include="Source\Exceptions.hpp" />
     <ClInclude Include="Source\GarbageCollector\concurrentqueue.h" />
@@ -160,6 +156,7 @@
   <ItemGroup>
     <None Include="Readme.md" />
     <None Include="Source\Compiler\Grammar.json" />
+    <None Include="Source\Compiler\Lexicon.json" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -233,14 +230,15 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty;./Source/Compiler/SyntaxHandlers</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/Compiler/SyntaxHandlers;./ThirdParty/ParseParty/Source</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;ParseParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -253,8 +251,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty;./Source/Compiler/SyntaxHandlers</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/Compiler/SyntaxHandlers;./ThirdParty/ParseParty/Source</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -262,7 +260,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;ParseParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

@@ -13,21 +13,21 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void DeleteFieldExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void DeleteFieldExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
-		if (syntaxNode->childList.GetCount() != 2)
+		if (syntaxNode->GetChildCount() != 2)
 			throw new CompileTimeException("Expected \"delete-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
 
-		if (*syntaxNode->childList.GetHead()->GetNext()->value->name != "container-field-expression")
-			throw new CompileTimeException("Expected \"container-field-expression\" to be second child of \"delete-field-expression\" in AST.", &syntaxNode->childList.GetHead()->GetNext()->value->fileLocation);
+		if (*syntaxNode->GetChild(1)->text != "container-field-expression")
+			throw new CompileTimeException("Expected \"container-field-expression\" to be second child of \"delete-field-expression\" in AST.", &syntaxNode->GetChild(1)->fileLocation);
 
-		const Parser::SyntaxNode* containerFieldNode = syntaxNode->childList.GetHead()->GetNext()->value;
+		const ParseParty::Parser::SyntaxNode* containerFieldNode = syntaxNode->GetChild(1);
 
 		// Push the container value.
-		instructionGenerator->GenerateInstructionListRecursively(instructionList, containerFieldNode->childList.GetHead()->value);
+		instructionGenerator->GenerateInstructionListRecursively(instructionList, containerFieldNode->GetChild(0));
 
 		// Push the field value to delete.
-		instructionGenerator->GenerateInstructionListRecursively(instructionList, containerFieldNode->childList.GetHead()->GetNext()->value);
+		instructionGenerator->GenerateInstructionListRecursively(instructionList, containerFieldNode->GetChild(1));
 
 		// And now issue the del instruction.
 		MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(syntaxNode->fileLocation);

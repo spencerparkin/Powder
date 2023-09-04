@@ -12,17 +12,17 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void ListExpressionHandler::HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ void ListExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
 	{
 		// The list may be empty, in which case, we don't find the node.
-		const Parser::SyntaxNode* elementListNode = syntaxNode->FindChild("list-element-list", 1);
+		const ParseParty::Parser::SyntaxNode* elementListNode = syntaxNode->FindChild("list-element-list", 1);
 		if (elementListNode)
 		{
 			// We assume here that the list in question is already on the eval-stack.
-			for (const LinkedList<Parser::SyntaxNode*>::Node* node = elementListNode->childList.GetHead(); node; node = node->GetNext())
+			for (const ParseParty::Parser::SyntaxNode* elementNode : *elementListNode->childList)
 			{
 				// Push the element onto the eval stack.
-				instructionGenerator->GenerateInstructionListRecursively(instructionList, node->value);
+				instructionGenerator->GenerateInstructionListRecursively(instructionList, elementNode);
 
 				// Now add the element to the list.  The element gets removed from the stack, but the list should remain.
 				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(syntaxNode->fileLocation);

@@ -16,7 +16,7 @@ namespace Powder
 		InstructionGenerator();
 		virtual ~InstructionGenerator();
 
-		void GenerateInstructionList(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* rootSyntaxNode);
+		void GenerateInstructionList(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* rootSyntaxNode);
 
 		class SyntaxHandler
 		{
@@ -24,12 +24,12 @@ namespace Powder
 			SyntaxHandler() {}
 			virtual ~SyntaxHandler() {}
 
-			virtual void HandleSyntaxNode(const Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator) = 0;
+			virtual void HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator) = 0;
 
-			bool PopNeededForExpression(const Parser::SyntaxNode* syntaxNode);
+			bool PopNeededForExpression(const ParseParty::Parser::SyntaxNode* syntaxNode);
 		};
 
-		void GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const Parser::SyntaxNode* syntaxNode);
+		void GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* syntaxNode);
 
 	private:
 

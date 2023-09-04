@@ -9,11 +9,13 @@
 #include "BreakpointsPanel.h"
 #include "RunThread.h"
 #include "EditorApp.h"
+#include "ArtProvider.h"
 #include <wx/menu.h>
 #include <wx/sizer.h>
 #include <wx/dirdlg.h>
 #include <wx/aboutdlg.h>
 #include <wx/filedlg.h>
+#include <wx/toolbar.h>
 
 EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Powder Editor", pos, size)
 {
@@ -22,26 +24,25 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 
 	this->MakePanels();
 
-	const int entryCount = 5;
+	const int entryCount = 8;
 	wxAcceleratorEntry entries[entryCount];
-	entries[0].Set(wxACCEL_CTRL, 'S', ID_Save);
-	entries[1].Set(wxACCEL_CTRL, 'O', ID_Open);
-	entries[2].Set(wxACCEL_NORMAL, WXK_F10, ID_StepOver);
-	entries[3].Set(wxACCEL_NORMAL, WXK_F11, ID_StepInto);
-	entries[4].Set(wxACCEL_SHIFT, WXK_F11, ID_StepOut);
+	entries[0].Set(wxACCEL_CTRL, 'N', ID_New);
+	entries[1].Set(wxACCEL_CTRL, 'S', ID_Save);
+	entries[2].Set(wxACCEL_CTRL, 'O', ID_Open);
+	entries[3].Set(wxACCEL_NORMAL, WXK_F10, ID_StepOver);
+	entries[4].Set(wxACCEL_NORMAL, WXK_F11, ID_StepInto);
+	entries[5].Set(wxACCEL_SHIFT, WXK_F11, ID_StepOut);
+	entries[6].Set(wxACCEL_NORMAL, WXK_F5, ID_RunWithoutDebugger);
+	entries[7].Set(wxACCEL_CTRL, WXK_F5, ID_RunWithDebugger);
 
 	wxAcceleratorTable table(entryCount, entries);
 	this->SetAcceleratorTable(table);
 
 	wxMenu* fileMenu = new wxMenu();
-	wxMenuItem* saveFileMenuItem = new wxMenuItem(fileMenu, ID_Save, "Save", "Save the currently shown source file, if any.");
-	wxMenuItem* openFileMenuItem = new wxMenuItem(fileMenu, ID_Open, "Open", "Browse to and open a source file.");
-	wxMenuItem* closeFileMenuItem = new wxMenuItem(fileMenu, ID_Close, "Close", "Close the currently shown source file, if any.");
-	saveFileMenuItem->SetAccel(&entries[0]);
-	openFileMenuItem->SetAccel(&entries[1]);
-	fileMenu->Append(saveFileMenuItem);
-	fileMenu->Append(openFileMenuItem);
-	fileMenu->Append(closeFileMenuItem);
+	fileMenu->Append(new wxMenuItem(fileMenu, ID_New, "New", "Create a new blank source file."));
+	fileMenu->Append(new wxMenuItem(fileMenu, ID_Save, "Save", "Save the currently shown source file, if any."));
+	fileMenu->Append(new wxMenuItem(fileMenu, ID_Open, "Open", "Browse to and open a source file."));
+	fileMenu->Append(new wxMenuItem(fileMenu, ID_Close, "Close", "Close the currently shown source file, if any."));
 	fileMenu->AppendSeparator();
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_SaveAll, "Save All", "Save all currently open files."));
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_CloseAll, "Close All", "Close all currently open files."));
@@ -51,26 +52,46 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	fileMenu->AppendSeparator();
 	fileMenu->Append(new wxMenuItem(fileMenu, ID_Exit, "Exit", "Go skiing."));
 
+	fileMenu->FindItem(ID_New)->SetAccel(&entries[0]);
+	fileMenu->FindItem(ID_Save)->SetAccel(&entries[1]);
+	fileMenu->FindItem(ID_Open)->SetAccel(&entries[2]);
+
+	fileMenu->FindItem(ID_Exit)->SetBitmap(wxArtProvider::GetBitmap(wxART_QUIT));
+	fileMenu->FindItem(ID_New)->SetBitmap(wxArtProvider::GetBitmap(wxART_NEW, wxART_MENU, wxSize(16, 16)));
+	fileMenu->FindItem(ID_Save)->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_MENU, wxSize(16, 16)));
+	fileMenu->FindItem(ID_Open)->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_MENU, wxSize(16, 16)));
+
 	wxMenu* runMenu = new wxMenu();
 	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithDebugger, "Run with Debugger", "Run the currently shown script with the debugger attached."));
 	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithoutDebugger, "Run without Debugger", "Run the currently shown script without a debugger attached."));
 	runMenu->AppendSeparator();
-	wxMenuItem* stepOverMenuItem = new wxMenuItem(runMenu, ID_StepOver, "Step Over", "Step over the current statement of function call.");
-	wxMenuItem* stepIntoMenuItem = new wxMenuItem(runMenu, ID_StepInto, "Step Into", "Step into the current function call, if any; or just step over.");
-	wxMenuItem* stepOutMenuItem = new wxMenuItem(runMenu, ID_StepOut, "Step Out", "Step out of the current function call, if any; or just resume.");
-	stepOverMenuItem->SetAccel(&entries[2]);
-	stepIntoMenuItem->SetAccel(&entries[3]);
-	stepOutMenuItem->SetAccel(&entries[4]);
-	runMenu->Append(stepOverMenuItem);
-	runMenu->Append(stepIntoMenuItem);
-	runMenu->Append(stepOutMenuItem);
+	runMenu->Append(new wxMenuItem(runMenu, ID_StepOver, "Step Over", "Step over the current statement of function call."));
+	runMenu->Append(new wxMenuItem(runMenu, ID_StepInto, "Step Into", "Step into the current function call, if any; or just step over."));
+	runMenu->Append(new wxMenuItem(runMenu, ID_StepOut, "Step Out", "Step out of the current function call, if any; or just resume."));
 	runMenu->AppendSeparator();
 	runMenu->Append(new wxMenuItem(runMenu, ID_PauseScript, "Pause Script", "Suspend the currently running script as soon as possible."));
 	runMenu->Append(new wxMenuItem(runMenu, ID_ResumeScript, "Resume Script", "Resume execution of the currently suspended script, if any."));
 	runMenu->Append(new wxMenuItem(runMenu, ID_KillScript, "Kill Script", "Prematurely end the currently running script, if any."));
 
+	runMenu->FindItem(ID_StepOver)->SetAccel(&entries[3]);
+	runMenu->FindItem(ID_StepInto)->SetAccel(&entries[4]);
+	runMenu->FindItem(ID_StepOut)->SetAccel(&entries[5]);
+	runMenu->FindItem(ID_RunWithDebugger)->SetAccel(&entries[6]);
+	runMenu->FindItem(ID_RunWithoutDebugger)->SetAccel(&entries[7]);
+
+	runMenu->FindItem(ID_StepOver)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_STEP_OVER, wxART_MENU));
+	runMenu->FindItem(ID_StepInto)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_STEP_INTO, wxART_MENU));
+	runMenu->FindItem(ID_StepOut)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_STEP_OUT, wxART_MENU));
+	runMenu->FindItem(ID_RunWithDebugger)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_RUN_WITH_DEBUGGER, wxART_MENU));
+	runMenu->FindItem(ID_RunWithoutDebugger)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_RUN_WITHOUT_DEBUGGER, wxART_MENU));
+	runMenu->FindItem(ID_PauseScript)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_PAUSE_SCRIPT, wxART_MENU));
+	runMenu->FindItem(ID_ResumeScript)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_RESUME_SCRIPT, wxART_MENU));
+	runMenu->FindItem(ID_KillScript)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_KILL_SCRIPT, wxART_MENU));
+
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about box."));
+
+	helpMenu->FindItem(ID_About)->SetBitmap(wxArtProvider::GetBitmap(wxART_INFORMATION, wxART_MENU, wxSize(16, 16)));
 
 	wxMenu* panelsMenu = this->MakePanelsMenu();
 
@@ -84,7 +105,27 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->SetStatusBar(new wxStatusBar(this));
 	this->GetStatusBar()->SetFieldsCount(2);
 
-	// TODO: Need a way to create a new source file under any directory of the currently open project directory.
+	wxToolBar* toolBar = this->CreateToolBar();
+
+	toolBar->AddTool(ID_New, "New", wxArtProvider::GetBitmap(wxART_NEW, wxART_TOOLBAR, wxSize(16, 16)));
+	toolBar->AddTool(ID_Save, "Save", wxArtProvider::GetBitmap(wxART_FILE_SAVE, wxART_TOOLBAR, wxSize(16, 16)));
+	toolBar->AddTool(ID_Open, "Open", wxArtProvider::GetBitmap(wxART_FILE_OPEN, wxART_TOOLBAR, wxSize(16, 16)));
+	//toolBar->AddTool(ID_Close, "Close", ...
+	toolBar->AddSeparator();
+	toolBar->AddTool(ID_RunWithDebugger, "Run with Debugger", wxArtProvider::GetBitmap(ART_EDITOR_RUN_WITH_DEBUGGER, wxART_TOOLBAR));
+	toolBar->AddTool(ID_RunWithoutDebugger, "Run without Debugger", wxArtProvider::GetBitmap(ART_EDITOR_RUN_WITHOUT_DEBUGGER, wxART_TOOLBAR));
+	toolBar->AddSeparator();
+	toolBar->AddTool(ID_StepOver, "Step Over", wxArtProvider::GetBitmap(ART_EDITOR_STEP_OVER, wxART_TOOLBAR));
+	toolBar->AddTool(ID_StepInto, "Step Into", wxArtProvider::GetBitmap(ART_EDITOR_STEP_INTO, wxART_TOOLBAR));
+	toolBar->AddTool(ID_StepOut, "Step Out", wxArtProvider::GetBitmap(ART_EDITOR_STEP_OUT, wxART_TOOLBAR));
+	toolBar->AddSeparator();
+	toolBar->AddTool(ID_PauseScript, "Pause Script", wxArtProvider::GetBitmap(ART_EDITOR_PAUSE_SCRIPT, wxART_TOOLBAR));
+	toolBar->AddTool(ID_ResumeScript, "Resume Script", wxArtProvider::GetBitmap(ART_EDITOR_RESUME_SCRIPT, wxART_TOOLBAR));
+	toolBar->AddTool(ID_KillScript, "Kill Script", wxArtProvider::GetBitmap(ART_EDITOR_KILL_SCRIPT, wxART_TOOLBAR));
+
+	toolBar->Realize();
+
+	this->Bind(wxEVT_MENU, &EditorFrame::OnNewFile, this, ID_New);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnSaveFile, this, ID_Save);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnOpenFile, this, ID_Open);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnCloseFile, this, ID_Close);
@@ -92,6 +133,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_MENU, &EditorFrame::OnCloseAllFiles, this, ID_CloseAll);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnOpenDirectory, this, ID_OpenDirectory);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnCloseDirectory, this, ID_CloseDirectory);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnDeleteExecutables, this, ID_DeleteExecutables);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnExit, this, ID_Exit);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithDebugger, this, ID_RunWithDebugger);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnRunWithoutDebugger, this, ID_RunWithoutDebugger);
@@ -102,6 +144,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_MENU, &EditorFrame::OnStepInto, this, ID_StepInto);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnStepOut, this, ID_StepOut);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnAbout, this, ID_About);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_New);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Save);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Open);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Close);
@@ -110,6 +153,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_CloseDirectory);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_OpenDirectory);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_CloseDirectory);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_DeleteExecutables);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithDebugger);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_RunWithoutDebugger);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_PauseScript);
@@ -243,6 +287,11 @@ void EditorFrame::OnAbout(wxCommandEvent& event)
 	wxAboutBox(aboutDialogInfo);
 }
 
+void EditorFrame::OnNewFile(wxCommandEvent& event)
+{
+	// TODO: Write this.
+}
+
 void EditorFrame::OnSaveFile(wxCommandEvent& event)
 {
 	SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
@@ -311,6 +360,11 @@ void EditorFrame::OnCloseDirectory(wxCommandEvent& event)
 			wxGetApp().SetProjectDirectory("");
 		}
 	}
+}
+
+void EditorFrame::OnDeleteExecutables(wxCommandEvent& event)
+{
+	// TODO: Write this.
 }
 
 void EditorFrame::OnRunWithDebugger(wxCommandEvent& event)
@@ -486,6 +540,11 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 	{
 		switch (id)
 		{
+			case ID_New:
+			{
+				// TODO: Write this.
+				break;
+			}
 			case ID_Save:
 			{
 				SourceFilePanel* sourceFilePanel = this->FindPanel<SourceFilePanel>("SourceFile");
@@ -549,16 +608,16 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 						if (editControl)
 						{
 							if (event.GetId() == ID_RunWithDebugger)
-								event.SetText("Run " + editControl->GetFileName() + " with Debugger");
+								event.SetText("Run " + editControl->GetFileName() + " with Debugger\tCtrl+F5");
 							else
-								event.SetText("Run " + editControl->GetFileName() + " without Debugger");
+								event.SetText("Run " + editControl->GetFileName() + " without Debugger\tF5");
 						}
 						else
 						{
 							if (event.GetId() == ID_RunWithDebugger)
-								event.SetText("Run with Debugger");
+								event.SetText("Run with Debugger\tCtrl+F5");
 							else
-								event.SetText("Run without Debugger");
+								event.SetText("Run without Debugger\tF5");
 						}
 					}
 				}

@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Powder", "Powder.vcxproj", "{FFCE671A-9F49-470A-9D4E-80C5B95038AC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AE77B227-D195-4D77-8434-700159515F7D} = {AE77B227-D195-4D77-8434-700159515F7D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interpreter", "Interpreter\Interpreter.vcxproj", "{01BB7822-4754-463F-B1FB-B4618A491C0D}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -42,6 +45,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{90
 		Examples\ScopeTest.pow = Examples\ScopeTest.pow
 		Examples\VectorLibrary.pow = Examples\VectorLibrary.pow
 		Examples\VectorTest.pow = Examples\VectorTest.pow
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParseParty", "ThirdParty\ParseParty\ParseParty.vcxproj", "{AE77B227-D195-4D77-8434-700159515F7D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParseTool", "ThirdParty\ParseParty\ParseTool\ParseTool.vcxproj", "{946DA007-46BD-48EC-A455-2E9345143FEA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AE77B227-D195-4D77-8434-700159515F7D} = {AE77B227-D195-4D77-8434-700159515F7D}
 	EndProjectSection
 EndProject
 Global
@@ -84,6 +94,22 @@ Global
 		{09BEAB58-5AEF-4B53-8753-555495E0D862}.Release|x64.Build.0 = Release|x64
 		{09BEAB58-5AEF-4B53-8753-555495E0D862}.Release|x86.ActiveCfg = Release|Win32
 		{09BEAB58-5AEF-4B53-8753-555495E0D862}.Release|x86.Build.0 = Release|Win32
+		{AE77B227-D195-4D77-8434-700159515F7D}.Debug|x64.ActiveCfg = Debug|x64
+		{AE77B227-D195-4D77-8434-700159515F7D}.Debug|x64.Build.0 = Debug|x64
+		{AE77B227-D195-4D77-8434-700159515F7D}.Debug|x86.ActiveCfg = Debug|Win32
+		{AE77B227-D195-4D77-8434-700159515F7D}.Debug|x86.Build.0 = Debug|Win32
+		{AE77B227-D195-4D77-8434-700159515F7D}.Release|x64.ActiveCfg = Release|x64
+		{AE77B227-D195-4D77-8434-700159515F7D}.Release|x64.Build.0 = Release|x64
+		{AE77B227-D195-4D77-8434-700159515F7D}.Release|x86.ActiveCfg = Release|Win32
+		{AE77B227-D195-4D77-8434-700159515F7D}.Release|x86.Build.0 = Release|Win32
+		{946DA007-46BD-48EC-A455-2E9345143FEA}.Debug|x64.ActiveCfg = Debug|x64
+		{946DA007-46BD-48EC-A455-2E9345143FEA}.Debug|x64.Build.0 = Debug|x64
+		{946DA007-46BD-48EC-A455-2E9345143FEA}.Debug|x86.ActiveCfg = Debug|Win32
+		{946DA007-46BD-48EC-A455-2E9345143FEA}.Debug|x86.Build.0 = Debug|Win32
+		{946DA007-46BD-48EC-A455-2E9345143FEA}.Release|x64.ActiveCfg = Release|x64
+		{946DA007-46BD-48EC-A455-2E9345143FEA}.Release|x64.Build.0 = Release|x64
+		{946DA007-46BD-48EC-A455-2E9345143FEA}.Release|x86.ActiveCfg = Release|Win32
+		{946DA007-46BD-48EC-A455-2E9345143FEA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
