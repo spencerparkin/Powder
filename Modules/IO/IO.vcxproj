@@ -106,7 +106,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../Source;../../Source/VirtualMachine;../../Source/VirtualMachine/Values;../../Source/GarbageCollector;../../Source/VirtualMachine/Instructions;../../Source/Utilities;$(SolutionDir)\ThirdParty\ParseParty\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Source;../../Source/VirtualMachine;../../Source/VirtualMachine/Values;../../Source/GarbageCollector;../../Source/VirtualMachine/Instructions;../../Source/Utilities;$(SolutionDir)\ThirdParty\ParseParty\Source;$(SolutionDir)\Source\Compiler;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

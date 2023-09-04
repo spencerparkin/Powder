@@ -15,3 +15,5 @@ TO-DO...
 -- Not sure how far to take the language both in terms of extension modules and language features (e.g., OOP.)  What other extension modules might I add?  Might be good to exploit the fork instruction for blocking I/O.
 
 -- Maybe remove all exception throwing.  This is also along the effort to curb memory leaks, at least, in those cases.
+
+-- Really need to show line and column number of cursor in the status-bar, lower-right-hand corner.
