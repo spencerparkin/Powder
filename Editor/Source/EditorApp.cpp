@@ -1,5 +1,6 @@
 #include "EditorApp.h"
 #include "EditorFrame.h"
+#include "ArtProvider.h"
 #include <wx/filename.h>
 #include <wx/dir.h>
 
@@ -21,6 +22,10 @@ EditorApp::EditorApp()
 {
 	if (!wxApp::OnInit())
 		return false;
+
+	wxInitAllImageHandlers();
+
+	wxArtProvider::Push(new ArtProvider(::wxGetCwd()));
 
 	this->config = new wxConfig("PowderEditor");
 	this->SetProjectDirectory(this->config->Read("projectDirectory"));

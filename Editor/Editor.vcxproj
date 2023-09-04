@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ArtProvider.cpp" />
     <ClCompile Include="Source\BreakpointsPanel.cpp" />
     <ClCompile Include="Source\DirectoryTreeControl.cpp" />
     <ClCompile Include="Source\DirectoryTreePanel.cpp" />
@@ -34,6 +35,7 @@
     <ClCompile Include="Source\ValuesPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\ArtProvider.h" />
     <ClInclude Include="Source\BreakpointsPanel.h" />
     <ClInclude Include="Source\DirectoryTreeControl.h" />
     <ClInclude Include="Source\DirectoryTreePanel.h" />

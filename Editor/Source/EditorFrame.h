@@ -15,6 +15,7 @@ public:
 	{
 		ID_Exit = wxID_HIGHEST,
 		ID_About,
+		ID_New,
 		ID_Save,
 		ID_Open,
 		ID_Close,
@@ -22,6 +23,7 @@ public:
 		ID_CloseAll,
 		ID_OpenDirectory,
 		ID_CloseDirectory,
+		ID_DeleteExecutables,
 		ID_RunWithDebugger,
 		ID_RunWithoutDebugger,
 		ID_StepOver,
@@ -35,6 +37,7 @@ public:
 
 	void OnExit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
+	void OnNewFile(wxCommandEvent& event);
 	void OnSaveFile(wxCommandEvent& event);
 	void OnOpenFile(wxCommandEvent& event);
 	void OnCloseFile(wxCommandEvent& event);
@@ -42,6 +45,7 @@ public:
 	void OnCloseAllFiles(wxCommandEvent& event);
 	void OnOpenDirectory(wxCommandEvent& event);
 	void OnCloseDirectory(wxCommandEvent& event);
+	void OnDeleteExecutables(wxCommandEvent& event);
 	void OnRunWithDebugger(wxCommandEvent& event);
 	void OnRunWithoutDebugger(wxCommandEvent& event);
 	void OnPauseScript(wxCommandEvent& event);
