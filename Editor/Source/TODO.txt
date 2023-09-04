@@ -1,11 +1,12 @@
-TODO...
+TO-DO...
+
+-- Totally gut and rewrite the GC.  It is just plain wrong, and admittedly, it's something I need to think about for a while before tackling.  It's an interesting problem.
+   I'll probably make a GC project as a seperate git-repo, then add it as a sub-module here, and then replace the old one with the new one.
 
 -- I'm seeing a 16 byte allocation leaked about a million times after running scripts in the editor.  Every such allocation has the same first few bytes "0CX{", so that has to be a clue.
    This is a horrendous leak.  It really needs to be tracked down.  Fortunately, I think it's just one kind of allocation made somewhere and never freed.
 
 -- Add cursor hover support in the source control window?  You hover over a symbol long enough and then a bubble shows up with the symbol's current value.  Not needed if the inspection window is good enough.
-
--- Add a toolbar?  Hard to find art for it.
 
 -- There are a few step bugs to be ironed out.  Also, the step locations (line numbers) could be refined by revisiting the instruction generator code.
 
@@ -13,6 +14,4 @@ TODO...
 
 -- Not sure how far to take the language both in terms of extension modules and language features (e.g., OOP.)  What other extension modules might I add?  Might be good to exploit the fork instruction for blocking I/O.
 
--- Maybe remove all exception throwing.
-
--- Find and fix all mem leaks.  Is the GC partly to blame?  Also, should add GC leak check code when VM is totally out of scope.
+-- Maybe remove all exception throwing.  This is also along the effort to curb memory leaks, at least, in those cases.
