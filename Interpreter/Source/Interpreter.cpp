@@ -34,6 +34,8 @@ int main(int argc, char** argv)
 					std::cerr << errorMsg << std::endl;
 					delete exc;
 				}
+
+				GC::GarbageCollector::Get()->Collect();
 			}
 		}
 		else
