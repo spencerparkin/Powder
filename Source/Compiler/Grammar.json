@@ -90,7 +90,7 @@
       [ "expression", "in", "expression" ]
     ],
     "member-access-expression": [
-      [ "expression", ".", "identifier", -1 ]
+      [ "expression", ".", "@identifier", -1 ]
     ],
     "list-push-pop-expression": [
       [ "expression", "-->", "expression" ],
