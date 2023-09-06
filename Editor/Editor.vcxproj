@@ -125,14 +125,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);__WXMSW__;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\wxWidgets\include;E:\wxWidgets\include\msvc;../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values;$(SolutionDir)/ThirdParty/ParseParty/Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\wxWidgets\include;E:\wxWidgets\include\msvc;../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values;$(SolutionDir)/ThirdParty/ParseParty/Source;$(SolutionDir)/ThirdParty/GarbageCollector/Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);E:\wxWidgets\lib\vc_lib;../Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Ws2_32.lib;Powder.lib;ParseParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;Powder.lib;ParseParty.lib;GarbageCollector.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -143,7 +143,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);__WXMSW__;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\wxWidgets\include;E:\wxWidgets\include\msvc;../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values;$(SolutionDir)/ThirdParty/ParseParty/Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\wxWidgets\include;E:\wxWidgets\include\msvc;../Source;../Source/Utilities;../Source/Compiler;../Source/GarbageCollector;../Source/VirtualMachine;../Source/VirtualMachine/Instructions;../Source/VirtualMachine/Values;$(SolutionDir)/ThirdParty/ParseParty/Source;$(SolutionDir)/ThirdParty/GarbageCollector/Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -152,7 +152,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>E:\wxWidgets\lib\vc_lib;../Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Ws2_32.lib;Powder.lib;ParseParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;Powder.lib;ParseParty.lib;GarbageCollector.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

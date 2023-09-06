@@ -1,4 +1,5 @@
 #include "ValuesPanel.h"
+#include "Executable.h"
 #include "RunThread.h"
 #include "EditorApp.h"
 #include "ListValue.h"
@@ -194,8 +195,8 @@ void ValuesPanel::GenerateValueItems(wxTreeItemId parentItemId)
 	ScopeTreeItemData* scopeItemData = dynamic_cast<ScopeTreeItemData*>(treeItemData);
 	if (scopeItemData)
 	{
-		scopeItemData->scope->GetValueMap()->ForAllEntries([this, &parentItemId](const char* key, Powder::Value* value) -> bool {
-			this->GenerateTreeForValue(parentItemId, wxString(key), value);
+		scopeItemData->scope->GetValueMap()->ForAllEntries([this, &parentItemId](const char* key, GC::Reference<Powder::Value, false>& valueRef) -> bool {
+			this->GenerateTreeForValue(parentItemId, wxString(key), valueRef.Get());
 			return true;
 		});
 	}
@@ -219,9 +220,9 @@ void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString
 	Powder::MapValue* mapValue = dynamic_cast<Powder::MapValue*>(value);
 	if (mapValue)
 	{
-		Powder::HashMap<Powder::Value*>& valueMap = mapValue->GetValueMap();
-		valueMap.ForAllEntries([this, &childItemId](const char* key, Powder::Value* subValue) -> bool {
-			this->GenerateTreeForValue(childItemId, wxString(key), subValue);
+		Powder::HashMap<GC::Reference<Powder::Value, false>>& valueMap = mapValue->GetValueMap();
+		valueMap.ForAllEntries([this, &childItemId](const char* key, GC::Reference<Powder::Value, false>& subValueRef) -> bool {
+			this->GenerateTreeForValue(childItemId, wxString(key), subValueRef.Get());
 			return true;
 		});
 	}
@@ -229,8 +230,8 @@ void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString
 	Powder::ClosureValue* closureValue = dynamic_cast<Powder::ClosureValue*>(value);
 	if (closureValue)
 	{
-		closureValue->scope.Get()->GetValueMap()->ForAllEntries([this, &childItemId](const char* key, Powder::Value* subValue) -> bool {
-			this->GenerateTreeForValue(childItemId, wxString(key), subValue);
+		closureValue->scopeRef.Get()->GetValueMap()->ForAllEntries([this, &childItemId](const char* key, GC::Reference<Powder::Value, false>& subValueRef) -> bool {
+			this->GenerateTreeForValue(childItemId, wxString(key), subValueRef.Get());
 			return true;
 		});
 	}
