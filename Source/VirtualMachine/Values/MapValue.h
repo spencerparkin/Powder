@@ -3,7 +3,7 @@
 #include "ContainerValue.h"
 #include "CppFunctionValue.h"
 #include "HashMap.hpp"
-#include "GCSteward.hpp"
+#include "Reference.h"
 
 namespace Powder
 {
@@ -20,7 +20,7 @@ namespace Powder
 		virtual std::string ToString() const override;
 		virtual void SetField(Value* fieldValue, Value* dataValue) override;
 		virtual Value* GetField(Value* fieldValue) override;
-		virtual Value* DelField(Value* fieldValue) override;
+		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 
@@ -28,13 +28,17 @@ namespace Powder
 
 		void SetField(const char* key, Value* dataValue);
 		Value* GetField(const char* key);
-		Value* DelField(const char* key);
+		bool DelField(const char* key, GC::Reference<Value, true>& valueRef);
 
-		HashMap<Value*>& GetValueMap() { return this->valueMap; }
-		const HashMap<Value*>& GetValueMap() const { return this->valueMap; }
+		HashMap<GC::Reference<Value, false>>& GetValueMap() { return this->valueMap; }
+		const HashMap<GC::Reference<Value, false>>& GetValueMap() const { return this->valueMap; }
+
+		virtual bool IterationBegin(void*& userData) override;
+		virtual Object* IterationNext(void* userData) override;
+		virtual void IterationEnd(void* userData) override;
 
 	private:
-		HashMap<Value*> valueMap;
+		HashMap<GC::Reference<Value, false>> valueMap;
 	};
 
 	class POWDER_API MapValueIterator : public CppFunctionValue
@@ -45,7 +49,7 @@ namespace Powder
 
 		virtual Value* Call(ListValue* argListValue, std::string& errorMsg) override;
 
-		GCSteward<MapValue> mapValue;
-		HashMap<Value*>::iterator mapIter;
+		GC::Reference<MapValue, false> mapValueRef;
+		HashMap<GC::Reference<Value, false>>::iterator mapIter;
 	};
 }

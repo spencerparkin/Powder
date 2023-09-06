@@ -45,10 +45,6 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\UnaryExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.cpp" />
-    <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp" />
-    <ClCompile Include="Source\GarbageCollector\GCAnchor.cpp" />
-    <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp" />
-    <ClCompile Include="Source\GarbageCollector\GCObject.cpp" />
     <ClCompile Include="Source\ModuleMain.cpp" />
     <ClCompile Include="Source\PathResolver.cpp" />
     <ClCompile Include="Source\Utilities\StringFormat.cpp" />
@@ -111,13 +107,6 @@
     <ClInclude Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.h" />
     <ClInclude Include="Source\Defines.h" />
     <ClInclude Include="Source\Exceptions.hpp" />
-    <ClInclude Include="Source\GarbageCollector\concurrentqueue.h" />
-    <ClInclude Include="Source\GarbageCollector\GarbageCollector.h" />
-    <ClInclude Include="Source\GarbageCollector\GCAnchor.h" />
-    <ClInclude Include="Source\GarbageCollector\GCCollectable.h" />
-    <ClInclude Include="Source\GarbageCollector\GCObject.h" />
-    <ClInclude Include="Source\GarbageCollector\GCSteward.hpp" />
-    <ClInclude Include="Source\GarbageCollector\GCReference.hpp" />
     <ClInclude Include="Source\ModuleMain.h" />
     <ClInclude Include="Source\PathResolver.h" />
     <ClInclude Include="Source\Utilities\HashMap.hpp" />
@@ -226,18 +215,18 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);POWDER_API_EXPORT</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;GC_EXPORT;_DEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);POWDER_API_EXPORT</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/Compiler/SyntaxHandlers;./ThirdParty/ParseParty/Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/Compiler/SyntaxHandlers;./ThirdParty/ParseParty/Source;./ThirdParty/GarbageCollector/Source</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Ws2_32.lib;ParseParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;ParseParty.lib;GarbageCollector.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -247,11 +236,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); POWDER_API_EXPORT</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;GC_EXPORT;NDEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); POWDER_API_EXPORT</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/Compiler/SyntaxHandlers;./ThirdParty/ParseParty/Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/Compiler/SyntaxHandlers;./ThirdParty/ParseParty/Source;./ThirdParty/GarbageCollector/Source</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -260,7 +249,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Ws2_32.lib;ParseParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;ParseParty.lib;GarbageCollector.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

@@ -132,7 +132,7 @@ namespace Powder
 			}
 		}
 
-		void ForAllEntries(std::function<bool(const char* key, T data)> callback)
+		void ForAllEntries(std::function<bool(const char* key, T& data)> callback)
 		{
 			for (uint32_t i = 0; i < this->tableSize; i++)
 			{
@@ -160,12 +160,17 @@ namespace Powder
 				this->entry = nullptr;
 			}
 
-			void operator++(int)
+			void operator++()
 			{
 				if (this->entry)
 					this->entry = this->entry->nextEntry;
 				while (this->entry == nullptr && this->i < this->hashMap->tableSize - 1)
 					this->entry = this->hashMap->table[++this->i];
+			}
+
+			T& operator*()
+			{
+				return this->entry->data;
 			}
 
 			bool operator==(const iterator& iter) const
@@ -183,7 +188,7 @@ namespace Powder
 			iter.hashMap = this;
 			iter.i = 0;
 			iter.entry = nullptr;
-			iter++;
+			++iter;
 			return iter;
 		}
 

@@ -39,31 +39,31 @@ namespace Powder
 			}
 			case Type::JUMP_TO_LOADED_ADDRESS:
 			{
-				GCReference<Value> value;
-				executor->PopValueFromEvaluationStackTop(value);
+				GC::Reference<Value, true> valueRef;
+				executor->PopValueFromEvaluationStackTop(valueRef);
 
-				AddressValue* addressValue = dynamic_cast<AddressValue*>(value.Ptr());
+				AddressValue* addressValue = dynamic_cast<AddressValue*>(valueRef.Get());
 				if (addressValue)
 				{
 					programBufferLocation = addressValue->programBufferLocation;
-					executable = addressValue->executable.Get();
+					executable = addressValue->executableRef.Get();
 
 					ClosureValue* closureValue = dynamic_cast<ClosureValue*>(addressValue);
 					if (closureValue)
 					{
-						closureValue->scope.Get()->Absorb(executor->GetCurrentScope());		// Grab the return address(!) among, perhaps, other things.
-						executor->ReplaceCurrentScope(closureValue->scope);
+						closureValue->scopeRef.Get()->Absorb(executor->GetCurrentScope());		// Grab the return address(!) among, perhaps, other things.
+						executor->ReplaceCurrentScope(closureValue->scopeRef.Get());
 					}
 
 					break;
 				}
 				
-				CppFunctionValue* cppFunctionValue = dynamic_cast<CppFunctionValue*>(value.Ptr());
+				CppFunctionValue* cppFunctionValue = dynamic_cast<CppFunctionValue*>(valueRef.Get());
 				if (cppFunctionValue)
 				{
-					GCReference<Value> argValue;
-					executor->PopValueFromEvaluationStackTop(argValue);
-					ListValue* argListValue = dynamic_cast<ListValue*>(argValue.Ptr());
+					GC::Reference<Value, true> argValueRef;
+					executor->PopValueFromEvaluationStackTop(argValueRef);
+					ListValue* argListValue = dynamic_cast<ListValue*>(argValueRef.Get());
 					if (!argListValue)
 						throw new RunTimeException("Did not get argument list value from evaluation stack top for module function call.");
 

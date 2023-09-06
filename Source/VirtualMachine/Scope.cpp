@@ -4,7 +4,7 @@
 
 namespace Powder
 {
-	Scope::Scope() : containingScope(this)
+	Scope::Scope()
 	{
 	}
 
@@ -15,23 +15,22 @@ namespace Powder
 
 	Scope* Scope::GetContainingScope()
 	{
-		return this->containingScope.Get();
+		return this->containingScopeRef.Get();
 	}
 
 	void Scope::SetContainingScope(Scope* containingScope)
 	{
-		this->containingScope.Set(containingScope);
+		this->containingScopeRef.Set(containingScope);
 	}
 
 	Value* Scope::LookupValue(const char* identifier, bool canPropagateSearch)
 	{
-		Value* value = nullptr;
 		Scope* scope = this;
 		while (scope)
 		{
-			value = scope->valueMap.Lookup(identifier);
-			if (value)
-				break;
+			GC::Reference<Value, false>* valueRef = scope->valueMap.LookupPtr(identifier);
+			if (valueRef)
+				return valueRef->Get();
 
 			if (canPropagateSearch)
 				scope = scope->GetContainingScope();
@@ -39,40 +38,38 @@ namespace Powder
 				break;
 		}
 
-		return value;
+		return nullptr;
 	}
 
 	void Scope::StoreValue(const char* identifier, Value* value)
 	{
-		Value* existingValue = this->valueMap.Lookup(identifier);
-		if (existingValue)
+		GC::Reference<Value, false>* valueRef = this->valueMap.LookupPtr(identifier);
+		if (valueRef)
 		{
-			if (value == existingValue)
-				return;
-
-			this->DisconnectFrom(existingValue);
+			valueRef->Set(value);
+			return;
 		}
 
 		this->valueMap.Insert(identifier, value);
-
-		if (value)
-			this->ConnectTo(value);
 	}
 
 	void Scope::DeleteValue(const char* identifier)
 	{
-		Value* existingValue = this->valueMap.Lookup(identifier);
-		if (existingValue)
-			this->DisconnectFrom(existingValue);
-
 		this->valueMap.Remove(identifier);
 	}
 
 	void Scope::Absorb(Scope* scope)
 	{
-		scope->valueMap.ForAllEntries([this](const char* key, Value* value) -> bool {
-			this->StoreValue(key, value);
+		scope->valueMap.ForAllEntries([this](const char* key, GC::Reference<Value, false>& valueRef) -> bool {
+			this->StoreValue(key, valueRef.Get());
 			return true;
 		});
+	}
+
+	/*virtual*/ void Scope::PopulateIterationArray(std::vector<GC::Object*>& iterationArray)
+	{
+		iterationArray.push_back(&this->containingScopeRef);
+		for (GC::Reference<Value, false>& valueRef : this->valueMap)
+			iterationArray.push_back(&valueRef);
 	}
 }

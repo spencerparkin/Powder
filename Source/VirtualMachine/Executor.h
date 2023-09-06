@@ -3,7 +3,7 @@
 #include "Defines.h"
 #include "Value.h"
 #include "Scope.h"
-#include <GCReference.hpp>
+#include "Reference.h"
 #include <cinttypes>
 
 namespace Powder
@@ -30,7 +30,7 @@ namespace Powder
 		bool PushScope();
 		bool PopScope();
 
-		Scope* GetCurrentScope() { return this->currentScope.Ptr(); }
+		Scope* GetCurrentScope() { return this->currentScopeRef.Get(); }
 		uint64_t GetProgramBufferLocation() { return this->programBufferLocation; }
 
 		void ReplaceCurrentScope(Scope* scope);
@@ -39,7 +39,7 @@ namespace Powder
 		void StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap);
 
 		void PushValueOntoEvaluationStackTop(Value* value);
-		void PopValueFromEvaluationStackTop(GCReference<Value>& value);
+		void PopValueFromEvaluationStackTop(GC::Reference<Value, true>& valueRef);
 
 		Value* StackTop();
 		Value* StackValue(int32_t stackOffset);	// This is relative to the top of the stack.
@@ -47,7 +47,7 @@ namespace Powder
 	protected:
 
 		uint64_t programBufferLocation;
-		GCReference<Scope> currentScope;
-		std::vector<GCReference<Value>>* evaluationStack;
+		GC::Reference<Scope, true> currentScopeRef;
+		std::vector<GC::Reference<Value, true>>* evaluationStack;
 	};
 }

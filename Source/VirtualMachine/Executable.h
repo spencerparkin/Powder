@@ -1,13 +1,13 @@
 #pragma once
 
-#include "GCCollectable.h"
+#include "Collectable.h"
 #include "JsonValue.h"
 #include <string>
 #include <cstdint>
 
 namespace Powder
 {
-	class Executable : public GCCollectable
+	class Executable : public GC::Collectable
 	{
 	public:
 		Executable();

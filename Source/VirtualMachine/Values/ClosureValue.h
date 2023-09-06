@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AddressValue.h"
-#include "GCSteward.hpp"
+#include "Reference.h"
 
 namespace Powder
 {
@@ -17,6 +17,6 @@ namespace Powder
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 
-		GCSteward<Scope> scope;
+		GC::Reference<Scope, false> scopeRef;
 	};
 }

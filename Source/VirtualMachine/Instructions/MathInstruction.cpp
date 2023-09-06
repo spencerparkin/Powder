@@ -74,7 +74,7 @@ namespace Powder
 
 	/*virtual*/ uint32_t MathInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
-		GCReference<Value> result;
+		GC::Reference<Value, true> resultRef;
 
 		// It was decided that loading and storing (assignment), to and from scope,
 		// would not be a math operation, and so it seems contradictory here to support
@@ -89,52 +89,52 @@ namespace Powder
 		{
 			case MathOp::GET_FIELD:
 			{
-				GCReference<Value> fieldValue, value;
-				executor->PopValueFromEvaluationStackTop(fieldValue);
-				executor->PopValueFromEvaluationStackTop(value);
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value.Ptr());
+				GC::Reference<Value, true> fieldValueRef, valueRef;
+				executor->PopValueFromEvaluationStackTop(fieldValueRef);
+				executor->PopValueFromEvaluationStackTop(valueRef);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(valueRef.Get());
 				if (!containerValue)
 					throw new RunTimeException("Get field math operation expected a container value on the evaluation stack.");
-				result = containerValue->GetField(fieldValue);
+				resultRef.Set(containerValue->GetField(fieldValueRef.Get()));
 				break;
 			}
 			case MathOp::SET_FIELD:
 			{
-				executor->PopValueFromEvaluationStackTop(result);
-				GCReference<Value> fieldValue, value;
-				executor->PopValueFromEvaluationStackTop(fieldValue);
-				executor->PopValueFromEvaluationStackTop(value);
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value.Ptr());
+				executor->PopValueFromEvaluationStackTop(resultRef);
+				GC::Reference<Value, true> fieldValueRef, valueRef;
+				executor->PopValueFromEvaluationStackTop(fieldValueRef);
+				executor->PopValueFromEvaluationStackTop(valueRef);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(valueRef.Get());
 				if (!containerValue)
 					throw new RunTimeException("Set field math operation expected a container value on the evaluation stack.");
-				containerValue->SetField(fieldValue, result);
+				containerValue->SetField(fieldValueRef.Get(), resultRef.Get());
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(containerValue);
 				break;
 			}
 			case MathOp::DEL_FIELD:
 			{
-				GCReference<Value> fieldValue, value;
-				executor->PopValueFromEvaluationStackTop(fieldValue);
-				executor->PopValueFromEvaluationStackTop(value);
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value.Ptr());
+				GC::Reference<Value, true> fieldValueRef, valueRef;
+				executor->PopValueFromEvaluationStackTop(fieldValueRef);
+				executor->PopValueFromEvaluationStackTop(valueRef);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(valueRef.Get());
 				if (!containerValue)
 					throw new RunTimeException("Delete field math operation expected a container value on the evaluation stack.");
-				result = containerValue->DelField(fieldValue);
+				containerValue->DelField(fieldValueRef.Get(), resultRef);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(containerValue);
 				break;
 			}
 			case MathOp::CONTAINS:
 			{
-				GCReference<Value> value;
-				executor->PopValueFromEvaluationStackTop(value);
-				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value.Ptr());
+				GC::Reference<Value, true> valueRef;
+				executor->PopValueFromEvaluationStackTop(valueRef);
+				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(valueRef.Get());
 				if (!containerValue)
 					throw new RunTimeException("Membership math operation expected a container value on the evaluation stack.");
-				GCReference<Value> memberValue;
-				executor->PopValueFromEvaluationStackTop(memberValue);
-				result = containerValue->IsMember(memberValue);
+				GC::Reference<Value, true> memberValueRef;
+				executor->PopValueFromEvaluationStackTop(memberValueRef);
+				resultRef.Set(containerValue->IsMember(memberValueRef.Get()));
 				break;
 			}
 			default:
@@ -143,26 +143,26 @@ namespace Powder
 				mathOp &= ~0x80;
 				if (unary)
 				{
-					GCReference<Value> value;
-					executor->PopValueFromEvaluationStackTop(value);
-					result = value->CombineWith(nullptr, (MathOp)mathOp, executor);
+					GC::Reference<Value, true> valueRef;
+					executor->PopValueFromEvaluationStackTop(valueRef);
+					valueRef.Set(valueRef.Get()->CombineWith(nullptr, (MathOp)mathOp, executor));
 				}
 				else
 				{
-					GCReference<Value> rightValue, leftValue;
-					executor->PopValueFromEvaluationStackTop(rightValue);
-					executor->PopValueFromEvaluationStackTop(leftValue);
-					result = leftValue->CombineWith(rightValue, (MathOp)mathOp, executor);
+					GC::Reference<Value, true> rightValueRef, leftValueRef;
+					executor->PopValueFromEvaluationStackTop(rightValueRef);
+					executor->PopValueFromEvaluationStackTop(leftValueRef);
+					resultRef.Set(leftValueRef.Get()->CombineWith(rightValueRef.Get(), (MathOp)mathOp, executor));
 				}
 
 				break;
 			}
 		}
 
-		if (!result)
+		if (!resultRef.Get())
 			throw new RunTimeException(FormatString("Failed to combine operands in operation: 0x%04x", mathOp));
 
-		executor->PushValueOntoEvaluationStackTop(result);
+		executor->PushValueOntoEvaluationStackTop(resultRef.Get());
 		programBufferLocation += 2;
 		return Executor::Result::CONTINUE;
 	}

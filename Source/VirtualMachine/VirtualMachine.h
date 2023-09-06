@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 #include <vector>
-#include "GCReference.hpp"
+#include "Reference.h"
 #include "LinkedList.hpp"
 #include "HashMap.hpp"
 #include "Value.h"
@@ -95,7 +95,7 @@ namespace Powder
 		CompilerInterface* compiler;
 		IODevice* ioDevice;
 		DebuggerTrap* debuggerTrap;
-		GCReference<Scope> globalScope;
+		GC::Reference<Scope, true> globalScopeRef;
 		ModuleMap moduleMap;
 		InstructionMap instructionMap;
 		std::vector<ExecutorList*>* executorListStack;
