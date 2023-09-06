@@ -1,3 +1,6 @@
 [submodule "ThirdParty/ParseParty"]
 	path = ThirdParty/ParseParty
 	url = http://github.com/spencerparkin/ParseParty
+[submodule "ThirdParty/GarbageCollector"]
+	path = ThirdParty/GarbageCollector
+	url = https://github.com/spencerparkin/GarbageCollector
