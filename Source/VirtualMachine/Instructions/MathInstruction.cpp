@@ -145,7 +145,7 @@ namespace Powder
 				{
 					GC::Reference<Value, true> valueRef;
 					executor->PopValueFromEvaluationStackTop(valueRef);
-					valueRef.Set(valueRef.Get()->CombineWith(nullptr, (MathOp)mathOp, executor));
+					resultRef.Set(valueRef.Get()->CombineWith(nullptr, (MathOp)mathOp, executor));
 				}
 				else
 				{
