@@ -20,7 +20,9 @@ ReadLineFunctionValue::ReadLineFunctionValue()
 		return nullptr;
 	}
 
-	FileValue* fileValue = dynamic_cast<FileValue*>(argListValue->PopLeft());
+	GC::Reference<Value, true> valueRef;
+	argListValue->PopLeft(valueRef);
+	FileValue* fileValue = dynamic_cast<FileValue*>(valueRef.Get());
 	if (!fileValue)
 	{
 		errorMsg = "Read-line call expected a file value.";

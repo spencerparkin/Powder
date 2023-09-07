@@ -142,14 +142,18 @@ namespace Powder
 		this->valueListIndexValid = false;
 	}
 
-	Value* ListValue::PopLeft()
+	bool ListValue::PopLeft(GC::Reference<Value, true>& valueRef)
 	{
 		if (this->valueList.GetCount() == 0)
+		{
 			throw new RunTimeException("Tried to pop-left zero-size list.");
-		Value* value = this->valueList.GetHead()->value.Get();
+			return false;
+		}
+
+		valueRef.Set(this->valueList.GetHead()->value.Get());
 		this->valueList.Remove(this->valueList.GetHead());
 		this->valueListIndexValid = false;
-		return value;
+		return true;
 	}
 
 	void ListValue::PushRight(Value* value)
@@ -159,15 +163,19 @@ namespace Powder
 			this->valueListIndex->push_back(this->valueList.GetTail());
 	}
 
-	Value* ListValue::PopRight()
+	bool ListValue::PopRight(GC::Reference<Value, true>& valueRef)
 	{
 		if (this->valueList.GetCount() == 0)
+		{
 			throw new RunTimeException("Tried to pop-right zero-size list.");
-		Value* value = this->valueList.GetTail()->value.Get();
+			return false;
+		}
+
+		valueRef.Set(this->valueList.GetTail()->value.Get());
 		this->valueList.Remove(this->valueList.GetTail());
 		if (this->valueListIndexValid)
 			this->valueListIndex->pop_back();
-		return value;
+		return true;
 	}
 
 	/*virtual*/ CppFunctionValue* ListValue::MakeIterator(void)

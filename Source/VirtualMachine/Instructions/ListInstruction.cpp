@@ -36,8 +36,12 @@ namespace Powder
 				ListValue* listValue = dynamic_cast<ListValue*>(executor->StackTop());
 				if (!listValue)
 					throw new RunTimeException("List instruction can only pop elements from a list value.");
-				Value* elementValue = (action == Action::POP_LEFT) ? listValue->PopLeft() : listValue->PopRight();
-				executor->PushValueOntoEvaluationStackTop(elementValue);
+				GC::Reference<Value, true> elementValueRef;
+				if (action == Action::POP_LEFT)
+					listValue->PopLeft(elementValueRef);
+				else
+					listValue->PopRight(elementValueRef);
+				executor->PushValueOntoEvaluationStackTop(elementValueRef.Get());
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(listValue);
 				break;

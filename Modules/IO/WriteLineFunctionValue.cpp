@@ -20,14 +20,18 @@ WriteLineFunctionValue::WriteLineFunctionValue()
 		return nullptr;
 	}
 
-	FileValue* fileValue = dynamic_cast<FileValue*>(argListValue->PopLeft());
+	GC::Reference<Value, true> fileValueRef;
+	argListValue->PopLeft(fileValueRef);
+	FileValue* fileValue = dynamic_cast<FileValue*>(fileValueRef.Get());
 	if (!fileValue)
 	{
 		errorMsg = "Write-line call expected a file value as its first argument";
 		return nullptr;
 	}
 
-	Powder::StringValue* lineValue = dynamic_cast<Powder::StringValue*>(argListValue->PopLeft());
+	GC::Reference<Value, true> lineValueRef;
+	argListValue->PopLeft(lineValueRef);
+	Powder::StringValue* lineValue = dynamic_cast<Powder::StringValue*>(lineValueRef.Get());
 	if (!lineValue)
 	{
 		errorMsg = "Write-line call expected a string value as its second arguments.";

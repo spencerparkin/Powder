@@ -26,9 +26,9 @@ namespace Powder
 		virtual CppFunctionValue* MakeIterator(void) override;
 
 		void PushLeft(Value* value);
-		Value* PopLeft();
+		bool PopLeft(GC::Reference<Value, true>& valueRef);
 		void PushRight(Value* value);
-		Value* PopRight();
+		bool PopRight(GC::Reference<Value, true>& valueRef);
 
 		unsigned int Length() const { return this->valueList.GetCount(); }
 		Value* operator[](int i);

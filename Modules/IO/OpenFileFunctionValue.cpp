@@ -21,16 +21,20 @@ OpenFileFunctionValue::OpenFileFunctionValue()
 		return nullptr;
 	}
 
-	Value* filePathValue = argListValue->PopLeft();
-	std::string filePath = filePathValue->ToString();
+	GC::Reference<Value, true> filePathValueRef;
+	argListValue->PopLeft(filePathValueRef);
+	std::string filePath = filePathValueRef.Get()->ToString();
 
 	FileValue* fileValue = new FileValue();
 
 	std::ios_base::openmode openMode = std::fstream::in;
-	Value* openModeValue = argListValue->Length() > 0 ? argListValue->PopLeft() : nullptr;
-	if (openModeValue)
+	GC::Reference<Value, true> openModeValueRef;
+	if (argListValue->Length() > 0)
+		argListValue->PopLeft(openModeValueRef);
+
+	if (openModeValueRef.Get())
 	{
-		std::string openModeStr = openModeValue->ToString();
+		std::string openModeStr = openModeValueRef.Get()->ToString();
 		if (openModeStr == "read")
 			openMode = fileValue->fileStream.in;
 		else if (openModeStr == "write")
