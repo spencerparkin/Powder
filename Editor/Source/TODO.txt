@@ -9,5 +9,3 @@ TO-DO...
 -- Add column number ranges to the debug info run through and generated from the compiler.  Then highlight the appropriate text in the source file window when stepping.  Also, add ability to step one instruction at a time?  "Atomic step"?
 
 -- Not sure how far to take the language both in terms of extension modules and language features (e.g., OOP.)  What other extension modules might I add?  Might be good to exploit the fork instruction for blocking I/O.
-
--- Really need to show line and column number of cursor in the status-bar, lower-right-hand corner.

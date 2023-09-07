@@ -23,7 +23,7 @@ public:
 	};
 
 	void OnModified(wxStyledTextEvent& event);
-	void OnKeyPressed(wxStyledTextEvent& event);
+	void OnUpdateUI(wxStyledTextEvent& event);
 	void OnMarginClicked(wxStyledTextEvent& event);
 
 	void ShowExecutionSuspendedAt(int lineNumber, int columnNumber);

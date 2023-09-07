@@ -24,7 +24,7 @@ SourceFileEditControl::SourceFileEditControl(wxWindow* parent, const wxString& f
 	this->MarkerDefine(EXECUTIONPOINT_MARKER, wxSTC_MARK_ARROW, *wxGREEN, *wxGREEN);
 
 	this->Bind(wxEVT_STC_MODIFIED, &SourceFileEditControl::OnModified, this, wxID_ANY);
-	//this->Bind(wxEVT_STC_KEY, &SourceFileEditControl::OnKeyPressed, this, wxID_ANY);
+	this->Bind(wxEVT_STC_UPDATEUI, &SourceFileEditControl::OnUpdateUI, this, wxID_ANY);
 	this->Bind(wxEVT_STC_MARGINCLICK, &SourceFileEditControl::OnMarginClicked, this, wxID_ANY);
 }
 
@@ -51,10 +51,19 @@ void SourceFileEditControl::UpdateBreakpointMarkers()
 			this->MarkerAdd(breakpoint.lineNumber - 1, BREAKPOINT_MARKER);
 }
 
-void SourceFileEditControl::OnKeyPressed(wxStyledTextEvent& event)
+void SourceFileEditControl::OnUpdateUI(wxStyledTextEvent& event)
 {
-	wxString cursorLocationText = wxString::Format("Line: %d, Column: %d", this->GetCurrentLine(), this->GetCurrentPos());
-	wxGetApp().GetFrame()->GetStatusBar()->SetStatusText(cursorLocationText, 1);
+	int currentPos = this->GetCurrentPos();
+	int lineNumber = 1 + this->LineFromPosition(currentPos);
+	int columnNumber = this->GetColumn(currentPos);
+
+	EditorFrame* frame = wxGetApp().GetFrame();
+	if (frame)
+	{
+		wxStatusBar* statusBar = frame->GetStatusBar();
+		if (statusBar)
+			statusBar->SetStatusText(wxString::Format("Ln %d, Col %d", lineNumber, columnNumber));
+	}
 }
 
 void SourceFileEditControl::OnModified(wxStyledTextEvent& event)
