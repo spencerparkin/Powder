@@ -25,6 +25,10 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->auiManager = new wxAuiManager(this, wxAUI_MGR_DEFAULT);
 	this->panelMenuCount = 0;
 
+	wxIcon appIcon;
+	appIcon.CopyFromBitmap(wxArtProvider::GetBitmap(ART_EDITOR_APP_ICON));
+	this->SetIcon(appIcon);
+
 	this->MakePanels();
 
 	const int entryCount = 8;
