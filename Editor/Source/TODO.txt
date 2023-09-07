@@ -1,10 +1,6 @@
 TO-DO...
 
--- Totally gut and rewrite the GC.  It is just plain wrong, and admittedly, it's something I need to think about for a while before tackling.  It's an interesting problem.
-   I'll probably make a GC project as a seperate git-repo, then add it as a sub-module here, and then replace the old one with the new one.
-
--- I'm seeing a 16 byte allocation leaked about a million times after running scripts in the editor.  Every such allocation has the same first few bytes "0CX{", so that has to be a clue.
-   This is a horrendous leak.  It really needs to be tracked down.  Fortunately, I think it's just one kind of allocation made somewhere and never freed.
+-- Maybe remove all exception throwing.  This is also along the effort to curb memory leaks, at least, in those cases.
 
 -- Add cursor hover support in the source control window?  You hover over a symbol long enough and then a bubble shows up with the symbol's current value.  Not needed if the inspection window is good enough.
 
@@ -13,7 +9,5 @@ TO-DO...
 -- Add column number ranges to the debug info run through and generated from the compiler.  Then highlight the appropriate text in the source file window when stepping.  Also, add ability to step one instruction at a time?  "Atomic step"?
 
 -- Not sure how far to take the language both in terms of extension modules and language features (e.g., OOP.)  What other extension modules might I add?  Might be good to exploit the fork instruction for blocking I/O.
-
--- Maybe remove all exception throwing.  This is also along the effort to curb memory leaks, at least, in those cases.
 
 -- Really need to show line and column number of cursor in the status-bar, lower-right-hand corner.
