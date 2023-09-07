@@ -5,14 +5,14 @@
 
 namespace Powder
 {
-	AddressValue::AddressValue() : executable(this)
+	AddressValue::AddressValue()
 	{
 		this->programBufferLocation = 0;
 	}
 
-	AddressValue::AddressValue(const Executable* executable, uint64_t programBufferLocation) : executable(this)
+	AddressValue::AddressValue(const Executable* executable, uint64_t programBufferLocation)
 	{
-		this->executable.Set(const_cast<Executable*>(executable));
+		this->executableRef.Set(const_cast<Executable*>(executable));
 		this->programBufferLocation = programBufferLocation;
 	}
 
@@ -22,7 +22,7 @@ namespace Powder
 
 	/*virtual*/ Value* AddressValue::Copy() const
 	{
-		return new AddressValue(this->executable.Get(), this->programBufferLocation);
+		return new AddressValue(this->executableRef.Get(), this->programBufferLocation);
 	}
 
 	/*virtual*/ Value* AddressValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const

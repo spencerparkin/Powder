@@ -12,9 +12,9 @@ namespace Powder
 {
 	Executor::Executor(uint64_t programBufferLocation, Scope* scope)
 	{
-		this->currentScope = scope;
+		this->currentScopeRef.Set(scope);
 		this->programBufferLocation = programBufferLocation;
-		this->evaluationStack = new std::vector<GCReference<Value>>();
+		this->evaluationStack = new std::vector<GC::Reference<Value, true>>();
 	}
 
 	/*virtual*/ Executor::~Executor()
@@ -25,27 +25,27 @@ namespace Powder
 	bool Executor::PushScope()
 	{
 		Scope* newScope = new Scope();
-		newScope->SetContainingScope(this->currentScope);
-		this->currentScope = newScope;
+		newScope->SetContainingScope(this->currentScopeRef.Get());
+		this->currentScopeRef.Set(newScope);
 		return true;
 	}
 
 	bool Executor::PopScope()
 	{
-		if (!this->currentScope->GetContainingScope())
+		if (!this->currentScopeRef.Get()->GetContainingScope())
 			return false;
 
-		Scope* containingScope = this->currentScope->GetContainingScope();
-		this->currentScope->SetContainingScope(nullptr);
-		this->currentScope = containingScope;
+		Scope* containingScope = this->currentScopeRef.Get()->GetContainingScope();
+		this->currentScopeRef.Get()->SetContainingScope(nullptr);
+		this->currentScopeRef.Set(containingScope);
 		return true;
 	}
 
 	void Executor::ReplaceCurrentScope(Scope* scope)
 	{
-		scope->SetContainingScope(this->currentScope->GetContainingScope());
-		this->currentScope->SetContainingScope(nullptr);
-		this->currentScope = scope;
+		scope->SetContainingScope(this->currentScopeRef.Get()->GetContainingScope());
+		this->currentScopeRef.Get()->SetContainingScope(nullptr);
+		this->currentScopeRef.Set(scope);
 	}
 
 	/*virtual*/ Executor::Result Executor::Execute(const Executable* executable, VirtualMachine* virtualMachine)
@@ -65,8 +65,6 @@ namespace Powder
 			Executor::Result result = (Executor::Result)instruction->Execute(executable, this->programBufferLocation, this, virtualMachine);
 			if (result != Executor::Result::CONTINUE)
 				return result;
-
-			GarbageCollector::GC()->FreeObjects();
 		}
 
 		return Result::HALT;
@@ -74,7 +72,7 @@ namespace Powder
 
 	void Executor::LoadAndPushValueOntoEvaluationStackTop(const char* identifier, void* debuggerTrap)
 	{
-		Value* value = this->currentScope->LookupValue(identifier, true);
+		Value* value = this->currentScopeRef.Get()->LookupValue(identifier, true);
 		if (!value)
 			throw new RunTimeException(FormatString("Failed to lookup identifier: %s", identifier));
 		this->PushValueOntoEvaluationStackTop(value);
@@ -84,11 +82,11 @@ namespace Powder
 
 	void Executor::StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap)
 	{
-		GCReference<Value> value;
-		this->PopValueFromEvaluationStackTop(value);
-		this->currentScope->StoreValue(identifier, value);
+		GC::Reference<Value, true> valueRef;
+		this->PopValueFromEvaluationStackTop(valueRef);
+		this->currentScopeRef.Get()->StoreValue(identifier, valueRef.Get());
 		if (debuggerTrap)
-			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueStored(identifier, value);
+			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueStored(identifier, valueRef.Get());
 	}
 
 	void Executor::PushValueOntoEvaluationStackTop(Value* value)
@@ -96,11 +94,11 @@ namespace Powder
 		this->evaluationStack->push_back(value);
 	}
 
-	void Executor::PopValueFromEvaluationStackTop(GCReference<Value>& value)
+	void Executor::PopValueFromEvaluationStackTop(GC::Reference<Value, true>& valueRef)
 	{
 		if (this->evaluationStack->size() == 0)
 			throw new RunTimeException("Evaluation stack underflow!");
-		value = (*this->evaluationStack)[this->evaluationStack->size() - 1];
+		valueRef.Set((*this->evaluationStack)[this->evaluationStack->size() - 1].Get());
 		this->evaluationStack->pop_back();
 	}
 
@@ -113,7 +111,7 @@ namespace Powder
 	{
 		int32_t i = signed(this->evaluationStack->size()) - 1 - stackOffset;
 		if(0 <= i && i < (signed)this->evaluationStack->size())
-			return (*this->evaluationStack)[i];
+			return (*this->evaluationStack)[i].Get();
 		throw new RunTimeException(FormatString("Stack at size %d cannot use offset %d.", this->evaluationStack->size(), i));
 		return nullptr;
 	}

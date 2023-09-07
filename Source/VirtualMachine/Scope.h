@@ -1,15 +1,15 @@
 #pragma once
 
 #include "HashMap.hpp"
-#include "GCCollectable.h"
-#include "GCSteward.hpp"
+#include "Collectable.h"
+#include "Reference.h"
 #include <vector>
 
 namespace Powder
 {
 	class Value;
 
-	class POWDER_API Scope : public GCCollectable
+	class POWDER_API Scope : public GC::Collectable
 	{
 	public:
 
@@ -25,13 +25,16 @@ namespace Powder
 
 		void Absorb(Scope* scope);
 
-		typedef HashMap<Value*> ValueMap;
+		typedef HashMap<GC::Reference<Value, false>> ValueMap;
 
 		ValueMap* GetValueMap() { return &this->valueMap; }
 
+		virtual void PopulateIterationArray(std::vector<Object*>& iterationArray) override;
+
 	private:
 
-		GCSteward<Scope> containingScope;
+		GC::Reference<Scope, false> containingScopeRef;
+
 		ValueMap valueMap;
 	};
 }

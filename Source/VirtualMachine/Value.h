@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GCCollectable.h"
+#include "Collectable.h"
 #include "MathInstruction.h"
 #include <string>
 
@@ -10,7 +10,7 @@ namespace Powder
 
 	// These are the fundamental units of data processed by the machine.
 	// A value may refer to a mutable or immutable type of data.
-	class POWDER_API Value : public GCCollectable
+	class POWDER_API Value : public GC::Collectable
 	{
 	public:
 

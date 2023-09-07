@@ -106,7 +106,7 @@ namespace Powder
 				*parentNode->text = "container-field-expression";
 				parentNode->DelChild(1);
 				ParseParty::Parser::SyntaxNode* literalNode = new ParseParty::Parser::SyntaxNode("literal", identifierNode->fileLocation);
-				literalNode->childList->push_back(new ParseParty::Parser::SyntaxNode("string-literal", identifierNode->fileLocation));
+				literalNode->childList->push_back(new ParseParty::Parser::SyntaxNode("@string", identifierNode->fileLocation));
 				literalNode->GetChild(0)->childList->push_back(new ParseParty::Parser::SyntaxNode(*identifierNode->GetChild(0)->text, identifierNode->fileLocation));
 				delete identifierNode;
 				parentNode->SetChild(1, literalNode);

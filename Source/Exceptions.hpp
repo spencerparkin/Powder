@@ -8,6 +8,10 @@
 
 namespace Powder
 {
+	// TODO: I think we should get rid of all exceptions and exception throwing in favor of
+	//       just returning from the VM execute functions with an error code.  Any run-time or
+	//       compile-time error should just have us exit out cleanly and with all memory freed.
+
 	class POWDER_API Exception
 	{
 	public:

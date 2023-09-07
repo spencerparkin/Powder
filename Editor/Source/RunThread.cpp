@@ -78,7 +78,10 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 
 	::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_ENTERING));
 	wxStopWatch stopWatch;
-	GarbageCollector::GC()->Startup();
+	
+	GC::GarbageCollector* gc = new GC::GarbageCollector();
+	GC::GarbageCollector::Set(gc);
+
 	this->vm = new VirtualMachine();
 	this->vm->SetDebuggerTrap(this);
 	this->vm->SetIODevice(this);
@@ -94,7 +97,9 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 	}
 
 	delete this->vm;
-	GarbageCollector::GC()->Shutdown();
+	delete gc;
+	GC::GarbageCollector::Set(nullptr);
+
 	this->executionTimeMilliseconds = stopWatch.Time();
 	::wxQueueEvent(this->eventHandler, new wxThreadEvent(EVT_RUNTHREAD_EXITING));
 

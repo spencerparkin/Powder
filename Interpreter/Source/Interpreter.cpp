@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 {
     using namespace Powder;
 
-	GarbageCollector::GC()->Startup();
+	GC::GarbageCollector::Set(new GC::GarbageCollector());
 
 	// Enter scope for the VM so that we can run the GC once the VM goes out of scope.
 	// This ensures that the VM has no excuse for leaking anything.
@@ -34,6 +34,8 @@ int main(int argc, char** argv)
 					std::cerr << errorMsg << std::endl;
 					delete exc;
 				}
+
+				GC::GarbageCollector::Get()->Collect();
 			}
 		}
 		else
@@ -53,7 +55,8 @@ int main(int argc, char** argv)
 		}
 	}
 
-	GarbageCollector::GC()->Shutdown();
+	delete GC::GarbageCollector::Get();
+	GC::GarbageCollector::Set(nullptr);
 
     return 0;
 }

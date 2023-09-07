@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Value.h"
+#include "Reference.h"
 
 namespace Powder
 {
@@ -15,7 +16,7 @@ namespace Powder
 
 		virtual void SetField(Value* fieldValue, Value* dataValue) = 0;
 		virtual Value* GetField(Value* fieldValue) = 0;
-		virtual Value* DelField(Value* fieldValue) = 0;
+		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef) = 0;
 		virtual BooleanValue* IsMember(const Value* value) const = 0;
 		virtual CppFunctionValue* MakeIterator(void) = 0;
 	};

@@ -14,9 +14,6 @@
     <Filter Include="Source\Compiler">
       <UniqueIdentifier>{1cf60845-98dd-417e-a8c7-58631549b5a7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\GarbageCollector">
-      <UniqueIdentifier>{53e91455-60af-4817-b06f-4064bbffc7fb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Utilities">
       <UniqueIdentifier>{14db1e30-60ef-4e39-ad19-29c183427550}</UniqueIdentifier>
     </Filter>
@@ -54,12 +51,6 @@
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\Instructions\YieldInstruction.cpp">
       <Filter>Source\VirtualMachine\Instructions</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\GarbageCollector\GarbageCollector.cpp">
-      <Filter>Source\GarbageCollector</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\GarbageCollector\GCCollectable.cpp">
-      <Filter>Source\GarbageCollector</Filter>
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\Instructions\SysCallInstruction.cpp">
       <Filter>Source\VirtualMachine\Instructions</Filter>
@@ -208,12 +199,6 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.cpp">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GarbageCollector\GCObject.cpp">
-      <Filter>Source\GarbageCollector</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\GarbageCollector\GCAnchor.cpp">
-      <Filter>Source\GarbageCollector</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -243,17 +228,8 @@
     <ClInclude Include="Source\VirtualMachine\Instructions\YieldInstruction.h">
       <Filter>Source\VirtualMachine\Instructions</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GarbageCollector\GarbageCollector.h">
-      <Filter>Source\GarbageCollector</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GarbageCollector\GCReference.hpp">
-      <Filter>Source\GarbageCollector</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Defines.h">
       <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GarbageCollector\GCCollectable.h">
-      <Filter>Source\GarbageCollector</Filter>
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Instructions\SysCallInstruction.h">
       <Filter>Source\VirtualMachine\Instructions</Filter>
@@ -314,9 +290,6 @@
     </ClInclude>
     <ClInclude Include="Source\Compiler\InstructionGenerator.h">
       <Filter>Source\Compiler</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GarbageCollector\GCSteward.hpp">
-      <Filter>Source\GarbageCollector</Filter>
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\MapValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
@@ -413,15 +386,6 @@
     </ClInclude>
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.h">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GarbageCollector\concurrentqueue.h">
-      <Filter>Source\GarbageCollector</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GarbageCollector\GCObject.h">
-      <Filter>Source\GarbageCollector</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GarbageCollector\GCAnchor.h">
-      <Filter>Source\GarbageCollector</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

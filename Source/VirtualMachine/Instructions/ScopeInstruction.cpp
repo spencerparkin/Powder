@@ -41,7 +41,7 @@ namespace Powder
 				ClosureValue* closureValue = dynamic_cast<ClosureValue*>(executor->StackTop());
 				if (!closureValue)
 					throw new RunTimeException("Bind-pop scope operation expected closure value on eval-stack top.");
-				closureValue->scope.Set(executor->GetCurrentScope());
+				closureValue->scopeRef.Set(executor->GetCurrentScope());
 				break;
 			}
 			default:

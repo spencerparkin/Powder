@@ -3,7 +3,7 @@
 #include "ContainerValue.h"
 #include "CppFunctionValue.h"
 #include "LinkedList.hpp"
-#include "GCSteward.hpp"
+#include "Reference.h"
 #include <vector>
 
 namespace Powder
@@ -21,7 +21,7 @@ namespace Powder
 		virtual std::string ToString() const override;
 		virtual void SetField(Value* fieldValue, Value* dataValue) override;
 		virtual Value* GetField(Value* fieldValue) override;
-		virtual Value* DelField(Value* fieldValue) override;
+		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 
@@ -35,8 +35,8 @@ namespace Powder
 		const Value* operator[](int i) const;
 
 	private:
-		LinkedList<Value*> valueList;
-		mutable std::vector<LinkedList<Value*>::Node*>* valueListIndex;
+		LinkedList<GC::Reference<Value, false>> valueList;
+		mutable std::vector<LinkedList<GC::Reference<Value, false>>::Node*>* valueListIndex;
 		mutable bool valueListIndexValid;
 
 		void RebuildIndexIfNeeded(void) const;
@@ -50,7 +50,7 @@ namespace Powder
 
 		virtual Value* Call(ListValue* argListValue, std::string& errorMsg) override;
 
-		GCSteward<ListValue> listValue;
-		LinkedList<Value*>::Node* listNode;
+		GC::Reference<ListValue, false> listValueRef;
+		LinkedList<GC::Reference<Value, false>>::Node* listNode;
 	};
 }

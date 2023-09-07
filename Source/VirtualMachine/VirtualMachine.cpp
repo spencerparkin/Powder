@@ -35,7 +35,7 @@ namespace Powder
 		this->ioDevice = &theDefaultIODevice;
 		this->debuggerTrap = nullptr;
 		
-		this->globalScope = new Scope();		// This gets deleted by the GC.
+		this->globalScopeRef.Set(new Scope());
 		this->executorListStack = new std::vector<ExecutorList*>();
 		
 		this->RegisterInstruction<BranchInstruction>();
@@ -72,7 +72,7 @@ namespace Powder
 
 	void VirtualMachine::ExecuteByteCode(const Executable* executable, Scope* scope)
 	{
-		GCReference<Executable> exectuableRef(const_cast<Executable*>(executable));
+		GC::Reference<Executable, true> exectuableRef(const_cast<Executable*>(executable));
 
 		ExecutorList executorList;
 		this->executorListStack->push_back(&executorList);
@@ -100,7 +100,7 @@ namespace Powder
 	void VirtualMachine::ExecuteSourceCodeFile(const std::string& programSourceCodePath, Scope* scope /*= nullptr*/)
 	{
 		if (!scope)
-			scope = this->globalScope.Ptr();
+			scope = this->globalScopeRef.Get();
 
 		std::string programSourceCodeResolvedPath = pathResolver.ResolvePath(programSourceCodePath, PathResolver::SEARCH_CWD);
 		std::string programByteCodePath = programSourceCodeResolvedPath.substr(0, programSourceCodeResolvedPath.find_last_of('.')) + ".pwx";
@@ -133,7 +133,7 @@ namespace Powder
 	void VirtualMachine::ExecuteSourceCode(const std::string& programSourceCode, const std::string& programSourceCodePath, Scope* scope /*= nullptr*/)
 	{
 		if (!scope)
-			scope = this->globalScope.Ptr();
+			scope = this->globalScopeRef.Get();
 
 		Executable* executable = this->compiler->CompileCode(programSourceCode.c_str());
 		if (!executable)
@@ -174,9 +174,8 @@ namespace Powder
 	{
 		// We must first purge the GC system of any objects that may
 		// have virtual functions in a module we're about to unload!
-		this->globalScope.Clear();
-		GarbageCollector::GC()->StallUntilCaughtUp();
-		GarbageCollector::GC()->FreeObjects();
+		this->globalScopeRef.Get()->GetValueMap()->Clear();
+		GC::GarbageCollector::Get()->Collect();
 
 		this->moduleMap.ForAllEntries([](const char* key, void* modulePtr) -> bool {
 			HMODULE moduleHandle = (HMODULE)modulePtr;

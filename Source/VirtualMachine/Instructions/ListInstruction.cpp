@@ -46,15 +46,15 @@ namespace Powder
 			case Action::PUSH_RIGHT:
 			{
 				// Notice that we pop the pushed value, but leave the list value.
-				GCReference<Value> elementValue;
-				executor->PopValueFromEvaluationStackTop(elementValue);
+				GC::Reference<Value, true> elementValueRef;
+				executor->PopValueFromEvaluationStackTop(elementValueRef);
 				ListValue* listValue = dynamic_cast<ListValue*>(executor->StackTop());
 				if (!listValue)
 					throw new RunTimeException("List instruction can only push elements to a list value.");
 				if (action == Action::PUSH_LEFT)
-					listValue->PushLeft(elementValue);
+					listValue->PushLeft(elementValueRef.Get());
 				else
-					listValue->PushRight(elementValue);
+					listValue->PushRight(elementValueRef.Get());
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(listValue);
 				break;

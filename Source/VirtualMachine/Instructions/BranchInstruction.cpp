@@ -5,6 +5,7 @@
 #include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
+#include "Reference.h"
 
 namespace Powder
 {
@@ -24,9 +25,9 @@ namespace Powder
 	/*virtual*/ uint32_t BranchInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
 	{
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
-		GCReference<Value> value;
-		executor->PopValueFromEvaluationStackTop(value);
-		if (value->AsBoolean())
+		GC::Reference<Value, true> valueRef;
+		executor->PopValueFromEvaluationStackTop(valueRef);
+		if (valueRef.Get()->AsBoolean())
 			programBufferLocation += 1 + sizeof(uint64_t);
 		else
 			::memcpy_s(&programBufferLocation, sizeof(uint64_t), &programBuffer[programBufferLocation + 1], sizeof(uint64_t));

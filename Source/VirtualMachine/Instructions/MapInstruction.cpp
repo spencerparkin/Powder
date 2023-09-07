@@ -33,12 +33,13 @@ namespace Powder
 			case Action::REMOVE:
 			{
 				// Notice we pop the field value, but leave the map value.
-				GCReference<Value> fieldValue;
-				executor->PopValueFromEvaluationStackTop(fieldValue);
+				GC::Reference<Value, true> fieldValueRef;
+				executor->PopValueFromEvaluationStackTop(fieldValueRef);
 				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only remove elements from a map value.");
-				mapValue->DelField(fieldValue);
+				GC::Reference<Value, true> dataValueRef;
+				mapValue->DelField(fieldValueRef.Get(), dataValueRef);
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(mapValue);
 				break;
@@ -46,13 +47,13 @@ namespace Powder
 			case Action::INSERT:
 			{
 				// Notice we pop the field and data values, but leave the map value.
-				GCReference<Value> dataValue, fieldValue;
-				executor->PopValueFromEvaluationStackTop(dataValue);
-				executor->PopValueFromEvaluationStackTop(fieldValue);
+				GC::Reference<Value, true> dataValueRef, fieldValueRef;
+				executor->PopValueFromEvaluationStackTop(dataValueRef);
+				executor->PopValueFromEvaluationStackTop(fieldValueRef);
 				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only insert elements into a map value.");
-				mapValue->SetField(fieldValue, dataValue);
+				mapValue->SetField(fieldValueRef.Get(), dataValueRef.Get());
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(mapValue);
 				break;
@@ -60,9 +61,9 @@ namespace Powder
 			case Action::MAKE_KEY_LIST:
 			{
 				// In this case, the map value is replaced with the list value.
-				GCReference<Value> value;
-				executor->PopValueFromEvaluationStackTop(value);
-				MapValue* mapValue = dynamic_cast<MapValue*>(value.Ptr());
+				GC::Reference<Value, true> valueRef;
+				executor->PopValueFromEvaluationStackTop(valueRef);
+				MapValue* mapValue = dynamic_cast<MapValue*>(valueRef.Get());
 				if (!mapValue)
 					throw new RunTimeException("Map instruction can only generate key lists for map values.");
 				ListValue* listValue = mapValue->GenerateKeyListValue();

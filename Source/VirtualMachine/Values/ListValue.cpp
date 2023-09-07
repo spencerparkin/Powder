@@ -11,7 +11,7 @@ namespace Powder
 	ListValue::ListValue()
 	{
 		this->valueListIndexValid = false;
-		this->valueListIndex = new std::vector<LinkedList<Value*>::Node*>;
+		this->valueListIndex = new std::vector<LinkedList<GC::Reference<Value, false>>::Node*>;
 	}
 
 	/*virtual*/ ListValue::~ListValue()
@@ -49,8 +49,6 @@ namespace Powder
 					ListValue* newListValue = new ListValue();
 					newListValue->valueList.Append(this->valueList);
 					newListValue->valueList.Append(listValue->valueList);
-					for (LinkedList<Value*>::Node* node = newListValue->valueList.GetHead(); node; node = node->GetNext())
-						newListValue->ConnectTo(node->value);
 					return newListValue;
 				}
 			}
@@ -62,8 +60,8 @@ namespace Powder
 	/*virtual*/ BooleanValue* ListValue::IsMember(const Value* value) const
 	{
 		std::string valueStr = value->ToString();
-		for (const LinkedList<Value*>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
-			if (node->value->ToString() == valueStr)
+		for (const LinkedList<GC::Reference<Value, false>>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
+			if (node->value.Get()->ToString() == valueStr)
 				return new BooleanValue(true);
 		return new BooleanValue(false);
 	}
@@ -79,10 +77,7 @@ namespace Powder
 			throw new RunTimeException(FormatString("Can't set element %d of list with %d elements.", i, this->valueList.GetCount()));
 
 		this->RebuildIndexIfNeeded();
-		Value* existingValue = (*this->valueListIndex)[i]->value;
-		this->DisconnectFrom(existingValue);
-		(*this->valueListIndex)[i]->value = dataValue;
-		this->ConnectTo(dataValue);
+		(*this->valueListIndex)[i]->value.Set(dataValue);
 	}
 
 	/*virtual*/ Value* ListValue::GetField(Value* fieldValue)
@@ -96,11 +91,11 @@ namespace Powder
 			throw new RunTimeException(FormatString("Can't get element %d of list with %d elements.", i, this->valueList.GetCount()));
 
 		this->RebuildIndexIfNeeded();
-		Value* dataValue = (*this->valueListIndex)[i]->value;
+		Value* dataValue = (*this->valueListIndex)[i]->value.Get();
 		return dataValue;
 	}
 
-	/*virtual*/ Value* ListValue::DelField(Value* fieldValue)
+	/*virtual*/ bool ListValue::DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef)
 	{
 		NumberValue* numberValue = dynamic_cast<NumberValue*>(fieldValue);
 		if (!numberValue)
@@ -111,9 +106,8 @@ namespace Powder
 			throw new RunTimeException(FormatString("Can't delete element %d of list with %d elements.", i, this->valueList.GetCount()));
 
 		this->RebuildIndexIfNeeded();
-		Value* dataValue = (*this->valueListIndex)[i]->value;
+		Value* dataValue = (*this->valueListIndex)[i]->value.Get();
 		this->valueList.Remove((*this->valueListIndex)[i]);
-		this->DisconnectFrom(dataValue);
 		this->valueListIndexValid = false;
 		return dataValue;
 	}
@@ -122,7 +116,7 @@ namespace Powder
 	{
 		this->RebuildIndexIfNeeded();
 		if (i >= 0 && i < (signed)this->valueList.GetCount())
-			return (*this->valueListIndex)[i]->value;
+			return (*this->valueListIndex)[i]->value.Get();
 		return nullptr;
 	}
 
@@ -137,7 +131,7 @@ namespace Powder
 		{
 			this->valueListIndexValid = true;
 			this->valueListIndex->clear();
-			for (LinkedList<Value*>::Node* node = const_cast<LinkedList<Value*>*>(&this->valueList)->GetHead(); node; node = node->GetNext())
+			for (LinkedList<GC::Reference<Value, false>>::Node* node = const_cast<LinkedList<GC::Reference<Value, false>>*>(&this->valueList)->GetHead(); node; node = node->GetNext())
 				this->valueListIndex->push_back(node);
 		}
 	}
@@ -146,17 +140,15 @@ namespace Powder
 	{
 		this->valueList.AddHead(value);
 		this->valueListIndexValid = false;
-		this->ConnectTo(value);
 	}
 
 	Value* ListValue::PopLeft()
 	{
 		if (this->valueList.GetCount() == 0)
 			throw new RunTimeException("Tried to pop-left zero-size list.");
-		Value* value = this->valueList.GetHead()->value;
+		Value* value = this->valueList.GetHead()->value.Get();
 		this->valueList.Remove(this->valueList.GetHead());
 		this->valueListIndexValid = false;
-		this->DisconnectFrom(value);
 		return value;
 	}
 
@@ -165,18 +157,16 @@ namespace Powder
 		this->valueList.AddTail(value);
 		if (this->valueListIndexValid)
 			this->valueListIndex->push_back(this->valueList.GetTail());
-		this->ConnectTo(value);
 	}
 
 	Value* ListValue::PopRight()
 	{
 		if (this->valueList.GetCount() == 0)
 			throw new RunTimeException("Tried to pop-right zero-size list.");
-		Value* value = this->valueList.GetTail()->value;
+		Value* value = this->valueList.GetTail()->value.Get();
 		this->valueList.Remove(this->valueList.GetTail());
 		if (this->valueListIndexValid)
 			this->valueListIndex->pop_back();
-		this->DisconnectFrom(value);
 		return value;
 	}
 
@@ -185,9 +175,9 @@ namespace Powder
 		return new ListValueIterator(this);
 	}
 
-	ListValueIterator::ListValueIterator(ListValue* listValue) : listValue(this)
+	ListValueIterator::ListValueIterator(ListValue* listValue)
 	{
-		this->listValue.Set(listValue);
+		this->listValueRef.Set(listValue);
 		this->listNode = nullptr;
 	}
 
@@ -205,7 +195,7 @@ namespace Powder
 			return nullptr;
 
 		if (actionValue->GetString() == "reset")
-			this->listNode = this->listValue.Get()->valueList.GetHead();
+			this->listNode = this->listValueRef.Get()->valueList.GetHead();
 		else if (actionValue->GetString() == "next")
 		{
 			Value* nextValue = nullptr;
@@ -213,7 +203,7 @@ namespace Powder
 				nextValue = new UndefinedValue();
 			else
 			{
-				nextValue = this->listNode->value;
+				nextValue = this->listNode->value.Get();
 				this->listNode = this->listNode->GetNext();
 			}
 			return nextValue;

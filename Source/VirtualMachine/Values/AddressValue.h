@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Value.h"
-#include "GCSteward.hpp"
+#include "Reference.h"
 
 namespace Powder
 {
@@ -23,7 +23,7 @@ namespace Powder
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 		virtual std::string ToString() const override;
 
-		GCSteward<Executable> executable;
+		GC::Reference<Executable, false> executableRef;
 		uint64_t programBufferLocation;
 	};
 }

@@ -43,41 +43,31 @@ namespace Powder
 	/*virtual*/ BooleanValue* MapValue::IsMember(const Value* value) const
 	{
 		std::string key = value->ToString();
-		Value* dataValue = const_cast<MapValue*>(this)->valueMap.Lookup(key.c_str());
-		return new BooleanValue(dataValue != nullptr);
+		GC::Reference<Value, false>* valueRef = const_cast<MapValue*>(this)->valueMap.LookupPtr(key.c_str());
+		return new BooleanValue(valueRef != nullptr && valueRef->Get() != nullptr);
 	}
 
 	void MapValue::SetField(const char* key, Value* dataValue)
 	{
-		Value* existingDataValue = this->valueMap.Lookup(key);
-		if (existingDataValue)
-		{
-			this->valueMap.Remove(key);
-			this->DisconnectFrom(existingDataValue);
-		}
-
-		if (dataValue)
-		{
-			this->valueMap.Insert(key, dataValue);
-			this->ConnectTo(dataValue);
-		}
+		this->valueMap.Insert(key, dataValue);
 	}
 
 	Value* MapValue::GetField(const char* key)
 	{
-		Value* dataValue = this->valueMap.Lookup(key);
-		return dataValue;
+		GC::Reference<Value, false>* dataValueRef = this->valueMap.LookupPtr(key);
+		return dataValueRef ? dataValueRef->Get() : nullptr;
 	}
 
-	Value* MapValue::DelField(const char* key)
+	bool MapValue::DelField(const char* key, GC::Reference<Value, true>& valueRef)
 	{
-		Value* dataValue = this->valueMap.Lookup(key);
-		if (dataValue)
+		GC::Reference<Value, false>* existingValueRef = this->valueMap.LookupPtr(key);
+		if (existingValueRef)
 		{
+			valueRef.Set(existingValueRef->Get());
 			this->valueMap.Remove(key);
-			this->DisconnectFrom(dataValue);
 		}
-		return dataValue;
+
+		return false;
 	}
 
 	/*virtual*/ void MapValue::SetField(Value* fieldValue, Value* dataValue)
@@ -92,16 +82,16 @@ namespace Powder
 		return this->GetField(key.c_str());
 	}
 
-	/*virtual*/ Value* MapValue::DelField(Value* fieldValue)
+	/*virtual*/ bool MapValue::DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef)
 	{
 		std::string key = fieldValue->ToString();
-		return this->DelField(key.c_str());
+		return this->DelField(key.c_str(), valueRef);
 	}
 
 	ListValue* MapValue::GenerateKeyListValue()
 	{
 		ListValue* listValue = new ListValue();
-		this->valueMap.ForAllEntries([=](const char* key, Value* value) -> bool {
+		this->valueMap.ForAllEntries([=](const char* key, GC::Reference<Value, false>& valueRef) -> bool {
 			listValue->PushRight(new StringValue(key));
 			return true;
 		});
@@ -113,9 +103,31 @@ namespace Powder
 		return new MapValueIterator(this);
 	}
 
-	MapValueIterator::MapValueIterator(MapValue* mapValue) : mapValue(this)
+	/*virtual*/ bool MapValue::IterationBegin(void*& userData)
 	{
-		this->mapValue.Set(mapValue);
+		HashMap<GC::Reference<Value, false>>::iterator* iter = new HashMap<GC::Reference<Value, false>>::iterator();
+		*iter = this->valueMap.begin();
+		userData = iter;
+		return true;
+	}
+
+	/*virtual*/ GC::Object* MapValue::IterationNext(void* userData)
+	{
+		HashMap<GC::Reference<Value, false>>::iterator* iter = (HashMap<GC::Reference<Value, false>>::iterator*)userData;
+		GC::Object* object = &(**iter);
+		++(*iter);
+		return object;
+	}
+
+	/*virtual*/ void MapValue::IterationEnd(void* userData)
+	{
+		HashMap<GC::Reference<Value, false>>::iterator* iter = (HashMap<GC::Reference<Value, false>>::iterator*)userData;
+		delete iter;
+	}
+
+	MapValueIterator::MapValueIterator(MapValue* mapValue)
+	{
+		this->mapValueRef.Set(mapValue);
 	}
 
 	/*virtual*/ MapValueIterator::~MapValueIterator()
@@ -132,16 +144,16 @@ namespace Powder
 			return nullptr;
 
 		if (actionValue->GetString() == "reset")
-			this->mapIter = (*mapValue).GetValueMap().begin();
+			this->mapIter = this->mapValueRef.Get()->GetValueMap().begin();
 		else if (actionValue->GetString() == "next")
 		{
 			Value* nextValue = nullptr;
-			if (this->mapIter == mapValue.Get()->GetValueMap().end())
+			if (this->mapIter == this->mapValueRef.Get()->GetValueMap().end())
 				nextValue = new UndefinedValue();
 			else
 			{
 				nextValue = new StringValue(this->mapIter.entry->key);
-				this->mapIter++;
+				++this->mapIter;
 			}
 			return nextValue;
 		}
