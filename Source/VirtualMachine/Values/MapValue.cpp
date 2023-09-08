@@ -63,6 +63,7 @@ namespace Powder
 		{
 			valueRef.Set(existingValueRef->Get());
 			this->valueMap.Remove(key);
+			return true;
 		}
 
 		return false;
