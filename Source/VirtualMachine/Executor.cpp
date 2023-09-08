@@ -74,6 +74,7 @@ namespace Powder
 
 	bool Executor::LoadAndPushValueOntoEvaluationStackTop(const char* identifier, Error& error, void* debuggerTrap)
 	{
+		// TODO: Crashing here in Function.pow.  Fix it.
 		Value* value = this->currentScopeRef.Get()->LookupValue(identifier, true);
 		if (!value)
 		{
