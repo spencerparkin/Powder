@@ -1,6 +1,5 @@
 #include "VirtualMachine.h"
 #include "Executor.h"
-#include "Exceptions.hpp"
 #include "Executable.h"
 #include "BranchInstruction.h"
 #include "ForkInstruction.h"
@@ -60,29 +59,33 @@ namespace Powder
 		delete this->executorListStack;
 	}
 
-	void VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Scope* scope)
+	bool VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Error& error, Scope* scope)
 	{
 		if (this->executorListStack->size() == 0)
-			throw new RunTimeException("Executor list stack size is zero when trying to create new executor");
+		{
+			error.Add("Executor list stack size is zero when trying to create new executor");
+			return false;
+		}
 
 		ExecutorList* executorList = (*this->executorListStack)[this->executorListStack->size() - 1];
 		Executor* executor = new Executor(programBufferLocation, scope);
 		executorList->AddTail(executor);
+		return true;
 	}
 
-	void VirtualMachine::ExecuteByteCode(const Executable* executable, Scope* scope)
+	bool VirtualMachine::ExecuteByteCode(const Executable* executable, Error& error, Scope* scope)
 	{
-		GC::Reference<Executable, true> exectuableRef(const_cast<Executable*>(executable));
-
 		ExecutorList executorList;
 		this->executorListStack->push_back(&executorList);
 		executorList.AddTail(new Executor(0L, scope));
+		
+		Executor::Result result;
 
 		while (executorList.GetCount() > 0)
 		{
 			ExecutorList::Node* node = executorList.GetHead();
 			Executor* executor = node->value;
-			Executor::Result result = executor->Execute(executable, this);
+			result = executor->Execute(executable, this, error);
 
 			executorList.Remove(node);
 			if (result == Executor::Result::YIELD)
@@ -95,14 +98,18 @@ namespace Powder
 
 		DeleteList<Executor*>(executorList);
 		this->executorListStack->pop_back();
+
+		return result != Executor::Result::RUNTIME_ERROR;
 	}
 
-	void VirtualMachine::ExecuteSourceCodeFile(const std::string& programSourceCodePath, Scope* scope /*= nullptr*/)
+	bool VirtualMachine::ExecuteSourceCodeFile(const std::string& programSourceCodePath, Error& error, Scope* scope /*= nullptr*/)
 	{
 		if (!scope)
 			scope = this->globalScopeRef.Get();
 
-		std::string programSourceCodeResolvedPath = pathResolver.ResolvePath(programSourceCodePath, PathResolver::SEARCH_CWD);
+		std::string programSourceCodeResolvedPath = pathResolver.ResolvePath(programSourceCodePath, PathResolver::SEARCH_CWD, error);
+		if (programSourceCodeResolvedPath.size() == 0)
+			return false;
 		std::string programByteCodePath = programSourceCodeResolvedPath.substr(0, programSourceCodeResolvedPath.find_last_of('.')) + ".pwx";
 		if (std::filesystem::exists(programByteCodePath))
 		{
@@ -110,62 +117,83 @@ namespace Powder
 			std::filesystem::file_time_type sourceCodeTime = std::filesystem::last_write_time(programSourceCodeResolvedPath);
 			if (byteCodeTime >= sourceCodeTime)
 			{
-				Executable* executable = new Executable();
-				executable->Load(programByteCodePath);
-				this->ExecuteByteCode(executable, scope);
-				return;
+				GC::Reference<Executable, true> executableRef(new Executable());
+
+				if (!executableRef.Get()->Load(programByteCodePath, error))
+					return false;
+
+				if (!this->ExecuteByteCode(executableRef.Get(), error, scope))
+					return false;
+				
+				return true;
 			}
 		}
 
 		std::fstream fileStream;
 		fileStream.open(programSourceCodeResolvedPath, std::fstream::in);
 		if (!fileStream.is_open())
-			throw new RunTimeException(FormatString("Failed to open file: %s", programSourceCodeResolvedPath.c_str()));
+		{
+			error.Add(std::format("Failed to open file: {}", programSourceCodeResolvedPath.c_str()));
+			return false;
+		}
 
 		std::stringstream stringStream;
 		stringStream << fileStream.rdbuf();
 		std::string programCode = stringStream.str();
 		fileStream.close();
 
-		this->ExecuteSourceCode(programCode, programSourceCodeResolvedPath, scope);
+		return this->ExecuteSourceCode(programCode, programSourceCodeResolvedPath, error, scope);
 	}
 
-	void VirtualMachine::ExecuteSourceCode(const std::string& programSourceCode, const std::string& programSourceCodePath, Scope* scope /*= nullptr*/)
+	bool VirtualMachine::ExecuteSourceCode(const std::string& programSourceCode, const std::string& programSourceCodePath, Error& error, Scope* scope /*= nullptr*/)
 	{
 		if (!scope)
 			scope = this->globalScopeRef.Get();
 
-		Executable* executable = this->compiler->CompileCode(programSourceCode.c_str());
-		if (!executable)
-			throw new RunTimeException("Unknown compilation error!");
+		GC::Reference<Executable, true> executableRef(this->compiler->CompileCode(programSourceCode.c_str(), error));
+		if (!executableRef.Get())
+		{
+			error.Add("Compilation failed!");
+			return false;
+		}
 
 		if (programSourceCodePath.length() > 0)
 		{
-			if (executable->debugInfoDoc)
-				executable->debugInfoDoc->SetValue("source_file", new ParseParty::JsonString(programSourceCodePath.c_str()));
+			if (executableRef.Get()->debugInfoDoc)
+				executableRef.Get()->debugInfoDoc->SetValue("source_file", new ParseParty::JsonString(programSourceCodePath.c_str()));
 
 			std::string programByteCodePath = programSourceCodePath.substr(0, programSourceCodePath.find_last_of('.')) + ".pwx";
-			executable->Save(programByteCodePath);
+			if (!executableRef.Get()->Save(programByteCodePath, error))
+			{
+				error.Add("Failed to save executable to disk at: " + programByteCodePath);
+				return false;
+			}
 		}
 
-		this->ExecuteByteCode(executable, scope);
+		return this->ExecuteByteCode(executableRef.Get(), error, scope);
 	}
 
-	MapValue* VirtualMachine::LoadModuleFunctionMap(const std::string& moduleAbsolutePath)
+	MapValue* VirtualMachine::LoadModuleFunctionMap(const std::string& moduleAbsolutePath, Error& error)
 	{
 		HMODULE moduleHandle = (HMODULE)this->moduleMap.Lookup(moduleAbsolutePath.c_str());
 		if (moduleHandle == nullptr)
 		{
 			moduleHandle = ::LoadLibraryA(moduleAbsolutePath.c_str());
 			if (moduleHandle == nullptr)
-				throw new RunTimeException(FormatString("No module found at %s", moduleAbsolutePath.c_str()));
+			{
+				error.Add(std::format("No module found at {}.", moduleAbsolutePath.c_str()));
+				return nullptr;
+			}
 
 			this->moduleMap.Insert(moduleAbsolutePath.c_str(), moduleHandle);
 		}
 
 		GenerateFunctionMapFunc generateFunctionMapFunc = (GenerateFunctionMapFunc)::GetProcAddress(moduleHandle, "GenerateFunctionMap");
 		if (generateFunctionMapFunc == nullptr)
-			throw new RunTimeException(FormatString("Module (%s) does not expose \"GenerateFunctionMap\" function.", moduleAbsolutePath.c_str()));
+		{
+			error.Add(std::format("Module ({}) does not expose \"GenerateFunctionMap\" function.", moduleAbsolutePath.c_str()));
+			return nullptr;
+		}
 
 		return generateFunctionMapFunc();
 	}

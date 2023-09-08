@@ -2,6 +2,7 @@
 #include "PopInstruction.h"
 #include "PushInstruction.h"
 #include "Assembler.h"
+#include "Error.h"
 
 namespace Powder
 {
@@ -13,10 +14,13 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void LiteralExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ bool LiteralExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		if (syntaxNode->GetChildCount() != 1)
-			throw new CompileTimeException("Expected \"literal\" in AST to have exactly one child.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Expected \"literal\" in AST to have exactly one child.");
+			return false;
+		}
 
 		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
 		instructionList.AddTail(pushInstruction);
@@ -44,7 +48,10 @@ namespace Powder
 		else if (*literalTypeNode->text == "map-literal")
 			typeEntry.code = PushInstruction::DataType::EMPTY_MAP;
 		else
-			throw new CompileTimeException(FormatString("Did not recognize \"%s\" data-type under \"literal\" in AST.", literalTypeNode->text->c_str()), &literalTypeNode->fileLocation);
+		{
+			error.Add(std::string(literalTypeNode->fileLocation) + std::format("Did not recognize \"{}\" data-type under \"literal\" in AST.", literalTypeNode->text->c_str()));
+			return false;
+		}
 
 		pushInstruction->assemblyData->configMap.Insert("type", typeEntry);
 		pushInstruction->assemblyData->configMap.Insert("data", dataEntry);
@@ -52,7 +59,11 @@ namespace Powder
 		if (*literalTypeNode->text == "list-literal" || *literalTypeNode->text == "map-literal")
 		{
 			// In this case, next come the instructions that populate the list or map.
-			instructionGenerator->GenerateInstructionListRecursively(instructionList, literalTypeNode);
+			if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, literalTypeNode, error))
+			{
+				error.Add(std::string(literalTypeNode->fileLocation) + "Failed to generate instruction to populate list or map.");
+				return false;
+			}
 		}
 
 		// If the literal is not in the context of an assignment or expression of some kind, then we
@@ -62,5 +73,7 @@ namespace Powder
 			PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(popInstruction);
 		}
+
+		return true;
 	}
 }

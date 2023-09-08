@@ -1,8 +1,6 @@
 #include "ListValue.h"
 #include "UndefinedValue.h"
 #include "NumberValue.h"
-#include "Exceptions.hpp"
-#include "StringFormat.h"
 #include "BooleanValue.h"
 #include "StringValue.h"
 
@@ -26,7 +24,7 @@ namespace Powder
 
 	/*virtual*/ std::string ListValue::ToString() const
 	{
-		return FormatString("List of length %d", this->Length());
+		return std::format("List of length {}", this->Length());
 	}
 
 	/*virtual*/ Value* ListValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
@@ -66,44 +64,63 @@ namespace Powder
 		return new BooleanValue(false);
 	}
 
-	/*virtual*/ void ListValue::SetField(Value* fieldValue, Value* dataValue)
+	/*virtual*/ bool ListValue::SetField(Value* fieldValue, Value* dataValue, Error& error)
 	{
 		NumberValue* numberValue = dynamic_cast<NumberValue*>(fieldValue);
 		if (!numberValue)
-			throw new RunTimeException("Can't set field on list with something other than a number value.");
+		{
+			error.Add("Can't set field on list with something other than a number value.");
+			return false;
+		}
 
 		int32_t i = int32_t(numberValue->AsNumber());
 		if (i < 0 || i >= (signed)this->valueList.GetCount())
-			throw new RunTimeException(FormatString("Can't set element %d of list with %d elements.", i, this->valueList.GetCount()));
+		{
+			error.Add(std::format("Can't set element {} of list with {} elements.", i, this->valueList.GetCount()));
+			return false;
+		}
 
 		this->RebuildIndexIfNeeded();
 		(*this->valueListIndex)[i]->value.Set(dataValue);
+		return true;
 	}
 
-	/*virtual*/ Value* ListValue::GetField(Value* fieldValue)
+	/*virtual*/ Value* ListValue::GetField(Value* fieldValue, Error& error)
 	{
 		NumberValue* numberValue = dynamic_cast<NumberValue*>(fieldValue);
 		if (!numberValue)
-			throw new RunTimeException("Can't get field on list with something other than a number value.");
+		{
+			error.Add("Can't get field on list with something other than a number value.");
+			return nullptr;
+		}
 
 		int32_t i = int32_t(numberValue->AsNumber());
 		if (i < 0 || i >= (signed)this->valueList.GetCount())
-			throw new RunTimeException(FormatString("Can't get element %d of list with %d elements.", i, this->valueList.GetCount()));
+		{
+			error.Add(std::format("Can't get element {} of list with {} elements.", i, this->valueList.GetCount()));
+			return nullptr;
+		}
 
 		this->RebuildIndexIfNeeded();
 		Value* dataValue = (*this->valueListIndex)[i]->value.Get();
 		return dataValue;
 	}
 
-	/*virtual*/ bool ListValue::DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef)
+	/*virtual*/ bool ListValue::DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error)
 	{
 		NumberValue* numberValue = dynamic_cast<NumberValue*>(fieldValue);
 		if (!numberValue)
-			throw new RunTimeException("Can't delete field on list with something other than a number value.");
+		{
+			error.Add("Can't delete field on list with something other than a number value.");
+			return false;
+		}
 
 		int32_t i = int32_t(numberValue->AsNumber());
 		if (i < 0 || i >= (signed)this->valueList.GetCount())
-			throw new RunTimeException(FormatString("Can't delete element %d of list with %d elements.", i, this->valueList.GetCount()));
+		{
+			error.Add(std::format("Can't delete element {} of list with {} elements.", i, this->valueList.GetCount()));
+			return false;
+		}
 
 		this->RebuildIndexIfNeeded();
 		Value* dataValue = (*this->valueListIndex)[i]->value.Get();
@@ -142,11 +159,11 @@ namespace Powder
 		this->valueListIndexValid = false;
 	}
 
-	bool ListValue::PopLeft(GC::Reference<Value, true>& valueRef)
+	bool ListValue::PopLeft(GC::Reference<Value, true>& valueRef, Error& error)
 	{
 		if (this->valueList.GetCount() == 0)
 		{
-			throw new RunTimeException("Tried to pop-left zero-size list.");
+			error.Add("Tried to pop-left zero-size list.");
 			return false;
 		}
 
@@ -163,11 +180,11 @@ namespace Powder
 			this->valueListIndex->push_back(this->valueList.GetTail());
 	}
 
-	bool ListValue::PopRight(GC::Reference<Value, true>& valueRef)
+	bool ListValue::PopRight(GC::Reference<Value, true>& valueRef, Error& error)
 	{
 		if (this->valueList.GetCount() == 0)
 		{
-			throw new RunTimeException("Tried to pop-right zero-size list.");
+			error.Add("Tried to pop-right zero-size list.");
 			return false;
 		}
 
@@ -193,30 +210,39 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ Value* ListValueIterator::Call(ListValue* argListValue, std::string& errorMsg)
+	/*virtual*/ bool ListValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error)
 	{
 		if (argListValue->Length() != 1)
-			return nullptr;
+		{
+			error.Add("Iterator should be given an argument.");
+			return false;
+		}
 
 		const StringValue* actionValue = dynamic_cast<const StringValue*>((*argListValue)[0]);
 		if (!actionValue)
-			return nullptr;
+		{
+			error.Add("Iterator argument should be a string.");
+			return false;
+		}
 
 		if (actionValue->GetString() == "reset")
 			this->listNode = this->listValueRef.Get()->valueList.GetHead();
 		else if (actionValue->GetString() == "next")
 		{
-			Value* nextValue = nullptr;
-			if(!this->listNode)
-				nextValue = new UndefinedValue();
+			if (!this->listNode)
+				returnValueRef.Set(new UndefinedValue());
 			else
 			{
-				nextValue = this->listNode->value.Get();
+				returnValueRef.Set(this->listNode->value.Get());
 				this->listNode = this->listNode->GetNext();
 			}
-			return nextValue;
+		}
+		else
+		{
+			error.Add(std::format("Unrecognized action value: {}", actionValue->GetString().c_str()));
+			return false;
 		}
 
-		return nullptr;
+		return true;
 	}
 }

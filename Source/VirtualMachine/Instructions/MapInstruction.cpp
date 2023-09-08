@@ -3,7 +3,6 @@
 #include "Executor.h"
 #include "MapValue.h"
 #include "ListValue.h"
-#include "Exceptions.hpp"
 #include "Executable.h"
 #include "VirtualMachine.h"
 
@@ -22,7 +21,7 @@ namespace Powder
 		return 0x0D;
 	}
 
-	/*virtual*/ uint32_t MapInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t MapInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		Value* result = nullptr;
 
@@ -34,12 +33,20 @@ namespace Powder
 			{
 				// Notice we pop the field value, but leave the map value.
 				GC::Reference<Value, true> fieldValueRef;
-				executor->PopValueFromEvaluationStackTop(fieldValueRef);
-				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
+				if (!executor->PopValueFromEvaluationStackTop(fieldValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				Value* value = executor->StackTop(error);
+				if (!value)
+					return Executor::Result::RUNTIME_ERROR;
+				MapValue* mapValue = dynamic_cast<MapValue*>(value);
 				if (!mapValue)
-					throw new RunTimeException("Map instruction can only remove elements from a map value.");
+				{
+					error.Add("Map instruction can only remove elements from a map value.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
 				GC::Reference<Value, true> dataValueRef;
-				mapValue->DelField(fieldValueRef.Get(), dataValueRef);
+				if (!mapValue->DelField(fieldValueRef.Get(), dataValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(mapValue);
 				break;
@@ -48,12 +55,21 @@ namespace Powder
 			{
 				// Notice we pop the field and data values, but leave the map value.
 				GC::Reference<Value, true> dataValueRef, fieldValueRef;
-				executor->PopValueFromEvaluationStackTop(dataValueRef);
-				executor->PopValueFromEvaluationStackTop(fieldValueRef);
-				MapValue* mapValue = dynamic_cast<MapValue*>(executor->StackTop());
+				if (!executor->PopValueFromEvaluationStackTop(dataValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PopValueFromEvaluationStackTop(fieldValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				Value* value = executor->StackTop(error);
+				if (!value)
+					return Executor::Result::RUNTIME_ERROR;
+				MapValue* mapValue = dynamic_cast<MapValue*>(value);
 				if (!mapValue)
-					throw new RunTimeException("Map instruction can only insert elements into a map value.");
-				mapValue->SetField(fieldValueRef.Get(), dataValueRef.Get());
+				{
+					error.Add("Map instruction can only insert elements into a map value.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
+				if (!mapValue->SetField(fieldValueRef.Get(), dataValueRef.Get(), error))
+					return Executor::Result::RUNTIME_ERROR;
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(mapValue);
 				break;
@@ -62,17 +78,23 @@ namespace Powder
 			{
 				// In this case, the map value is replaced with the list value.
 				GC::Reference<Value, true> valueRef;
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				MapValue* mapValue = dynamic_cast<MapValue*>(valueRef.Get());
 				if (!mapValue)
-					throw new RunTimeException("Map instruction can only generate key lists for map values.");
+				{
+					error.Add("Map instruction can only generate key lists for map values.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
 				ListValue* listValue = mapValue->GenerateKeyListValue();
-				executor->PushValueOntoEvaluationStackTop(listValue);
+				if (!executor->PushValueOntoEvaluationStackTop(listValue, error))
+					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
 			default:
 			{
-				throw new RunTimeException(FormatString("Map instruction encountered unknown action %04d.", action));
+				error.Add(std::format("Map instruction encountered unknown action {}.", action));
+				return Executor::Result::RUNTIME_ERROR;
 			}
 		}
 
@@ -80,11 +102,14 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void MapInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool MapInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		const AssemblyData::Entry* actionEntry = this->assemblyData->configMap.LookupPtr("action");
 		if (!actionEntry)
-			throw new CompileTimeException("Assembly of map instruction failed because no action was given.", &this->assemblyData->fileLocation);
+		{
+			error.Add(std::string(this->assemblyData->fileLocation) + "Assembly of map instruction failed because no action was given.");
+			return false;
+		}
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
@@ -100,12 +125,14 @@ namespace Powder
 				}
 				default:
 				{
-					throw new CompileTimeException(FormatString("Did not recognize map instruction code: 0x%04x", actionEntry->code), &this->assemblyData->fileLocation);
+					error.Add(std::string(this->assemblyData->fileLocation) + std::format("Did not recognize map instruction code: {}", actionEntry->code));
+					return false;
 				}
 			}
 		}
 
 		programBufferLocation += 2;
+		return true;
 	}
 
 #if defined POWDER_DEBUG
@@ -117,7 +144,7 @@ namespace Powder
 		if (!actionEntry)
 			detail += "?";
 		else
-			detail += FormatString("%04d", actionEntry->code);
+			detail += std::format("{}", actionEntry->code);
 		return detail;
 	}
 #endif

@@ -8,6 +8,7 @@
 #include "JumpInstruction.h"
 #include "ScopeInstruction.h"
 #include "Assembler.h"
+#include "Error.h"
 
 namespace Powder
 {
@@ -19,11 +20,14 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void FunctionDefinitionExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ bool FunctionDefinitionExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		// This isn't a fool-proof check, but it's something.
 		if (syntaxNode->FindParent("statement-list", 1) != nullptr)
-			throw new CompileTimeException("Anonymous function not assigned at definition.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Anonymous function not assigned at definition.");
+			return false;
+		}
 
 		// Push the address of the function onto the eval-stack.  This allows for storing it in a variable or just immediately calling it.
 		PushInstruction* funcAddressPushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
@@ -47,7 +51,10 @@ namespace Powder
 			for (const ParseParty::Parser::SyntaxNode* captureNode : *captureListNode->childList)
 			{
 				if (*captureNode->text != "@identifier")
-					throw new CompileTimeException("Expected all children of \"capture-list\" in AST to be \"@identifier\".", &captureNode->fileLocation);
+				{
+					error.Add(std::string(captureNode->fileLocation) + "Expected all children of \"capture-list\" in AST to be \"@identifier\".");
+					return false;
+				}
 
 				entry.Reset();
 				entry.string = *captureNode->GetChild(0)->text;
@@ -75,16 +82,19 @@ namespace Powder
 		}
 
 		// Typically we'll just be storing the function address rather than calling it immediately, so we'll want to jump over the definition.
-		JumpInstruction* hopeOverFuncInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
+		JumpInstruction* hopOverFuncInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
 		entry.Reset();
 		entry.code = JumpInstruction::Type::JUMP_TO_EMBEDDED_ADDRESS;
-		hopeOverFuncInstruction->assemblyData->configMap.Insert("type", entry);
-		instructionList.AddTail(hopeOverFuncInstruction);
+		hopOverFuncInstruction->assemblyData->configMap.Insert("type", entry);
+		instructionList.AddTail(hopOverFuncInstruction);
 
 		// Make sure a definition is given in the AST.
 		const ParseParty::Parser::SyntaxNode* functionStatementListNode = syntaxNode->FindChild("statement-list", 2);
 		if (!functionStatementListNode)
-			throw new CompileTimeException("Expected \"function-definition\" to have \"statement-list\" in AST.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Expected \"function-definition\" to have \"statement-list\" in AST.");
+			return false;
+		}
 
 		// The instructions of a function consist of the code for off-loading the arguments, then the function body.
 		LinkedList<Instruction*> functionInstructionList;
@@ -96,7 +106,11 @@ namespace Powder
 			for (const ParseParty::Parser::SyntaxNode* argNode : *argListNode->childList)
 			{
 				if (*argNode->text != "@identifier")
-					throw new CompileTimeException("Expected all children of \"identifier-list\" in AST to be \"@identifier\".", &argNode->fileLocation);
+				{
+					DeleteList<Instruction*>(functionInstructionList);
+					error.Add(std::string(argNode->fileLocation) + "Expected all children of \"identifier-list\" in AST to be \"@identifier\".");
+					return false;
+				}
 
 				ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(argNode->fileLocation);
 				AssemblyData::Entry entry;
@@ -117,7 +131,12 @@ namespace Powder
 		functionInstructionList.AddTail(popInstruction);
 
 		// Lay down the function body.
-		instructionGenerator->GenerateInstructionListRecursively(functionInstructionList, functionStatementListNode);
+		if (!instructionGenerator->GenerateInstructionListRecursively(functionInstructionList, functionStatementListNode, error))
+		{
+			DeleteList<Instruction*>(functionInstructionList);
+			error.Add(std::string(functionStatementListNode->fileLocation) + "Failed to generate instructions for function body.");
+			return false;
+		}
 
 		// The end of the function might already have a return, but if it doesn't, this doesn't hurt.
 		// We ensure that all functions return a value no matter what, because the calling code will always
@@ -154,6 +173,8 @@ namespace Powder
 		entry.Reset();
 		entry.jumpDelta = functionInstructionList.GetCount() + 1;
 		entry.string = "jump";
-		hopeOverFuncInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+		hopOverFuncInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+
+		return true;
 	}
 }

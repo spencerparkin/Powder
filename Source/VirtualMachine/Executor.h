@@ -8,6 +8,7 @@
 
 namespace Powder
 {
+	class Error;
 	class VirtualMachine;
 	class Scope;
 	class Executable;
@@ -22,10 +23,11 @@ namespace Powder
 		{
 			HALT,
 			YIELD,
-			CONTINUE
+			CONTINUE,
+			RUNTIME_ERROR
 		};
 
-		virtual Result Execute(const Executable* executable, VirtualMachine* virtualMachine);
+		virtual Result Execute(const Executable* executable, VirtualMachine* virtualMachine, Error& error);
 
 		bool PushScope();
 		bool PopScope();
@@ -35,14 +37,14 @@ namespace Powder
 
 		void ReplaceCurrentScope(Scope* scope);
 
-		void LoadAndPushValueOntoEvaluationStackTop(const char* identifier, void* debuggerTrap);
-		void StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap);
+		bool LoadAndPushValueOntoEvaluationStackTop(const char* identifier, Error& error, void* debuggerTrap);
+		bool StoreAndPopValueFromEvaluationStackTop(const char* identifier, Error& error, void* debuggerTrap);
 
-		void PushValueOntoEvaluationStackTop(Value* value);
-		void PopValueFromEvaluationStackTop(GC::Reference<Value, true>& valueRef);
+		bool PushValueOntoEvaluationStackTop(Value* value, Error& error);
+		bool PopValueFromEvaluationStackTop(GC::Reference<Value, true>& valueRef, Error& error);
 
-		Value* StackTop();
-		Value* StackValue(int32_t stackOffset);	// This is relative to the top of the stack.
+		Value* StackTop(Error& error);
+		Value* StackValue(int32_t stackOffset, Error& error);	// This is relative to the top of the stack.
 
 	protected:
 

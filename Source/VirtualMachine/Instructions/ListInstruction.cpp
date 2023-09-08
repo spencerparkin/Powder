@@ -2,7 +2,6 @@
 #include "Assembler.h"
 #include "Executor.h"
 #include "ListValue.h"
-#include "Exceptions.hpp"
 #include "Executable.h"
 #include "VirtualMachine.h"
 
@@ -21,7 +20,7 @@ namespace Powder
 		return 0x0C;
 	}
 
-	/*virtual*/ uint32_t ListInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t ListInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		Value* result = nullptr;
 
@@ -33,15 +32,28 @@ namespace Powder
 			case Action::POP_RIGHT:
 			{
 				// Notice we push the popped value, but leave the list value.
-				ListValue* listValue = dynamic_cast<ListValue*>(executor->StackTop());
+				Value* value = executor->StackTop(error);
+				if (!value)
+					return Executor::Result::RUNTIME_ERROR;
+				ListValue* listValue = dynamic_cast<ListValue*>(value);
 				if (!listValue)
-					throw new RunTimeException("List instruction can only pop elements from a list value.");
+				{
+					error.Add("List instruction can only pop elements from a list value.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
 				GC::Reference<Value, true> elementValueRef;
 				if (action == Action::POP_LEFT)
-					listValue->PopLeft(elementValueRef);
+				{
+					if (!listValue->PopLeft(elementValueRef, error))
+						return Executor::Result::RUNTIME_ERROR;
+				}
 				else
-					listValue->PopRight(elementValueRef);
-				executor->PushValueOntoEvaluationStackTop(elementValueRef.Get());
+				{
+					if (!listValue->PopRight(elementValueRef, error))
+						return Executor::Result::RUNTIME_ERROR;
+				}
+				if (!executor->PushValueOntoEvaluationStackTop(elementValueRef.Get(), error))
+					return Executor::Result::RUNTIME_ERROR;
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(listValue);
 				break;
@@ -51,10 +63,17 @@ namespace Powder
 			{
 				// Notice that we pop the pushed value, but leave the list value.
 				GC::Reference<Value, true> elementValueRef;
-				executor->PopValueFromEvaluationStackTop(elementValueRef);
-				ListValue* listValue = dynamic_cast<ListValue*>(executor->StackTop());
+				if (!executor->PopValueFromEvaluationStackTop(elementValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				Value* value = executor->StackTop(error);
+				if (!value)
+					return Executor::Result::RUNTIME_ERROR;
+				ListValue* listValue = dynamic_cast<ListValue*>(value);
 				if (!listValue)
-					throw new RunTimeException("List instruction can only push elements to a list value.");
+				{
+					error.Add("List instruction can only push elements to a list value.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
 				if (action == Action::PUSH_LEFT)
 					listValue->PushLeft(elementValueRef.Get());
 				else
@@ -65,7 +84,8 @@ namespace Powder
 			}
 			default:
 			{
-				throw new RunTimeException(FormatString("List instruction encountered unknown action %04d.", action));
+				error.Add(std::format("List instruction encountered unknown action {}.", action));
+				return Executor::Result::RUNTIME_ERROR;
 			}
 		}
 
@@ -73,11 +93,14 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void ListInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool ListInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		const AssemblyData::Entry* actionEntry = this->assemblyData->configMap.LookupPtr("action");
 		if (!actionEntry)
-			throw new CompileTimeException("Assembly of list instruction failed because no action was given.", &this->assemblyData->fileLocation);
+		{
+			error.Add(std::string(this->assemblyData->fileLocation) + "Assembly of list instruction failed because no action was given.");
+			return false;
+		}
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
@@ -94,12 +117,14 @@ namespace Powder
 				}
 				default:
 				{
-					throw new CompileTimeException(FormatString("Did not recognize list instruction code: 0x%04x", actionEntry->code), &this->assemblyData->fileLocation);
+					error.Add(std::string(this->assemblyData->fileLocation) + std::format("Did not recognize list instruction code: {}", actionEntry->code));
+					return false;
 				}
 			}
 		}
 
 		programBufferLocation += 2;
+		return true;
 	}
 
 #if defined POWDER_DEBUG
@@ -111,7 +136,7 @@ namespace Powder
 		if (!actionEntry)
 			detail += "?";
 		else
-			detail += FormatString("%04d", actionEntry->code);
+			detail += std::format("{}", actionEntry->code);
 		return detail;
 	}
 #endif

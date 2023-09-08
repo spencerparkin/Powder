@@ -3,7 +3,6 @@
 #include "AddressValue.h"
 #include "ClosureValue.h"
 #include "Assembler.h"
-#include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
 #include "CppFunctionValue.h"
@@ -26,7 +25,7 @@ namespace Powder
 		return 0x03;
 	}
 
-	/*virtual*/ uint32_t JumpInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t JumpInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		Type type = Type(programBuffer[programBufferLocation + 1]);
@@ -40,7 +39,8 @@ namespace Powder
 			case Type::JUMP_TO_LOADED_ADDRESS:
 			{
 				GC::Reference<Value, true> valueRef;
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 
 				AddressValue* addressValue = dynamic_cast<AddressValue*>(valueRef.Get());
 				if (addressValue)
@@ -62,36 +62,47 @@ namespace Powder
 				if (cppFunctionValue)
 				{
 					GC::Reference<Value, true> argValueRef;
-					executor->PopValueFromEvaluationStackTop(argValueRef);
+					if (!executor->PopValueFromEvaluationStackTop(argValueRef, error))
+						return Executor::Result::RUNTIME_ERROR;
+
 					ListValue* argListValue = dynamic_cast<ListValue*>(argValueRef.Get());
 					if (!argListValue)
-						throw new RunTimeException("Did not get argument list value from evaluation stack top for module function call.");
+					{
+						error.Add("Did not get argument list value from evaluation stack top for module function call.");
+						return Executor::Result::RUNTIME_ERROR;
+					}
 
 					std::string errorMsg;
-					Value* resultValue = cppFunctionValue->Call(argListValue, errorMsg);
-					if (errorMsg.size() > 0)
-						throw new RunTimeException(errorMsg);
+					GC::Reference<Value, true> resultValueRef;
+					if (!cppFunctionValue->Call(argListValue, resultValueRef, error))
+						return Executor::Result::RUNTIME_ERROR;
 
-					if (!resultValue)
-						resultValue = new UndefinedValue();
+					if (!resultValueRef.Get())
+						resultValueRef.Set(new UndefinedValue());
 
-					executor->PushValueOntoEvaluationStackTop(resultValue);
+					if (!executor->PushValueOntoEvaluationStackTop(resultValueRef.Get(), error))
+						return Executor::Result::RUNTIME_ERROR;
+
 					programBufferLocation += 2;
 					break;
 				}
 				
-				throw new RunTimeException("Cannot jump to location indicated by anything other than an address value.");
+				error.Add("Cannot jump to location indicated by anything other than an address value.");
+				return Executor::Result::RUNTIME_ERROR;
 			}
 		}
 		
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void JumpInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool JumpInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		const AssemblyData::Entry* typeEntry = this->assemblyData->configMap.LookupPtr("type");
 		if (!typeEntry)
-			throw new CompileTimeException("Can't assemble jump instruction if not given the jump-type.", &this->assemblyData->fileLocation);
+		{
+			error.Add(std::string(this->assemblyData->fileLocation) + "Can't assemble jump instruction if not given the jump-type.");
+			return false;
+		}
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
@@ -102,7 +113,10 @@ namespace Powder
 			{
 				const AssemblyData::Entry* jumpEntry = this->assemblyData->configMap.LookupPtr("jump");
 				if (!jumpEntry)
-					throw new CompileTimeException("Can't assemble jump instruction to hard-coded program location if not given that location.", &this->assemblyData->fileLocation);
+				{
+					error.Add(std::string(this->assemblyData->fileLocation) + "Can't assemble jump instruction to hard-coded program location if not given that location.");
+					return false;
+				}
 
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(uint64_t), &jumpEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 			}
@@ -111,6 +125,8 @@ namespace Powder
 		programBufferLocation += 2;
 		if (typeEntry->code == Type::JUMP_TO_EMBEDDED_ADDRESS)
 			programBufferLocation += sizeof(uint64_t);
+
+		return true;
 	}
 
 #if defined POWDER_DEBUG
@@ -127,7 +143,7 @@ namespace Powder
 			{
 				const AssemblyData::Entry* jumpEntry = this->assemblyData->configMap.LookupPtr("jump");
 				if (jumpEntry)
-					detail += FormatString("%04d", jumpEntry->instruction->assemblyData->programBufferLocation);
+					detail += std::format("{}", jumpEntry->instruction->assemblyData->programBufferLocation);
 				else
 					detail += "?";
 			}

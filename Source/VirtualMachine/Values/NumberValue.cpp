@@ -1,7 +1,6 @@
 #include "NumberValue.h"
 #include "UndefinedValue.h"
 #include "StringValue.h"
-#include "StringFormat.h"
 #include "BooleanValue.h"
 
 namespace Powder
@@ -110,7 +109,7 @@ namespace Powder
 
 	/*virtual*/ std::string NumberValue::ToString() const
 	{
-		return FormatString("%f", this->number);
+		return std::format("{}", this->number);
 	}
 
 	/*virtual*/ bool NumberValue::FromString(const std::string& str)

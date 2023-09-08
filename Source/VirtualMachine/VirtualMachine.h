@@ -10,6 +10,7 @@
 
 namespace Powder
 {
+	class Error;
 	class Executor;
 	class Executable;
 	class RunTime;
@@ -32,8 +33,8 @@ namespace Powder
 		VirtualMachine();
 		virtual ~VirtualMachine();
 
-		void ExecuteByteCode(const Executable* executable, Scope* scope);
-		void CreateExecutorAtLocation(uint64_t programBufferLocation, Scope* scope);
+		bool ExecuteByteCode(const Executable* executable, Error& error, Scope* scope);
+		bool CreateExecutorAtLocation(uint64_t programBufferLocation, Error& error, Scope* scope);
 
 		class POWDER_API CompilerInterface
 		{
@@ -41,7 +42,7 @@ namespace Powder
 			CompilerInterface();
 			virtual ~CompilerInterface();
 
-			virtual Executable* CompileCode(const char* programSourceCode) = 0;
+			virtual Executable* CompileCode(const char* programSourceCode, Error& error) = 0;
 		};
 
 		class POWDER_API IODevice
@@ -66,11 +67,11 @@ namespace Powder
 			virtual void ValueLoaded(const char* name, const Value* value) = 0;
 		};
 
-		void ExecuteSourceCodeFile(const std::string& programSourceCodePath, Scope* scope = nullptr);
-		void ExecuteSourceCode(const std::string& programSourceCode, const std::string& programSourceCodePath, Scope* scope = nullptr);
+		bool ExecuteSourceCodeFile(const std::string& programSourceCodePath, Error& error, Scope* scope = nullptr);
+		bool ExecuteSourceCode(const std::string& programSourceCode, const std::string& programSourceCodePath, Error& error, Scope* scope = nullptr);
 
 		typedef MapValue* (*GenerateFunctionMapFunc)();
-		MapValue* LoadModuleFunctionMap(const std::string& moduleAbsolutePath);
+		MapValue* LoadModuleFunctionMap(const std::string& moduleAbsolutePath, Error& error);
 		void UnloadAllModules(void);
 
 		Instruction* LookupInstruction(uint8_t programOpCode);

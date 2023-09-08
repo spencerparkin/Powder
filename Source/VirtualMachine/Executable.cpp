@@ -1,5 +1,5 @@
 #include "Executable.h"
-#include "Exceptions.hpp"
+#include "Error.h"
 #include <fstream>
 #include <filesystem>
 #include <sstream>
@@ -30,14 +30,17 @@ namespace Powder
 		}
 	}
 
-	void Executable::Save(const std::string& byteCodeFile) const
+	bool Executable::Save(const std::string& byteCodeFile, Error& error) const
 	{
 		if (this->byteCodeBuffer && this->byteCodeBufferSize > 0)
 		{
 			std::fstream fileStream;
 			fileStream.open(byteCodeFile, std::fstream::out | std::fstream::binary);
 			if (!fileStream.is_open())
-				throw new RunTimeException(FormatString("Failed to open file: %s", byteCodeFile.c_str()));
+			{
+				error.Add(std::format("Failed to open file: {}", byteCodeFile.c_str()));
+				return false;
+			}
 
 			fileStream.write((const char*)this->byteCodeBuffer, this->byteCodeBufferSize);
 			fileStream.close();
@@ -46,31 +49,45 @@ namespace Powder
 			{
 				std::string jsonString;
 				if (!this->debugInfoDoc->PrintJson(jsonString))
-					throw new RunTimeException("Failed to print debug info JSON string.");
+				{
+					error.Add("Failed to print debug info JSON string.");
+					return false;
+				}
 
 				std::string debugInfoFile = byteCodeFile.substr(0, byteCodeFile.find_last_of('.')) + ".debuginfo";
 				fileStream.open(debugInfoFile, std::fstream::out);
 				if (!fileStream.is_open())
-					throw new RunTimeException(FormatString("Failed to open file: %s", debugInfoFile.c_str()));
+				{
+					error.Add(std::format("Failed to open file: {}", debugInfoFile.c_str()));
+					return false;
+				}
 
 				fileStream.write(jsonString.c_str(), jsonString.length());
 				fileStream.close();
 			}
 		}
+
+		return true;
 	}
 
-	void Executable::Load(const std::string& byteCodeFile)
+	bool Executable::Load(const std::string& byteCodeFile, Error& error)
 	{
 		this->Clear();
 
 		std::fstream fileStream;
 		fileStream.open(byteCodeFile, std::fstream::in | std::fstream::binary | std::fstream::ate);
 		if (!fileStream.is_open())
-			throw new RunTimeException(FormatString("Failed to open file: %s", byteCodeFile.c_str()));
+		{
+			error.Add(std::format("Failed to open file: %s", byteCodeFile.c_str()));
+			return false;
+		}
 
 		this->byteCodeBufferSize = fileStream.tellg();
 		if (this->byteCodeBufferSize == 0)
-			throw new RunTimeException(FormatString("File (%s) is zero bytes in size.", byteCodeFile.c_str()));
+		{
+			error.Add(std::format("File (%s) is zero bytes in size.", byteCodeFile.c_str()));
+			return false;
+		}
 
 		this->byteCodeBuffer = new uint8_t[(uint32_t)this->byteCodeBufferSize];
 		fileStream.seekg(0, std::ios::beg);
@@ -82,7 +99,10 @@ namespace Powder
 		{
 			fileStream.open(debugInfoFile, std::fstream::in);
 			if (!fileStream.is_open())
-				throw new RunTimeException(FormatString("Failed to open file: %s", debugInfoFile.c_str()));
+			{
+				error.Add(std::format("Failed to open file: %s", debugInfoFile.c_str()));
+				return false;
+			}
 
 			std::stringstream stringStream;
 			stringStream << fileStream.rdbuf();
@@ -91,11 +111,19 @@ namespace Powder
 			std::string parseError;
 			ParseParty::JsonValue* jsonValue = ParseParty::JsonValue::ParseJson(jsonString, parseError);
 			if (!jsonValue)
-				throw new RunTimeException(FormatString("Parse error in JSON file: %s\n\n%s", debugInfoFile.c_str(), parseError.c_str()));
+			{
+				error.Add(std::format("Parse error in JSON file: {}\n\n{}", debugInfoFile.c_str(), parseError.c_str()));
+				return false;
+			}
 
 			this->debugInfoDoc = dynamic_cast<ParseParty::JsonObject*>(jsonValue);
 			if (!this->debugInfoDoc)
-				throw new RunTimeException("Expected debug JSON info to be an object type.");
+			{
+				error.Add("Expected debug JSON info to be an object type.");
+				return false;
+			}
 		}
+
+		return true;
 	}
 }

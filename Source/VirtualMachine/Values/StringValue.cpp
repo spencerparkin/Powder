@@ -1,7 +1,6 @@
 #include "StringValue.h"
 #include "UndefinedValue.h"
 #include "BooleanValue.h"
-#include "Exceptions.hpp"
 
 namespace Powder
 {
@@ -88,7 +87,10 @@ namespace Powder
 		char* endPtr = nullptr;
 		double number = ::strtod(this->str->c_str(), &endPtr);
 		if (endPtr == str->c_str())
-			throw new RunTimeException("Failed to get string value as number.");
+		{
+			// TODO: Handle error here.
+			number = 0.0;
+		}
 		return number;
 	}
 }

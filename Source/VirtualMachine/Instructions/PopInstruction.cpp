@@ -19,18 +19,20 @@ namespace Powder
 		return 0x06;
 	}
 
-	/*virtual*/ uint32_t PopInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t PopInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		GC::Reference<Value, true> valueRef;
-		executor->PopValueFromEvaluationStackTop(valueRef);
+		if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+			return Executor::Result::RUNTIME_ERROR;
 		programBufferLocation += 1;
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void PopInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool PopInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		// TODO: Add byte for count of how many pops to do?
 		programBufferLocation += 1;
+		return true;
 	}
 
 #if defined POWDER_DEBUG

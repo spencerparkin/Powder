@@ -1,5 +1,4 @@
 #include "ReadLineFunctionValue.h"
-#include "StringFormat.h"
 #include "ListValue.h"
 #include "FileValue.h"
 #include "StringValue.h"
@@ -12,27 +11,29 @@ ReadLineFunctionValue::ReadLineFunctionValue()
 {
 }
 
-/*virtual*/ Powder::Value* ReadLineFunctionValue::Call(Powder::ListValue* argListValue, std::string& errorMsg)
+/*virtual*/ bool ReadLineFunctionValue::Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::Error& error)
 {
 	if (argListValue->Length() != 1)
 	{
-		errorMsg = Powder::FormatString("Read-line call requires exactly 1 argument, got %d.", argListValue->Length());
-		return nullptr;
+		error.Add(std::format("Read-line call requires exactly 1 argument, got {}.", argListValue->Length()));
+		return false;
 	}
 
 	GC::Reference<Value, true> valueRef;
-	argListValue->PopLeft(valueRef);
+	if (!argListValue->PopLeft(valueRef, error))
+		return false;
+
 	FileValue* fileValue = dynamic_cast<FileValue*>(valueRef.Get());
 	if (!fileValue)
 	{
-		errorMsg = "Read-line call expected a file value.";
-		return nullptr;
+		error.Add("Read-line call expected a file value.");
+		return false;
 	}
 
 	if (!fileValue->fileStream.is_open())
 	{
-		errorMsg = "File given is not open.";
-		return nullptr;
+		error.Add("File given is not open.");
+		return false;
 	}
 
 	std::string line;
@@ -41,5 +42,6 @@ ReadLineFunctionValue::ReadLineFunctionValue()
 
 	Powder::StringValue* stringValue = new Powder::StringValue();
 	stringValue->SetString(line);
-	return stringValue;
+	returnValueRef.Set(stringValue);
+	return true;
 }

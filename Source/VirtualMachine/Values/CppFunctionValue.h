@@ -4,6 +4,7 @@
 
 namespace Powder
 {
+	class Error;
 	class ListValue;
 
 	class POWDER_API CppFunctionValue : public Value
@@ -12,7 +13,7 @@ namespace Powder
 		CppFunctionValue();
 		virtual ~CppFunctionValue();
 
-		virtual Value* Call(ListValue* argListValue, std::string& errorMsg) = 0;
+		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error) = 0;
 		virtual std::string ToString() const override;
 	};
 }

@@ -1,6 +1,5 @@
 #include <iostream>
 #include "VirtualMachine.h"
-#include "Exceptions.hpp"
 #include "GarbageCollector.h"
 
 int main(int argc, char** argv)
@@ -24,15 +23,11 @@ int main(int argc, char** argv)
 				if (sourceCode == "exit")
 					break;
 
-				try
+				Error error;
+				if (!vm.ExecuteSourceCode(sourceCode, "", error))
 				{
-					vm.ExecuteSourceCode(sourceCode, "");
-				}
-				catch (Exception* exc)
-				{
-					std::string errorMsg = exc->GetErrorMessage();
+					std::string errorMsg(error);
 					std::cerr << errorMsg << std::endl;
-					delete exc;
 				}
 
 				GC::GarbageCollector::Get()->Collect();
@@ -42,15 +37,11 @@ int main(int argc, char** argv)
 		{
 			std::string programSourceCodePath = argv[1];
 
-			try
+			Error error;
+			if (!vm.ExecuteSourceCodeFile(programSourceCodePath, error))
 			{
-				vm.ExecuteSourceCodeFile(programSourceCodePath);
-			}
-			catch (Exception* exc)
-			{
-				std::string errorMsg = exc->GetErrorMessage();
+				std::string errorMsg(error);
 				std::cerr << errorMsg << std::endl;
-				delete exc;
 			}
 		}
 	}

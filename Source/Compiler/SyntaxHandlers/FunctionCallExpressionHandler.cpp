@@ -7,6 +7,7 @@
 #include "ListInstruction.h"
 #include "PopInstruction.h"
 #include "Assembler.h"
+#include "Error.h"
 
 namespace Powder
 {
@@ -18,10 +19,13 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void FunctionCallExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ bool FunctionCallExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		if (syntaxNode->GetChildCount() == 0)
-			throw new CompileTimeException("Expected \"function-call\" in AST to have at least 1 child.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Expected \"function-call\" in AST to have at least 1 child.");
+			return false;
+		}
 
 		// This node may or may not be present.  Its absense simply means the call takes no arguments.
 		const ParseParty::Parser::SyntaxNode* argListNode = syntaxNode->FindChild("argument-list", 1);
@@ -39,14 +43,23 @@ namespace Powder
 			// In the case of a system call, we pass all arguments on the eval-stack.
 			if (argListNode)
 			{
-				for(const ParseParty::Parser::SyntaxNode* argNode : *argListNode->childList)
-					instructionGenerator->GenerateInstructionListRecursively(instructionList, argNode);
+				for (const ParseParty::Parser::SyntaxNode* argNode : *argListNode->childList)
+				{
+					if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, argNode, error))
+					{
+						error.Add(std::string(argNode->fileLocation) + "Failed to generate instructions for sys-call argument.");
+						return false;
+					}
+				}
 			}
 
 			uint32_t argCountGiven = argListNode ? argListNode->GetChildCount() : 0;
 			uint32_t argCountExpected = SysCallInstruction::ArgumentCount(sysCall);
 			if (argCountGiven != argCountExpected)
-				throw new CompileTimeException(FormatString("System call 0x%04x takes %d arguments, not %d.", uint8_t(sysCall), argCountExpected, argCountGiven), &syntaxNode->GetChild(0)->GetChild(0)->fileLocation);
+			{
+				error.Add(std::string(syntaxNode->GetChild(0)->GetChild(0)->fileLocation) + std::format("System call {} takes {} arguments, not {}.", uint8_t(sysCall), argCountExpected, argCountGiven));
+				return false;
+			}
 
 			// The system call should pop all its arguments off the evaluation stack.
 			SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>(syntaxNode->fileLocation);
@@ -70,7 +83,12 @@ namespace Powder
 			{
 				for (const ParseParty::Parser::SyntaxNode* argNode : *argListNode->childList)
 				{
-					instructionGenerator->GenerateInstructionListRecursively(instructionList, argNode);
+					if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, argNode, error))
+					{
+						error.Add(std::string(argNode->fileLocation) + "Failed to generate instructions for argument.");
+						return false;
+					}
+
 					ListInstruction* listInstruction = Instruction::CreateForAssembly<ListInstruction>(syntaxNode->fileLocation);
 					entry.Reset();
 					entry.code = ListInstruction::Action::PUSH_RIGHT;
@@ -81,10 +99,18 @@ namespace Powder
 
 			// Push onto the eval-stack the address of the function to be called.  This could be a single
 			// load instruction, or several instructions that ultimately leave an address on the stack top.
-			instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(0));
+			if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(0), error))
+			{
+				error.Add(std::string(syntaxNode->GetChild(0)->fileLocation) + "Failed to generate instructions resulting in function call address.");
+				return false;
+			}
 
 			// We're now ready to make the call.
-			this->GenerateCallInstructions(instructionList, syntaxNode->fileLocation);
+			if (!this->GenerateCallInstructions(instructionList, syntaxNode->fileLocation, error))
+			{
+				error.Add(std::string(syntaxNode->fileLocation) + "Failed to generate instruction to make function call.");
+				return false;
+			}
 		}
 
 		// We now look at the call in context to see if we need to leave the return result or clean it up.
@@ -97,9 +123,11 @@ namespace Powder
 			PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(popInstruction);
 		}
+
+		return true;
 	}
 
-	/*static*/ void FunctionCallExpressionHandler::GenerateCallInstructions(LinkedList<Instruction*>& instructionList, const ParseParty::Lexer::FileLocation& fileLocation)
+	/*static*/ bool FunctionCallExpressionHandler::GenerateCallInstructions(LinkedList<Instruction*>& instructionList, const ParseParty::Lexer::FileLocation& fileLocation, Error& error)
 	{
 		// Push scope so that the called function doesn't pollute the caller's name-space.
 		ScopeInstruction* scopeInstruction = Instruction::CreateForAssembly<ScopeInstruction>(fileLocation);
@@ -144,5 +172,7 @@ namespace Powder
 		scopeInstruction->assemblyData->configMap.Insert("scopeOp", entry);
 		*scopeInstruction->assemblyData->debuggerHelp = "function_return";
 		instructionList.AddTail(scopeInstruction);
+
+		return true;
 	}
 }

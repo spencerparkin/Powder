@@ -2,7 +2,6 @@
 #include "Assembler.h"
 #include "Scope.h"
 #include "Value.h"
-#include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
 #include "Reference.h"
@@ -22,11 +21,12 @@ namespace Powder
 		return 0x01;
 	}
 
-	/*virtual*/ uint32_t BranchInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t BranchInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		GC::Reference<Value, true> valueRef;
-		executor->PopValueFromEvaluationStackTop(valueRef);
+		if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+			return Executor::Result::RUNTIME_ERROR;
 		if (valueRef.Get()->AsBoolean())
 			programBufferLocation += 1 + sizeof(uint64_t);
 		else
@@ -34,19 +34,23 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void BranchInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool BranchInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
 			const AssemblyData::Entry* branchEntry = this->assemblyData->configMap.LookupPtr("branch");
 			if (!branchEntry)
-				throw new CompileTimeException("Cannot assemble branch instruction without the branch address information being given.", &this->assemblyData->fileLocation);
+			{
+				error.Add(std::string(this->assemblyData->fileLocation) + "Cannot assemble branch instruction without the branch address information being given.");
+				return false;
+			}
 
 			uint8_t* programBuffer = executable->byteCodeBuffer;
 			::memcpy_s(&programBuffer[programBufferLocation + 1], sizeof(uint64_t), &branchEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 		}
 
 		programBufferLocation += 1 + sizeof(uint64_t);
+		return true;
 	}
 
 #if defined POWDER_DEBUG
@@ -55,7 +59,7 @@ namespace Powder
 		std::string detail;
 		detail += "branch: ";
 		const AssemblyData::Entry* branchEntry = this->assemblyData->configMap.LookupPtr("branch");
-		detail += FormatString("%04d", (branchEntry ? branchEntry->instruction->assemblyData->programBufferLocation : -1));
+		detail += std::format("{}", (branchEntry ? branchEntry->instruction->assemblyData->programBufferLocation : -1));
 		return detail;
 	}
 #endif

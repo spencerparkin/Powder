@@ -8,7 +8,6 @@
 #include "MapValue.h"
 #include "AddressValue.h"
 #include "ClosureValue.h"
-#include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
 
@@ -27,7 +26,7 @@ namespace Powder
 		return 0x07;
 	}
 
-	/*virtual*/ uint32_t PushInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t PushInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		uint8_t* programBuffer = executable->byteCodeBuffer;
 		uint8_t pushType = programBuffer[programBufferLocation + 1];
@@ -35,14 +34,16 @@ namespace Powder
 		{
 			case DataType::UNDEFINED:
 			{
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				if (!executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), error))
+					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2;
 				break;
 			}
 			case DataType::STRING:
 			{
 				std::string str = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 2);
-				executor->PushValueOntoEvaluationStackTop(new StringValue(str));
+				if (!executor->PushValueOntoEvaluationStackTop(new StringValue(str), error))
+					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2 + str.length() + 1;
 				break;
 			}
@@ -50,19 +51,22 @@ namespace Powder
 			{
 				double number = 0.0f;
 				::memcpy_s(&number, sizeof(double), &programBuffer[programBufferLocation + 2], sizeof(double));
-				executor->PushValueOntoEvaluationStackTop(new NumberValue(number));
+				if (!executor->PushValueOntoEvaluationStackTop(new NumberValue(number), error))
+					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2 + sizeof(double);
 				break;
 			}
 			case DataType::EMPTY_LIST:
 			{
-				executor->PushValueOntoEvaluationStackTop(new ListValue());
+				if (!executor->PushValueOntoEvaluationStackTop(new ListValue(), error))
+					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2;
 				break;
 			}
 			case DataType::EMPTY_MAP:
 			{
-				executor->PushValueOntoEvaluationStackTop(new MapValue());
+				if (!executor->PushValueOntoEvaluationStackTop(new MapValue(), error))
+					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2;
 				break;
 			}
@@ -72,7 +76,8 @@ namespace Powder
 				uint64_t programBufferAddress = 0L;
 				::memcpy_s(&programBufferAddress, sizeof(uint64_t), &programBuffer[programBufferLocation + 2], sizeof(uint64_t));
 				AddressValue* addressValue = (pushType == DataType::ADDRESS) ? new AddressValue(executable, programBufferAddress) : new ClosureValue(executable, programBufferAddress);
-				executor->PushValueOntoEvaluationStackTop(addressValue);
+				if (!executor->PushValueOntoEvaluationStackTop(addressValue, error))
+					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2 + sizeof(uint64_t);
 				break;
 			}
@@ -80,30 +85,40 @@ namespace Powder
 			{
 				int32_t stackOffset = 0;
 				::memcpy_s(&stackOffset, sizeof(int32_t), &programBuffer[programBufferLocation + 2], sizeof(int32_t));
-				Value* value = executor->StackValue(stackOffset);
-				executor->PushValueOntoEvaluationStackTop(value);
+				Value* value = executor->StackValue(stackOffset, error);
+				if (!value)
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PushValueOntoEvaluationStackTop(value, error))
+					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2 + sizeof(int32_t);
 				break;
 			}
 			default:
 			{
-				throw new RunTimeException(FormatString("Encountered uknown push type: 0x%04x", pushType));
+				error.Add(std::format("Encountered uknown push type: {}", pushType));
+				return Executor::Result::RUNTIME_ERROR;
 			}
 		}
 
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void PushInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool PushInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		const AssemblyData::Entry* typeEntry = this->assemblyData->configMap.LookupPtr("type");
 		const AssemblyData::Entry* dataEntry = this->assemblyData->configMap.LookupPtr("data");
 
 		if (!typeEntry)
-			throw new CompileTimeException("Can't assemble push instruction if not given type information.", &this->assemblyData->fileLocation);
+		{
+			error.Add(std::string(this->assemblyData->fileLocation) + "Can't assemble push instruction if not given type information.");
+			return false;
+		}
 
 		if (!dataEntry && typeEntry->code != DataType::UNDEFINED && typeEntry->code != DataType::EMPTY_LIST && typeEntry->code != DataType::EMPTY_MAP)
-			throw new CompileTimeException("Some push instructions can't be assembled without being given more information about the push content.", &this->assemblyData->fileLocation);
+		{
+			error.Add(std::string(this->assemblyData->fileLocation) + "Some push instructions can't be assembled without being given more information about the push content.");
+			return false;
+		}
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
@@ -134,6 +149,8 @@ namespace Powder
 			programBufferLocation += sizeof(uint64_t);
 		else if (typeEntry->code == DataType::EXISTING_VALUE)
 			programBufferLocation += sizeof(int32_t);
+
+		return true;
 	}
 
 #if defined POWDER_DEBUG
@@ -142,7 +159,7 @@ namespace Powder
 		std::string detail;
 		detail += "push: ";
 		const AssemblyData::Entry* typeEntry = this->assemblyData->configMap.LookupPtr("type");
-		detail += typeEntry ? FormatString("type: %04d", typeEntry->code) : "type: ????";
+		detail += typeEntry ? std::format("type: {}", typeEntry->code) : "type: ????";
 		const AssemblyData::Entry* dataEntry = this->assemblyData->configMap.LookupPtr("data");
 		if (dataEntry)
 		{
@@ -150,9 +167,9 @@ namespace Powder
 			if (typeEntry->code == DataType::STRING)
 				detail += dataEntry->string;
 			else if (typeEntry->code == DataType::NUMBER)
-				detail += FormatString("%f", dataEntry->number);
+				detail += std::format("{}", dataEntry->number);
 			else if (typeEntry->code == ADDRESS || typeEntry->code == CLOSURE)
-				detail += FormatString("%04d", dataEntry->instruction->assemblyData->programBufferLocation);
+				detail += std::format("{}", dataEntry->instruction->assemblyData->programBufferLocation);
 			else if (typeEntry->code == UNDEFINED)
 				detail += "undef";
 			else if (typeEntry->code == DataType::EMPTY_LIST)
@@ -160,7 +177,7 @@ namespace Powder
 			else if (typeEntry->code == DataType::EMPTY_MAP)
 				detail += "{}";
 			else if (typeEntry->code == DataType::EXISTING_VALUE)
-				detail += FormatString("stack(%d)", dataEntry->offset);
+				detail += std::format("stack({})", dataEntry->offset);
 			else
 				detail += "?";
 		}

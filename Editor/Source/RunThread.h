@@ -5,15 +5,15 @@
 #include <wx/event.h>
 #include <wx/filename.h>
 #include "VirtualMachine.h"
-#include "Exceptions.hpp"
+#include "Error.h"
 #include <set>
 #include <map>
 
-class RunThreadExceptionEvent : public wxThreadEvent
+class RunThreadErrorEvent : public wxThreadEvent
 {
 public:
-	RunThreadExceptionEvent(Powder::Exception* exception);
-	virtual ~RunThreadExceptionEvent();
+	RunThreadErrorEvent(Powder::Error& error);
+	virtual ~RunThreadErrorEvent();
 	
 	wxString errorMsg;
 };
@@ -49,7 +49,7 @@ public:
 
 wxDECLARE_EVENT(EVT_RUNTHREAD_ENTERING, wxThreadEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_EXITING, wxThreadEvent);
-wxDECLARE_EVENT(EVT_RUNTHREAD_EXCEPTION, RunThreadExceptionEvent);
+wxDECLARE_EVENT(EVT_RUNTHREAD_ERROR, RunThreadErrorEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_OUTPUT, RunThreadOutputEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_INPUT, RunThreadInputEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_SUSPENDED, RunThreadSuspendedEvent);

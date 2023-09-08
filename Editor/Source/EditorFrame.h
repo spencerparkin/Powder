@@ -55,7 +55,7 @@ public:
 	void OnClose(wxCloseEvent& event);
 	void OnRunThreadEntering(wxThreadEvent& event);
 	void OnRunThreadExiting(wxThreadEvent& event);
-	void OnRunThreadException(RunThreadExceptionEvent& event);
+	void OnRunThreadError(RunThreadErrorEvent& event);
 	void OnRunThreadOutput(RunThreadOutputEvent& event);
 	void OnRunThreadInput(RunThreadInputEvent& event);
 	void OnRunThreadSuspended(RunThreadSuspendedEvent& event);

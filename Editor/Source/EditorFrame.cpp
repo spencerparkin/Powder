@@ -177,7 +177,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_CLOSE_WINDOW, &EditorFrame::OnClose, this);
 	this->Bind(EVT_RUNTHREAD_ENTERING, &EditorFrame::OnRunThreadEntering, this);
 	this->Bind(EVT_RUNTHREAD_EXITING, &EditorFrame::OnRunThreadExiting, this);
-	this->Bind(EVT_RUNTHREAD_EXCEPTION, &EditorFrame::OnRunThreadException, this);
+	this->Bind(EVT_RUNTHREAD_ERROR, &EditorFrame::OnRunThreadError, this);
 	this->Bind(EVT_RUNTHREAD_OUTPUT, &EditorFrame::OnRunThreadOutput, this);
 	this->Bind(EVT_RUNTHREAD_INPUT, &EditorFrame::OnRunThreadInput, this);
 	this->Bind(EVT_RUNTHREAD_SUSPENDED, &EditorFrame::OnRunThreadSuspended, this);
@@ -531,7 +531,7 @@ void EditorFrame::OnTerminalInputReady(wxCommandEvent& event)
 		wxGetApp().GetRunThread()->MainThread_Resume();
 }
 
-void EditorFrame::OnRunThreadException(RunThreadExceptionEvent& event)
+void EditorFrame::OnRunThreadError(RunThreadErrorEvent& event)
 {
 	TerminalPanel* terminalPanel = this->FindPanel<TerminalPanel>("Terminal");
 	if (terminalPanel)

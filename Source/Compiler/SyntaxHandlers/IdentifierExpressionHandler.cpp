@@ -1,6 +1,7 @@
 #include "IdentifierExpressionHandler.h"
 #include "LoadInstruction.h"
 #include "Assembler.h"
+#include "Error.h"
 
 namespace Powder
 {
@@ -12,10 +13,13 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void IdentifierExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ bool IdentifierExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		if (syntaxNode->GetChildCount() != 1)
-			throw new CompileTimeException("Expected \"@identifier\" in AST to have exactly one child.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Expected \"@identifier\" in AST to have exactly one child.");
+			return false;
+		}
 
 		// Note that we assume we're generating code here in the context of an expression, but we're not
 		// going to check that, because there's no obvious way I can think of at the moment without
@@ -28,5 +32,7 @@ namespace Powder
 		entry.string = *identifierNode->text;
 		loadInstruction->assemblyData->configMap.Insert("name", entry);
 		instructionList.AddTail(loadInstruction);
+
+		return true;
 	}
 }

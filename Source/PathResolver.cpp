@@ -1,6 +1,6 @@
 #include "PathResolver.h"
 #include "ModuleMain.h"
-#include "Exceptions.hpp"
+#include "Error.h"
 #include <Windows.h>
 
 namespace Powder
@@ -15,7 +15,7 @@ namespace Powder
 	{
 	}
 
-	std::string PathResolver::ResolvePath(const std::string& givenPath, int searchFlags)
+	std::string PathResolver::ResolvePath(const std::string& givenPath, int searchFlags, Error& error)
 	{
 		std::filesystem::path unresolvedPath = givenPath;
 		std::filesystem::path resolvedPath;
@@ -46,7 +46,10 @@ namespace Powder
 		}
 
 		if (!std::filesystem::exists(resolvedPath))
-			throw new RunTimeException(FormatString("Could not find file: %s", givenPath.c_str()));
+		{
+			error.Add(std::format("Could not find file: {}", givenPath.c_str()));
+			return "";
+		}
 
 		return resolvedPath.string();
 	}

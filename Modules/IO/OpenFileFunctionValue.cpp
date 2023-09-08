@@ -1,8 +1,8 @@
 #include "OpenFileFunctionValue.h"
 #include "ListValue.h"
-#include "StringFormat.h"
 #include "FileValue.h"
 #include "UndefinedValue.h"
+#include "Error.h"
 #include <filesystem>
 
 OpenFileFunctionValue::OpenFileFunctionValue()
@@ -13,24 +13,28 @@ OpenFileFunctionValue::OpenFileFunctionValue()
 {
 }
 
-/*virtual*/ Powder::Value* OpenFileFunctionValue::Call(Powder::ListValue* argListValue, std::string& errorMsg)
+/*virtual*/ bool OpenFileFunctionValue::Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::Error& error)
 {
 	if (argListValue->Length() < 1)
 	{
-		errorMsg = Powder::FormatString("Open call requires at least 1 argument, got %d.", argListValue->Length());
-		return nullptr;
+		error.Add(std::format("Open call requires at least 1 argument, got {}.", argListValue->Length()));
+		return false;
 	}
 
 	GC::Reference<Value, true> filePathValueRef;
-	argListValue->PopLeft(filePathValueRef);
+	if (!argListValue->PopLeft(filePathValueRef, error))
+		return false;
+
 	std::string filePath = filePathValueRef.Get()->ToString();
 
 	FileValue* fileValue = new FileValue();
+	returnValueRef.Set(fileValue);
 
 	std::ios_base::openmode openMode = std::fstream::in;
 	GC::Reference<Value, true> openModeValueRef;
 	if (argListValue->Length() > 0)
-		argListValue->PopLeft(openModeValueRef);
+		if (!argListValue->PopLeft(openModeValueRef, error))
+			return false;
 
 	if (openModeValueRef.Get())
 	{
@@ -41,8 +45,8 @@ OpenFileFunctionValue::OpenFileFunctionValue()
 			openMode = fileValue->fileStream.out | fileValue->fileStream.app;
 		else
 		{
-			errorMsg = Powder::FormatString("Open mode \"%s\" not recognized.", openModeStr.c_str());
-			return nullptr;
+			error.Add(std::format("Open mode \"{}\" not recognized.", openModeStr.c_str()));
+			return false;
 		}
 
 		if (openModeStr == "write" && !std::filesystem::exists(filePath))
@@ -54,7 +58,7 @@ OpenFileFunctionValue::OpenFileFunctionValue()
 
 	fileValue->fileStream.open(filePath, openMode);
 	if (!fileValue->fileStream.is_open())
-		return new Powder::UndefinedValue();
+		returnValueRef.Set(new Powder::UndefinedValue());
 
-	return fileValue;
+	return true;
 }

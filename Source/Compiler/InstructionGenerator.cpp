@@ -28,7 +28,7 @@
 #include "PopInstruction.h"
 #include "SysCallInstruction.h"
 #include "PushInstruction.h"
-#include "Exceptions.hpp"
+#include "Error.h"
 #include "HashMap.hpp"
 
 namespace Powder
@@ -71,9 +71,13 @@ namespace Powder
 	// leaves it alone.  Both may use the stack, but the net result of a statement
 	// should be the eval stack left untouched, while that of an expression is to
 	// leave some new result of a computation.
-	void InstructionGenerator::GenerateInstructionList(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* rootSyntaxNode)
+	bool InstructionGenerator::GenerateInstructionList(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* rootSyntaxNode, Error& error)
 	{
-		this->GenerateInstructionListRecursively(instructionList, rootSyntaxNode);
+		if (!this->GenerateInstructionListRecursively(instructionList, rootSyntaxNode, error))
+		{
+			error.Add("Recursive instruction generation ultimately failed.");
+			return false;
+		}
 
 		// Always end the program with a halt instruction.  This is so that the last program construct has something to jump to, if needed.
 		SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>(rootSyntaxNode->fileLocation);
@@ -81,19 +85,24 @@ namespace Powder
 		entry.code = SysCallInstruction::SysCall::EXIT;
 		sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
 		instructionList.AddTail(sysCallInstruction);
+
+		return true;
 	}
 
-	void InstructionGenerator::GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* syntaxNode)
+	bool InstructionGenerator::GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* syntaxNode, Error& error)
 	{
 		const char* name = syntaxNode->text->c_str();
 		if (::strcmp(name, "empty-block") == 0)
-			return;
+			return true;
 
 		SyntaxHandler* syntaxHandler = this->syntaxHandlerMap.Lookup(name);
 		if (!syntaxHandler)
-			throw new CompileTimeException(FormatString("No syntax handler found for AST node with name \"%s\".", syntaxNode->text->c_str()), &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + std::format("No syntax handler found for AST node with name \"{}\".", syntaxNode->text->c_str()));
+			return false;
+		}
 
-		syntaxHandler->HandleSyntaxNode(syntaxNode, instructionList, this);
+		return syntaxHandler->HandleSyntaxNode(syntaxNode, instructionList, this, error);
 	}
 
 	// An expression that is not in the context of an expression (but rather, a statement)
