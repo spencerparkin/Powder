@@ -86,14 +86,15 @@ namespace Powder
 			ExecutorList::Node* node = executorList.GetHead();
 			Executor* executor = node->value;
 			result = executor->Execute(executable, this, error);
-
 			executorList.Remove(node);
 			if (result == Executor::Result::YIELD)
 				executorList.AddTail(executor);
-			else if (result == Executor::Result::HALT)
-				delete executor;
 			else
-				break;
+			{
+				delete executor;
+				if (result == Executor::Result::RUNTIME_ERROR)
+					break;
+			}
 		}
 
 		DeleteList<Executor*>(executorList);
