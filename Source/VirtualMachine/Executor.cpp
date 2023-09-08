@@ -34,9 +34,9 @@ namespace Powder
 		if (!this->currentScopeRef.Get()->GetContainingScope())
 			return false;
 
-		Scope* containingScope = this->currentScopeRef.Get()->GetContainingScope();
+		GC::Reference<Scope, true> containingScopeRef(this->currentScopeRef.Get()->GetContainingScope());
 		this->currentScopeRef.Get()->SetContainingScope(nullptr);
-		this->currentScopeRef.Set(containingScope);
+		this->currentScopeRef.Set(containingScopeRef.Get());
 		return true;
 	}
 
@@ -74,7 +74,6 @@ namespace Powder
 
 	bool Executor::LoadAndPushValueOntoEvaluationStackTop(const char* identifier, Error& error, void* debuggerTrap)
 	{
-		// TODO: Crashing here in Function.pow.  Fix it.
 		Value* value = this->currentScopeRef.Get()->LookupValue(identifier, true);
 		if (!value)
 		{
