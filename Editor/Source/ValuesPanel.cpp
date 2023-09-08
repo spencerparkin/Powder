@@ -118,6 +118,7 @@ void ValuesPanel::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 
 void ValuesPanel::RebuildValueTree(void)
 {
+	// TODO: Oops!  This function doesn't handle recursive data-structures!  It will blow up the call stack!  Fix it.
 	RunThread* runThread = wxGetApp().GetRunThread();
 	if (runThread)
 	{
