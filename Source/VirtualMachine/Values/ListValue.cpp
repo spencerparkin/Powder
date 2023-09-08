@@ -123,10 +123,10 @@ namespace Powder
 		}
 
 		this->RebuildIndexIfNeeded();
-		Value* dataValue = (*this->valueListIndex)[i]->value.Get();
+		valueRef.Set((*this->valueListIndex)[i]->value.Get());
 		this->valueList.Remove((*this->valueListIndex)[i]);
 		this->valueListIndexValid = false;
-		return dataValue;
+		return true;
 	}
 
 	Value* ListValue::operator[](int i)
