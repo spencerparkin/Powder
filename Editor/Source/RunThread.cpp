@@ -158,6 +158,9 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 		if (this->resumeState == RESUME_STEP_OUT && this->callDepth == this->targetCallDepth)
 			this->suspendNow = true;
 
+		if (this->resumeState == RESUME_STEP_INSTRUCTION)
+			this->suspendNow = true;
+
 		if (this->suspendNow)
 		{
 			this->suspensionState = SUSPENDED_FOR_DEBUG;
@@ -270,5 +273,12 @@ void RunThread::MainThread_StepOut(void)
 {
 	this->suspensionState = NOT_SUSPENDED;
 	this->resumeState = RESUME_STEP_OUT;
+	this->suspensionSemaphore.Post();
+}
+
+void RunThread::MainThread_StepInstruction(void)
+{
+	this->suspensionState = NOT_SUSPENDED;
+	this->resumeState = RESUME_STEP_INSTRUCTION;
 	this->suspensionSemaphore.Post();
 }

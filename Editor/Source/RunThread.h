@@ -76,6 +76,7 @@ public:
 	void MainThread_StepOver(void);
 	void MainThread_StepInto(void);
 	void MainThread_StepOut(void);
+	void MainThread_StepInstruction(void);
 
 	enum SuspensionState
 	{
@@ -89,7 +90,8 @@ public:
 		RESUME_HAPPY,
 		RESUME_STEP_OVER,
 		RESUME_STEP_INTO,
-		RESUME_STEP_OUT
+		RESUME_STEP_OUT,
+		RESUME_STEP_INSTRUCTION
 	};
 
 	bool debuggingEnabled;
