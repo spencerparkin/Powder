@@ -39,12 +39,11 @@ RunThreadInputEvent::RunThreadInputEvent(wxString* inputText) : wxThreadEvent(EV
 {
 }
 
-RunThreadSuspendedEvent::RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber, uint64_t programBufferLocation, const ParseParty::JsonObject* instructionMapValue) : wxThreadEvent(EVT_RUNTHREAD_SUSPENDED)
+RunThreadSuspendedEvent::RunThreadSuspendedEvent(const Powder::Executable* executable, const ParseParty::Lexer::FileLocation& fileLocation, Powder::Executor* executor, const ParseParty::JsonObject* instructionMapValue) : wxThreadEvent(EVT_RUNTHREAD_SUSPENDED)
 {
-	this->sourceFile = sourceFile;
-	this->lineNumber = lineNumber;
-	this->columnNumber = columnNumber;
-	this->programBufferLocation = programBufferLocation;
+	this->executable = executable;
+	this->fileLocation = fileLocation;
+	this->executor = executor;
 	this->instructionMapValue = instructionMapValue;
 }
 
@@ -165,12 +164,7 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 		{
 			this->suspensionState = SUSPENDED_FOR_DEBUG;
 
-			wxString sourceFile;
-			const ParseParty::JsonString* sourceFileValue = dynamic_cast<const ParseParty::JsonString*>(executable->debugInfoDoc->GetValue("source_file"));
-			if (sourceFileValue)
-				sourceFile = sourceFileValue->GetValue();
-
-			::wxQueueEvent(this->eventHandler, new RunThreadSuspendedEvent(sourceFile, lineNumber, columnNumber, executor->GetProgramBufferLocation(), instructionMapValue));
+			::wxQueueEvent(this->eventHandler, new RunThreadSuspendedEvent(executable, ParseParty::Lexer::FileLocation{ lineNumber, columnNumber }, executor, instructionMapValue));
 
 			this->suspensionSemaphore.Wait();
 			this->suspendNow = false;

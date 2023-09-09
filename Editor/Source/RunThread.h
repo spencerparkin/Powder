@@ -6,6 +6,7 @@
 #include <wx/filename.h>
 #include "VirtualMachine.h"
 #include "Error.h"
+#include "Lexer.h"
 #include <set>
 #include <map>
 
@@ -39,13 +40,12 @@ public:
 class RunThreadSuspendedEvent : public wxThreadEvent
 {
 public:
-	RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber, uint64_t programBufferLocation, const ParseParty::JsonObject* instructionMapValue);
+	RunThreadSuspendedEvent(const Powder::Executable* executable, const ParseParty::Lexer::FileLocation& fileLocation, Powder::Executor* executor, const ParseParty::JsonObject* instructionMapValue);
 	virtual ~RunThreadSuspendedEvent();
 
-	wxString sourceFile;
-	int lineNumber;
-	int columnNumber;
-	uint64_t programBufferLocation;
+	const Powder::Executable* executable;
+	ParseParty::Lexer::FileLocation fileLocation;
+	Powder::Executor* executor;
 	const ParseParty::JsonObject* instructionMapValue;
 };
 

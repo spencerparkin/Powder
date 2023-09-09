@@ -2,6 +2,8 @@
 #include "SourceFileNotebookControl.h"
 #include "SourceFileEditControl.h"
 #include "RunThread.h"
+#include "JsonValue.h"
+#include "Executable.h"
 
 wxIMPLEMENT_DYNAMIC_CLASS(SourceFilePanel, Panel);
 
@@ -77,11 +79,17 @@ SourceFilePanel::SourceFilePanel()
 		case RUNTHREAD_SUSPENDED:
 		{
 			RunThreadSuspendedEvent* event = (RunThreadSuspendedEvent*)notifyData;
-			if (this->notebookControl->OpenSourceFile(event->sourceFile))
+
+			wxString sourceFile;
+			const ParseParty::JsonString* sourceFileValue = dynamic_cast<const ParseParty::JsonString*>(event->executable->debugInfoDoc->GetValue("source_file"));
+			if (sourceFileValue)
+				sourceFile = sourceFileValue->GetValue();
+
+			if (this->notebookControl->OpenSourceFile(sourceFile))
 			{
-				SourceFileEditControl* editControl = this->notebookControl->FindEditControl(event->sourceFile);
+				SourceFileEditControl* editControl = this->notebookControl->FindEditControl(sourceFile);
 				if (editControl)
-					editControl->ShowExecutionSuspendedAt(event->lineNumber, event->columnNumber);
+					editControl->ShowExecutionSuspendedAt(event->fileLocation.line, event->fileLocation.column);
 			}
 
 			break;

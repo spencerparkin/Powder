@@ -125,16 +125,23 @@ namespace Powder
 
 	Value* Executor::StackTop(Error& error)
 	{
-		return this->StackValue(0, error);
+		return this->StackValue(0, &error);
 	}
 
-	Value* Executor::StackValue(int32_t stackOffset, Error& error)
+	Value* Executor::StackValue(int32_t stackOffset, Error* error)
 	{
 		int32_t i = signed(this->evaluationStack->size()) - 1 - stackOffset;
 		if(0 <= i && i < (signed)this->evaluationStack->size())
 			return (*this->evaluationStack)[i].Get();
 		
-		error.Add(std::format("Stack at size {} cannot use offset {}.", this->evaluationStack->size(), i));
+		if (error)
+			error->Add(std::format("Stack at size {} cannot use offset {}.", this->evaluationStack->size(), i));
+
 		return nullptr;
+	}
+
+	uint32_t Executor::StackSize() const
+	{
+		return this->evaluationStack->size();
 	}
 }

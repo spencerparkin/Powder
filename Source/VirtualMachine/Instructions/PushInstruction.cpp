@@ -85,7 +85,7 @@ namespace Powder
 			{
 				int32_t stackOffset = 0;
 				::memcpy_s(&stackOffset, sizeof(int32_t), &programBuffer[programBufferLocation + 2], sizeof(int32_t));
-				Value* value = executor->StackValue(stackOffset, error);
+				Value* value = executor->StackValue(stackOffset, &error);
 				if (!value)
 					return Executor::Result::RUNTIME_ERROR;
 				if (!executor->PushValueOntoEvaluationStackTop(value, error))

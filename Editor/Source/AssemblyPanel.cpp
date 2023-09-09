@@ -1,5 +1,6 @@
 #include "AssemblyPanel.h"
 #include "RunThread.h"
+#include "Executor.h"
 
 wxIMPLEMENT_DYNAMIC_CLASS(AssemblyPanel, Panel);
 
@@ -45,7 +46,7 @@ AssemblyPanel::AssemblyPanel()
 		case RUNTHREAD_SUSPENDED:
 		{
 			RunThreadSuspendedEvent* event = (RunThreadSuspendedEvent*)notifyData;
-			this->assemblyControl->OnExecutionSuspended(event->programBufferLocation, event->instructionMapValue);
+			this->assemblyControl->OnExecutionSuspended(event->executor->GetProgramBufferLocation(), event->instructionMapValue);
 			break;
 		}
 	}

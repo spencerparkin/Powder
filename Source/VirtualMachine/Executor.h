@@ -44,7 +44,8 @@ namespace Powder
 		bool PopValueFromEvaluationStackTop(GC::Reference<Value, true>& valueRef, Error& error);
 
 		Value* StackTop(Error& error);
-		Value* StackValue(int32_t stackOffset, Error& error);	// This is relative to the top of the stack.
+		Value* StackValue(int32_t stackOffset, Error* error);	// This is relative to the top of the stack.
+		uint32_t StackSize() const;
 
 	protected:
 
