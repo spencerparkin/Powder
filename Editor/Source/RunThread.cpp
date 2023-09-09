@@ -39,11 +39,13 @@ RunThreadInputEvent::RunThreadInputEvent(wxString* inputText) : wxThreadEvent(EV
 {
 }
 
-RunThreadSuspendedEvent::RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber) : wxThreadEvent(EVT_RUNTHREAD_SUSPENDED)
+RunThreadSuspendedEvent::RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber, uint64_t programBufferLocation, const ParseParty::JsonObject* instructionMapValue) : wxThreadEvent(EVT_RUNTHREAD_SUSPENDED)
 {
 	this->sourceFile = sourceFile;
 	this->lineNumber = lineNumber;
 	this->columnNumber = columnNumber;
+	this->programBufferLocation = programBufferLocation;
+	this->instructionMapValue = instructionMapValue;
 }
 
 /*virtual*/ RunThreadSuspendedEvent::~RunThreadSuspendedEvent()
@@ -165,7 +167,7 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 			if (sourceFileValue)
 				sourceFile = sourceFileValue->GetValue();
 
-			::wxQueueEvent(this->eventHandler, new RunThreadSuspendedEvent(sourceFile, lineNumber, columnNumber));
+			::wxQueueEvent(this->eventHandler, new RunThreadSuspendedEvent(sourceFile, lineNumber, columnNumber, executor->GetProgramBufferLocation(), instructionMapValue));
 
 			this->suspensionSemaphore.Wait();
 			this->suspendNow = false;

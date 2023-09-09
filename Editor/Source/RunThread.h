@@ -39,12 +39,14 @@ public:
 class RunThreadSuspendedEvent : public wxThreadEvent
 {
 public:
-	RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber);
+	RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber, uint64_t programBufferLocation, const ParseParty::JsonObject* instructionMapValue);
 	virtual ~RunThreadSuspendedEvent();
 
 	wxString sourceFile;
 	int lineNumber;
 	int columnNumber;
+	uint64_t programBufferLocation;
+	const ParseParty::JsonObject* instructionMapValue;
 };
 
 wxDECLARE_EVENT(EVT_RUNTHREAD_ENTERING, wxThreadEvent);

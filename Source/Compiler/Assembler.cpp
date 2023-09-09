@@ -76,12 +76,11 @@ namespace Powder
 		{
 			const Instruction* instruction = node->value;
 			executable->byteCodeBuffer[programBufferLocation] = instruction->OpCode();
-#if defined POWDER_DEBUG
-			std::cout << std::format("{}: ", programBufferLocation) << instruction->Print() << std::endl;
-#endif
+
 			if (generateDebugInfo)
 			{
 				ParseParty::JsonObject* instructionMapEntryValue = new ParseParty::JsonObject();
+				instructionMapEntryValue->SetValue("instruction", new ParseParty::JsonString(instruction->Print()));
 				instructionMapEntryValue->SetValue("line", new ParseParty::JsonInt(instruction->assemblyData->fileLocation.line));
 				instructionMapEntryValue->SetValue("col", new ParseParty::JsonInt(instruction->assemblyData->fileLocation.column));
 				if (instruction->assemblyData->debuggerHelp->length() > 0)
