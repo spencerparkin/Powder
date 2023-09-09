@@ -9,6 +9,12 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Source\Controls">
+      <UniqueIdentifier>{e0f68683-3ed6-492f-845e-f129d2db454f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Panels">
+      <UniqueIdentifier>{94489e3f-07ca-4324-a8a1-7c97618d3c6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\EditorApp.h">
@@ -17,37 +23,10 @@
     <ClInclude Include="Source\EditorFrame.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DirectoryTreeControl.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SourceFileNotebookControl.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SourceFileEditControl.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\TerminalControl.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="Source\RunThread.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\Panel.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\TerminalPanel.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DirectoryTreePanel.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SourceFilePanel.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\BreakpointsPanel.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ValuesPanel.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\ArtProvider.h">
@@ -55,6 +34,33 @@
     </ClInclude>
     <ClInclude Include="Source\FileFinder.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DirectoryTreeControl.h">
+      <Filter>Source\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SourceFileNotebookControl.h">
+      <Filter>Source\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SourceFileEditControl.h">
+      <Filter>Source\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TerminalControl.h">
+      <Filter>Source\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TerminalPanel.h">
+      <Filter>Source\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SourceFilePanel.h">
+      <Filter>Source\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DirectoryTreePanel.h">
+      <Filter>Source\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\BreakpointsPanel.h">
+      <Filter>Source\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ValuesPanel.h">
+      <Filter>Source\Panels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -64,37 +70,10 @@
     <ClCompile Include="Source\EditorFrame.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DirectoryTreeControl.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SourceFileNotebookControl.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SourceFileEditControl.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\TerminalControl.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Source\RunThread.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Panel.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\TerminalPanel.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DirectoryTreePanel.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SourceFilePanel.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\BreakpointsPanel.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ValuesPanel.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\ArtProvider.cpp">
@@ -102,6 +81,33 @@
     </ClCompile>
     <ClCompile Include="Source\FileFinder.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DirectoryTreeControl.cpp">
+      <Filter>Source\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SourceFileEditControl.cpp">
+      <Filter>Source\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SourceFileNotebookControl.cpp">
+      <Filter>Source\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TerminalControl.cpp">
+      <Filter>Source\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TerminalPanel.cpp">
+      <Filter>Source\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SourceFilePanel.cpp">
+      <Filter>Source\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DirectoryTreePanel.cpp">
+      <Filter>Source\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\BreakpointsPanel.cpp">
+      <Filter>Source\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ValuesPanel.cpp">
+      <Filter>Source\Panels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
