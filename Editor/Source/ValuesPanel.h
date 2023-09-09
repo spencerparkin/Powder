@@ -68,7 +68,7 @@ public:
 
 	wxTreeItemId GenerateScopeItems(Powder::Scope* scope);
 	void GenerateValueItems(wxTreeItemId parentItemId);
-	void GenerateTreeForValue(wxTreeItemId parentItemId, const wxString& name, Powder::Value* value);
+	void GenerateTreeForValue(wxTreeItemId parentItemId, const wxString& name, Powder::Value* value, std::set<Powder::Value*>& valueSet);
 
 	wxTreeCtrl* valueTreeControl;
 	wxTreeItemData* contextMenuItemData;
