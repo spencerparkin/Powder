@@ -143,7 +143,7 @@ namespace Powder
 			{
 				const AssemblyData::Entry* jumpEntry = this->assemblyData->configMap.LookupPtr("jump");
 				if (jumpEntry)
-					detail += std::format("{}", jumpEntry->instruction->assemblyData->programBufferLocation);
+					detail += std::format("{:#08x}", jumpEntry->instruction->assemblyData->programBufferLocation);
 				else
 					detail += "?";
 			}

@@ -59,7 +59,7 @@ namespace Powder
 		std::string detail;
 		detail += "branch: ";
 		const AssemblyData::Entry* branchEntry = this->assemblyData->configMap.LookupPtr("branch");
-		detail += std::format("{}", (branchEntry ? branchEntry->instruction->assemblyData->programBufferLocation : -1));
+		detail += std::format("{:#08x}", (branchEntry ? branchEntry->instruction->assemblyData->programBufferLocation : -1));
 		return detail;
 	}
 #endif
