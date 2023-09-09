@@ -3,6 +3,7 @@
 #include "StoreInstruction.h"
 #include "PopInstruction.h"
 #include "Assembler.h"
+#include "Error.h"
 
 namespace Powder
 {
@@ -14,10 +15,13 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void ListPushPopExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ bool ListPushPopExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		if (syntaxNode->GetChildCount() != 3)
-			throw new CompileTimeException("Expected \"list-push-pop-expression\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Expected \"list-push-pop-expression\" in AST to have exactly 3 children.");
+			return false;
+		}
 
 		const ParseParty::Parser::SyntaxNode* actionNode = syntaxNode->GetChild(1);
 		if (*actionNode->text == "-->" || *actionNode->text == "<--")
@@ -25,7 +29,12 @@ namespace Powder
 			// Push the list onto the eval stack.  Note that if it's not a list, we'll only know at run-time.
 			const ParseParty::Parser::SyntaxNode* listNode = (*actionNode->text == "-->") ? syntaxNode->GetChild(0) : syntaxNode->GetChild(2);
 			LinkedList<Instruction*> listInstructionList;
-			instructionGenerator->GenerateInstructionListRecursively(listInstructionList, listNode);
+			if (!instructionGenerator->GenerateInstructionListRecursively(listInstructionList, listNode, error))
+			{
+				DeleteList<Instruction*>(listInstructionList);
+				error.Add(std::string(listNode->fileLocation) + "Failed to generate instruction that would leave list value on eval stack top.");
+				return false;
+			}
 			instructionList.Append(listInstructionList);
 
 			// Now issue the list instruction to pop left or right.  The list is replaced with the popped value on the eval stack.
@@ -40,7 +49,10 @@ namespace Powder
 			// Lastly, store the popped value into the given identifier.
 			const ParseParty::Parser::SyntaxNode* identifierNode = (*actionNode->text == "-->") ? syntaxNode->GetChild(2) : syntaxNode->GetChild(0);
 			if (*identifierNode->text != "@identifier")
-				throw new CompileTimeException(FormatString("List pop expected to store value in location given by name, but got no identifier.  Got \"%s\" instead.", identifierNode->text->c_str()), &syntaxNode->fileLocation);
+			{
+				error.Add(std::string(syntaxNode->fileLocation) + std::format("List pop expected to store value in location given by name, but got no identifier.  Got \"{}\" instead.", identifierNode->text->c_str()));
+				return false;
+			}
 			StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(syntaxNode->fileLocation);
 			entry.Reset();
 			entry.string = *identifierNode->GetChild(0)->text;
@@ -52,13 +64,23 @@ namespace Powder
 			// Push the list onto the eval stack.  Note that if it's not a list, we'll only know at run-time.
 			const ParseParty::Parser::SyntaxNode* listNode = (*actionNode->text == "--<") ? syntaxNode->GetChild(0) : syntaxNode->GetChild(2);
 			LinkedList<Instruction*> listInstructionList;
-			instructionGenerator->GenerateInstructionListRecursively(listInstructionList, listNode);
+			if (!instructionGenerator->GenerateInstructionListRecursively(listInstructionList, listNode, error))
+			{
+				DeleteList<Instruction*>(listInstructionList);
+				error.Add(std::string(listNode->fileLocation) + "Failed to generate instructions that would leave a list value on the eval stack top.");
+				return false;
+			}
 			instructionList.Append(listInstructionList);
 
 			// Now push the element onto the eval stack.  This can be anything, even another list or map.
 			const ParseParty::Parser::SyntaxNode* elementNode = (*actionNode->text == "--<") ? syntaxNode->GetChild(2) : syntaxNode->GetChild(0);
 			LinkedList<Instruction*> elementInstructionList;
-			instructionGenerator->GenerateInstructionListRecursively(elementInstructionList, elementNode);
+			if (!instructionGenerator->GenerateInstructionListRecursively(elementInstructionList, elementNode, error))
+			{
+				DeleteList<Instruction*>(elementInstructionList);
+				error.Add(std::string(elementNode->fileLocation) + "Failed to generate instructions that would leave list element on eval stack top.");
+				return false;
+			}
 			instructionList.Append(elementInstructionList);
 
 			// Now issue the push instruction.  The element value will be consumed, and the list will remain on the eval stack.
@@ -77,7 +99,10 @@ namespace Powder
 		}
 		else
 		{
-			throw new CompileTimeException(FormatString("Did not recognize action (%s) for list manipulation operation.", actionNode->text->c_str()), &actionNode->fileLocation);
+			error.Add(std::string(actionNode->fileLocation) + std::format("Did not recognize action ({}) for list manipulation operation.", actionNode->text->c_str()));
+			return false;
 		}
+
+		return true;
 	}
 }

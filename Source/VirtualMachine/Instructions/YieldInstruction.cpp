@@ -16,15 +16,16 @@ namespace Powder
 		return 0x0B;
 	}
 
-	/*virtual*/ uint32_t YieldInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t YieldInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		programBufferLocation++;
 		return Executor::Result::YIELD;
 	}
 
-	/*virtual*/ void YieldInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool YieldInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		programBufferLocation++;
+		return true;
 	}
 
 #if defined POWDER_DEBUG

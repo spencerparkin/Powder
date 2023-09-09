@@ -1,5 +1,4 @@
 #include "WriteLineFunctionValue.h"
-#include "StringFormat.h"
 #include "ListValue.h"
 #include "FileValue.h"
 #include "StringValue.h"
@@ -12,39 +11,42 @@ WriteLineFunctionValue::WriteLineFunctionValue()
 {
 }
 
-/*virtual*/ Powder::Value* WriteLineFunctionValue::Call(Powder::ListValue* argListValue, std::string& errorMsg)
+/*virtual*/ bool WriteLineFunctionValue::Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::Error& error)
 {
 	if (argListValue->Length() != 2)
 	{
-		errorMsg = Powder::FormatString("Write-line call requires exactly 2 argument, got %d.", argListValue->Length());
-		return nullptr;
+		error.Add(std::format("Write-line call requires exactly 2 argument, got {}.", argListValue->Length()));
+		return false;
 	}
 
 	GC::Reference<Value, true> fileValueRef;
-	argListValue->PopLeft(fileValueRef);
+	if (!argListValue->PopLeft(fileValueRef, error))
+		return false;
+
 	FileValue* fileValue = dynamic_cast<FileValue*>(fileValueRef.Get());
 	if (!fileValue)
 	{
-		errorMsg = "Write-line call expected a file value as its first argument";
-		return nullptr;
+		error.Add("Write-line call expected a file value as its first argument");
+		return false;
 	}
 
 	GC::Reference<Value, true> lineValueRef;
-	argListValue->PopLeft(lineValueRef);
+	if (!argListValue->PopLeft(lineValueRef, error))
+		return false;
 	Powder::StringValue* lineValue = dynamic_cast<Powder::StringValue*>(lineValueRef.Get());
 	if (!lineValue)
 	{
-		errorMsg = "Write-line call expected a string value as its second arguments.";
-		return nullptr;
+		error.Add("Write-line call expected a string value as its second arguments.");
+		return false;
 	}
 
 	if (!fileValue->fileStream.is_open())
 	{
-		errorMsg = "File given is not open.";
-		return nullptr;
+		error.Add("File given is not open.");
+		return false;
 	}
 
 	fileValue->fileStream << lineValue->ToString() << std::endl;
 	fileValue->fileStream.flush();
-	return nullptr;
+	return true;
 }

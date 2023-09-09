@@ -4,9 +4,10 @@
 #include "Defines.h"
 #include <list>
 #include <string>
+#include "Lexer.h"
 #include "HashMap.hpp"
 #include "LinkedList.hpp"
-#include "Exceptions.hpp"
+#include "Error.h"
 
 namespace Powder
 {
@@ -19,11 +20,11 @@ namespace Powder
 		Assembler();
 		virtual ~Assembler();
 
-		Executable* AssembleExecutable(const LinkedList<Instruction*>& instructionList, bool generateDebugInfo);
+		Executable* AssembleExecutable(const LinkedList<Instruction*>& instructionList, bool generateDebugInfo, Error& error);
 
 	private:
 
-		void ResolveJumps(const LinkedList<Instruction*>& instructionList);
+		bool ResolveJumps(const LinkedList<Instruction*>& instructionList, Error& error);
 	};
 
 	struct POWDER_API AssemblyData

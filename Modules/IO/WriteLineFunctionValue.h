@@ -8,5 +8,5 @@ public:
 	WriteLineFunctionValue();
 	virtual ~WriteLineFunctionValue();
 
-	virtual Powder::Value* Call(Powder::ListValue* argListValue, std::string& errorMsg) override;
+	virtual bool Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::Error& error) override;
 };

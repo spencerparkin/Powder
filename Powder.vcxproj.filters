@@ -97,9 +97,6 @@
     <ClCompile Include="Source\VirtualMachine\Values\BooleanValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Utilities\StringFormat.cpp">
-      <Filter>Source\Utilities</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Compiler\InstructionGenerator.cpp">
       <Filter>Source\Compiler</Filter>
     </ClCompile>
@@ -199,6 +196,9 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.cpp">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Error.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -281,12 +281,6 @@
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\BooleanValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Exceptions.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utilities\StringFormat.h">
-      <Filter>Source\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Source\Compiler\InstructionGenerator.h">
       <Filter>Source\Compiler</Filter>
@@ -386,6 +380,9 @@
     </ClInclude>
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.h">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Error.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

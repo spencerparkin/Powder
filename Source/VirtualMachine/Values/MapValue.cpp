@@ -2,8 +2,6 @@
 #include "UndefinedValue.h"
 #include "NumberValue.h"
 #include "ListValue.h"
-#include "Exceptions.hpp"
-#include "StringFormat.h"
 #include "StringValue.h"
 #include "BooleanValue.h"
 
@@ -24,7 +22,7 @@ namespace Powder
 
 	/*virtual*/ std::string MapValue::ToString() const
 	{
-		return FormatString("Map of size %d", this->valueMap.NumEntries());
+		return std::format("Map of size {}", this->valueMap.NumEntries());
 	}
 
 	/*virtual*/ Value* MapValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
@@ -65,24 +63,26 @@ namespace Powder
 		{
 			valueRef.Set(existingValueRef->Get());
 			this->valueMap.Remove(key);
+			return true;
 		}
 
 		return false;
 	}
 
-	/*virtual*/ void MapValue::SetField(Value* fieldValue, Value* dataValue)
+	/*virtual*/ bool MapValue::SetField(Value* fieldValue, Value* dataValue, Error& error)
 	{
 		std::string key = fieldValue->ToString();
 		this->SetField(key.c_str(), dataValue);
+		return true;
 	}
 
-	/*virtual*/ Value* MapValue::GetField(Value* fieldValue)
+	/*virtual*/ Value* MapValue::GetField(Value* fieldValue, Error& error)
 	{
 		std::string key = fieldValue->ToString();
 		return this->GetField(key.c_str());
 	}
 
-	/*virtual*/ bool MapValue::DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef)
+	/*virtual*/ bool MapValue::DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error)
 	{
 		std::string key = fieldValue->ToString();
 		return this->DelField(key.c_str(), valueRef);
@@ -134,30 +134,39 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ Value* MapValueIterator::Call(ListValue* argListValue, std::string& errorMsg)
+	/*virtual*/ bool MapValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error)
 	{
 		if (argListValue->Length() != 1)
-			return nullptr;
+		{
+			error.Add("Iterator should be given an argument.");
+			return false;
+		}
 
 		const StringValue* actionValue = dynamic_cast<const StringValue*>((*argListValue)[0]);
 		if (!actionValue)
-			return nullptr;
+		{
+			error.Add("Iterator argument should be a string.");
+			return false;
+		}
 
 		if (actionValue->GetString() == "reset")
 			this->mapIter = this->mapValueRef.Get()->GetValueMap().begin();
 		else if (actionValue->GetString() == "next")
 		{
-			Value* nextValue = nullptr;
 			if (this->mapIter == this->mapValueRef.Get()->GetValueMap().end())
-				nextValue = new UndefinedValue();
+				returnValueRef.Set(new UndefinedValue());
 			else
 			{
-				nextValue = new StringValue(this->mapIter.entry->key);
+				returnValueRef.Set(new StringValue(this->mapIter.entry->key));
 				++this->mapIter;
 			}
-			return nextValue;
+		}
+		else
+		{
+			error.Add(std::format("Unrecognized action value: {}", actionValue->GetString().c_str()));
+			return false;
 		}
 
-		return nullptr;
+		return true;
 	}
 }

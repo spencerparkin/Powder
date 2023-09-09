@@ -20,11 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ArtProvider.cpp" />
+    <ClCompile Include="Source\AssemblyControl.cpp" />
+    <ClCompile Include="Source\AssemblyPanel.cpp" />
     <ClCompile Include="Source\BreakpointsPanel.cpp" />
     <ClCompile Include="Source\DirectoryTreeControl.cpp" />
     <ClCompile Include="Source\DirectoryTreePanel.cpp" />
     <ClCompile Include="Source\EditorApp.cpp" />
     <ClCompile Include="Source\EditorFrame.cpp" />
+    <ClCompile Include="Source\EvalStackPanel.cpp" />
     <ClCompile Include="Source\FileFinder.cpp" />
     <ClCompile Include="Source\Panel.cpp" />
     <ClCompile Include="Source\RunThread.cpp" />
@@ -37,11 +40,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\ArtProvider.h" />
+    <ClInclude Include="Source\AssemblyControl.h" />
+    <ClInclude Include="Source\AssemblyPanel.h" />
     <ClInclude Include="Source\BreakpointsPanel.h" />
     <ClInclude Include="Source\DirectoryTreeControl.h" />
     <ClInclude Include="Source\DirectoryTreePanel.h" />
     <ClInclude Include="Source\EditorApp.h" />
     <ClInclude Include="Source\EditorFrame.h" />
+    <ClInclude Include="Source\EvalStackPanel.h" />
     <ClInclude Include="Source\FileFinder.h" />
     <ClInclude Include="Source\Panel.h" />
     <ClInclude Include="Source\RunThread.h" />

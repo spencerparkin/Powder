@@ -18,9 +18,9 @@ namespace Powder
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 		virtual std::string ToString() const override;
-		virtual void SetField(Value* fieldValue, Value* dataValue) override;
-		virtual Value* GetField(Value* fieldValue) override;
-		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef) override;
+		virtual bool SetField(Value* fieldValue, Value* dataValue, Error& error) override;
+		virtual Value* GetField(Value* fieldValue, Error& error) override;
+		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 
@@ -47,7 +47,7 @@ namespace Powder
 		MapValueIterator(MapValue* mapValue);
 		virtual ~MapValueIterator();
 
-		virtual Value* Call(ListValue* argListValue, std::string& errorMsg) override;
+		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error) override;
 
 		GC::Reference<MapValue, false> mapValueRef;
 		HashMap<GC::Reference<Value, false>>::iterator mapIter;

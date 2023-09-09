@@ -1,6 +1,5 @@
 #include "ScopeInstruction.h"
 #include "Assembler.h"
-#include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
 #include "ClosureValue.h"
@@ -20,7 +19,7 @@ namespace Powder
 		return 0x08;
 	}
 
-	/*virtual*/ uint32_t ScopeInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t ScopeInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		uint8_t scopeOp = programBuffer[programBufferLocation + 1];
@@ -38,15 +37,22 @@ namespace Powder
 			}
 			case ScopeOp::BIND:
 			{
-				ClosureValue* closureValue = dynamic_cast<ClosureValue*>(executor->StackTop());
+				Value* value = executor->StackTop(error);
+				if (!value)
+					return Executor::Result::RUNTIME_ERROR;
+				ClosureValue* closureValue = dynamic_cast<ClosureValue*>(value);
 				if (!closureValue)
-					throw new RunTimeException("Bind-pop scope operation expected closure value on eval-stack top.");
+				{
+					error.Add("Bind-pop scope operation expected closure value on eval-stack top.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
 				closureValue->scopeRef.Set(executor->GetCurrentScope());
 				break;
 			}
 			default:
 			{
-				throw new RunTimeException(FormatString("Encountered unknonwn scope operation: 0x%04x", scopeOp));
+				error.Add(std::format("Encountered unknonwn scope operation: {}", scopeOp));
+				return Executor::Result::RUNTIME_ERROR;
 			}
 		}
 
@@ -54,7 +60,7 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void ScopeInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool ScopeInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
@@ -63,12 +69,16 @@ namespace Powder
 
 			const AssemblyData::Entry* scopeOpEntry = this->assemblyData->configMap.LookupPtr("scopeOp");
 			if (!scopeOpEntry)
-				throw new CompileTimeException("Failed to assemble scope instruction because no scope operation was specified.", &this->assemblyData->fileLocation);
-			
+			{
+				error.Add(std::string(this->assemblyData->fileLocation) + "Failed to assemble scope instruction because no scope operation was specified.");
+				return false;
+			}
+
 			programBuffer[programBufferLocation + 1] = scopeOpEntry->code;
 		}
 
 		programBufferLocation += 2;
+		return true;
 	}
 
 #if defined POWDER_DEBUG

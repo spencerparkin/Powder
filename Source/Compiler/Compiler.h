@@ -4,6 +4,7 @@
 #include "VirtualMachine.h"
 #include "Lexer.h"
 #include "Parser.h"
+#include "Error.h"
 #include <cstdint>
 
 namespace Powder
@@ -14,7 +15,7 @@ namespace Powder
 		Compiler();
 		virtual ~Compiler();
 
-		virtual Executable* CompileCode(const char* programSourceCode) override;
+		virtual Executable* CompileCode(const char* programSourceCode, Error& error) override;
 
 		bool generateDebugInfo;
 

@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Defines.h"
-#include "Lexer.h"		// TODO: We should probably remove our dependency on this header.
+#include "Lexer.h"
 #include "Assembler.h"
 #include <cstdint>
 #include <string>
 
 namespace Powder
 {
+	class Error;
 	class VirtualMachine;
 	class Executor;
 	class Executable;
@@ -28,7 +29,7 @@ namespace Powder
 		// buffer.  An out-of-bounds error here means there is a bug in the compiler.
 		// The override should always advance or otherwise update the given program
 		// buffer location, and may change the given exectuable pointer.
-		virtual uint32_t Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine) = 0;
+		virtual uint32_t Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error) = 0;
 
 		enum AssemblyPass
 		{
@@ -51,7 +52,7 @@ namespace Powder
 		// Format and write this instruction into the given buffer.
 		// Note that overrides need not write their op-code into
 		// the buffer; the assembler does that for you.
-		virtual void Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const = 0;
+		virtual bool Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const = 0;
 
 #if defined POWDER_DEBUG
 		// This lets us print a disassembled version of the program.

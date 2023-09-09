@@ -10,6 +10,6 @@ namespace Powder
 		ContainerFieldExpressionHandler();
 		virtual ~ContainerFieldExpressionHandler();
 
-		virtual void HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator) override;
+		virtual bool HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error) override;
 	};
 }

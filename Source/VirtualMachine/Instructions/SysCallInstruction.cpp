@@ -11,7 +11,6 @@
 #include "MapValue.h"
 #include "UndefinedValue.h"
 #include "VirtualMachine.h"
-#include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
 #include "PathResolver.h"
@@ -92,7 +91,7 @@ namespace Powder
 		return -1;
 	}
 
-	/*virtual*/ uint32_t SysCallInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t SysCallInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		uint8_t sysCallCode = programBuffer[programBufferLocation + 1];
@@ -105,7 +104,8 @@ namespace Powder
 			case SysCall::GC:
 			{
 				GC::GarbageCollector::Get()->Collect();
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				if (!executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), error))
+					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
 			case SysCall::INPUT:
@@ -127,59 +127,80 @@ namespace Powder
 					}
 				}
 
-				executor->PushValueOntoEvaluationStackTop(value);
+				if (!executor->PushValueOntoEvaluationStackTop(value, error))
+					return Executor::Result::RUNTIME_ERROR;
+
 				break;
 			}
 			case SysCall::OUTPUT:
 			{
 				GC::Reference<Value, true> valueRef;
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				std::string str = valueRef.Get()->ToString();
 				virtualMachine->GetIODevice()->OutputString(str);
-				executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()));
+				if (!executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()), error))
+					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
 			case SysCall::MODULE:
 			{
 				GC::Reference<Value, true> valueRef;
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				std::string moduleRelativePath = valueRef.Get()->ToString();
-				std::string moduleAbsolutePath = pathResolver.ResolvePath(moduleRelativePath, PathResolver::SEARCH_BASE | PathResolver::SEARCH_CWD);
-				MapValue* functionMapValue = virtualMachine->LoadModuleFunctionMap(moduleAbsolutePath);
+				std::string moduleAbsolutePath = pathResolver.ResolvePath(moduleRelativePath, PathResolver::SEARCH_BASE | PathResolver::SEARCH_CWD, error);
+				if (moduleAbsolutePath.size() == 0)
+					return Executor::Result::RUNTIME_ERROR;
+				MapValue* functionMapValue = virtualMachine->LoadModuleFunctionMap(moduleAbsolutePath, error);
 				if (!functionMapValue)
-					throw new RunTimeException(FormatString("Module (%s) did not generate function map value.", moduleAbsolutePath.c_str()));
-				executor->PushValueOntoEvaluationStackTop(functionMapValue);
+				{
+					error.Add(std::format("Module ({}) did not generate function map value.", moduleAbsolutePath.c_str()));
+					return Executor::Result::RUNTIME_ERROR;
+				}
+				if (!executor->PushValueOntoEvaluationStackTop(functionMapValue, error))
+					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
 			case SysCall::RUN_SCRIPT:
 			{
 				GC::Reference<Value, true> valueRef;
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				std::string scriptRelativePath = valueRef.Get()->ToString();
-				std::string scriptAbsolutePath = pathResolver.ResolvePath(scriptRelativePath, PathResolver::SEARCH_CWD);
-				virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), executor->GetCurrentScope());
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				std::string scriptAbsolutePath = pathResolver.ResolvePath(scriptRelativePath, PathResolver::SEARCH_CWD, error);
+				if (scriptAbsolutePath.size() == 0)
+					return Executor::Result::RUNTIME_ERROR;
+				if (!virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), error, executor->GetCurrentScope()))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), error))
+					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
 			case SysCall::SLEEP:
 			{
 				GC::Reference<Value, true> valueRef;
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				double sleepSeconds = valueRef.Get()->AsNumber();
 				if (sleepSeconds > 0.0)
 					::Sleep(DWORD(sleepSeconds * 1000.0f));
-				executor->PushValueOntoEvaluationStackTop(new UndefinedValue());
+				if (!executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), error))
+					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
 			case SysCall::GC_COUNT:
 			{
 				uint32_t count = 0; // TODO: Query GC for this information.
-				executor->PushValueOntoEvaluationStackTop(new NumberValue(count));
+				if (!executor->PushValueOntoEvaluationStackTop(new NumberValue(count), error))
+					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
 			case SysCall::AS_ITERATOR:
 			{
-				Value* value = executor->StackTop();
+				Value* value = executor->StackTop(error);
+				if (!value)
+					return Executor::Result::RUNTIME_ERROR;
 				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(value);
 				if (containerValue)
 				{
@@ -187,36 +208,48 @@ namespace Powder
 					if (iteratorValue)
 					{
 						GC::Reference<Value, true> poppedValueRef;
-						executor->PopValueFromEvaluationStackTop(poppedValueRef);
-						executor->PushValueOntoEvaluationStackTop(iteratorValue);
+						if (!executor->PopValueFromEvaluationStackTop(poppedValueRef, error))
+							return Executor::Result::RUNTIME_ERROR;
+						if (!executor->PushValueOntoEvaluationStackTop(iteratorValue, error))
+							return Executor::Result::RUNTIME_ERROR;
 					}
 				}
 
-				value = executor->StackTop();
+				value = executor->StackTop(error);
+				if (!value)
+					return Executor::Result::RUNTIME_ERROR;
 				if (!dynamic_cast<CppFunctionValue*>(value) && !dynamic_cast<AddressValue*>(value))
-					throw new RunTimeException("Eval stack top value is not callable, so it's not an iterator.");
+				{
+					error.Add("Eval stack top value is not callable, so it's not an iterator.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
 
 				break;
 			}
 			case SysCall::AS_STRING:
 			{
 				GC::Reference<Value, true> valueRef;
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				StringValue* stringValue = new StringValue(valueRef.Get()->ToString());
-				executor->PushValueOntoEvaluationStackTop(stringValue);
+				if (!executor->PushValueOntoEvaluationStackTop(stringValue, error))
+					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
 			case SysCall::AS_NUMBER:
 			{
 				GC::Reference<Value, true> valueRef;
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				NumberValue* numberValue = new NumberValue(valueRef.Get()->AsNumber());
-				executor->PushValueOntoEvaluationStackTop(numberValue);
+				if (!executor->PushValueOntoEvaluationStackTop(numberValue, error))
+					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
 			default:
 			{
-				throw new RunTimeException(FormatString("Encountered unknown system call: 0x%04x", sysCallCode));
+				error.Add(std::format("Encountered unknown system call: {}", sysCallCode));
+				return Executor::Result::RUNTIME_ERROR;
 			}
 		}
 
@@ -224,19 +257,23 @@ namespace Powder
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void SysCallInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool SysCallInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
 			const AssemblyData::Entry* sysCallEntry = this->assemblyData->configMap.LookupPtr("sysCall");
 			if (!sysCallEntry)
-				throw new CompileTimeException("System call instruction can't be assembled without knowing what system call to call.", &this->assemblyData->fileLocation);
+			{
+				error.Add(std::string(this->assemblyData->fileLocation) + "System call instruction can't be assembled without knowing what system call to call.");
+				return false;
+			}
 
 			uint8_t* programBuffer = executable->byteCodeBuffer;
 			programBuffer[programBufferLocation + 1] = sysCallEntry->code;
 		}
 
 		programBufferLocation += 2;
+		return true;
 	}
 
 #if defined POWDER_DEBUG
@@ -248,7 +285,7 @@ namespace Powder
 		if (!sysCallEntry)
 			detail += "?";
 		else
-			detail += FormatString("%04d", sysCallEntry->code);
+			detail += std::format("{}", sysCallEntry->code);
 		return detail;
 	}
 #endif

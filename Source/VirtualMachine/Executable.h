@@ -7,14 +7,16 @@
 
 namespace Powder
 {
+	class Error;
+
 	class Executable : public GC::Collectable
 	{
 	public:
 		Executable();
 		virtual ~Executable();
 
-		void Save(const std::string& byteCodeFile) const;
-		void Load(const std::string& byteCodeFile);
+		bool Save(const std::string& byteCodeFile, Error& error) const;
+		bool Load(const std::string& byteCodeFile, Error& error);
 
 		void Clear();
 

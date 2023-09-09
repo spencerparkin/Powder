@@ -9,6 +9,7 @@
 namespace Powder
 {
 	class Instruction;
+	class Error;
 
 	class POWDER_API InstructionGenerator
 	{
@@ -16,7 +17,7 @@ namespace Powder
 		InstructionGenerator();
 		virtual ~InstructionGenerator();
 
-		void GenerateInstructionList(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* rootSyntaxNode);
+		bool GenerateInstructionList(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* rootSyntaxNode, Error& error);
 
 		class SyntaxHandler
 		{
@@ -24,12 +25,12 @@ namespace Powder
 			SyntaxHandler() {}
 			virtual ~SyntaxHandler() {}
 
-			virtual void HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator) = 0;
+			virtual bool HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error) = 0;
 
 			bool PopNeededForExpression(const ParseParty::Parser::SyntaxNode* syntaxNode);
 		};
 
-		void GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* syntaxNode);
+		bool GenerateInstructionListRecursively(LinkedList<Instruction*>& instructionList, const ParseParty::Parser::SyntaxNode* syntaxNode, Error& error);
 
 	private:
 

@@ -5,15 +5,15 @@
 #include <wx/event.h>
 #include <wx/filename.h>
 #include "VirtualMachine.h"
-#include "Exceptions.hpp"
+#include "Error.h"
 #include <set>
 #include <map>
 
-class RunThreadExceptionEvent : public wxThreadEvent
+class RunThreadErrorEvent : public wxThreadEvent
 {
 public:
-	RunThreadExceptionEvent(Powder::Exception* exception);
-	virtual ~RunThreadExceptionEvent();
+	RunThreadErrorEvent(Powder::Error& error);
+	virtual ~RunThreadErrorEvent();
 	
 	wxString errorMsg;
 };
@@ -39,17 +39,19 @@ public:
 class RunThreadSuspendedEvent : public wxThreadEvent
 {
 public:
-	RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber);
+	RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber, uint64_t programBufferLocation, const ParseParty::JsonObject* instructionMapValue);
 	virtual ~RunThreadSuspendedEvent();
 
 	wxString sourceFile;
 	int lineNumber;
 	int columnNumber;
+	uint64_t programBufferLocation;
+	const ParseParty::JsonObject* instructionMapValue;
 };
 
 wxDECLARE_EVENT(EVT_RUNTHREAD_ENTERING, wxThreadEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_EXITING, wxThreadEvent);
-wxDECLARE_EVENT(EVT_RUNTHREAD_EXCEPTION, RunThreadExceptionEvent);
+wxDECLARE_EVENT(EVT_RUNTHREAD_ERROR, RunThreadErrorEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_OUTPUT, RunThreadOutputEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_INPUT, RunThreadInputEvent);
 wxDECLARE_EVENT(EVT_RUNTHREAD_SUSPENDED, RunThreadSuspendedEvent);
@@ -74,6 +76,7 @@ public:
 	void MainThread_StepOver(void);
 	void MainThread_StepInto(void);
 	void MainThread_StepOut(void);
+	void MainThread_StepInstruction(void);
 
 	enum SuspensionState
 	{
@@ -87,7 +90,8 @@ public:
 		RESUME_HAPPY,
 		RESUME_STEP_OVER,
 		RESUME_STEP_INTO,
-		RESUME_STEP_OUT
+		RESUME_STEP_OUT,
+		RESUME_STEP_INSTRUCTION
 	};
 
 	bool debuggingEnabled;

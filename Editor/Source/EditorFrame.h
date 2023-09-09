@@ -29,6 +29,7 @@ public:
 		ID_StepOver,
 		ID_StepInto,
 		ID_StepOut,
+		ID_StepInstruction,
 		ID_PauseScript,
 		ID_ResumeScript,
 		ID_KillScript,
@@ -55,7 +56,7 @@ public:
 	void OnClose(wxCloseEvent& event);
 	void OnRunThreadEntering(wxThreadEvent& event);
 	void OnRunThreadExiting(wxThreadEvent& event);
-	void OnRunThreadException(RunThreadExceptionEvent& event);
+	void OnRunThreadError(RunThreadErrorEvent& event);
 	void OnRunThreadOutput(RunThreadOutputEvent& event);
 	void OnRunThreadInput(RunThreadInputEvent& event);
 	void OnRunThreadSuspended(RunThreadSuspendedEvent& event);
@@ -63,6 +64,7 @@ public:
 	void OnStepOver(wxCommandEvent& event);
 	void OnStepInto(wxCommandEvent& event);
 	void OnStepOut(wxCommandEvent& event);
+	void OnStepInstruction(wxCommandEvent& event);
 	void OnPanelMenuItemClicked(wxCommandEvent& event);
 
 	void SaveWindowAdjustments();

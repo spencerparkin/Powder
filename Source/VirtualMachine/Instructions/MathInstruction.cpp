@@ -4,7 +4,6 @@
 #include "Value.h"
 #include "ContainerValue.h"
 #include "BooleanValue.h"
-#include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
 #include "VirtualMachine.h"
@@ -72,7 +71,7 @@ namespace Powder
 		return MathOp::UNKNOWN;
 	}
 
-	/*virtual*/ uint32_t MathInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t MathInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		GC::Reference<Value, true> resultRef;
 
@@ -90,24 +89,39 @@ namespace Powder
 			case MathOp::GET_FIELD:
 			{
 				GC::Reference<Value, true> fieldValueRef, valueRef;
-				executor->PopValueFromEvaluationStackTop(fieldValueRef);
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(fieldValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(valueRef.Get());
 				if (!containerValue)
-					throw new RunTimeException("Get field math operation expected a container value on the evaluation stack.");
-				resultRef.Set(containerValue->GetField(fieldValueRef.Get()));
+				{
+					error.Add("Get field math operation expected a container value on the evaluation stack.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
+				Value* value = containerValue->GetField(fieldValueRef.Get(), error);
+				if (!value)
+					return Executor::Result::RUNTIME_ERROR;
+				resultRef.Set(value);
 				break;
 			}
 			case MathOp::SET_FIELD:
 			{
-				executor->PopValueFromEvaluationStackTop(resultRef);
+				if (!executor->PopValueFromEvaluationStackTop(resultRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				GC::Reference<Value, true> fieldValueRef, valueRef;
-				executor->PopValueFromEvaluationStackTop(fieldValueRef);
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(fieldValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(valueRef.Get());
 				if (!containerValue)
-					throw new RunTimeException("Set field math operation expected a container value on the evaluation stack.");
-				containerValue->SetField(fieldValueRef.Get(), resultRef.Get());
+				{
+					error.Add("Set field math operation expected a container value on the evaluation stack.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
+				if (!containerValue->SetField(fieldValueRef.Get(), resultRef.Get(), error))
+					return Executor::Result::RUNTIME_ERROR;
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(containerValue);
 				break;
@@ -115,12 +129,18 @@ namespace Powder
 			case MathOp::DEL_FIELD:
 			{
 				GC::Reference<Value, true> fieldValueRef, valueRef;
-				executor->PopValueFromEvaluationStackTop(fieldValueRef);
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(fieldValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(valueRef.Get());
 				if (!containerValue)
-					throw new RunTimeException("Delete field math operation expected a container value on the evaluation stack.");
-				containerValue->DelField(fieldValueRef.Get(), resultRef);
+				{
+					error.Add("Delete field math operation expected a container value on the evaluation stack.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
+				if (!containerValue->DelField(fieldValueRef.Get(), resultRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				if (virtualMachine->GetDebuggerTrap())
 					virtualMachine->GetDebuggerTrap()->ValueChanged(containerValue);
 				break;
@@ -128,12 +148,17 @@ namespace Powder
 			case MathOp::CONTAINS:
 			{
 				GC::Reference<Value, true> valueRef;
-				executor->PopValueFromEvaluationStackTop(valueRef);
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(valueRef.Get());
 				if (!containerValue)
-					throw new RunTimeException("Membership math operation expected a container value on the evaluation stack.");
+				{
+					error.Add("Membership math operation expected a container value on the evaluation stack.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
 				GC::Reference<Value, true> memberValueRef;
-				executor->PopValueFromEvaluationStackTop(memberValueRef);
+				if (!executor->PopValueFromEvaluationStackTop(memberValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
 				resultRef.Set(containerValue->IsMember(memberValueRef.Get()));
 				break;
 			}
@@ -144,14 +169,17 @@ namespace Powder
 				if (unary)
 				{
 					GC::Reference<Value, true> valueRef;
-					executor->PopValueFromEvaluationStackTop(valueRef);
+					if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+						return Executor::Result::RUNTIME_ERROR;
 					resultRef.Set(valueRef.Get()->CombineWith(nullptr, (MathOp)mathOp, executor));
 				}
 				else
 				{
 					GC::Reference<Value, true> rightValueRef, leftValueRef;
-					executor->PopValueFromEvaluationStackTop(rightValueRef);
-					executor->PopValueFromEvaluationStackTop(leftValueRef);
+					if (!executor->PopValueFromEvaluationStackTop(rightValueRef, error))
+						return Executor::Result::RUNTIME_ERROR;
+					if (!executor->PopValueFromEvaluationStackTop(leftValueRef, error))
+						return Executor::Result::RUNTIME_ERROR;
 					resultRef.Set(leftValueRef.Get()->CombineWith(rightValueRef.Get(), (MathOp)mathOp, executor));
 				}
 
@@ -160,24 +188,34 @@ namespace Powder
 		}
 
 		if (!resultRef.Get())
-			throw new RunTimeException(FormatString("Failed to combine operands in operation: 0x%04x", mathOp));
+		{
+			error.Add(std::format("Failed to combine operands in operation: {}", mathOp));
+			return Executor::Result::RUNTIME_ERROR;
+		}
 
-		executor->PushValueOntoEvaluationStackTop(resultRef.Get());
+		if (!executor->PushValueOntoEvaluationStackTop(resultRef.Get(), error))
+			return Executor::Result::RUNTIME_ERROR;
 		programBufferLocation += 2;
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void MathInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool MathInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
 			const AssemblyData::Entry* mathOpEntry = this->assemblyData->configMap.LookupPtr("mathOp");
 			if (!mathOpEntry)
-				throw new CompileTimeException("Can't assemble math instruction if not given math operation code.", &this->assemblyData->fileLocation);
+			{
+				error.Add(std::string(this->assemblyData->fileLocation) + "Can't assemble math instruction if not given math operation code.");
+				return false;
+			}
 
 			uint8_t mathOp = mathOpEntry->code;
 			if (mathOp == MathOp::UNKNOWN)
-				throw new CompileTimeException("Can't assemble math instruction with unknown math operation code.", &this->assemblyData->fileLocation);
+			{
+				error.Add(std::string(this->assemblyData->fileLocation) + "Can't assemble math instruction with unknown math operation code.");
+				return false;
+			}
 
 			switch (mathOp)
 			{
@@ -196,6 +234,7 @@ namespace Powder
 		}
 
 		programBufferLocation += 2L;
+		return true;
 	}
 
 #if defined POWDER_DEBUG
@@ -204,7 +243,7 @@ namespace Powder
 		std::string detail;
 		detail += "math: ";
 		const AssemblyData::Entry* mathOpEntry = this->assemblyData->configMap.LookupPtr("mathOp");
-		detail += FormatString("%04d", (mathOpEntry ? mathOpEntry->code : -1));
+		detail += std::format("{}", (mathOpEntry ? mathOpEntry->code : -1));
 		return detail;
 	}
 #endif

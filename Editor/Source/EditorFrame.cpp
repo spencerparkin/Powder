@@ -31,7 +31,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 
 	this->MakePanels();
 
-	const int entryCount = 8;
+	const int entryCount = 9;
 	wxAcceleratorEntry entries[entryCount];
 	entries[0].Set(wxACCEL_CTRL, 'N', ID_New);
 	entries[1].Set(wxACCEL_CTRL, 'S', ID_Save);
@@ -39,8 +39,9 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	entries[3].Set(wxACCEL_NORMAL, WXK_F10, ID_StepOver);
 	entries[4].Set(wxACCEL_NORMAL, WXK_F11, ID_StepInto);
 	entries[5].Set(wxACCEL_SHIFT, WXK_F11, ID_StepOut);
-	entries[6].Set(wxACCEL_NORMAL, WXK_F5, ID_RunWithoutDebugger);
-	entries[7].Set(wxACCEL_CTRL, WXK_F5, ID_RunWithDebugger);
+	entries[6].Set(wxACCEL_SHIFT, WXK_F10, ID_StepInstruction);
+	entries[7].Set(wxACCEL_NORMAL, WXK_F5, ID_RunWithoutDebugger);
+	entries[8].Set(wxACCEL_CTRL, WXK_F5, ID_RunWithDebugger);
 
 	wxAcceleratorTable table(entryCount, entries);
 	this->SetAcceleratorTable(table);
@@ -75,6 +76,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithDebugger, "Run with Debugger", "Run the currently shown script with the debugger attached."));
 	runMenu->Append(new wxMenuItem(runMenu, ID_RunWithoutDebugger, "Run without Debugger", "Run the currently shown script without a debugger attached."));
 	runMenu->AppendSeparator();
+	runMenu->Append(new wxMenuItem(runMenu, ID_StepInstruction, "Step Instruction", "Step over a single VM instruction."));
 	runMenu->Append(new wxMenuItem(runMenu, ID_StepOver, "Step Over", "Step over the current statement of function call."));
 	runMenu->Append(new wxMenuItem(runMenu, ID_StepInto, "Step Into", "Step into the current function call, if any; or just step over."));
 	runMenu->Append(new wxMenuItem(runMenu, ID_StepOut, "Step Out", "Step out of the current function call, if any; or just resume."));
@@ -86,12 +88,14 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	runMenu->FindItem(ID_StepOver)->SetAccel(&entries[3]);
 	runMenu->FindItem(ID_StepInto)->SetAccel(&entries[4]);
 	runMenu->FindItem(ID_StepOut)->SetAccel(&entries[5]);
-	runMenu->FindItem(ID_RunWithDebugger)->SetAccel(&entries[6]);
-	runMenu->FindItem(ID_RunWithoutDebugger)->SetAccel(&entries[7]);
+	runMenu->FindItem(ID_StepInstruction)->SetAccel(&entries[6]);
+	runMenu->FindItem(ID_RunWithDebugger)->SetAccel(&entries[7]);
+	runMenu->FindItem(ID_RunWithoutDebugger)->SetAccel(&entries[8]);
 
 	runMenu->FindItem(ID_StepOver)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_STEP_OVER, wxART_MENU));
 	runMenu->FindItem(ID_StepInto)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_STEP_INTO, wxART_MENU));
 	runMenu->FindItem(ID_StepOut)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_STEP_OUT, wxART_MENU));
+	runMenu->FindItem(ID_StepInstruction)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_STEP_INSTRUCTION, wxART_MENU));
 	runMenu->FindItem(ID_RunWithDebugger)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_RUN_WITH_DEBUGGER, wxART_MENU));
 	runMenu->FindItem(ID_RunWithoutDebugger)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_RUN_WITHOUT_DEBUGGER, wxART_MENU));
 	runMenu->FindItem(ID_PauseScript)->SetBitmap(wxArtProvider::GetBitmap(ART_EDITOR_PAUSE_SCRIPT, wxART_MENU));
@@ -127,6 +131,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	toolBar->AddTool(ID_RunWithDebugger, "Run with Debugger", wxArtProvider::GetBitmap(ART_EDITOR_RUN_WITH_DEBUGGER, wxART_TOOLBAR));
 	toolBar->AddTool(ID_RunWithoutDebugger, "Run without Debugger", wxArtProvider::GetBitmap(ART_EDITOR_RUN_WITHOUT_DEBUGGER, wxART_TOOLBAR));
 	toolBar->AddSeparator();
+	toolBar->AddTool(ID_StepInstruction, "Step Instruction", wxArtProvider::GetBitmap(ART_EDITOR_STEP_INSTRUCTION));
 	toolBar->AddTool(ID_StepOver, "Step Over", wxArtProvider::GetBitmap(ART_EDITOR_STEP_OVER, wxART_TOOLBAR));
 	toolBar->AddTool(ID_StepInto, "Step Into", wxArtProvider::GetBitmap(ART_EDITOR_STEP_INTO, wxART_TOOLBAR));
 	toolBar->AddTool(ID_StepOut, "Step Out", wxArtProvider::GetBitmap(ART_EDITOR_STEP_OUT, wxART_TOOLBAR));
@@ -155,6 +160,7 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_MENU, &EditorFrame::OnStepOver, this, ID_StepOver);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnStepInto, this, ID_StepInto);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnStepOut, this, ID_StepOut);
+	this->Bind(wxEVT_MENU, &EditorFrame::OnStepInstruction, this, ID_StepInstruction);
 	this->Bind(wxEVT_MENU, &EditorFrame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_New);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_Save);
@@ -174,10 +180,11 @@ EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_StepOver);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_StepInto);
 	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_StepOut);
+	this->Bind(wxEVT_UPDATE_UI, &EditorFrame::OnUpdateMenuItemUI, this, ID_StepInstruction);
 	this->Bind(wxEVT_CLOSE_WINDOW, &EditorFrame::OnClose, this);
 	this->Bind(EVT_RUNTHREAD_ENTERING, &EditorFrame::OnRunThreadEntering, this);
 	this->Bind(EVT_RUNTHREAD_EXITING, &EditorFrame::OnRunThreadExiting, this);
-	this->Bind(EVT_RUNTHREAD_EXCEPTION, &EditorFrame::OnRunThreadException, this);
+	this->Bind(EVT_RUNTHREAD_ERROR, &EditorFrame::OnRunThreadError, this);
 	this->Bind(EVT_RUNTHREAD_OUTPUT, &EditorFrame::OnRunThreadOutput, this);
 	this->Bind(EVT_RUNTHREAD_INPUT, &EditorFrame::OnRunThreadInput, this);
 	this->Bind(EVT_RUNTHREAD_SUSPENDED, &EditorFrame::OnRunThreadSuspended, this);
@@ -531,7 +538,7 @@ void EditorFrame::OnTerminalInputReady(wxCommandEvent& event)
 		wxGetApp().GetRunThread()->MainThread_Resume();
 }
 
-void EditorFrame::OnRunThreadException(RunThreadExceptionEvent& event)
+void EditorFrame::OnRunThreadError(RunThreadErrorEvent& event)
 {
 	TerminalPanel* terminalPanel = this->FindPanel<TerminalPanel>("Terminal");
 	if (terminalPanel)
@@ -561,6 +568,11 @@ void EditorFrame::OnStepInto(wxCommandEvent& event)
 void EditorFrame::OnStepOut(wxCommandEvent& event)
 {
 	wxGetApp().GetRunThread()->MainThread_StepOut();
+}
+
+void EditorFrame::OnStepInstruction(wxCommandEvent& event)
+{
+	wxGetApp().GetRunThread()->MainThread_StepInstruction();
 }
 
 bool EditorFrame::IsPanelShown(int panelMenuId, wxAuiPaneInfo** foundPaneInfo /*= nullptr*/)
@@ -691,6 +703,7 @@ void EditorFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 			case ID_StepOver:
 			case ID_StepInto:
 			case ID_StepOut:
+			case ID_StepInstruction:
 			{
 				if (!wxGetApp().GetRunThread())
 					event.Enable(false);

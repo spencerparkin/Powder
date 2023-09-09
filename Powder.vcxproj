@@ -45,9 +45,9 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\UnaryExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.cpp" />
+    <ClCompile Include="Source\Error.cpp" />
     <ClCompile Include="Source\ModuleMain.cpp" />
     <ClCompile Include="Source\PathResolver.cpp" />
-    <ClCompile Include="Source\Utilities\StringFormat.cpp" />
     <ClCompile Include="Source\VirtualMachine\Executable.cpp" />
     <ClCompile Include="Source\VirtualMachine\Executor.cpp" />
     <ClCompile Include="Source\VirtualMachine\Instruction.cpp" />
@@ -106,12 +106,11 @@
     <ClInclude Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.h" />
     <ClInclude Include="Source\Defines.h" />
-    <ClInclude Include="Source\Exceptions.hpp" />
+    <ClInclude Include="Source\Error.h" />
     <ClInclude Include="Source\ModuleMain.h" />
     <ClInclude Include="Source\PathResolver.h" />
     <ClInclude Include="Source\Utilities\HashMap.hpp" />
     <ClInclude Include="Source\Utilities\LinkedList.hpp" />
-    <ClInclude Include="Source\Utilities\StringFormat.h" />
     <ClInclude Include="Source\VirtualMachine\Executable.h" />
     <ClInclude Include="Source\VirtualMachine\Executor.h" />
     <ClInclude Include="Source\VirtualMachine\Instruction.h" />

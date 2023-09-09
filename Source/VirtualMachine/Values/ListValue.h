@@ -19,16 +19,16 @@ namespace Powder
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 		virtual std::string ToString() const override;
-		virtual void SetField(Value* fieldValue, Value* dataValue) override;
-		virtual Value* GetField(Value* fieldValue) override;
-		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef) override;
+		virtual bool SetField(Value* fieldValue, Value* dataValue, Error& error) override;
+		virtual Value* GetField(Value* fieldValue, Error& error) override;
+		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 
 		void PushLeft(Value* value);
-		bool PopLeft(GC::Reference<Value, true>& valueRef);
+		bool PopLeft(GC::Reference<Value, true>& valueRef, Error& error);
 		void PushRight(Value* value);
-		bool PopRight(GC::Reference<Value, true>& valueRef);
+		bool PopRight(GC::Reference<Value, true>& valueRef, Error& error);
 
 		unsigned int Length() const { return this->valueList.GetCount(); }
 		Value* operator[](int i);
@@ -48,7 +48,7 @@ namespace Powder
 		ListValueIterator(ListValue* listValue);
 		virtual ~ListValueIterator();
 
-		virtual Value* Call(ListValue* argListValue, std::string& errorMsg) override;
+		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error) override;
 
 		GC::Reference<ListValue, false> listValueRef;
 		LinkedList<GC::Reference<Value, false>>::Node* listNode;

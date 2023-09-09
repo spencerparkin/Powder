@@ -2,6 +2,7 @@
 #include "MathInstruction.h"
 #include "PopInstruction.h"
 #include "Assembler.h"
+#include "Error.h"
 
 namespace Powder
 {
@@ -13,21 +14,35 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void DeleteFieldExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ bool DeleteFieldExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		if (syntaxNode->GetChildCount() != 2)
-			throw new CompileTimeException("Expected \"delete-field-expression\" in AST to have exactly 2 children.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Expected \"delete-field-expression\" in AST to have exactly 2 children.");
+			return false;
+		}
 
 		if (*syntaxNode->GetChild(1)->text != "container-field-expression")
-			throw new CompileTimeException("Expected \"container-field-expression\" to be second child of \"delete-field-expression\" in AST.", &syntaxNode->GetChild(1)->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->GetChild(1)->fileLocation) + "Expected \"container-field-expression\" to be second child of \"delete-field-expression\" in AST.");
+			return false;
+		}
 
 		const ParseParty::Parser::SyntaxNode* containerFieldNode = syntaxNode->GetChild(1);
 
 		// Push the container value.
-		instructionGenerator->GenerateInstructionListRecursively(instructionList, containerFieldNode->GetChild(0));
+		if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, containerFieldNode->GetChild(0), error))
+		{
+			error.Add(std::string(containerFieldNode->fileLocation) + "Failed to generate instructions to push the container value.");
+			return false;
+		}
 
 		// Push the field value to delete.
-		instructionGenerator->GenerateInstructionListRecursively(instructionList, containerFieldNode->GetChild(1));
+		if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, containerFieldNode->GetChild(1), error))
+		{
+			error.Add(std::string(containerFieldNode->fileLocation) + "Failed to generate instructions to push field value to be deleted.");
+			return false;
+		}
 
 		// And now issue the del instruction.
 		MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(syntaxNode->fileLocation);
@@ -42,5 +57,7 @@ namespace Powder
 			PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
 			instructionList.AddTail(popInstruction);
 		}
+
+		return true;
 	}
 }

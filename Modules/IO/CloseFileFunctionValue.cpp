@@ -1,5 +1,4 @@
 #include "CloseFileFunctionValue.h"
-#include "StringFormat.h"
 #include "ListValue.h"
 #include "FileValue.h"
 #include "BooleanValue.h"
@@ -12,24 +11,30 @@ CloseFileFunctionValue::CloseFileFunctionValue()
 {
 }
 
-/*virtual*/ Powder::Value* CloseFileFunctionValue::Call(Powder::ListValue* argListValue, std::string& errorMsg)
+/*virtual*/ bool CloseFileFunctionValue::Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::Error& error)
 {
 	if (argListValue->Length() != 1)
 	{
-		errorMsg = Powder::FormatString("Close call requires exactly 1 argument, got %d.", argListValue->Length());
-		return nullptr;
+		error.Add(std::format("Close call requires exactly 1 argument, got {}.", argListValue->Length()));
+		return false;
 	}
 
 	GC::Reference<Value, true> valueRef;
-	argListValue->PopLeft(valueRef);
+	if (!argListValue->PopLeft(valueRef, error))
+	{
+		error.Add("Close call expected an argument.");
+		return false;
+	}
+
 	FileValue* fileValue = dynamic_cast<FileValue*>(valueRef.Get());
 	if (!fileValue)
 	{
-		errorMsg = "Close call expected a file value.";
-		return nullptr;
+		error.Add("Close call expected a file value.");
+		return false;
 	}
 
 	Powder::BooleanValue* resultValue = new Powder::BooleanValue();
+	returnValueRef.Set(resultValue);
 
 	if (!fileValue->fileStream.is_open())
 		resultValue->SetBool(false);
@@ -39,5 +44,5 @@ CloseFileFunctionValue::CloseFileFunctionValue()
 		resultValue->SetBool(true);
 	}
 
-	return resultValue;
+	return true;
 }

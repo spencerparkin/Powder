@@ -5,8 +5,8 @@
 #include "Assembler.h"
 #include "PathResolver.h"
 #include "Grammar.h"
-#include "Exceptions.hpp"
 #include <iostream>
+#include <format>
 
 namespace Powder
 {
@@ -21,25 +21,38 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ Executable* Compiler::CompileCode(const char* programSourceCode)
+	/*virtual*/ Executable* Compiler::CompileCode(const char* programSourceCode, Error& error)
 	{
 		// To begin, load up our grammar file.
-		std::string error;
-		std::string grammarFilePath = pathResolver.ResolvePath("Compiler\\Grammar.json", PathResolver::SEARCH_BASE);
+		std::string errorStr;
+		std::string grammarFilePath = pathResolver.ResolvePath("Compiler\\Grammar.json", PathResolver::SEARCH_BASE, error);
+		if (grammarFilePath.size() == 0)
+			return nullptr;
 		ParseParty::Grammar grammar;
-		if (!grammar.ReadFile(grammarFilePath, error))
-			throw new CompileTimeException(FormatString("Could not read grammar file: %s\n\n%s", grammarFilePath.c_str(), error.c_str()));
+		if (!grammar.ReadFile(grammarFilePath, errorStr))
+		{
+			error.Add(std::format("Could not read grammar file {} because: {}", grammarFilePath.c_str(), errorStr.c_str()));
+			return nullptr;
+		}
 
 		// Next, configure the lexer.
 		ParseParty::Parser parser;
-		std::string lexiconFilePath = pathResolver.ResolvePath("Compiler\\Lexicon.json", PathResolver::SEARCH_BASE);
-		if (!parser.lexer.ReadFile(lexiconFilePath, error))
-			throw new CompileTimeException(FormatString("Could not read lexicon file: %s\n\n%s", lexiconFilePath.c_str(), error.c_str()));
+		std::string lexiconFilePath = pathResolver.ResolvePath("Compiler\\Lexicon.json", PathResolver::SEARCH_BASE, error);
+		if (lexiconFilePath.size() == 0)
+			return nullptr;
+		if (!parser.lexer.ReadFile(lexiconFilePath, errorStr))
+		{
+			error.Add(std::format("Could not read lexicon file {} because: {}", lexiconFilePath.c_str(), errorStr.c_str()));
+			return nullptr;
+		}
 
 		// It's a parse-party, brah!
-		ParseParty::Parser::SyntaxNode* rootSyntaxNode = parser.Parse(std::string(programSourceCode), grammar, &error);
+		ParseParty::Parser::SyntaxNode* rootSyntaxNode = parser.Parse(std::string(programSourceCode), grammar, &errorStr);
 		if (!rootSyntaxNode)
-			throw new CompileTimeException(error);
+		{
+			error.Add(errorStr);
+			return nullptr;
+		}
 		
 #if defined POWDER_DEBUG
 		rootSyntaxNode->Print(std::cout);
@@ -56,12 +69,20 @@ namespace Powder
 		// Organize the program as a sequence of instructions.
 		LinkedList<Instruction*> instructionList;
 		InstructionGenerator instructionGenerator;
-		instructionGenerator.GenerateInstructionList(instructionList, rootSyntaxNode);
+		bool generated = instructionGenerator.GenerateInstructionList(instructionList, rootSyntaxNode, error);
 		delete rootSyntaxNode;
+		if (!generated)
+		{
+			DeleteList<Instruction*>(instructionList);
+			error.Add("Failed to generate program instructions!");
+			return nullptr;
+		}
 
 		// And finally, go assemble the program into an executable.
 		Assembler assembler;
-		return assembler.AssembleExecutable(instructionList, this->generateDebugInfo);
+		Executable* executable = assembler.AssembleExecutable(instructionList, this->generateDebugInfo, error);
+		DeleteList<Instruction*>(instructionList);
+		return executable;
 	}
 
 	bool Compiler::PerformSugarExpansions(ParseParty::Parser::SyntaxNode* parentNode)

@@ -4,8 +4,7 @@
 #include "Value.h"
 #include "Scope.h"
 #include "GarbageCollector.h"
-#include "Exceptions.hpp"
-#include "StringFormat.h"
+#include "Error.h"
 #include "Executable.h"
 
 namespace Powder
@@ -35,9 +34,9 @@ namespace Powder
 		if (!this->currentScopeRef.Get()->GetContainingScope())
 			return false;
 
-		Scope* containingScope = this->currentScopeRef.Get()->GetContainingScope();
+		GC::Reference<Scope, true> containingScopeRef(this->currentScopeRef.Get()->GetContainingScope());
 		this->currentScopeRef.Get()->SetContainingScope(nullptr);
-		this->currentScopeRef.Set(containingScope);
+		this->currentScopeRef.Set(containingScopeRef.Get());
 		return true;
 	}
 
@@ -48,7 +47,7 @@ namespace Powder
 		this->currentScopeRef.Set(scope);
 	}
 
-	/*virtual*/ Executor::Result Executor::Execute(const Executable* executable, VirtualMachine* virtualMachine)
+	/*virtual*/ Executor::Result Executor::Execute(const Executable* executable, VirtualMachine* virtualMachine, Error& error)
 	{
 		while (this->programBufferLocation < executable->byteCodeBufferSize)
 		{
@@ -60,9 +59,12 @@ namespace Powder
 			uint8_t opCode = executable->byteCodeBuffer[this->programBufferLocation];
 			Instruction* instruction = virtualMachine->LookupInstruction(opCode);
 			if (!instruction)
-				throw new RunTimeException(FormatString("Encountered unknown opcode 0x%04x at program location %04d.", opCode, this->programBufferLocation));
+			{
+				error.Add(std::format("Encountered unknown opcode {} at program location {}.", opCode, this->programBufferLocation));
+				return Result::RUNTIME_ERROR;
+			}
 
-			Executor::Result result = (Executor::Result)instruction->Execute(executable, this->programBufferLocation, this, virtualMachine);
+			Executor::Result result = (Executor::Result)instruction->Execute(executable, this->programBufferLocation, this, virtualMachine, error);
 			if (result != Executor::Result::CONTINUE)
 				return result;
 		}
@@ -70,49 +72,69 @@ namespace Powder
 		return Result::HALT;
 	}
 
-	void Executor::LoadAndPushValueOntoEvaluationStackTop(const char* identifier, void* debuggerTrap)
+	bool Executor::LoadAndPushValueOntoEvaluationStackTop(const char* identifier, Error& error, void* debuggerTrap)
 	{
 		Value* value = this->currentScopeRef.Get()->LookupValue(identifier, true);
 		if (!value)
-			throw new RunTimeException(FormatString("Failed to lookup identifier: %s", identifier));
-		this->PushValueOntoEvaluationStackTop(value);
+		{
+			error.Add(std::format("Failed to lookup identifier: {}", identifier));
+			return false;
+		}
+
+		if (!this->PushValueOntoEvaluationStackTop(value, error))
+			return false;
+
 		if (debuggerTrap)
 			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueLoaded(identifier, value);
+
+		return true;
 	}
 
-	void Executor::StoreAndPopValueFromEvaluationStackTop(const char* identifier, void* debuggerTrap)
+	bool Executor::StoreAndPopValueFromEvaluationStackTop(const char* identifier, Error& error, void* debuggerTrap)
 	{
 		GC::Reference<Value, true> valueRef;
-		this->PopValueFromEvaluationStackTop(valueRef);
+		if (!this->PopValueFromEvaluationStackTop(valueRef, error))
+			return false;
+
 		this->currentScopeRef.Get()->StoreValue(identifier, valueRef.Get());
+		
 		if (debuggerTrap)
 			((VirtualMachine::DebuggerTrap*)debuggerTrap)->ValueStored(identifier, valueRef.Get());
+
+		return true;
 	}
 
-	void Executor::PushValueOntoEvaluationStackTop(Value* value)
+	bool Executor::PushValueOntoEvaluationStackTop(Value* value, Error& error)
 	{
 		this->evaluationStack->push_back(value);
+		return true;
 	}
 
-	void Executor::PopValueFromEvaluationStackTop(GC::Reference<Value, true>& valueRef)
+	bool Executor::PopValueFromEvaluationStackTop(GC::Reference<Value, true>& valueRef, Error& error)
 	{
 		if (this->evaluationStack->size() == 0)
-			throw new RunTimeException("Evaluation stack underflow!");
+		{
+			error.Add("Evaluation stack underflow!");
+			return false;
+		}
+
 		valueRef.Set((*this->evaluationStack)[this->evaluationStack->size() - 1].Get());
 		this->evaluationStack->pop_back();
+		return true;
 	}
 
-	Value* Executor::StackTop()
+	Value* Executor::StackTop(Error& error)
 	{
-		return this->StackValue(0);
+		return this->StackValue(0, error);
 	}
 
-	Value* Executor::StackValue(int32_t stackOffset)
+	Value* Executor::StackValue(int32_t stackOffset, Error& error)
 	{
 		int32_t i = signed(this->evaluationStack->size()) - 1 - stackOffset;
 		if(0 <= i && i < (signed)this->evaluationStack->size())
 			return (*this->evaluationStack)[i].Get();
-		throw new RunTimeException(FormatString("Stack at size %d cannot use offset %d.", this->evaluationStack->size(), i));
+		
+		error.Add(std::format("Stack at size {} cannot use offset {}.", this->evaluationStack->size(), i));
 		return nullptr;
 	}
 }

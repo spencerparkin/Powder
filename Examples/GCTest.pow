@@ -7,13 +7,14 @@ while(1) {
     a.x = b;
     b.x = a;
 
-    sleep(1);
+	output("i = " + as_str(i) + "\n");
+	sleep(1);
 
-    i = i + 1;
+	i = i + 1;
 
     if(i > 16) {
         i = 0;
-
+		 output("Collect!\n");
         gc();
     }
 }

@@ -5,6 +5,8 @@
 
 namespace Powder
 {
+	class Error;
+
 	class PathResolver
 	{
 	public:
@@ -17,7 +19,7 @@ namespace Powder
 			SEARCH_BASE = 2
 		};
 
-		std::string ResolvePath(const std::string& givenPath, int searchFlags);
+		std::string ResolvePath(const std::string& givenPath, int searchFlags, Error& error);
 		bool FindBaseDirectoryUsingModulePath();
 		bool SearchDirectoryForFile(const std::filesystem::path& searchDirectory, const std::filesystem::path& relativePath, std::filesystem::path& absolutePath);
 

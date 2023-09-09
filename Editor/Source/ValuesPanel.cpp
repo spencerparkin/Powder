@@ -195,34 +195,45 @@ void ValuesPanel::GenerateValueItems(wxTreeItemId parentItemId)
 	ScopeTreeItemData* scopeItemData = dynamic_cast<ScopeTreeItemData*>(treeItemData);
 	if (scopeItemData)
 	{
-		scopeItemData->scope->GetValueMap()->ForAllEntries([this, &parentItemId](const char* key, GC::Reference<Powder::Value, false>& valueRef) -> bool {
-			this->GenerateTreeForValue(parentItemId, wxString(key), valueRef.Get());
+		std::set<Powder::Value*> valueSet;
+		scopeItemData->scope->GetValueMap()->ForAllEntries([this, &parentItemId, &valueSet](const char* key, GC::Reference<Powder::Value, false>& valueRef) -> bool {
+			this->GenerateTreeForValue(parentItemId, wxString(key), valueRef.Get(), valueSet);
 			return true;
 		});
 	}
 }
 
-void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString& name, Powder::Value* value)
+void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString& name, Powder::Value* value, std::set<Powder::Value*>& valueSet)
 {
 	ValueTreeItemData* valueTreeItemData = new ValueTreeItemData(name, value);
 	wxTreeItemId childItemId = this->valueTreeControl->AppendItem(parentItemId, valueTreeItemData->CalcLabel(), -1, -1, valueTreeItemData);
 
+	if (valueSet.find(value) != valueSet.end())
+	{
+		this->valueTreeControl->AppendItem(childItemId, "Recursive!");
+		return;
+	}
+
+	valueSet.insert(value);
+
 	Powder::ListValue* listValue = dynamic_cast<Powder::ListValue*>(value);
 	if (listValue)
 	{
+		// TODO: Don't try to show a list with a billion items in it.
 		for (int i = 0; i < (signed)listValue->Length(); i++)
 		{
 			Powder::Value* subValue = (*listValue)[i];
-			this->GenerateTreeForValue(childItemId, wxString::Format("%d", i), subValue);
+			this->GenerateTreeForValue(childItemId, wxString::Format("%d", i), subValue, valueSet);
 		}
 	}
 
 	Powder::MapValue* mapValue = dynamic_cast<Powder::MapValue*>(value);
 	if (mapValue)
 	{
+		// TODO: Don't try to show a map with a billion items in it.
 		Powder::HashMap<GC::Reference<Powder::Value, false>>& valueMap = mapValue->GetValueMap();
-		valueMap.ForAllEntries([this, &childItemId](const char* key, GC::Reference<Powder::Value, false>& subValueRef) -> bool {
-			this->GenerateTreeForValue(childItemId, wxString(key), subValueRef.Get());
+		valueMap.ForAllEntries([this, &childItemId, &valueSet](const char* key, GC::Reference<Powder::Value, false>& subValueRef) -> bool {
+			this->GenerateTreeForValue(childItemId, wxString(key), subValueRef.Get(), valueSet);
 			return true;
 		});
 	}
@@ -230,8 +241,8 @@ void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString
 	Powder::ClosureValue* closureValue = dynamic_cast<Powder::ClosureValue*>(value);
 	if (closureValue)
 	{
-		closureValue->scopeRef.Get()->GetValueMap()->ForAllEntries([this, &childItemId](const char* key, GC::Reference<Powder::Value, false>& subValueRef) -> bool {
-			this->GenerateTreeForValue(childItemId, wxString(key), subValueRef.Get());
+		closureValue->scopeRef.Get()->GetValueMap()->ForAllEntries([this, &childItemId, &valueSet](const char* key, GC::Reference<Powder::Value, false>& subValueRef) -> bool {
+			this->GenerateTreeForValue(childItemId, wxString(key), subValueRef.Get(), valueSet);
 			return true;
 		});
 	}

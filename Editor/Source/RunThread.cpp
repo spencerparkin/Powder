@@ -7,17 +7,17 @@
 
 wxDEFINE_EVENT(EVT_RUNTHREAD_ENTERING, wxThreadEvent);
 wxDEFINE_EVENT(EVT_RUNTHREAD_EXITING, wxThreadEvent);
-wxDEFINE_EVENT(EVT_RUNTHREAD_EXCEPTION, RunThreadExceptionEvent);
+wxDEFINE_EVENT(EVT_RUNTHREAD_ERROR, RunThreadErrorEvent);
 wxDEFINE_EVENT(EVT_RUNTHREAD_OUTPUT, RunThreadOutputEvent);
 wxDEFINE_EVENT(EVT_RUNTHREAD_INPUT, RunThreadInputEvent);
 wxDEFINE_EVENT(EVT_RUNTHREAD_SUSPENDED, RunThreadSuspendedEvent);
 
-RunThreadExceptionEvent::RunThreadExceptionEvent(Powder::Exception* exception) : wxThreadEvent(EVT_RUNTHREAD_EXCEPTION)
+RunThreadErrorEvent::RunThreadErrorEvent(Powder::Error& error) : wxThreadEvent(EVT_RUNTHREAD_ERROR)
 {
-	this->errorMsg = (const char*)exception->GetErrorMessage().c_str();
+	this->errorMsg = wxString((const char*)std::string(error).c_str());
 }
 
-/*virtual*/ RunThreadExceptionEvent::~RunThreadExceptionEvent()
+/*virtual*/ RunThreadErrorEvent::~RunThreadErrorEvent()
 {
 }
 
@@ -39,11 +39,13 @@ RunThreadInputEvent::RunThreadInputEvent(wxString* inputText) : wxThreadEvent(EV
 {
 }
 
-RunThreadSuspendedEvent::RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber) : wxThreadEvent(EVT_RUNTHREAD_SUSPENDED)
+RunThreadSuspendedEvent::RunThreadSuspendedEvent(const wxString& sourceFile, int lineNumber, int columnNumber, uint64_t programBufferLocation, const ParseParty::JsonObject* instructionMapValue) : wxThreadEvent(EVT_RUNTHREAD_SUSPENDED)
 {
 	this->sourceFile = sourceFile;
 	this->lineNumber = lineNumber;
 	this->columnNumber = columnNumber;
+	this->programBufferLocation = programBufferLocation;
+	this->instructionMapValue = instructionMapValue;
 }
 
 /*virtual*/ RunThreadSuspendedEvent::~RunThreadSuspendedEvent()
@@ -86,15 +88,9 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 	this->vm->SetDebuggerTrap(this);
 	this->vm->SetIODevice(this);
 
-	try
-	{
-		this->vm->ExecuteSourceCodeFile((const char*)this->sourceFilePath.c_str());
-	}
-	catch (Exception* exc)
-	{
-		::wxQueueEvent(this->eventHandler, new RunThreadExceptionEvent(exc));
-		delete exc;
-	}
+	Error error;
+	if (!this->vm->ExecuteSourceCodeFile((const char*)this->sourceFilePath.c_str(), error))
+		::wxQueueEvent(this->eventHandler, new RunThreadErrorEvent(error));
 
 	delete this->vm;
 	delete gc;
@@ -162,6 +158,9 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 		if (this->resumeState == RESUME_STEP_OUT && this->callDepth == this->targetCallDepth)
 			this->suspendNow = true;
 
+		if (this->resumeState == RESUME_STEP_INSTRUCTION)
+			this->suspendNow = true;
+
 		if (this->suspendNow)
 		{
 			this->suspensionState = SUSPENDED_FOR_DEBUG;
@@ -171,7 +170,7 @@ RunThread::RunThread(const wxString& sourceFilePath, wxEvtHandler* eventHandler,
 			if (sourceFileValue)
 				sourceFile = sourceFileValue->GetValue();
 
-			::wxQueueEvent(this->eventHandler, new RunThreadSuspendedEvent(sourceFile, lineNumber, columnNumber));
+			::wxQueueEvent(this->eventHandler, new RunThreadSuspendedEvent(sourceFile, lineNumber, columnNumber, executor->GetProgramBufferLocation(), instructionMapValue));
 
 			this->suspensionSemaphore.Wait();
 			this->suspendNow = false;
@@ -274,5 +273,12 @@ void RunThread::MainThread_StepOut(void)
 {
 	this->suspensionState = NOT_SUSPENDED;
 	this->resumeState = RESUME_STEP_OUT;
+	this->suspensionSemaphore.Post();
+}
+
+void RunThread::MainThread_StepInstruction(void)
+{
+	this->suspensionState = NOT_SUSPENDED;
+	this->resumeState = RESUME_STEP_INSTRUCTION;
 	this->suspensionSemaphore.Post();
 }

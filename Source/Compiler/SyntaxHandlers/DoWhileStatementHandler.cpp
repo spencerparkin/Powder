@@ -2,6 +2,7 @@
 #include "JumpInstruction.h"
 #include "BranchInstruction.h"
 #include "Assembler.h"
+#include "Error.h"
 
 namespace Powder
 {
@@ -13,21 +14,34 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void DoWhileStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ bool DoWhileStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		if (syntaxNode->GetChildCount() != 4 && syntaxNode->GetChildCount() != 5)
-			throw new CompileTimeException("Expected \"do-while-statement\" in AST to have exactly 4 or 5 children.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Expected \"do-while-statement\" in AST to have exactly 4 or 5 children.");
+			return false;
+		}
 
 		AssemblyData::Entry entry;
 
 		// Lay down the first half of the loop instructions.
 		LinkedList<Instruction*> initialLoopInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(initialLoopInstructionList, syntaxNode->GetChild(1));
+		if (!instructionGenerator->GenerateInstructionListRecursively(initialLoopInstructionList, syntaxNode->GetChild(1), error))
+		{
+			DeleteList<Instruction*>(initialLoopInstructionList);
+			error.Add(std::string(syntaxNode->GetChild(1)->fileLocation) + "Failed to generate instructions for first half of loop.");
+			return false;
+		}
 		instructionList.Append(initialLoopInstructionList);
 
 		// Now lay down the conditional instructions of the loop.  What should remain is a single value on the eval stack for our branch instruction.
 		LinkedList<Instruction*> conditionalInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->GetChild(3));
+		if (!instructionGenerator->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->GetChild(3), error))
+		{
+			DeleteList<Instruction*>(conditionalInstructionList);
+			error.Add(std::string(syntaxNode->GetChild(3)->fileLocation) + "Failed to generate conditional instructions for loop.");
+			return false;
+		}
 		instructionList.Append(conditionalInstructionList);
 
 		// Condition failure means we jump; success, we fall through.
@@ -38,7 +52,12 @@ namespace Powder
 		LinkedList<Instruction*> finalLoopInstructionList;
 		if (syntaxNode->GetChildCount() == 5)
 		{
-			instructionGenerator->GenerateInstructionListRecursively(finalLoopInstructionList, syntaxNode->GetChild(4));
+			if (!instructionGenerator->GenerateInstructionListRecursively(finalLoopInstructionList, syntaxNode->GetChild(4), error))
+			{
+				DeleteList<Instruction*>(finalLoopInstructionList);
+				error.Add(std::string(syntaxNode->GetChild(4)->fileLocation) + "Failed to generate instructions for last half of loop.");
+				return false;
+			}
 			instructionList.Append(finalLoopInstructionList);
 		}
 
@@ -56,5 +75,7 @@ namespace Powder
 		entry.jumpDelta = finalLoopInstructionList.GetCount() + 2;
 		entry.string = "branch";
 		branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+
+		return true;
 	}
 }

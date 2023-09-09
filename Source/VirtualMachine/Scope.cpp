@@ -1,6 +1,5 @@
 #include "Scope.h"
 #include "Value.h"
-#include "Exceptions.hpp"
 
 namespace Powder
 {

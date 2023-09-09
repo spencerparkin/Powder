@@ -10,6 +10,7 @@
 #include "JumpInstruction.h"
 #include "SysCallInstruction.h"
 #include "Assembler.h"
+#include "Error.h"
 
 namespace Powder
 {
@@ -21,25 +22,41 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void ForLoopStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ bool ForLoopStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		if (syntaxNode->GetChildCount() != 3)
-			throw new CompileTimeException("Expected \"for-statement\" in AST to have exactly 3 children.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Expected \"for-statement\" in AST to have exactly 3 children.");
+			return false;
+		}
 
 		const ParseParty::Parser::SyntaxNode* iterationNode = syntaxNode->GetChild(1);
 		if (*iterationNode->text != "for-iteration-expression")
-			throw new CompileTimeException("Expected \"for-statement\" in AST to have \"for-iteration-expression\" child.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Expected \"for-statement\" in AST to have \"for-iteration-expression\" child.");
+			return false;
+		}
 
 		if (iterationNode->GetChildCount() != 3)
-			throw new CompileTimeException("Exected \"for-iteration-expression\" in AST to have exactly 3 children.", &iterationNode->fileLocation);
+		{
+			error.Add(std::string(iterationNode->fileLocation) + "Exected \"for-iteration-expression\" in AST to have exactly 3 children.");
+			return false;
+		}
 
 		const ParseParty::Parser::SyntaxNode* identifierNode = iterationNode->GetChild(0);
 		if (*identifierNode->text != "@identifier")
-			throw new CompileTimeException("Expected \"@identifier\" in AST as child of \"for-iteration-expression\" node.", &identifierNode->fileLocation);
+		{
+			error.Add(std::string(identifierNode->fileLocation) + "Expected \"@identifier\" in AST as child of \"for-iteration-expression\" node.");
+			return false;
+		}
 
 		// Push the container value or iterator function onto the eval-stack.
 		const ParseParty::Parser::SyntaxNode* iteratorNode = iterationNode->GetChild(2);
-		instructionGenerator->GenerateInstructionListRecursively(instructionList, iteratorNode);
+		if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, iteratorNode, error))
+		{
+			error.Add(std::string(iteratorNode->fileLocation) + "Failed to generate instructions to push container value or iterator function onto the eval stack.");
+			return false;
+		}
 
 		// Convert it to an iterator if necessary.
 		SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>(iteratorNode->fileLocation);
@@ -49,10 +66,18 @@ namespace Powder
 		instructionList.AddTail(sysCallInstruction);
 
 		// Push an argument list onto the eval stack, then push the iterator function address on top of that.
-		this->GenerateInstructionForIteratorCallSetup(instructionList, "reset", iterationNode->fileLocation);
+		if (!this->GenerateInstructionForIteratorCallSetup(instructionList, "reset", iterationNode->fileLocation, error))
+		{
+			error.Add(std::string(iterationNode->fileLocation) + "Failed to generate instruction to setup iterator call.");
+			return false;
+		}
 
 		// We're now ready to make the call to the iterator to reset iteration (to set it up for the first time, really.)
-		FunctionCallExpressionHandler::GenerateCallInstructions(instructionList, iterationNode->fileLocation);
+		if (!FunctionCallExpressionHandler::GenerateCallInstructions(instructionList, iterationNode->fileLocation, error))
+		{
+			error.Add(std::string(iterationNode->fileLocation) + "Failed to geneate instruction to make function call.");
+			return false;
+		}
 
 		// The result of resetting iteration is always a value we throw away, so do that now.
 		PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(iterationNode->fileLocation);
@@ -60,8 +85,19 @@ namespace Powder
 
 		// We're now ready to begin the loop instructions.  Call the iterator to generate the first/next value.
 		LinkedList<Instruction*> forLoopHeadInstructionList;
-		this->GenerateInstructionForIteratorCallSetup(forLoopHeadInstructionList, "next", iterationNode->fileLocation);
-		FunctionCallExpressionHandler::GenerateCallInstructions(forLoopHeadInstructionList, iterationNode->fileLocation);
+		if (!this->GenerateInstructionForIteratorCallSetup(forLoopHeadInstructionList, "next", iterationNode->fileLocation, error))
+		{
+			DeleteList<Instruction*>(forLoopHeadInstructionList);
+			error.Add(std::string(iterationNode->fileLocation) + "Failed to generate instruction to setup iterator call.");
+			return false;
+		}
+		
+		if (!FunctionCallExpressionHandler::GenerateCallInstructions(forLoopHeadInstructionList, iterationNode->fileLocation, error))
+		{
+			DeleteList<Instruction*>(forLoopHeadInstructionList);
+			error.Add(std::string(iterationNode->fileLocation) + "Failed to generate instructions to make iterator call.");
+			return false;
+		}
 
 		// Store the returned value in the loop iteration variable.
 		StoreInstruction* storeInstruction = Instruction::CreateForAssembly<StoreInstruction>(iterationNode->fileLocation);
@@ -91,7 +127,13 @@ namespace Powder
 
 		// Finally, we can now execute the body of the for-loop.
 		LinkedList<Instruction*> forLoopBodyInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(forLoopBodyInstructionList, syntaxNode->GetChild(2));
+		if (!instructionGenerator->GenerateInstructionListRecursively(forLoopBodyInstructionList, syntaxNode->GetChild(2), error))
+		{
+			DeleteList<Instruction*>(forLoopHeadInstructionList);
+			DeleteList<Instruction*>(forLoopBodyInstructionList);
+			error.Add(std::string(syntaxNode->GetChild(2)->fileLocation) + "Failed to generate for-loop body instructions");
+			return false;
+		}
 
 		// Lastly, unconditionally jump back up to the top of the for-loop and do it all over again.
 		JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(iterationNode->fileLocation);
@@ -115,9 +157,11 @@ namespace Powder
 		entry.Reset();
 		entry.instruction = popInstruction;
 		branchInstruction->assemblyData->configMap.Insert("branch", entry);
+
+		return true;
 	}
 
-	void ForLoopStatementHandler::GenerateInstructionForIteratorCallSetup(LinkedList<Instruction*>& instructionList, const char* action, const ParseParty::Lexer::FileLocation& fileLocation)
+	bool ForLoopStatementHandler::GenerateInstructionForIteratorCallSetup(LinkedList<Instruction*>& instructionList, const char* action, const ParseParty::Lexer::FileLocation& fileLocation, Error& error)
 	{
 		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(fileLocation);
 		AssemblyData::Entry entry;
@@ -148,5 +192,7 @@ namespace Powder
 		entry.offset = 1;
 		pushInstruction->assemblyData->configMap.Insert("data", entry);
 		instructionList.AddTail(pushInstruction);
+
+		return true;
 	}
 }

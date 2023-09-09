@@ -2,7 +2,6 @@
 #include "Assembler.h"
 #include "Scope.h"
 #include "Value.h"
-#include "Exceptions.hpp"
 #include "Executor.h"
 #include "Executable.h"
 #include "VirtualMachine.h"
@@ -22,20 +21,24 @@ namespace Powder
 		return 0x04;
 	}
 
-	/*virtual*/ uint32_t LoadInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine)
+	/*virtual*/ uint32_t LoadInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		std::string name = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 1);
-		executor->LoadAndPushValueOntoEvaluationStackTop(name.c_str(), virtualMachine->GetDebuggerTrap());
+		if (!executor->LoadAndPushValueOntoEvaluationStackTop(name.c_str(), error, virtualMachine->GetDebuggerTrap()))
+			return Executor::Result::RUNTIME_ERROR;
 		programBufferLocation += 1 + name.length() + 1;
 		return Executor::Result::CONTINUE;
 	}
 
-	/*virtual*/ void LoadInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass) const
+	/*virtual*/ bool LoadInstruction::Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const
 	{
 		const AssemblyData::Entry* nameEntry = this->assemblyData->configMap.LookupPtr("name");
 		if (!nameEntry)
-			throw new CompileTimeException("Can't assemble load instruction if not given identifier information.", &this->assemblyData->fileLocation);
+		{
+			error.Add(std::string(this->assemblyData->fileLocation) + "Can't assemble load instruction if not given identifier information.");
+			return false;
+		}
 
 		if (assemblyPass == AssemblyPass::RENDER)
 		{
@@ -45,6 +48,7 @@ namespace Powder
 		}
 
 		programBufferLocation += 1 + nameEntry->string.length() + 1;
+		return true;
 	}
 
 #if defined POWDER_DEBUG

@@ -1,6 +1,7 @@
 #include "UnaryExpressionHandler.h"
 #include "MathInstruction.h"
 #include "Assembler.h"
+#include "Error.h"
 
 namespace Powder
 {
@@ -12,7 +13,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void UnaryExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ bool UnaryExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		const ParseParty::Parser::SyntaxNode* operationNode = nullptr;
 		const ParseParty::Parser::SyntaxNode* operandNode = nullptr;
@@ -33,12 +34,21 @@ namespace Powder
 		}
 
 		if (entry.code == MathInstruction::MathOp::UNKNOWN)
-			throw new CompileTimeException(FormatString("Failed to recognize math operation \"%s\" for \"unary-expression\" in AST.", operationNode->text->c_str()), &operationNode->fileLocation);
+		{
+			error.Add(std::string(operationNode->fileLocation) + std::format("Failed to recognize math operation \"{}\" for \"unary-expression\" in AST.", operationNode->text->c_str()));
+			return false;
+		}
 
-		instructionGenerator->GenerateInstructionListRecursively(instructionList, operandNode);
+		if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, operandNode, error))
+		{
+			error.Add(std::string(operandNode->fileLocation) + "Failed to generate instructions for unary operand.");
+			return false;
+		}
 
 		MathInstruction* mathInstruction = Instruction::CreateForAssembly<MathInstruction>(syntaxNode->fileLocation);
 		mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
 		instructionList.AddTail(mathInstruction);
+
+		return true;
 	}
 }

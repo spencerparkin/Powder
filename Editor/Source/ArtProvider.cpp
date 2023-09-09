@@ -31,6 +31,8 @@ ArtProvider::ArtProvider(const wxString& baseFolder)
 		bitmapFile = "StepOutIcon.png";
 	else if (id == ART_EDITOR_STEP_OVER)
 		bitmapFile = "StepOverIcon.png";
+	else if (id == ART_EDITOR_STEP_INSTRUCTION)
+		bitmapFile = "StepInstructionIcon.png";
 	else if (id == ART_EDITOR_DELETE_TARGETS)
 		bitmapFile = "BombIcon.png";
 

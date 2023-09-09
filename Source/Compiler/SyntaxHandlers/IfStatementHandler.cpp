@@ -2,6 +2,7 @@
 #include "BranchInstruction.h"
 #include "JumpInstruction.h"
 #include "Assembler.h"
+#include "Error.h"
 
 namespace Powder
 {
@@ -13,15 +14,22 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ void IfStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator)
+	/*virtual*/ bool IfStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		if (syntaxNode->GetChildCount() != 3 && syntaxNode->GetChildCount() != 5)
-			throw new CompileTimeException("Expected \"if-statement\" in AST to have exactly 3 or 5 children.", &syntaxNode->fileLocation);
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Expected \"if-statement\" in AST to have exactly 3 or 5 children.");
+			return false;
+		}
 
 		AssemblyData::Entry entry;
 
 		// Execute conditional instructions.  What remains on the evaluation stack top gets consumed by the branch instruction.
-		instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(1));
+		if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(1), error))
+		{
+			error.Add(std::string(syntaxNode->GetChild(1)->fileLocation) + "Failed to generate instructions for if-statement conditional.");
+			return false;
+		}
 
 		// The branch instruction falls through if the condition passes, and jumps if the condition fails.
 		BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>(syntaxNode->fileLocation);
@@ -29,7 +37,12 @@ namespace Powder
 
 		// Lay down condition-pass instructions.
 		LinkedList<Instruction*> passInstructionList;
-		instructionGenerator->GenerateInstructionListRecursively(passInstructionList, syntaxNode->GetChild(2));
+		if (!instructionGenerator->GenerateInstructionListRecursively(passInstructionList, syntaxNode->GetChild(2), error))
+		{
+			DeleteList<Instruction*>(passInstructionList);
+			error.Add(std::string(syntaxNode->GetChild(2)->fileLocation) + "Failed to generate instructions pass-condition body.");
+			return false;
+		}
 		instructionList.Append(passInstructionList);
 
 		// Else clause?
@@ -52,7 +65,12 @@ namespace Powder
 
 			// Okay, now lay down the condition-fail instructions.
 			LinkedList<Instruction*> failInstructionList;
-			instructionGenerator->GenerateInstructionListRecursively(failInstructionList, syntaxNode->GetChild(4));
+			if (!instructionGenerator->GenerateInstructionListRecursively(failInstructionList, syntaxNode->GetChild(4), error))
+			{
+				DeleteList<Instruction*>(failInstructionList);
+				error.Add(std::string(syntaxNode->GetChild(4)->fileLocation) + "Failed to generate instructions fail-condition body.");
+				return false;
+			}
 			instructionList.Append(failInstructionList);
 
 			// We have enough now to resolve the jump-delta for getting over the else-clause.
@@ -66,5 +84,7 @@ namespace Powder
 			entry.instruction = failInstructionList.GetHead()->value;
 			branchInstruction->assemblyData->configMap.Insert("branch", entry);
 		}
+
+		return true;
 	}
 }
