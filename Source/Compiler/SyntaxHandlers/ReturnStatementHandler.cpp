@@ -17,7 +17,20 @@ namespace Powder
 
 	/*virtual*/ bool ReturnStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
-		// TODO: We should check here to make sure we're being called in the context of a function definition.
+		const ParseParty::Parser::SyntaxNode* funcDefNode = syntaxNode->GetParent();
+		while (funcDefNode)
+		{
+			if (*funcDefNode->text == "function-definition")
+				break;
+
+			funcDefNode = funcDefNode->GetParent();
+		}
+
+		if (!funcDefNode)
+		{
+			error.Add(std::string(syntaxNode->fileLocation) + "Return statement issued not in the context of a function definition.");
+			return false;
+		}
 
 		if (syntaxNode->GetChildCount() == 2)
 		{
