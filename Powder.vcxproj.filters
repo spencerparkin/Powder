@@ -199,6 +199,9 @@
     <ClCompile Include="Source\Error.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\BreakOrContinueStatementHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -383,6 +386,9 @@
     </ClInclude>
     <ClInclude Include="Source\Error.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\BreakOrContinueStatementHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -16,10 +16,10 @@ namespace Powder
 
 	bool Assembler::ResolveJumps(const LinkedList<Instruction*>& instructionList, Error& error)
 	{
-		// TODO: I should probably replace all uint64_t types with uint32_t, and int64_t with int32_t.
 		std::vector<Instruction*> instructionArray;
 		for (const LinkedList<Instruction*>::Node* node = instructionList.GetHead(); node; node = node->GetNext())
 			instructionArray.push_back(node->value);
+
 		for (int i = 0; i < (signed)instructionArray.size(); i++)
 		{
 			Instruction* instruction = instructionArray[i];
@@ -35,6 +35,25 @@ namespace Powder
 				}
 				entry.instruction = instructionArray[j];
 				instruction->assemblyData->configMap.Insert(jumpDeltaEntry->string.c_str(), entry);
+			}
+		}
+
+		// Once all jump-deltas are resolved, resolve jumps that are intended to jump where some other jump is going to jump.
+		for (Instruction* instruction : instructionArray)
+		{
+			const AssemblyData::Entry* copyCatJumpEntry = instruction->assemblyData->configMap.LookupPtr("copy-cat-jump");
+			if (copyCatJumpEntry)
+			{
+				Instruction* otherInstruction = copyCatJumpEntry->instruction;
+				const AssemblyData::Entry* jumpOrBranchEntry = otherInstruction->assemblyData->configMap.LookupPtr("jump");
+				if (!jumpOrBranchEntry)
+					jumpOrBranchEntry = otherInstruction->assemblyData->configMap.LookupPtr("branch");
+				if (jumpOrBranchEntry)
+				{
+					AssemblyData::Entry entry;
+					entry.instruction = jumpOrBranchEntry->instruction;
+					instruction->assemblyData->configMap.Insert(copyCatJumpEntry->string.c_str(), entry);
+				}
 			}
 		}
 

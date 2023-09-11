@@ -23,11 +23,13 @@
 #include "FunctionDefinitionExpressionHandler.h"
 #include "ReturnStatementHandler.h"
 #include "MembershipExpressionHandler.h"
+#include "BreakOrContinueStatementHandler.h"
 #include "ListInstruction.h"
 #include "StoreInstruction.h"
 #include "PopInstruction.h"
 #include "SysCallInstruction.h"
 #include "PushInstruction.h"
+#include "JumpInstruction.h"
 #include "Error.h"
 #include "HashMap.hpp"
 
@@ -59,6 +61,8 @@ namespace Powder
 		this->syntaxHandlerMap.Insert("function-definition", new FunctionDefinitionExpressionHandler());
 		this->syntaxHandlerMap.Insert("return-statement", new ReturnStatementHandler());
 		this->syntaxHandlerMap.Insert("membership-expression", new MembershipExpressionHandler());
+		this->syntaxHandlerMap.Insert("break-statement", new BreakOrContinueStatementHandler());
+		this->syntaxHandlerMap.Insert("continue-statement", new BreakOrContinueStatementHandler());
 	}
 
 	/*virtual*/ InstructionGenerator::~InstructionGenerator()
@@ -124,5 +128,25 @@ namespace Powder
 		}
 
 		return false;
+	}
+
+	void InstructionGenerator::SyntaxHandler::FindBreakAndContinueJumps(const ParseParty::Parser::SyntaxNode* syntaxNode, const LinkedList<Instruction*>& loopBodyInstructions, LinkedList<Instruction*>& breakInstructionList, LinkedList<Instruction*>& continueInstructionList)
+	{
+		for (const LinkedList<Instruction*>::Node* node = loopBodyInstructions.GetHead(); node; node = node->GetNext())
+		{
+			JumpInstruction* jumpInstruction = dynamic_cast<JumpInstruction*>(node->value);
+			if (jumpInstruction)
+			{
+				AssemblyData::Entry* entry = jumpInstruction->assemblyData->configMap.LookupPtr("jump");
+				if (entry && entry->ptr == syntaxNode)
+				{
+					if (entry->string == "break-statement")
+						breakInstructionList.AddTail(jumpInstruction);
+
+					if (entry->string == "continue-statement")
+						continueInstructionList.AddTail(jumpInstruction);
+				}
+			}
+		}
 	}
 }

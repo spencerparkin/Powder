@@ -1,0 +1,31 @@
+# BreakContinue.pow
+
+list = [];
+i = 0;
+while(i < 100) {
+	list --< i;
+	i = i + 1;
+};
+
+for(i in list) {
+	if(i > 50)
+		break;
+	if(i % 2 == 0)
+		continue;
+	output("i = " + i + "\n");
+};
+
+output("Hurrah!\n");
+
+i = 0;
+while(i < 100) {
+	j = list[i];
+	i = i + 1;
+	if(j % 3 == 0)
+		continue;
+	output("j = " + j + "\n");
+	if(j > 80)
+		break;
+};
+
+output("Buzzing!\n");

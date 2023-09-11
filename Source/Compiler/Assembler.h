@@ -42,8 +42,6 @@ namespace Powder
 			delete this->debuggerHelp;
 		}
 
-		uint64_t programBufferLocation;
-
 		struct Entry
 		{
 			Entry()
@@ -59,6 +57,7 @@ namespace Powder
 				this->code = 0;
 				this->offset = 0;
 				this->jumpDelta = 0L;
+				this->ptr = nullptr;
 			}
 
 			Instruction* instruction;
@@ -67,8 +66,10 @@ namespace Powder
 			uint8_t code;
 			int32_t offset;
 			int64_t jumpDelta;
+			void* ptr;
 		};
 
+		uint64_t programBufferLocation;
 		HashMap<Entry> configMap;
 		ParseParty::Lexer::FileLocation fileLocation;
 		std::string* debuggerHelp;

@@ -135,6 +135,10 @@ namespace Powder
 			return false;
 		}
 
+		// Next we now look at the for-loop body instructions to see if we find any break or continue statements applicable to us.
+		LinkedList<Instruction*> breakInstructionList, continueInstructionList;
+		this->FindBreakAndContinueJumps(syntaxNode, forLoopBodyInstructionList, breakInstructionList, continueInstructionList);
+
 		// Lastly, unconditionally jump back up to the top of the for-loop and do it all over again.
 		JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(iterationNode->fileLocation);
 		entry.Reset();
@@ -157,6 +161,20 @@ namespace Powder
 		entry.Reset();
 		entry.instruction = popInstruction;
 		branchInstruction->assemblyData->configMap.Insert("branch", entry);
+
+		// We patch the break-statement jumps the same way.
+		for (LinkedList<Instruction*>::Node* node = breakInstructionList.GetHead(); node; node = node->GetNext())
+		{
+			AssemblyData::Entry* jumpEntry = node->value->assemblyData->configMap.LookupPtr("jump");
+			jumpEntry->instruction = popInstruction;
+		}
+
+		// The continue-statement jumps go to the top of the loop.
+		for (LinkedList<Instruction*>::Node* node = continueInstructionList.GetHead(); node; node = node->GetNext())
+		{
+			AssemblyData::Entry* jumpEntry = node->value->assemblyData->configMap.LookupPtr("jump");
+			jumpEntry->instruction = forLoopHeadInstructionList.GetHead()->value;
+		}
 
 		return true;
 	}

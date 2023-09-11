@@ -18,6 +18,8 @@
       [ "fork-statement" ],
       [ "return-statement" ],
       [ "yield-statement" ],
+      [ "break-statement" ],
+      [ "continue-statement" ],
       [ "expression" ]
     ],
     "if-statement": [
@@ -47,6 +49,12 @@
     ],
     "yield-statement": [
       [ "yield" ]
+    ],
+    "break-statement": [
+      [ "break" ]
+    ],
+    "continue-statement": [
+      [ "continue" ]
     ],
     "function-definition": [
       [ "func", "(", ")", "block" ],

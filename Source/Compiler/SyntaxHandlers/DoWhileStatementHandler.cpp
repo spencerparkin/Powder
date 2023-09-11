@@ -34,6 +34,10 @@ namespace Powder
 		}
 		instructionList.Append(initialLoopInstructionList);
 
+		// Soak up any applicable break and continue jumps from the first half of the loop body.
+		LinkedList<Instruction*> breakInstructionList, continueInstructionList;
+		this->FindBreakAndContinueJumps(syntaxNode, initialLoopInstructionList, breakInstructionList, continueInstructionList);
+
 		// Now lay down the conditional instructions of the loop.  What should remain is a single value on the eval stack for our branch instruction.
 		LinkedList<Instruction*> conditionalInstructionList;
 		if (!instructionGenerator->GenerateInstructionListRecursively(conditionalInstructionList, syntaxNode->GetChild(3), error))
@@ -61,6 +65,9 @@ namespace Powder
 			instructionList.Append(finalLoopInstructionList);
 		}
 
+		// Add more break and continue jumps from the last half of the loop body.
+		this->FindBreakAndContinueJumps(syntaxNode, finalLoopInstructionList, breakInstructionList, continueInstructionList);
+
 		// Unconditionally jump back up to the top of the do-while-loop.
 		JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
 		entry.Reset();
@@ -75,6 +82,25 @@ namespace Powder
 		entry.jumpDelta = finalLoopInstructionList.GetCount() + 2;
 		entry.string = "branch";
 		branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+
+		// Break-statement jumps should jump to the same place.
+		for (LinkedList<Instruction*>::Node* node = breakInstructionList.GetHead(); node; node = node->GetNext())
+		{
+			Instruction* jumpInstruction = node->value;
+			entry.Reset();
+			entry.instruction = branchInstruction;
+			entry.string = "jump";
+			jumpInstruction->assemblyData->configMap.Insert("copy-cat-jump", entry);
+		}
+
+		// Continue-statement jumps go to the conditional part of the loop construct.
+		for (LinkedList<Instruction*>::Node* node = continueInstructionList.GetHead(); node; node = node->GetNext())
+		{
+			Instruction* jumpInstruction = node->value;
+			entry.Reset();
+			entry.instruction = conditionalInstructionList.GetHead()->value;
+			jumpInstruction->assemblyData->configMap.Insert("jump", entry);
+		}
 
 		return true;
 	}

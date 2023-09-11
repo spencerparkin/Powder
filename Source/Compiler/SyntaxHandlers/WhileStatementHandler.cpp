@@ -48,6 +48,10 @@ namespace Powder
 		}
 		instructionList.Append(whileLoopBodyInstructionList);
 
+		// Soak up any applicable break and continue jumps from the loop body.
+		LinkedList<Instruction*> breakInstructionList, continueInstructionList;
+		this->FindBreakAndContinueJumps(syntaxNode, whileLoopBodyInstructionList, breakInstructionList, continueInstructionList);
+
 		// Unconditionally jump back to the top of the while-loop where the conditional is evaluated.
 		JumpInstruction* jumpInstruction = Instruction::CreateForAssembly<JumpInstruction>(syntaxNode->fileLocation);
 		entry.Reset();
@@ -62,6 +66,25 @@ namespace Powder
 		entry.jumpDelta = whileLoopBodyInstructionList.GetCount() + 2;
 		entry.string = "branch";
 		branchInstruction->assemblyData->configMap.Insert("jump-delta", entry);
+
+		// Break-statement jumps should jump to the same place.
+		for (LinkedList<Instruction*>::Node* node = breakInstructionList.GetHead(); node; node = node->GetNext())
+		{
+			Instruction* jumpInstruction = node->value;
+			entry.Reset();
+			entry.instruction = branchInstruction;
+			entry.string = "jump";
+			jumpInstruction->assemblyData->configMap.Insert("copy-cat-jump", entry);
+		}
+
+		// Continue-statement jumps go to the conditional part of the loop construct.
+		for (LinkedList<Instruction*>::Node* node = continueInstructionList.GetHead(); node; node = node->GetNext())
+		{
+			Instruction* jumpInstruction = node->value;
+			entry.Reset();
+			entry.instruction = conditionalInstructionList.GetHead()->value;
+			jumpInstruction->assemblyData->configMap.Insert("jump", entry);
+		}
 
 		return true;
 	}

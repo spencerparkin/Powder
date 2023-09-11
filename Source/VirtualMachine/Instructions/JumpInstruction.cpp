@@ -118,6 +118,12 @@ namespace Powder
 					return false;
 				}
 
+				if (!jumpEntry->instruction)
+				{
+					error.Add(std::string(this->assemblyData->fileLocation) + "Jump instruction was not resolved.");
+					return false;
+				}
+
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(uint64_t), &jumpEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 			}
 		}
@@ -142,7 +148,7 @@ namespace Powder
 			if (typeEntry->code == Type::JUMP_TO_EMBEDDED_ADDRESS)
 			{
 				const AssemblyData::Entry* jumpEntry = this->assemblyData->configMap.LookupPtr("jump");
-				if (jumpEntry)
+				if (jumpEntry && jumpEntry->instruction)
 					detail += std::format("{:#08x}", jumpEntry->instruction->assemblyData->programBufferLocation);
 				else
 					detail += "?";
