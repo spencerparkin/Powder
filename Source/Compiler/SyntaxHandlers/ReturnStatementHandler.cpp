@@ -17,6 +17,8 @@ namespace Powder
 
 	/*virtual*/ bool ReturnStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
+		// TODO: We should check here to make sure we're being called in the context of a function definition.
+
 		if (syntaxNode->GetChildCount() == 2)
 		{
 			if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(1), error))
