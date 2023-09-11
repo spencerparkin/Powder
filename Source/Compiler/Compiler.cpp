@@ -185,7 +185,7 @@ namespace Powder
 			}
 		}
 
-		if (*parentNode->text != "literal")
+		if (*parentNode->text != "@string")
 		{
 			std::list<ParseParty::Parser::SyntaxNode*>::iterator nextIter;
 			for (std::list<ParseParty::Parser::SyntaxNode*>::iterator iter = parentNode->childList->begin(); iter != parentNode->childList->end(); iter = nextIter)
