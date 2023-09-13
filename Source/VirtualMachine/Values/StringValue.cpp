@@ -27,39 +27,37 @@ namespace Powder
 
 	/*virtual*/ Value* StringValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
-		const StringValue* stringValue = dynamic_cast<const StringValue*>(value);
-		if (stringValue)
+		std::string strCast = value->ToString();
+		
+		switch (mathOp)
 		{
-			switch (mathOp)
+			case MathInstruction::MathOp::ADD:
 			{
-				case MathInstruction::MathOp::ADD:
-				{
-					return new StringValue(*this->str + *stringValue->str);
-				}
-				case MathInstruction::MathOp::EQUAL:
-				{
-					return new BooleanValue(*this->str == *stringValue->str);
-				}
-				case MathInstruction::MathOp::NOT_EQUAL:
-				{
-					return new BooleanValue(*this->str != *stringValue->str);
-				}
-				case MathInstruction::MathOp::LESS_THAN:
-				{
-					return new BooleanValue(::strcmp(this->str->c_str(), stringValue->str->c_str()) < 0);
-				}
-				case MathInstruction::MathOp::LESS_THAN_OR_EQUAL:
-				{
-					return new BooleanValue(::strcmp(this->str->c_str(), stringValue->str->c_str()) <= 0);
-				}
-				case MathInstruction::MathOp::GREATER_THAN:
-				{
-					return new BooleanValue(::strcmp(this->str->c_str(), stringValue->str->c_str()) > 0);
-				}
-				case MathInstruction::MathOp::GREATER_THAN_OR_EQUAL:
-				{
-					return new BooleanValue(::strcmp(this->str->c_str(), stringValue->str->c_str()) >= 0);
-				}
+				return new StringValue(*this->str + strCast);
+			}
+			case MathInstruction::MathOp::EQUAL:
+			{
+				return new BooleanValue(*this->str == strCast);
+			}
+			case MathInstruction::MathOp::NOT_EQUAL:
+			{
+				return new BooleanValue(*this->str != strCast);
+			}
+			case MathInstruction::MathOp::LESS_THAN:
+			{
+				return new BooleanValue(::strcmp(this->str->c_str(), strCast.c_str()) < 0);
+			}
+			case MathInstruction::MathOp::LESS_THAN_OR_EQUAL:
+			{
+				return new BooleanValue(::strcmp(this->str->c_str(), strCast.c_str()) <= 0);
+			}
+			case MathInstruction::MathOp::GREATER_THAN:
+			{
+				return new BooleanValue(::strcmp(this->str->c_str(), strCast.c_str()) > 0);
+			}
+			case MathInstruction::MathOp::GREATER_THAN_OR_EQUAL:
+			{
+				return new BooleanValue(::strcmp(this->str->c_str(), strCast.c_str()) >= 0);
 			}
 		}
 

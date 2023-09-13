@@ -125,16 +125,16 @@ namespace Powder
 			pushInstruction->assemblyData->configMap.Insert("data", entry);
 			instructionList.AddTail(pushInstruction);
 
-			// Note that this will pop the last 3 values pushed off the eval-stack.
+			// Note that this will pop the last 3 values pushed off the eval-stack, then push the value stored.
 			mathInstruction = Instruction::CreateForAssembly<MathInstruction>(operationNode->fileLocation);
 			entry.Reset();
 			entry.code = MathInstruction::SET_FIELD;
 			mathInstruction->assemblyData->configMap.Insert("mathOp", entry);
 			instructionList.AddTail(mathInstruction);
 
-			// Now for consistency' sake with the other case, we need to pop the calculated value.
-			PopInstruction* popInstruction = Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation);
-			instructionList.AddTail(popInstruction);
+			// Now for consistency' sake with the other case, we need to pop the stored value and the calculated value.
+			instructionList.AddTail(Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation));
+			instructionList.AddTail(Instruction::CreateForAssembly<PopInstruction>(syntaxNode->fileLocation));
 		}
 
 		// Determine whether we need to leave a value on the eval-stack as a result of the expression.
@@ -163,6 +163,6 @@ namespace Powder
 			}
 		}
 
-		return false;
+		return true;
 	}
 }
