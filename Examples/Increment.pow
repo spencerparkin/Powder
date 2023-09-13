@@ -1,0 +1,15 @@
+# Increment.pow
+
+i = 0;
+j = 1;
+i += j;
+j += i++;
+j += ++i;
+i++;
+
+output("i = " + i + "\n");
+output("j = " + j + "\n");
+
+list = [0];
+list[0]--;
+output("list[0] = " + list[0]);

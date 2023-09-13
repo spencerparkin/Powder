@@ -24,6 +24,7 @@
 #include "ReturnStatementHandler.h"
 #include "MembershipExpressionHandler.h"
 #include "BreakOrContinueStatementHandler.h"
+#include "BumpExpressionHandler.h"
 #include "ListInstruction.h"
 #include "StoreInstruction.h"
 #include "PopInstruction.h"
@@ -63,6 +64,8 @@ namespace Powder
 		this->syntaxHandlerMap.Insert("membership-expression", new MembershipExpressionHandler());
 		this->syntaxHandlerMap.Insert("break-statement", new BreakOrContinueStatementHandler());
 		this->syntaxHandlerMap.Insert("continue-statement", new BreakOrContinueStatementHandler());
+		this->syntaxHandlerMap.Insert("post-bump-expression", new BumpExpressionHandler());
+		this->syntaxHandlerMap.Insert("pre-bump-expression", new BumpExpressionHandler());
 	}
 
 	/*virtual*/ InstructionGenerator::~InstructionGenerator()

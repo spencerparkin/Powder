@@ -33,7 +33,7 @@ namespace Powder
 		// Then we lay down the instruction(s) that will generate the right operand on top of the evaluation stack.
 		if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, syntaxNode->GetChild(2), error))
 		{
-			error.Add(std::string(syntaxNode->GetChild(2)->fileLocation) + "Failed to generate instructiosn for right operand.");
+			error.Add(std::string(syntaxNode->GetChild(2)->fileLocation) + "Failed to generate instructions for right operand.");
 			return false;
 		}
 

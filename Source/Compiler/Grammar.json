@@ -92,7 +92,9 @@
       [ "function-call" ],
       [ "delete-field-expression" ],
       [ "container-field-expression" ],
-      [ "function-definition" ]
+      [ "function-definition" ],
+      [ "pre-bump-expression" ],
+      [ "post-bump-expression" ]
     ],
     "membership-expression": [
       [ "expression", "in", "expression" ]
@@ -195,6 +197,14 @@
     "capture-list": [
       [ "capture-list", ",", "capture-list" ],
       [ "@identifier" ]
+    ],
+    "pre-bump-expression": [
+      [ "++", "expression" ],
+      [ "--", "expression" ]
+    ],
+    "post-bump-expression": [
+      [ "expression", "++" ],
+      [ "expression", "--" ]
     ]
   }
 }
