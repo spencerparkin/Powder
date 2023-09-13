@@ -14,7 +14,7 @@
       [ "if-statement" ],
       [ "while-statement" ],
       [ "do-while-statement" ],
-      [ "for-statement" ],
+      [ "for-each-statement" ],
       [ "fork-statement" ],
       [ "return-statement" ],
       [ "yield-statement" ],
@@ -33,7 +33,7 @@
       [ "do", "embedded-statement", "while", "(", "expression", ")" ],
       [ "do", "embedded-statement", "while", "(", "expression", ")", "embedded-statement" ]
     ],
-    "for-statement": [
+    "for-each-statement": [
       [ "for", "(", "for-iteration-expression", ")", "embedded-statement" ]
     ],
     "for-iteration-expression": [

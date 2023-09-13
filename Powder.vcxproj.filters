@@ -193,7 +193,7 @@
     <ClCompile Include="Source\VirtualMachine\Values\ClosureValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.cpp">
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ForEachStatementHandler.cpp">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClCompile>
     <ClCompile Include="Source\Error.cpp">
@@ -384,7 +384,7 @@
     <ClInclude Include="Source\VirtualMachine\Values\ClosureValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.h">
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ForEachStatementHandler.h">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClInclude>
     <ClInclude Include="Source\Error.h">

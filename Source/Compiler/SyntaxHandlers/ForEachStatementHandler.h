@@ -4,11 +4,11 @@
 
 namespace Powder
 {
-	class ForLoopStatementHandler : public InstructionGenerator::SyntaxHandler
+	class ForEachStatementHandler : public InstructionGenerator::SyntaxHandler
 	{
 	public:
-		ForLoopStatementHandler();
-		virtual ~ForLoopStatementHandler();
+		ForEachStatementHandler();
+		virtual ~ForEachStatementHandler();
 
 		virtual bool HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error) override;
 

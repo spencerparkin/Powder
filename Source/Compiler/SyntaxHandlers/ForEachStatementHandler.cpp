@@ -1,4 +1,4 @@
-#include "ForLoopStatementHandler.h"
+#include "ForEachStatementHandler.h"
 #include "FunctionCallExpressionHandler.h"
 #include "PushInstruction.h"
 #include "PopInstruction.h"
@@ -14,15 +14,15 @@
 
 namespace Powder
 {
-	ForLoopStatementHandler::ForLoopStatementHandler()
+	ForEachStatementHandler::ForEachStatementHandler()
 	{
 	}
 
-	/*virtual*/ ForLoopStatementHandler::~ForLoopStatementHandler()
+	/*virtual*/ ForEachStatementHandler::~ForEachStatementHandler()
 	{
 	}
 
-	/*virtual*/ bool ForLoopStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
+	/*virtual*/ bool ForEachStatementHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 	{
 		if (syntaxNode->GetChildCount() != 3)
 		{
@@ -179,7 +179,7 @@ namespace Powder
 		return true;
 	}
 
-	bool ForLoopStatementHandler::GenerateInstructionForIteratorCallSetup(LinkedList<Instruction*>& instructionList, const char* action, const ParseParty::Lexer::FileLocation& fileLocation, Error& error)
+	bool ForEachStatementHandler::GenerateInstructionForIteratorCallSetup(LinkedList<Instruction*>& instructionList, const char* action, const ParseParty::Lexer::FileLocation& fileLocation, Error& error)
 	{
 		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(fileLocation);
 		AssemblyData::Entry entry;
