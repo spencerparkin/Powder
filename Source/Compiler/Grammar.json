@@ -15,6 +15,7 @@
       [ "while-statement" ],
       [ "do-while-statement" ],
       [ "for-each-statement" ],
+      [ "for-loop-statement" ],
       [ "fork-statement" ],
       [ "return-statement" ],
       [ "yield-statement" ],
@@ -35,6 +36,21 @@
     ],
     "for-each-statement": [
       [ "for", "(", "for-iteration-expression", ")", "embedded-statement" ]
+    ],
+    "for-loop-statement": [
+      [ "for", "(", "for-loop-logic", ")", "embedded-statement" ]
+    ],
+    "for-loop-logic": [
+      [ "for-init-statement", ";", "for-conditional-expression", ";", "for-advance-statement" ]
+    ],
+    "for-init-statement": [
+      [ "expression" ]
+    ],
+    "for-conditional-expression": [
+      [ "expression" ]
+    ],
+    "for-advance-statement": [
+      [ "expression" ]
     ],
     "for-iteration-expression": [
       [ "@identifier", "in", "expression" ]

@@ -10,6 +10,7 @@
 #include "YieldStatementHandler.h"
 #include "ForkStatementHandler.h"
 #include "ForEachStatementHandler.h"
+#include "ForLoopStatementHandler.h"
 #include "AssignmentExpressionHandler.h"
 #include "BinaryExpressionHandler.h"
 #include "UnaryExpressionHandler.h"
@@ -48,6 +49,7 @@ namespace Powder
 		this->syntaxHandlerMap.Insert("yield-statement", new YieldStatementHandler());
 		this->syntaxHandlerMap.Insert("fork-statement", new ForkStatementHandler());
 		this->syntaxHandlerMap.Insert("for-each-statement", new ForEachStatementHandler());
+		this->syntaxHandlerMap.Insert("for-loop-statement", new ForLoopStatementHandler());
 		this->syntaxHandlerMap.Insert("assignment-expression", new AssignmentExpressionHandler());
 		this->syntaxHandlerMap.Insert("binary-expression", new BinaryExpressionHandler());
 		this->syntaxHandlerMap.Insert("left-unary-expression", new UnaryExpressionHandler());

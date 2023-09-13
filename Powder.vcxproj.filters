@@ -205,6 +205,9 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\BumpExpressionHandler.cpp">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -394,6 +397,9 @@
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClInclude>
     <ClInclude Include="Source\Compiler\SyntaxHandlers\BumpExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.h">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClInclude>
   </ItemGroup>
