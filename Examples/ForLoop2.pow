@@ -1,5 +1,11 @@
 # ForLoop2.pow
 
-for(i = 0; i < 100; i += 3) {
+for(i = 0; i < 100; i++) {
+	if(i % 2 == 0)
+		continue;
 	output("i = " + i + "\n");
-}
+	if(i > 50)
+		break;
+};
+
+output("All done!\n");

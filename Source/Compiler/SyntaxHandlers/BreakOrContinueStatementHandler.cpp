@@ -23,8 +23,13 @@ BreakOrContinueStatementHandler::BreakOrContinueStatementHandler()
 	const ParseParty::Parser::SyntaxNode* loopConstructNode = syntaxNode->GetParent();
 	while (loopConstructNode)
 	{
-		if (*loopConstructNode->text == "for-statement" || *loopConstructNode->text == "do-while-statement" || *loopConstructNode->text == "while-statement")
+		if (*loopConstructNode->text == "for-each-statement" ||
+			*loopConstructNode->text == "for-loop-statement" ||
+			*loopConstructNode->text == "do-while-statement" ||
+			*loopConstructNode->text == "while-statement")
+		{
 			break;
+		}
 
 		loopConstructNode = loopConstructNode->GetParent();
 	}
