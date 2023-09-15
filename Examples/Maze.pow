@@ -6,7 +6,7 @@ make_maze_node = func(row, col) {
 		"y": row * 3 + 1,
 		"pathway_deltas": [[0, 0]],
 		"row": row,
-		"col"; col,
+		"col": col,
 		"parent": undefined
 	};
 };
@@ -15,7 +15,7 @@ shuffle_list = func(list) {
 	shuffled_list = [];
 	while(len(list) > 0) {
 		if(len(list) > 1)
-			i = rand_int(0, len(list) - 1);
+			i = rand_int(0, len(list) - 1)
 		else
 			i = 0;
 		shuffled_list <-- list[i];
@@ -26,7 +26,7 @@ shuffle_list = func(list) {
 
 # Each node is a member of a group.  Given any node in that group,
 # return here the group representative.
-find_rep(node) {
+find_rep = func(node) {
 	rep = node;
 	while(rep.parent != undefined)
 		rep = rep.parent;

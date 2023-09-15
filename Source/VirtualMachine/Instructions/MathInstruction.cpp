@@ -37,6 +37,8 @@ namespace Powder
 			return MathOp::MODULUS;
 		else if (tokenText == "==")
 			return MathOp::EQUAL;
+		else if (tokenText == "!=")
+			return MathOp::NOT_EQUAL;
 		else if (tokenText == "<")
 			return MathOp::LESS_THAN;
 		else if (tokenText == "<=")
