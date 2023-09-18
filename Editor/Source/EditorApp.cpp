@@ -1,8 +1,10 @@
 #include "EditorApp.h"
 #include "EditorFrame.h"
 #include "ArtProvider.h"
+#include "PathResolver.h"
 #include <wx/filename.h>
 #include <wx/dir.h>
+#include <wx/msgdlg.h>
 
 wxIMPLEMENT_APP(EditorApp);
 
@@ -26,6 +28,24 @@ EditorApp::EditorApp()
 	wxInitAllImageHandlers();
 
 	wxArtProvider::Push(new ArtProvider(::wxGetCwd()));
+
+	Powder::PathResolver pathResolver;
+	Powder::Error error;
+	std::string lexiconFilePath = pathResolver.ResolvePath("Compiler\\Lexicon.json", Powder::PathResolver::SEARCH_BASE, error);
+	if (lexiconFilePath.size() == 0)
+	{
+		wxMessageBox("Failed to find lexicon file: " + wxString(std::string(error).c_str()), "Error!", wxICON_ERROR | wxOK, nullptr);
+		return false;
+	}
+	else
+	{
+		std::string errorStr;
+		if (!this->lexer.ReadFile(lexiconFilePath, errorStr))
+		{
+			wxMessageBox("Failed to load lexer: " + wxString(errorStr.c_str()), "Error!", wxICON_ERROR | wxOK, nullptr);
+			return false;
+		}
+	}
 
 	this->config = new wxConfig("PowderEditor");
 	this->SetProjectDirectory(this->config->Read("projectDirectory"));

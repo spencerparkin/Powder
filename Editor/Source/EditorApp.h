@@ -2,6 +2,7 @@
 
 #include "VirtualMachine.h"
 #include "Compiler.h"
+#include "Lexer.h"
 #include <wx/setup.h>
 #include <wx/app.h>
 #include <wx/config.h>
@@ -39,6 +40,8 @@ public:
 
 	Breakpoint* FindBreakpoint(const wxFileName& sourceFile, int lineNumber, std::list<Breakpoint>::iterator* foundIter = nullptr);
 	void ToggleBreakpoint(const wxFileName& sourceFile, int lineNumber, bool notify = true);
+
+	ParseParty::Lexer lexer;
 
 private:
 

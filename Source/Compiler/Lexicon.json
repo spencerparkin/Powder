@@ -52,7 +52,20 @@
     },
     {
       "name": "IdentifierTokenGenerator",
-      "config": {}
+      "config": {
+        "keywords": [
+          "for",
+          "fork",
+          "if",
+          "else",
+          "while",
+          "do",
+          "func",
+          "return",
+          "del",
+          "undefined"
+        ]
+      }
     },
     {
       "name": "CommentTokenGenerator",

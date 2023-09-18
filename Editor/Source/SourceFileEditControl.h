@@ -25,11 +25,26 @@ public:
 	void OnModified(wxStyledTextEvent& event);
 	void OnUpdateUI(wxStyledTextEvent& event);
 	void OnMarginClicked(wxStyledTextEvent& event);
+	void OnStyleNeeded(wxStyledTextEvent& event);
 
 	void ShowExecutionSuspendedAt(int lineNumber, int columnNumber);
 	void ShowLineAndColumn(int lineNumber, int columnNumber);
 	void ClearExecutionMarker();
 	void UpdateBreakpointMarkers();
+	void StyleRangeWithLexer(size_t startPos, size_t endPos);
+	void StyleAllWithLexer();
+	void ConvertTabsToSpaces(wxString& text);
+
+	enum Style
+	{
+		STYLE_COMMENT = 10,
+		STYLE_KEYWORD,
+		STYLE_OPERATOR,
+		STYLE_STRING,
+		STYLE_NUMBER
+	};
+
+	int TokenTypeToStyle(int tokenType);
 
 	wxFileName filePath;
 	bool modified;

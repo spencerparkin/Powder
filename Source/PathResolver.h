@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Defines.h"
 #include <string>
 #include <filesystem>
 
@@ -7,7 +8,7 @@ namespace Powder
 {
 	class Error;
 
-	class PathResolver
+	class POWDER_API PathResolver
 	{
 	public:
 		PathResolver();
@@ -23,8 +24,8 @@ namespace Powder
 		bool FindBaseDirectoryUsingModulePath();
 		bool SearchDirectoryForFile(const std::filesystem::path& searchDirectory, const std::filesystem::path& relativePath, std::filesystem::path& absolutePath);
 
-		std::filesystem::path baseDirectory;
+		std::filesystem::path* baseDirectory;
 	};
 
-	extern PathResolver pathResolver;
+	POWDER_API extern PathResolver pathResolver;
 }

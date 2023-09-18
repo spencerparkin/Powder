@@ -9,10 +9,12 @@ namespace Powder
 
 	PathResolver::PathResolver()
 	{
+		this->baseDirectory = new std::filesystem::path;
 	}
 
 	/*virtual*/ PathResolver::~PathResolver()
 	{
+		delete this->baseDirectory;
 	}
 
 	std::string PathResolver::ResolvePath(const std::string& givenPath, int searchFlags, Error& error)
@@ -33,14 +35,14 @@ namespace Powder
 			
 			if (!std::filesystem::exists(resolvedPath))
 			{
-				if (this->baseDirectory == "")
+				if (*this->baseDirectory == "")
 					this->FindBaseDirectoryUsingModulePath();
 
 				if ((searchFlags & SEARCH_BASE) != 0)
 				{
-					resolvedPath = this->baseDirectory / unresolvedPath;
+					resolvedPath = *this->baseDirectory / unresolvedPath;
 					if (!std::filesystem::exists(resolvedPath))
-						this->SearchDirectoryForFile(this->baseDirectory, unresolvedPath, resolvedPath);
+						this->SearchDirectoryForFile(*this->baseDirectory, unresolvedPath, resolvedPath);
 				}
 			}
 		}
@@ -82,7 +84,7 @@ namespace Powder
 		{
 			if (directory.filename() == "Powder")
 			{
-				this->baseDirectory = directory;
+				*this->baseDirectory = directory;
 				return true;
 			}
 

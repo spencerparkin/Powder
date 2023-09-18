@@ -1,52 +1,52 @@
 # Maze.pow
 
 make_maze_node = func(row, col) {
-	return {
-		"x": col * 3 + 1,
-		"y": row * 3 + 1,
-		"pathway_deltas": [[0, 0]],
-		"row": row,
-		"col": col,
-		"parent": undefined
-	};
+    return {
+        "x": col * 3 + 1,
+        "y": row * 3 + 1,
+        "pathway_deltas": [[0, 0]],
+        "row": row,
+        "col": col,
+        "parent": undefined
+    };
 };
 
 shuffle_list = func(list) {
-	shuffled_list = [];
-	while(len(list) > 0) {
-		if(len(list) > 1)
-			i = rand_int(0, len(list) - 1)
-		else
-			i = 0;
-		shuffled_list <-- list[i];
-		del list[i];
-	};
-	return shuffled_list;
+    shuffled_list = [];
+    while(len(list) > 0) {
+        if(len(list) > 1)
+            i = rand_int(0, len(list) - 1)
+        else
+            i = 0;
+        shuffled_list <-- list[i];
+        del list[i];
+    };
+    return shuffled_list;
 };
 
 # Each node is a member of a group.  Given any node in that group,
 # return here the group representative.
 find_rep = func(node) {
-	rep = node;
-	while(rep.parent != undefined)
-		rep = rep.parent;
-	if(rep != node)
-		node.parent = rep;	# This is purely an optimization and not needed for correctness.
-	return rep;
+    rep = node;
+    while(rep.parent != undefined)
+        rep = rep.parent;
+    if(rep != node)
+        node.parent = rep;    # This is purely an optimization and not needed for correctness.
+    return rep;
 };
 
 in_same_group = func(nodeA, nodeB) {
-	repA = find_rep(nodeA);
-	repB = find_rep(nodeB);
-	return repA == repB;
+    repA = find_rep(nodeA);
+    repB = find_rep(nodeB);
+    return repA == repB;
 };
 
 merge_groups = func(nodeA, nodeB) {
-	repA = find_rep(nodeA);
-	repB = find_rep(nodeB);
-	
-	# Arbitrarily parent A to B.
-	repA.parent = repB;
+    repA = find_rep(nodeA);
+    repB = find_rep(nodeB);
+    
+    # Arbitrarily parent A to B.
+    repA.parent = repB;
 };
 
 maze_rows = 5;
@@ -55,26 +55,26 @@ maze_cols = 5;
 # Generate maze graph vertices.
 maze_matrix = [];
 for(row = 0; row < maze_rows; row++) {
-	maze_matrix --< [];
-	for(col = 0; col < maze_cols; col++) {
-		maze_matrix[row] --< make_maze_node(row, col);
-	};
+    maze_matrix --< [];
+    for(col = 0; col < maze_cols; col++) {
+        maze_matrix[row] --< make_maze_node(row, col);
+    };
 };
 
 # Generate maze graph edges.
 maze_edges = [];
 for(row = 0; row < maze_rows; row++) {
-	for(col = 0; col < maze_cols; col++) {
-		node = maze_matrix[row][col];
-		if(row > 0)
-			maze_edges --< [node, maze_matrix[row - 1][col]];
-		if(row < maze_rows - 1)
-			maze_edges --< [node, maze_matrix[row + 1][col]];
-		if(col > 0)
-			maze_edges --< [node, maze_matrix[row][col - 1]];
-		if(col < maze_cols - 1)
-			maze_edges --< [node, maze_matrix[row][col + 1]];
-	};
+    for(col = 0; col < maze_cols; col++) {
+        node = maze_matrix[row][col];
+        if(row > 0)
+            maze_edges --< [node, maze_matrix[row - 1][col]];
+        if(row < maze_rows - 1)
+            maze_edges --< [node, maze_matrix[row + 1][col]];
+        if(col > 0)
+            maze_edges --< [node, maze_matrix[row][col - 1]];
+        if(col < maze_cols - 1)
+            maze_edges --< [node, maze_matrix[row][col + 1]];
+    };
 };
 
 # Now shuffle the edge array.  This is all we need to do to generate a random maze.
@@ -82,54 +82,54 @@ maze_edges = shuffle_list(maze_edges);
 
 # Okay, now go assemble the maze.
 for(edge in maze_edges) {
-	nodeA = edge[0];
-	nodeB = edge[1];
-	if(in_same_group(nodeA, nodeB)) {
-		merge_groups(nodeA, nodeB);
-		if(nodeA.row + 1 == nodeB.row) {
-			nodeA.pathway_deltas --< [0, 1];
-			nodeB.pathway_deltas --< [0, -1];
-		} else if(nodeA.row - 1 == nodeB.row) {
-			nodeA.pathway_deltas --< [0, -1];
-			nodeB.pathway_deltas --< [0, 1];
-		} else if(nodeA.col + 1 == nodeB.col) {
-			nodeA.pathway_deltas --< [1, 0];
-			nodeB.pathway_deltas --< [-1, 0];
-		} else if(nodeA.col - 1 == nodeB.col) {
-			nodeA.pathway_deltas --< [-1, 0];
-			nodeB.pathway_deltas --< [1, 0];
-		} else {
-			# This is a user-generated run-time error.
-			error("Expected nodes to be adjacent in the matrix.");
-		}
-	}
+    nodeA = edge[0];
+    nodeB = edge[1];
+    if(in_same_group(nodeA, nodeB)) {
+        merge_groups(nodeA, nodeB);
+        if(nodeA.row + 1 == nodeB.row) {
+            nodeA.pathway_deltas --< [0, 1];
+            nodeB.pathway_deltas --< [0, -1];
+        } else if(nodeA.row - 1 == nodeB.row) {
+            nodeA.pathway_deltas --< [0, -1];
+            nodeB.pathway_deltas --< [0, 1];
+        } else if(nodeA.col + 1 == nodeB.col) {
+            nodeA.pathway_deltas --< [1, 0];
+            nodeB.pathway_deltas --< [-1, 0];
+        } else if(nodeA.col - 1 == nodeB.col) {
+            nodeA.pathway_deltas --< [-1, 0];
+            nodeB.pathway_deltas --< [1, 0];
+        } else {
+            # This is a user-generated run-time error.
+            error("Expected nodes to be adjacent in the matrix.");
+        }
+    }
 };
 
 # Create a buffer we can render the maze into.
 print_matrix = [];
 for(row = 0; row < maze_rows * 3; row++) {
-	print_matrix --< [];
-	for(col = 0; col < maze_cols * 3; col++) {
-		print_matrix[row] --< "#";
-	};
+    print_matrix --< [];
+    for(col = 0; col < maze_cols * 3; col++) {
+        print_matrix[row] --< "#";
+    };
 };
 
 # Render the maze into the buffer.
 for(row = 0; row < maze_rows; row++) {
-	for(col = 0; col < maze_cols; col++) {
-		node = maze_matrix[row][col];
-		for(pathway_delta in node.pathway_deltas) {
-			dx = pathway_delta[0];
-			dy = pathway_delta[1];
-			print_matrix[node.x + dx][node.y + dy] = " ";
-		};
-	};
+    for(col = 0; col < maze_cols; col++) {
+        node = maze_matrix[row][col];
+        for(pathway_delta in node.pathway_deltas) {
+            dx = pathway_delta[0];
+            dy = pathway_delta[1];
+            print_matrix[node.x + dx][node.y + dy] = " ";
+        };
+    };
 };
 
 # Finally, go print the maze.
 for(row = 0; row < maze_rows * 3; row++) {
-	for(col = 0; col < maze_cols * 3; col++) {
-		output(print_matrix[row][col]);
-	};
-	output("\n");
+    for(col = 0; col < maze_cols * 3; col++) {
+        output(print_matrix[row][col]);
+    };
+    output("\n");
 };
