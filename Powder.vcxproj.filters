@@ -73,7 +73,7 @@
     <ClCompile Include="Source\VirtualMachine\Values\NumberValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
-    <ClCompile Include="Source\VirtualMachine\Values\UndefinedValue.cpp">
+    <ClCompile Include="Source\VirtualMachine\Values\NullValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\Instructions\LoadInstruction.cpp">
@@ -264,7 +264,7 @@
     <ClInclude Include="Source\VirtualMachine\Values\NumberValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
-    <ClInclude Include="Source\VirtualMachine\Values\UndefinedValue.h">
+    <ClInclude Include="Source\VirtualMachine\Values\NullValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Instructions\LoadInstruction.h">

@@ -9,7 +9,7 @@
 #include "CppFunctionValue.h"
 #include "AddressValue.h"
 #include "MapValue.h"
-#include "UndefinedValue.h"
+#include "NullValue.h"
 #include "VirtualMachine.h"
 #include "Executor.h"
 #include "Executable.h"
@@ -104,7 +104,7 @@ namespace Powder
 			case SysCall::GC:
 			{
 				GC::GarbageCollector::Get()->Collect();
-				if (!executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), error))
+				if (!executor->PushValueOntoEvaluationStackTop(new NullValue(), error))
 					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
@@ -123,7 +123,7 @@ namespace Powder
 					value = new StringValue();
 					if (!value->FromString(str))
 					{
-						value = new UndefinedValue();
+						value = new NullValue();
 					}
 				}
 
@@ -173,7 +173,7 @@ namespace Powder
 					return Executor::Result::RUNTIME_ERROR;
 				if (!virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), error, executor->GetCurrentScope()))
 					return Executor::Result::RUNTIME_ERROR;
-				if (!executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), error))
+				if (!executor->PushValueOntoEvaluationStackTop(new NullValue(), error))
 					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
@@ -185,7 +185,7 @@ namespace Powder
 				double sleepSeconds = valueRef.Get()->AsNumber();
 				if (sleepSeconds > 0.0)
 					::Sleep(DWORD(sleepSeconds * 1000.0f));
-				if (!executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), error))
+				if (!executor->PushValueOntoEvaluationStackTop(new NullValue(), error))
 					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}

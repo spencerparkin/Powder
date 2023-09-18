@@ -1,5 +1,5 @@
 #include "NumberValue.h"
-#include "UndefinedValue.h"
+#include "NullValue.h"
 #include "StringValue.h"
 #include "BooleanValue.h"
 
@@ -94,7 +94,7 @@ namespace Powder
 				}
 			}
 
-			return new UndefinedValue();
+			return new NullValue();
 		}
 		
 		if (mathOp == MathInstruction::MathOp::ADD)
@@ -104,7 +104,7 @@ namespace Powder
 				return new StringValue(this->ToString() + stringValue->ToString());
 		}
 
-		return new UndefinedValue();
+		return new NullValue();
 	}
 
 	/*virtual*/ std::string NumberValue::ToString() const

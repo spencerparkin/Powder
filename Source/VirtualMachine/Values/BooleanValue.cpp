@@ -1,5 +1,5 @@
 #include "BooleanValue.h"
-#include "UndefinedValue.h"
+#include "NullValue.h"
 
 namespace Powder
 {
@@ -60,7 +60,7 @@ namespace Powder
 			}
 		}
 
-		return new UndefinedValue();
+		return new NullValue();
 	}
 
 	/*virtual*/ bool BooleanValue::AsBoolean() const

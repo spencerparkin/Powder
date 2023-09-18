@@ -1,5 +1,5 @@
 #include "ListValue.h"
-#include "UndefinedValue.h"
+#include "NullValue.h"
 #include "NumberValue.h"
 #include "BooleanValue.h"
 #include "StringValue.h"
@@ -52,7 +52,7 @@ namespace Powder
 			}
 		}
 
-		return new UndefinedValue();
+		return new NullValue();
 	}
 
 	/*virtual*/ BooleanValue* ListValue::IsMember(const Value* value) const
@@ -230,7 +230,7 @@ namespace Powder
 		else if (actionValue->GetString() == "next")
 		{
 			if (!this->listNode)
-				returnValueRef.Set(new UndefinedValue());
+				returnValueRef.Set(new NullValue());
 			else
 			{
 				returnValueRef.Set(this->listNode->value.Get());

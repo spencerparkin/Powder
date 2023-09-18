@@ -31,8 +31,8 @@ namespace Powder
 		AssemblyData::Entry typeEntry;
 		AssemblyData::Entry dataEntry;
 
-		if (*literalTypeNode->text == "undefined")
-			typeEntry.code = PushInstruction::DataType::UNDEFINED;
+		if (*literalTypeNode->text == "null")
+			typeEntry.code = PushInstruction::DataType::NULL_VALUE;
 		else if (*literalTypeNode->text == "@string")
 		{
 			typeEntry.code = PushInstruction::DataType::STRING;

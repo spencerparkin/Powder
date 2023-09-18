@@ -7,7 +7,7 @@
 #include "Executable.h"
 #include "CppFunctionValue.h"
 #include "ListValue.h"
-#include "UndefinedValue.h"
+#include "NullValue.h"
 #include "VirtualMachine.h"
 
 namespace Powder
@@ -78,7 +78,7 @@ namespace Powder
 						return Executor::Result::RUNTIME_ERROR;
 
 					if (!resultValueRef.Get())
-						resultValueRef.Set(new UndefinedValue());
+						resultValueRef.Set(new NullValue());
 
 					if (!executor->PushValueOntoEvaluationStackTop(resultValueRef.Get(), error))
 						return Executor::Result::RUNTIME_ERROR;

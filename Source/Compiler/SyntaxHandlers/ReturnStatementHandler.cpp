@@ -44,7 +44,7 @@ namespace Powder
 		{
 			PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
 			AssemblyData::Entry entry;
-			entry.code = PushInstruction::DataType::UNDEFINED;
+			entry.code = PushInstruction::DataType::NULL_VALUE;
 			pushInstruction->assemblyData->configMap.Insert("type", entry);
 			instructionList.AddTail(pushInstruction);
 		}

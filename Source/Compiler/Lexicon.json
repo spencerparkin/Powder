@@ -63,7 +63,7 @@
           "func",
           "return",
           "del",
-          "undefined"
+          "null"
         ]
       }
     },

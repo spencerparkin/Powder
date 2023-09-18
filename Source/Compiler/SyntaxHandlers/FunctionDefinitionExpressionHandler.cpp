@@ -143,7 +143,7 @@ namespace Powder
 		// expect it, even if it is going to discard it.
 		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
 		entry.Reset();
-		entry.code = PushInstruction::DataType::UNDEFINED;
+		entry.code = PushInstruction::DataType::NULL_VALUE;
 		pushInstruction->assemblyData->configMap.Insert("type", entry);
 		functionInstructionList.AddTail(pushInstruction);
 

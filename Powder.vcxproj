@@ -78,7 +78,7 @@
     <ClCompile Include="Source\VirtualMachine\Values\MapValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\NumberValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\StringValue.cpp" />
-    <ClCompile Include="Source\VirtualMachine\Values\UndefinedValue.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\NullValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\VirtualMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -144,7 +144,7 @@
     <ClInclude Include="Source\VirtualMachine\Values\MapValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\NumberValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\StringValue.h" />
-    <ClInclude Include="Source\VirtualMachine\Values\UndefinedValue.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\NullValue.h" />
     <ClInclude Include="Source\VirtualMachine\VirtualMachine.h" />
   </ItemGroup>
   <ItemGroup>

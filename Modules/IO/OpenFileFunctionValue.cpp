@@ -1,7 +1,7 @@
 #include "OpenFileFunctionValue.h"
 #include "ListValue.h"
 #include "FileValue.h"
-#include "UndefinedValue.h"
+#include "NullValue.h"
 #include "Error.h"
 #include <filesystem>
 
@@ -58,7 +58,7 @@ OpenFileFunctionValue::OpenFileFunctionValue()
 
 	fileValue->fileStream.open(filePath, openMode);
 	if (!fileValue->fileStream.is_open())
-		returnValueRef.Set(new Powder::UndefinedValue());
+		returnValueRef.Set(new Powder::NullValue());
 
 	return true;
 }

@@ -1,5 +1,5 @@
 #include "MapValue.h"
-#include "UndefinedValue.h"
+#include "NullValue.h"
 #include "NumberValue.h"
 #include "ListValue.h"
 #include "StringValue.h"
@@ -35,7 +35,7 @@ namespace Powder
 			}
 		}
 
-		return new UndefinedValue();
+		return new NullValue();
 	}
 
 	/*virtual*/ BooleanValue* MapValue::IsMember(const Value* value) const
@@ -154,7 +154,7 @@ namespace Powder
 		else if (actionValue->GetString() == "next")
 		{
 			if (this->mapIter == this->mapValueRef.Get()->GetValueMap().end())
-				returnValueRef.Set(new UndefinedValue());
+				returnValueRef.Set(new NullValue());
 			else
 			{
 				returnValueRef.Set(new StringValue(this->mapIter.entry->key));

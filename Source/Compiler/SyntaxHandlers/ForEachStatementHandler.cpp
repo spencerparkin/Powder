@@ -106,10 +106,10 @@ namespace Powder
 		storeInstruction->assemblyData->configMap.Insert("name", entry);
 		forLoopHeadInstructionList.AddTail(storeInstruction);
 
-		// Iteration ends when the iteration variable becomes undefined, so test that now.
+		// Iteration ends when the iteration variable becomes null, so test that now.
 		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(iterationNode->fileLocation);
 		entry.Reset();
-		entry.code = PushInstruction::UNDEFINED;
+		entry.code = PushInstruction::NULL_VALUE;
 		pushInstruction->assemblyData->configMap.Insert("type", entry);
 		forLoopHeadInstructionList.AddTail(pushInstruction);
 		LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(iterationNode->fileLocation);

@@ -175,7 +175,7 @@
       [ "(", "expression", ")" ]
     ],
     "literal": [
-      [ "undefined" ],
+      [ "null" ],
       [ "@string" ],
       [ "@number" ],
       [ "list-literal" ],

@@ -1,7 +1,7 @@
 #include "PushInstruction.h"
 #include "Assembler.h"
 #include "Scope.h"
-#include "UndefinedValue.h"
+#include "NullValue.h"
 #include "StringValue.h"
 #include "NumberValue.h"
 #include "ListValue.h"
@@ -32,9 +32,9 @@ namespace Powder
 		uint8_t pushType = programBuffer[programBufferLocation + 1];
 		switch (pushType)
 		{
-			case DataType::UNDEFINED:
+			case DataType::NULL_VALUE:
 			{
-				if (!executor->PushValueOntoEvaluationStackTop(new UndefinedValue(), error))
+				if (!executor->PushValueOntoEvaluationStackTop(new NullValue(), error))
 					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2;
 				break;
@@ -114,7 +114,7 @@ namespace Powder
 			return false;
 		}
 
-		if (!dataEntry && typeEntry->code != DataType::UNDEFINED && typeEntry->code != DataType::EMPTY_LIST && typeEntry->code != DataType::EMPTY_MAP)
+		if (!dataEntry && typeEntry->code != DataType::NULL_VALUE && typeEntry->code != DataType::EMPTY_LIST && typeEntry->code != DataType::EMPTY_MAP)
 		{
 			error.Add(std::string(this->assemblyData->fileLocation) + "Some push instructions can't be assembled without being given more information about the push content.");
 			return false;
@@ -139,7 +139,7 @@ namespace Powder
 		}
 
 		programBufferLocation += 2L;
-		if (typeEntry->code == DataType::UNDEFINED || typeEntry->code == DataType::EMPTY_LIST || typeEntry->code == DataType::EMPTY_MAP)
+		if (typeEntry->code == DataType::NULL_VALUE || typeEntry->code == DataType::EMPTY_LIST || typeEntry->code == DataType::EMPTY_MAP)
 			programBufferLocation += 0L;
 		else if (typeEntry->code == DataType::STRING)
 			programBufferLocation += uint64_t(dataEntry->string.length()) + 1L;
@@ -170,8 +170,8 @@ namespace Powder
 				detail += std::format("{}", dataEntry->number);
 			else if (typeEntry->code == ADDRESS || typeEntry->code == CLOSURE)
 				detail += std::format("{}", dataEntry->instruction->assemblyData->programBufferLocation);
-			else if (typeEntry->code == UNDEFINED)
-				detail += "undef";
+			else if (typeEntry->code == DataType::NULL_VALUE)
+				detail += "null";
 			else if (typeEntry->code == DataType::EMPTY_LIST)
 				detail += "[]";
 			else if (typeEntry->code == DataType::EMPTY_MAP)

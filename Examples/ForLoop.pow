@@ -30,14 +30,14 @@ for(key in my_map) {
 #
 output("--------------------------------\n");
 make_iterator_func = func(start_value, end_value, step_size) {
-	i = undefined;
+	i = null;
 	return func[i, start_value, end_value, step_size](action) {
 		if(action == "reset") {
 			i = start_value;
 		} else if(action == "next") {
 			next_value = i;
 			if(next_value > end_value)
-				return undefined;
+				return null;
 			i += step_size;
 			return next_value;
 		}

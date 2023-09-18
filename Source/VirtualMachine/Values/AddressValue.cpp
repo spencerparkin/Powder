@@ -1,5 +1,5 @@
 #include "AddressValue.h"
-#include "UndefinedValue.h"
+#include "NullValue.h"
 #include "Executable.h"
 
 namespace Powder
@@ -26,7 +26,7 @@ namespace Powder
 
 	/*virtual*/ Value* AddressValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
-		return new UndefinedValue();
+		return new NullValue();
 	}
 
 	/*virtual*/ std::string AddressValue::ToString() const

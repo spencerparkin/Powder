@@ -4,11 +4,11 @@
 
 namespace Powder
 {
-	class POWDER_API UndefinedValue : public Value
+	class POWDER_API NullValue : public Value
 	{
 	public:
-		UndefinedValue();
-		virtual ~UndefinedValue();
+		NullValue();
+		virtual ~NullValue();
 
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;

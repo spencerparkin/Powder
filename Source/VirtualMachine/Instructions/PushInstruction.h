@@ -14,7 +14,7 @@ namespace Powder
 
 		enum DataType
 		{
-			UNDEFINED,
+			NULL_VALUE,
 			NUMBER,
 			STRING,
 			EMPTY_LIST,

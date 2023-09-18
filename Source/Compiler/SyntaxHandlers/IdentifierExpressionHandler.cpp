@@ -1,5 +1,6 @@
 #include "IdentifierExpressionHandler.h"
 #include "LoadInstruction.h"
+#include "PushInstruction.h"
 #include "Assembler.h"
 #include "Error.h"
 
@@ -26,12 +27,28 @@ namespace Powder
 		// introducing more fluff back into the AST.  Much of the fluff was removed before we were handed the AST.
 		// Of course, identifiers can appear in other contexts, such as a function call or function definition.
 		// Note that we also generate this code in the context of a system call, which is looking for values on the eval stack.
+
 		const ParseParty::Parser::SyntaxNode* identifierNode = syntaxNode->GetChild(0);
-		LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(syntaxNode->fileLocation);
+
 		AssemblyData::Entry entry;
-		entry.string = *identifierNode->text;
-		loadInstruction->assemblyData->configMap.Insert("name", entry);
-		instructionList.AddTail(loadInstruction);
+
+		// Special case: NULL
+		if (*identifierNode->text == "null")
+		{
+			PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(syntaxNode->fileLocation);
+			entry.Reset();
+			entry.code = PushInstruction::NULL_VALUE;
+			pushInstruction->assemblyData->configMap.Insert("type", entry);
+			instructionList.AddTail(pushInstruction);
+		}
+		else
+		{
+			LoadInstruction* loadInstruction = Instruction::CreateForAssembly<LoadInstruction>(syntaxNode->fileLocation);
+			entry.Reset();
+			entry.string = *identifierNode->text;
+			loadInstruction->assemblyData->configMap.Insert("name", entry);
+			instructionList.AddTail(loadInstruction);
+		}
 
 		return true;
 	}

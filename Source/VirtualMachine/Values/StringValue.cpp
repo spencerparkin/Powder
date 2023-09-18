@@ -1,5 +1,5 @@
 #include "StringValue.h"
-#include "UndefinedValue.h"
+#include "NullValue.h"
 #include "BooleanValue.h"
 
 namespace Powder
@@ -61,7 +61,7 @@ namespace Powder
 			}
 		}
 
-		return new UndefinedValue();
+		return new NullValue();
 	}
 
 	/*virtual*/ std::string StringValue::ToString() const
