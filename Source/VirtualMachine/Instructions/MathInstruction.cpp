@@ -6,6 +6,7 @@
 #include "BooleanValue.h"
 #include "Executor.h"
 #include "Executable.h"
+#include "ReferenceValue.h"
 #include "VirtualMachine.h"
 
 namespace Powder
@@ -61,6 +62,10 @@ namespace Powder
 			return MathInstruction::MathOp::NEGATE;
 		else if (tokenText == "!")
 			return MathInstruction::MathOp::NOT;
+		else if (tokenText == "&")
+			return MathInstruction::MathOp::REFERENCE;
+		else if (tokenText == "@")
+			return MathInstruction::MathOp::DEREFERENCE;
 
 		return MathOp::UNKNOWN;
 	}
@@ -173,7 +178,30 @@ namespace Powder
 					GC::Reference<Value, true> valueRef;
 					if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 						return Executor::Result::RUNTIME_ERROR;
-					resultRef.Set(valueRef.Get()->CombineWith(nullptr, (MathOp)mathOp, executor));
+					switch (mathOp)
+					{
+						case MathOp::REFERENCE:
+						{
+							resultRef.Set(new ReferenceValue(valueRef.Get()));
+							break;
+						}
+						case MathOp::DEREFERENCE:
+						{
+							ReferenceValue* refValue = dynamic_cast<ReferenceValue*>(valueRef.Get());
+							if (!refValue)
+							{
+								error.Add("Tried to dereference a non-reference value.");
+								return Executor::Result::RUNTIME_ERROR;
+							}
+							resultRef.Set(refValue->valueRef.Get());
+							break;
+						}
+						default:
+						{
+							resultRef.Set(valueRef.Get()->CombineWith(nullptr, (MathOp)mathOp, executor));
+							break;
+						}
+					}
 				}
 				else
 				{
@@ -225,6 +253,8 @@ namespace Powder
 				case MathOp::FACTORIAL:
 				case MathOp::NOT:
 				case MathOp::SIZE:
+				case MathOp::REFERENCE:
+				case MathOp::DEREFERENCE:
 				{
 					mathOp |= 0x80;
 					break;

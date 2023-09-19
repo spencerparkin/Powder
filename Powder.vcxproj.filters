@@ -208,6 +208,9 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.cpp">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Values\ReferenceValue.cpp">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -401,6 +404,9 @@
     </ClInclude>
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ForLoopStatementHandler.h">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Values\ReferenceValue.h">
+      <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

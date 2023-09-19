@@ -166,7 +166,9 @@
     "left-unary-expression": [
       [ "-", "expression" ],
       [ "~", "expression" ],
-      [ "!", "expression" ]
+      [ "!", "expression" ],
+      [ "&", "expression" ],
+      [ "@", "expression" ]
     ],
     "right-unary-expression": [
       [ "expression", "!" ]

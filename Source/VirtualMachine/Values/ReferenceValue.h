@@ -2,23 +2,22 @@
 
 #include "Value.h"
 #include "Reference.h"
+#include <string>
 
 namespace Powder
 {
-	class Executable;
-
-	class POWDER_API AddressValue : public Value
+	class POWDER_API ReferenceValue : public Value
 	{
 	public:
-		AddressValue();
-		AddressValue(const Executable* executable, uint64_t programBufferLocation);
-		virtual ~AddressValue();
+		ReferenceValue();
+		ReferenceValue(Value* value);
+		virtual ~ReferenceValue();
 
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 		virtual std::string ToString() const override;
+		virtual void PopulateIterationArray(std::vector<Object*>& iterationArray) override;
 
-		GC::Reference<Executable, false> executableRef;
-		uint64_t programBufferLocation;
+		GC::Reference<Value, false> valueRef;
 	};
 }

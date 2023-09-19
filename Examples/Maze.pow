@@ -7,7 +7,7 @@ make_maze_node = func(row, col) {
         "pathway_deltas": [[0, 0]],
         "row": row,
         "col": col,
-        "parent": undefined
+        "parent": null
     };
 };
 
@@ -18,7 +18,7 @@ shuffle_list = func(list) {
             i = rand_int(0, len(list) - 1)
         else
             i = 0;
-        shuffled_list <-- list[i];
+        shuffled_list --< list[i];
         del list[i];
     };
     return shuffled_list;
@@ -28,7 +28,7 @@ shuffle_list = func(list) {
 # return here the group representative.
 find_rep = func(node) {
     rep = node;
-    while(rep.parent != undefined)
+    while(rep.parent != null)
         rep = rep.parent;
     if(rep != node)
         node.parent = rep;    # This is purely an optimization and not needed for correctness.
@@ -38,7 +38,7 @@ find_rep = func(node) {
 in_same_group = func(nodeA, nodeB) {
     repA = find_rep(nodeA);
     repB = find_rep(nodeB);
-    return repA == repB;
+    return &repA == &repB;
 };
 
 merge_groups = func(nodeA, nodeB) {
@@ -84,7 +84,7 @@ maze_edges = shuffle_list(maze_edges);
 for(edge in maze_edges) {
     nodeA = edge[0];
     nodeB = edge[1];
-    if(in_same_group(nodeA, nodeB)) {
+    if(!in_same_group(nodeA, nodeB)) {
         merge_groups(nodeA, nodeB);
         if(nodeA.row + 1 == nodeB.row) {
             nodeA.pathway_deltas --< [0, 1];
@@ -133,3 +133,5 @@ for(row = 0; row < maze_rows * 3; row++) {
     };
     output("\n");
 };
+
+output("Done!\n");

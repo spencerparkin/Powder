@@ -25,7 +25,13 @@ namespace Powder
 			SLEEP,
 			AS_ITERATOR,
 			AS_STRING,
-			AS_NUMBER
+			AS_NUMBER,
+			RAND_INT,
+			RAND_FLOAT,
+			RAND_SEED,
+			COS,
+			SIN,
+			TAN
 		};
 
 		static SysCall TranslateAsSysCall(const std::string& funcName);

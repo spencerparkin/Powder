@@ -56,6 +56,18 @@ namespace Powder
 			return SysCall::AS_STRING;
 		else if (funcName == "as_num")
 			return SysCall::AS_NUMBER;
+		else if (funcName == "cos")
+			return SysCall::COS;
+		else if (funcName == "sin")
+			return SysCall::SIN;
+		else if (funcName == "tan")
+			return SysCall::TAN;
+		else if (funcName == "rand_int")
+			return SysCall::RAND_INT;
+		else if (funcName == "rand_float")
+			return SysCall::RAND_FLOAT;
+		else if (funcName == "rand_seed")
+			return SysCall::RAND_SEED;
 
 		return SysCall::UNKNOWN;
 	}
@@ -65,27 +77,25 @@ namespace Powder
 		switch (sysCall)
 		{
 			case SysCall::EXIT:
-				return 0;
 			case SysCall::GC:
-				return 0;
 			case SysCall::GC_COUNT:
-				return 0;
 			case SysCall::INPUT:
 				return 0;
 			case SysCall::OUTPUT:
-				return 1;
 			case SysCall::MODULE:
-				return 1;
 			case SysCall::RUN_SCRIPT:
-				return 1;
 			case SysCall::SLEEP:
-				return 1;
 			case SysCall::AS_ITERATOR:
-				return 1;
 			case SysCall::AS_STRING:
-				return 1;
 			case SysCall::AS_NUMBER:
+			case SysCall::COS:
+			case SysCall::SIN:
+			case SysCall::TAN:
+			case SysCall::RAND_SEED:
 				return 1;
+			case SysCall::RAND_INT:
+			case SysCall::RAND_FLOAT:
+				return 2;
 		}
 
 		return -1;
@@ -191,9 +201,59 @@ namespace Powder
 			}
 			case SysCall::GC_COUNT:
 			{
-				uint32_t count = 0; // TODO: Query GC for this information.
+				uint32_t count = GC::GarbageCollector::Get()->NumTrackedObjects();
 				if (!executor->PushValueOntoEvaluationStackTop(new NumberValue(count), error))
 					return Executor::Result::RUNTIME_ERROR;
+				break;
+			}
+			case SysCall::COS:
+			case SysCall::SIN:
+			case SysCall::TAN:
+			{
+				GC::Reference<Value, true> valueRef;
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				double input = valueRef.Get()->AsNumber();
+				double output = 0.0;
+				switch (sysCallCode)
+				{
+					case SysCall::COS: output = ::cos(input); break;
+					case SysCall::SIN: output = ::sin(input); break;
+					case SysCall::TAN: output = ::tan(input); break;
+				}
+				if (!executor->PushValueOntoEvaluationStackTop(new NumberValue(output), error))
+					return Executor::Result::RUNTIME_ERROR;
+				break;
+			}
+			case SysCall::RAND_INT:
+			case SysCall::RAND_FLOAT:
+			{
+				GC::Reference<Value, true> minValueRef, maxValueRef;
+				if (!executor->PopValueFromEvaluationStackTop(maxValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PopValueFromEvaluationStackTop(minValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				double minValue = minValueRef.Get()->AsNumber();
+				double maxValue = maxValueRef.Get()->AsNumber();
+				double alpha = double(rand()) / double(RAND_MAX);
+				double randValue = minValue + alpha * (maxValue - minValue);
+				if (randValue < minValue)
+					randValue = minValue;
+				if (randValue > maxValue)
+					randValue = maxValue;
+				if (sysCallCode == SysCall::RAND_INT)
+					randValue = ::round(randValue);
+				NumberValue* numberValue = new NumberValue(randValue);
+				if (!executor->PushValueOntoEvaluationStackTop(numberValue, error))
+					return Executor::Result::RUNTIME_ERROR;
+				break;
+			}
+			case SysCall::RAND_SEED:
+			{
+				Value* seedValue = executor->StackTop(error);
+				if (!seedValue)
+					return Executor::Result::RUNTIME_ERROR;
+				::srand((int)seedValue->AsNumber());
 				break;
 			}
 			case SysCall::AS_ITERATOR:
