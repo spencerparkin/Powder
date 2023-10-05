@@ -9,6 +9,11 @@ TerminalControl::TerminalControl(wxWindow* parent) : wxTextCtrl(parent, wxID_ANY
 	this->inputText = nullptr;
 	this->readOnly = true;
 	this->Bind(wxEVT_CHAR, &TerminalControl::OnCharPressed, this);
+
+	wxFont font;
+	font.SetFaceName("Courier New");
+	font.SetFamily(wxFONTFAMILY_MODERN);
+	this->SetFont(font);
 }
 
 /*virtual*/ TerminalControl::~TerminalControl()
