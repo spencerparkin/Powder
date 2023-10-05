@@ -28,7 +28,7 @@ public:
 	void OnStyleNeeded(wxStyledTextEvent& event);
 
 	void ShowExecutionSuspendedAt(int lineNumber, int columnNumber);
-	void ShowLineAndColumn(int lineNumber, int columnNumber);
+	void EnsureLineAndColumnVisible(int lineNumber, int columnNumber);
 	void ClearExecutionMarker();
 	void UpdateBreakpointMarkers();
 	void StyleRangeWithLexer(size_t startPos, size_t endPos);

@@ -255,17 +255,18 @@ void SourceFileEditControl::ShowExecutionSuspendedAt(int lineNumber, int columnN
 {
 	this->ClearExecutionMarker();
 	this->suspensionMarkerHandler = this->MarkerAdd(lineNumber - 1, 1);
-	this->ShowLineAndColumn(lineNumber, columnNumber);
+	this->EnsureLineAndColumnVisible(lineNumber, columnNumber);
 }
 
-void SourceFileEditControl::ShowLineAndColumn(int lineNumber, int columnNumber)
+void SourceFileEditControl::EnsureLineAndColumnVisible(int lineNumber, int columnNumber)
 {
-	this->GotoLine(lineNumber - 1);
-	this->GotoPos(columnNumber - 1);
 	int firstVisibleLine = this->GetFirstVisibleLine();
 	int lastVisibleLine = firstVisibleLine + this->LinesOnScreen();
 	if (lineNumber - 1 < firstVisibleLine || lineNumber - 1 > lastVisibleLine)
-		this->ScrollToLine(lineNumber - 1);
+	{
+		int position = this->PositionFromLine(lineNumber - 1) + columnNumber - 1;
+		this->GotoPos(position);
+	}
 }
 
 void SourceFileEditControl::ClearExecutionMarker()

@@ -115,7 +115,7 @@ void BreakpointsPanel::OnBreakpointsListItemActivated(wxListEvent& event)
 			SourceFileEditControl* editControl = sourceFilePanel->notebookControl->FindEditControl(breakpoint->sourceFile.GetFullPath());
 			if (editControl)
 			{
-				editControl->ShowLineAndColumn(breakpoint->lineNumber, 1);
+				editControl->EnsureLineAndColumnVisible(breakpoint->lineNumber, 1);
 			}
 		}
 	}
