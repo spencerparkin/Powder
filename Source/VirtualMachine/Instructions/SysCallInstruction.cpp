@@ -68,6 +68,8 @@ namespace Powder
 			return SysCall::RAND_FLOAT;
 		else if (funcName == "rand_seed")
 			return SysCall::RAND_SEED;
+		else if (funcName == "error")
+			return SysCall::ERROR_;
 
 		return SysCall::UNKNOWN;
 	}
@@ -92,6 +94,7 @@ namespace Powder
 			case SysCall::SIN:
 			case SysCall::TAN:
 			case SysCall::RAND_SEED:
+			case SysCall::ERROR_:
 				return 1;
 			case SysCall::RAND_INT:
 			case SysCall::RAND_FLOAT:
@@ -110,6 +113,14 @@ namespace Powder
 			case SysCall::EXIT:
 			{
 				return Executor::Result::HALT;
+			}
+			case SysCall::ERROR_:
+			{
+				GC::Reference<Value, true> valueRef;
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				error.Add("User error: " + valueRef.Get()->ToString());
+				return Executor::Result::RUNTIME_ERROR;
 			}
 			case SysCall::GC:
 			{

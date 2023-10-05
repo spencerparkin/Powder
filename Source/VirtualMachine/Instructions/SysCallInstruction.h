@@ -31,7 +31,8 @@ namespace Powder
 			RAND_SEED,
 			COS,
 			SIN,
-			TAN
+			TAN,
+			ERROR_
 		};
 
 		static SysCall TranslateAsSysCall(const std::string& funcName);
