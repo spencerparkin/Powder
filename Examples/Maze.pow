@@ -86,6 +86,12 @@ for(edge in maze_edges) {
     nodeB = edge[1];
     if(!in_same_group(nodeA, nodeB)) {
         merge_groups(nodeA, nodeB);
+
+        if(in_same_group(nodeA, nodeB))
+            output("It worked!\n")
+        else
+            output("It did NOT work!\n");
+
         if(nodeA.row + 1 == nodeB.row) {
             nodeA.pathway_deltas --< [0, 1];
             nodeB.pathway_deltas --< [0, -1];
