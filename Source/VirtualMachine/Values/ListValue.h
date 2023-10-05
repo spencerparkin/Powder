@@ -34,6 +34,10 @@ namespace Powder
 		Value* operator[](int i);
 		const Value* operator[](int i) const;
 
+		virtual bool IterationBegin(void*& userData) override;
+		virtual Object* IterationNext(void* userData) override;
+		virtual void IterationEnd(void* userData) override;
+
 	private:
 		LinkedList<GC::Reference<Value, false>> valueList;
 		mutable std::vector<LinkedList<GC::Reference<Value, false>>::Node*>* valueListIndex;

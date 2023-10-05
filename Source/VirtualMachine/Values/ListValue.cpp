@@ -200,6 +200,37 @@ namespace Powder
 		return new ListValueIterator(this);
 	}
 
+	/*virtual*/ bool ListValue::IterationBegin(void*& userData)
+	{
+		auto nodePtr = new LinkedList<GC::Reference<Value, false>>::Node*;
+		if (this->valueList.GetCount() == 0)
+			*nodePtr = nullptr;
+		else
+			*nodePtr = this->valueList.GetHead();
+		userData = nodePtr;
+		return true;
+	}
+
+	/*virtual*/ GC::Object* ListValue::IterationNext(void* userData)
+	{
+		GC::Object* object = nullptr;
+
+		auto nodePtr = (LinkedList<GC::Reference<Value, false>>::Node**)userData;
+		if (*nodePtr)
+		{
+			object = &(*nodePtr)->value;
+			*nodePtr = (*nodePtr)->GetNext();
+		}
+
+		return object;
+	}
+
+	/*virtual*/ void ListValue::IterationEnd(void* userData)
+	{
+		auto nodePtr = (LinkedList<GC::Reference<Value, false>>::Node**)userData;
+		delete nodePtr;
+	}
+
 	ListValueIterator::ListValueIterator(ListValue* listValue)
 	{
 		this->listValueRef.Set(listValue);
