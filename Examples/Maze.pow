@@ -81,6 +81,7 @@ for(row = 0; row < maze_rows; row++) {
 maze_edges = shuffle_list(maze_edges);
 
 # Okay, now go assemble the maze.
+group_count = maze_rows * maze_cols;
 for(edge in maze_edges) {
     nodeA = edge[0];
     nodeB = edge[1];
@@ -101,7 +102,9 @@ for(edge in maze_edges) {
         } else {
             # This is a user-generated run-time error.
             error("Expected nodes to be adjacent in the matrix.");
-        }
+        };
+        if(--group_count == 0)
+            break;
     }
 };
 
