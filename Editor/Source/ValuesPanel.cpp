@@ -36,6 +36,8 @@ ValuesPanel::ValuesPanel()
 	this->valueTreeControl = new wxTreeCtrl(this, wxID_ANY);
 
 	this->valueTreeControl->Bind(wxEVT_TREE_ITEM_MENU, &ValuesPanel::OnContextMenu, this);
+	this->valueTreeControl->Bind(wxEVT_TREE_ITEM_COLLAPSED, &ValuesPanel::OnTreeItemCollapsed, this);
+	this->valueTreeControl->Bind(wxEVT_TREE_ITEM_EXPANDED, &ValuesPanel::OnTreeItemExpanded, this);
 	this->valueTreeControl->Bind(wxEVT_MENU, &ValuesPanel::OnContextMenu_ModifyValue, this, ID_ModifyValue);
 	this->valueTreeControl->Bind(wxEVT_UPDATE_UI, &ValuesPanel::OnUpdateMenuItemUI, this, ID_ModifyValue);
 
@@ -116,6 +118,20 @@ void ValuesPanel::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 	}
 }
 
+void ValuesPanel::OnTreeItemCollapsed(wxTreeEvent& event)
+{
+	wxTreeItemId treeItemId = event.GetItem();
+	std::string itemText = (const char*)this->valueTreeControl->GetItemText(treeItemId).c_str();
+	this->expansionMap.erase(itemText);
+}
+
+void ValuesPanel::OnTreeItemExpanded(wxTreeEvent& event)
+{
+	wxTreeItemId treeItemId = event.GetItem();
+	std::string itemText = (const char*)this->valueTreeControl->GetItemText(treeItemId).c_str();
+	this->expansionMap.insert(itemText);
+}
+
 void ValuesPanel::RebuildValueTree(void)
 {
 	RunThread* runThread = wxGetApp().GetRunThread();
@@ -131,9 +147,25 @@ void ValuesPanel::RebuildValueTree(void)
 
 		wxTreeItemId rootItemId = this->valueTreeControl->GetRootItem();
 		if (rootItemId.IsOk())
+		{
 			this->GenerateValueItems(rootItemId);
+			this->ApplyExpansionMap(rootItemId);
+		}
+	}
+}
 
-		this->valueTreeControl->ExpandAll();
+void ValuesPanel::ApplyExpansionMap(wxTreeItemId parentItemId)
+{
+	std::string itemText = (const char*)this->valueTreeControl->GetItemText(parentItemId);
+	if (this->expansionMap.find(itemText) != this->expansionMap.end())
+		this->valueTreeControl->Expand(parentItemId);
+
+	wxTreeItemIdValue cookie;
+	wxTreeItemId childItemId = this->valueTreeControl->GetFirstChild(parentItemId, cookie);
+	while (childItemId.IsOk())
+	{
+		this->ApplyExpansionMap(childItemId);
+		childItemId = this->valueTreeControl->GetNextChild(childItemId, cookie);
 	}
 }
 

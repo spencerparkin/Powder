@@ -19,12 +19,16 @@ public:
 
 	enum
 	{
-		ID_ModifyValue = wxID_HIGHEST + 2000
+		ID_ModifyValue = wxID_HIGHEST + 2000,
+		ID_ItemCollapsed,
+		ID_ItemExpanded
 	};
 
 	void OnContextMenu(wxTreeEvent& event);
 	void OnContextMenu_ModifyValue(wxCommandEvent& event);
 	void OnUpdateMenuItemUI(wxUpdateUIEvent& event);
+	void OnTreeItemCollapsed(wxTreeEvent& event);
+	void OnTreeItemExpanded(wxTreeEvent& event);
 
 	void RebuildValueTree(void);
 
@@ -69,8 +73,10 @@ public:
 	wxTreeItemId GenerateScopeItems(Powder::Scope* scope);
 	void GenerateValueItems(wxTreeItemId parentItemId);
 	void GenerateTreeForValue(wxTreeItemId parentItemId, const wxString& name, Powder::Value* value, std::set<Powder::Value*>& valueSet);
+	void ApplyExpansionMap(wxTreeItemId parentItemId);
 
 	wxTreeCtrl* valueTreeControl;
 	wxTreeItemData* contextMenuItemData;
 	wxTreeItemId contextMenuItemId;
+	std::set<std::string> expansionMap;
 };
