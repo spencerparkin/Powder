@@ -124,8 +124,17 @@ namespace Powder
 	{
 		if (syntaxNode->parentNode)
 		{
-			if (*syntaxNode->parentNode->text == "return-statement" || *syntaxNode->parentNode->text == "while-statement")
+			if (*syntaxNode->parentNode->text == "if-statement")
+			{
+				if (syntaxNode->parentNode->GetChildCount() >= 2 && syntaxNode->parentNode->GetChild(1) == syntaxNode)
+					return false;
+			}
+
+			if (*syntaxNode->parentNode->text == "return-statement" ||
+				*syntaxNode->parentNode->text == "while-statement")
+			{
 				return false;
+			}
 
 			int i = (int)syntaxNode->parentNode->text->find("statement");
 			if (i >= 0)

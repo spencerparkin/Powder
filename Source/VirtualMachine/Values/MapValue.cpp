@@ -4,6 +4,7 @@
 #include "ListValue.h"
 #include "StringValue.h"
 #include "BooleanValue.h"
+#include "NullValue.h"
 
 namespace Powder
 {
@@ -32,6 +33,20 @@ namespace Powder
 			case MathInstruction::MathOp::SIZE:
 			{
 				return new NumberValue(this->valueMap.NumEntries());
+			}
+			case MathInstruction::MathOp::NOT_EQUAL:
+			{
+				if (dynamic_cast<const NullValue*>(value))
+					return new BooleanValue(true);
+
+				break;
+			}
+			case MathInstruction::MathOp::EQUAL:
+			{
+				if (dynamic_cast<const NullValue*>(value))
+					return new BooleanValue(false);
+
+				break;
 			}
 		}
 

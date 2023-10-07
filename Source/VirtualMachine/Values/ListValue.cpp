@@ -35,6 +35,20 @@ namespace Powder
 			{
 				return new NumberValue(this->Length());
 			}
+			case MathInstruction::MathOp::NOT_EQUAL:
+			{
+				if (dynamic_cast<const NullValue*>(value))
+					return new BooleanValue(true);
+
+				break;
+			}
+			case MathInstruction::MathOp::EQUAL:
+			{
+				if (dynamic_cast<const NullValue*>(value))
+					return new BooleanValue(false);
+
+				break;
+			}
 		}
 
 		const ListValue* listValue = dynamic_cast<const ListValue*>(value);
