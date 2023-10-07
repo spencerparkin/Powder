@@ -200,6 +200,8 @@ void ValuesPanel::GenerateValueItems(wxTreeItemId parentItemId)
 			this->GenerateTreeForValue(parentItemId, wxString(key), valueRef.Get(), valueSet);
 			return true;
 		});
+
+		this->valueTreeControl->SortChildren(parentItemId);
 	}
 }
 
@@ -246,4 +248,6 @@ void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString
 			return true;
 		});
 	}
+
+	valueSet.erase(value);
 }
