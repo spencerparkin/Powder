@@ -245,6 +245,9 @@ void ValuesPanel::GenerateValueItems(wxTreeItemId parentItemId)
 
 void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString& name, Powder::Value* value, std::set<Powder::Value*>& valueSet)
 {
+	// TODO: Only add this child if it is rooted to a scope item or its parent is visible/expanded.
+	//       But this also means we need to impliment double-click to expand tree items, and it will require a rebuild of the tree!
+
 	ValueTreeItemData* valueTreeItemData = new ValueTreeItemData(name, value);
 	wxTreeItemId childItemId = this->valueTreeControl->AppendItem(parentItemId, valueTreeItemData->CalcLabel(), -1, -1, valueTreeItemData);
 
