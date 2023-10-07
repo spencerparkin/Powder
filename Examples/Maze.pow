@@ -49,8 +49,8 @@ merge_groups = func(nodeA, nodeB) {
     repA.parent = repB;
 };
 
-maze_rows = 5;
-maze_cols = 5;
+maze_rows = 20;
+maze_cols = 20;
 
 # Generate maze graph vertices.
 maze_matrix = [];
