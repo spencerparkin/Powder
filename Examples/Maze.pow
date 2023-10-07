@@ -49,10 +49,11 @@ merge_groups = func(nodeA, nodeB) {
     repA.parent = repB;
 };
 
-maze_rows = 1;
-maze_cols = 2;
+maze_rows = 10;
+maze_cols = 20;
 
 # Generate maze graph vertices.
+output("Making vertices...\n");
 maze_matrix = [];
 for(row = 0; row < maze_rows; row++) {
     maze_matrix --< [];
@@ -62,6 +63,7 @@ for(row = 0; row < maze_rows; row++) {
 };
 
 # Generate maze graph edges.
+output("Making edges...\n");
 maze_edges = [];
 for(row = 0; row < maze_rows; row++) {
     for(col = 0; col < maze_cols; col++) {
@@ -78,9 +80,11 @@ for(row = 0; row < maze_rows; row++) {
 };
 
 # Now shuffle the edge array.  This is all we need to do to generate a random maze.
+output("Shuffling edges...\n");
 maze_edges = shuffle_list(maze_edges);
 
 # Okay, now go assemble the maze.
+output("Generating maze...\n");
 group_count = maze_rows * maze_cols;
 for(edge in maze_edges) {
     nodeA = edge[0];
@@ -109,6 +113,7 @@ for(edge in maze_edges) {
 };
 
 # Create a buffer we can render the maze into.
+output("Preparing render buffer...\n");
 print_matrix = [];
 for(row = 0; row < maze_rows * 3; row++) {
     print_matrix --< [];
@@ -118,18 +123,20 @@ for(row = 0; row < maze_rows * 3; row++) {
 };
 
 # Render the maze into the buffer.
+output("Rendering maze into buffer...\n");
 for(row = 0; row < maze_rows; row++) {
     for(col = 0; col < maze_cols; col++) {
         node = maze_matrix[row][col];
         for(pathway_delta in node.pathway_deltas) {
             dx = pathway_delta[0];
             dy = pathway_delta[1];
-            print_matrix[node.x + dx][node.y + dy] = " ";
+            print_matrix[node.y + dy][node.x + dx] = " ";
         };
     };
 };
 
 # Finally, go print the maze.
+output("Rendering maze to screen...\n");
 for(row = 0; row < maze_rows * 3; row++) {
     for(col = 0; col < maze_cols * 3; col++) {
         output(print_matrix[row][col]);
