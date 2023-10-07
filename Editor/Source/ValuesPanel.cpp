@@ -139,6 +139,8 @@ void ValuesPanel::RebuildValueTree(void)
 	{
 		this->valueTreeControl->DeleteAllItems();
 
+		return;		// TODO: Disable this for now until I can find a better solution.  No need for a total re-write, but just build the tree only so far as the expansion map?
+
 		std::vector<Powder::Scope*> scopeArray;
 		runThread->vm->GetAllCurrentScopes(scopeArray);
 
@@ -215,6 +217,10 @@ wxTreeItemId ValuesPanel::GenerateScopeItems(Powder::Scope* scope)
 
 void ValuesPanel::GenerateValueItems(wxTreeItemId parentItemId)
 {
+	// TODO: This just bogs down for programs with tons of data, and it is not unreasonable at all for
+	//       a program to have a ton of data, so really a better solution is needed here.  I think that
+	//       the tree should be created only so far as it is explored.
+
 	wxTreeItemIdValue cookie;
 	wxTreeItemId childItemId = this->valueTreeControl->GetFirstChild(parentItemId, cookie);
 	while (childItemId.IsOk())
