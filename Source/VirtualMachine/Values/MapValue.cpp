@@ -105,7 +105,7 @@ namespace Powder
 
 	/*virtual*/ bool MapValue::IterationBegin(void*& userData)
 	{
-		HashMap<GC::Reference<Value, false>>::iterator* iter = new HashMap<GC::Reference<Value, false>>::iterator();
+		auto iter = new HashMap<GC::Reference<Value, false>>::iterator();
 		*iter = this->valueMap.begin();
 		userData = iter;
 		return true;
@@ -113,7 +113,7 @@ namespace Powder
 
 	/*virtual*/ GC::Object* MapValue::IterationNext(void* userData)
 	{
-		HashMap<GC::Reference<Value, false>>::iterator* iter = (HashMap<GC::Reference<Value, false>>::iterator*)userData;
+		auto iter = (HashMap<GC::Reference<Value, false>>::iterator*)userData;
 		GC::Object* object = &(**iter);
 		++(*iter);
 		return object;
@@ -121,7 +121,7 @@ namespace Powder
 
 	/*virtual*/ void MapValue::IterationEnd(void* userData)
 	{
-		HashMap<GC::Reference<Value, false>>::iterator* iter = (HashMap<GC::Reference<Value, false>>::iterator*)userData;
+		auto iter = (HashMap<GC::Reference<Value, false>>::iterator*)userData;
 		delete iter;
 	}
 
