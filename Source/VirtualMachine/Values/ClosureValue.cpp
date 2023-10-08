@@ -26,4 +26,10 @@ namespace Powder
 	{
 		return new NullValue();
 	}
+
+	/*virtual*/ void ClosureValue::PopulateIterationArray(std::vector<Object*>& iterationArray)
+	{
+		AddressValue::PopulateIterationArray(iterationArray);
+		iterationArray.push_back(&this->scopeRef);
+	}
 }
