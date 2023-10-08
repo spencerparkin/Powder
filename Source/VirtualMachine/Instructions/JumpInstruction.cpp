@@ -47,6 +47,11 @@ namespace Powder
 				{
 					programBufferLocation = addressValue->programBufferLocation;
 					executable = addressValue->executableRef.Get();
+					if (!executable)
+					{
+						error.Add("Address value does not reference an executable.  Cannot jump!");
+						return Executor::Result::RUNTIME_ERROR;
+					}
 
 					ClosureValue* closureValue = dynamic_cast<ClosureValue*>(addressValue);
 					if (closureValue)
