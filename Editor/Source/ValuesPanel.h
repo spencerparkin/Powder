@@ -29,6 +29,7 @@ public:
 	void OnUpdateMenuItemUI(wxUpdateUIEvent& event);
 	void OnTreeItemCollapsed(wxTreeEvent& event);
 	void OnTreeItemExpanded(wxTreeEvent& event);
+	void OnTreeItemDoubleClicked(wxTreeEvent& event);
 
 	void RebuildValueTree(void);
 

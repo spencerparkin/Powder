@@ -38,6 +38,7 @@ ValuesPanel::ValuesPanel()
 	this->valueTreeControl->Bind(wxEVT_TREE_ITEM_MENU, &ValuesPanel::OnContextMenu, this);
 	this->valueTreeControl->Bind(wxEVT_TREE_ITEM_COLLAPSED, &ValuesPanel::OnTreeItemCollapsed, this);
 	this->valueTreeControl->Bind(wxEVT_TREE_ITEM_EXPANDED, &ValuesPanel::OnTreeItemExpanded, this);
+	this->valueTreeControl->Bind(wxEVT_TREE_ITEM_ACTIVATED, &ValuesPanel::OnTreeItemDoubleClicked, this);
 	this->valueTreeControl->Bind(wxEVT_MENU, &ValuesPanel::OnContextMenu_ModifyValue, this, ID_ModifyValue);
 	this->valueTreeControl->Bind(wxEVT_UPDATE_UI, &ValuesPanel::OnUpdateMenuItemUI, this, ID_ModifyValue);
 
@@ -132,14 +133,23 @@ void ValuesPanel::OnTreeItemExpanded(wxTreeEvent& event)
 	this->expansionMap.insert(itemText);
 }
 
+void ValuesPanel::OnTreeItemDoubleClicked(wxTreeEvent& event)
+{
+	wxTreeItemId treeItemId = event.GetItem();
+	std::string itemText = (const char*)this->valueTreeControl->GetItemText(treeItemId).c_str();
+	if (this->expansionMap.find(itemText) == this->expansionMap.end())
+		this->expansionMap.insert(itemText);
+	else
+		this->expansionMap.erase(itemText);
+	this->RebuildValueTree();
+}
+
 void ValuesPanel::RebuildValueTree(void)
 {
 	RunThread* runThread = wxGetApp().GetRunThread();
 	if (runThread)
 	{
 		this->valueTreeControl->DeleteAllItems();
-
-		return;		// TODO: Disable this for now until I can find a better solution.  No need for a total re-write, but just build the tree only so far as the expansion map?
 
 		std::vector<Powder::Scope*> scopeArray;
 		runThread->vm->GetAllCurrentScopes(scopeArray);
@@ -217,10 +227,6 @@ wxTreeItemId ValuesPanel::GenerateScopeItems(Powder::Scope* scope)
 
 void ValuesPanel::GenerateValueItems(wxTreeItemId parentItemId)
 {
-	// TODO: This just bogs down for programs with tons of data, and it is not unreasonable at all for
-	//       a program to have a ton of data, so really a better solution is needed here.  I think that
-	//       the tree should be created only so far as it is explored.
-
 	wxTreeItemIdValue cookie;
 	wxTreeItemId childItemId = this->valueTreeControl->GetFirstChild(parentItemId, cookie);
 	while (childItemId.IsOk())
@@ -245,8 +251,10 @@ void ValuesPanel::GenerateValueItems(wxTreeItemId parentItemId)
 
 void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString& name, Powder::Value* value, std::set<Powder::Value*>& valueSet)
 {
-	// TODO: Only add this child if it is rooted to a scope item or its parent is visible/expanded.
-	//       But this also means we need to impliment double-click to expand tree items, and it will require a rebuild of the tree!
+	wxTreeItemData* parentItemData = this->valueTreeControl->GetItemData(parentItemId);
+	std::string parentItemText = (const char*)this->valueTreeControl->GetItemText(parentItemId).c_str();
+	if (!dynamic_cast<ScopeTreeItemData*>(parentItemData) && this->expansionMap.find(parentItemText) == this->expansionMap.end())
+		return;
 
 	ValueTreeItemData* valueTreeItemData = new ValueTreeItemData(name, value);
 	wxTreeItemId childItemId = this->valueTreeControl->AppendItem(parentItemId, valueTreeItemData->CalcLabel(), -1, -1, valueTreeItemData);
