@@ -127,7 +127,6 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string ListInstruction::Print(void) const
 	{
 		std::string detail;
@@ -139,5 +138,4 @@ namespace Powder
 			detail += std::format("{}", actionEntry->code);
 		return detail;
 	}
-#endif
 }

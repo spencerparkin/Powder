@@ -51,7 +51,6 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string LoadInstruction::Print(void) const
 	{
 		std::string detail;
@@ -60,5 +59,4 @@ namespace Powder
 		detail += nameEntry ? nameEntry->string : "?";
 		return detail;
 	}
-#endif
 }

@@ -51,7 +51,6 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string StoreInstruction::Print(void) const
 	{
 		std::string detail;
@@ -63,5 +62,4 @@ namespace Powder
 			detail += nameEntry->string;
 		return detail;
 	}
-#endif
 }

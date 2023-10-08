@@ -28,12 +28,10 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string YieldInstruction::Print(void) const
 	{
 		std::string detail;
 		detail += "yield";
 		return detail;
 	}
-#endif
 }

@@ -49,7 +49,6 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string ForkInstruction::Print(void) const
 	{
 		std::string detail;
@@ -58,5 +57,4 @@ namespace Powder
 		detail += std::format("{}", (forkEntry ? forkEntry->instruction->assemblyData->programBufferLocation : -1));
 		return detail;
 	}
-#endif
 }

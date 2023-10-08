@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 		{
 			while (true)
 			{
-				std::cout << "Powder: ";
+				std::cout << "\nPowder: ";
 				std::string sourceCode;
 				std::getline(std::cin, sourceCode);
 				if (sourceCode == "exit")

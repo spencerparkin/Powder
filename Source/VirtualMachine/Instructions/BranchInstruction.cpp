@@ -53,7 +53,6 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string BranchInstruction::Print(void) const
 	{
 		std::string detail;
@@ -62,5 +61,4 @@ namespace Powder
 		detail += std::format("{:#08x}", (branchEntry ? branchEntry->instruction->assemblyData->programBufferLocation : -1));
 		return detail;
 	}
-#endif
 }

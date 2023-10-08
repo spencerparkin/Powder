@@ -347,7 +347,6 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string SysCallInstruction::Print(void) const
 	{
 		std::string detail;
@@ -359,5 +358,4 @@ namespace Powder
 			detail += std::format("{}", sysCallEntry->code);
 		return detail;
 	}
-#endif
 }

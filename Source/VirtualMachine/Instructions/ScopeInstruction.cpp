@@ -81,7 +81,6 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string ScopeInstruction::Print(void) const
 	{
 		std::string detail;
@@ -99,5 +98,4 @@ namespace Powder
 			detail += "???";
 		return detail;
 	}
-#endif
 }

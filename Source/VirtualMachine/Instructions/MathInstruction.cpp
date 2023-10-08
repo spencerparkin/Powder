@@ -269,7 +269,6 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string MathInstruction::Print(void) const
 	{
 		std::string detail;
@@ -278,5 +277,4 @@ namespace Powder
 		detail += std::format("{}", (mathOpEntry ? mathOpEntry->code : -1));
 		return detail;
 	}
-#endif
 }

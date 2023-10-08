@@ -35,12 +35,10 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string PopInstruction::Print(void) const
 	{
 		std::string detail;
 		detail += "pop";
 		return detail;
 	}
-#endif
 }

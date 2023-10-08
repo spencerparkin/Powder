@@ -153,7 +153,6 @@ namespace Powder
 		return true;
 	}
 
-#if defined POWDER_DEBUG
 	/*virtual*/ std::string PushInstruction::Print(void) const
 	{
 		std::string detail;
@@ -183,5 +182,4 @@ namespace Powder
 		}
 		return detail;
 	}
-#endif
 }

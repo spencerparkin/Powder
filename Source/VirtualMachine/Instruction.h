@@ -54,10 +54,8 @@ namespace Powder
 		// the buffer; the assembler does that for you.
 		virtual bool Assemble(Executable* executable, uint64_t& programBufferLocation, AssemblyPass assemblyPass, Error& error) const = 0;
 
-#if defined POWDER_DEBUG
 		// This lets us print a disassembled version of the program.
 		virtual std::string Print(void) const = 0;
-#endif
 
 		// This pointer is setup by the compiler and used during
 		// assembly to know how to configure and link the instruction.

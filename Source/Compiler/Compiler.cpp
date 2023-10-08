@@ -53,10 +53,6 @@ namespace Powder
 			error.Add(errorStr);
 			return nullptr;
 		}
-		
-#if defined POWDER_DEBUG
-		rootSyntaxNode->Print(std::cout);
-#endif
 
 		// Perform some post-processing on the AST.
 		while (this->PerformReductions(rootSyntaxNode)) {}
