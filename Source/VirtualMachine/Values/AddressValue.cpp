@@ -33,4 +33,9 @@ namespace Powder
 	{
 		return std::format("Addr: {}", int(this->programBufferLocation));
 	}
+
+	/*virtual*/ void AddressValue::PopulateIterationArray(std::vector<Object*>& iterationArray)
+	{
+		iterationArray.push_back(&this->executableRef);
+	}
 }
