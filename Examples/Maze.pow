@@ -144,4 +144,4 @@ for(row = 0; row < maze_rows * 3; row++) {
     output("\n");
 };
 
-output("Done!\n");
+output("Maze is " + maze_rows + " rows by " + maze_cols + " columns\n");
