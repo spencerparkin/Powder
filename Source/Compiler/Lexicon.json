@@ -33,6 +33,7 @@
           "*",
           "/",
           "%",
+          "^",
           ":",
           "<",
           "<=",
@@ -67,7 +68,12 @@
           "del",
           "null",
           "break",
-          "continue"
+          "continue",
+          "emptyset",
+          "in",
+          "len",
+          "remove",
+          "insert"
         ]
       }
     },

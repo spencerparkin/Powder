@@ -1,0 +1,44 @@
+# Set.pow
+
+x = 1;
+
+set_a = emptyset;
+set_b = {x, 2, 3};
+
+if(x in set_b) {
+    remove(set_b, x);
+    insert(set_a, x);
+};
+
+if(!(2 in set_b)) {
+    output("Not in there!\n");
+};
+
+set_a += 2;
+
+set_c = set_a ^ set_b;  # Intersection
+set_d = set_a + set_b;  # Union
+set_e = set_a - set_b;  # Difference
+set_f = set_b - set_a;  # Other difference
+
+print_set = func(set, label) {
+    output("----------------------------\n");
+    output(label + ":\n");
+    for(x in set)
+        output(as_str(x) + "\n");
+};
+
+print_set(set_a, "set_a");
+print_set(set_b, "set_b");
+print_set(set_c, "set_c");
+print_set(set_d, "set_d");
+print_set(set_e, "set_e");
+print_set(set_f, "set_f");
+
+output("Draining set_a...\n");
+while(len(set_a) > 0) {
+    x = del set_a;
+    output(x + "\n");
+};
+
+output("Set drained!\n");

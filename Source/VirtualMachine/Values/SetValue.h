@@ -2,19 +2,21 @@
 
 #include "ContainerValue.h"
 #include "CppFunctionValue.h"
-#include "HashMap.hpp"
 #include "Reference.h"
 
 namespace Powder
 {
-	class ListValue;
+	class SetValueIterator;
 
-	class POWDER_API MapValue : public ContainerValue
+	class POWDER_API SetValue : public ContainerValue
 	{
-	public:
-		MapValue();
-		virtual ~MapValue();
+		friend SetValueIterator;
 
+	public:
+		SetValue();
+		virtual ~SetValue();
+
+		// For the VM:
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 		virtual std::string ToString() const override;
@@ -24,34 +26,34 @@ namespace Powder
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 
-		ListValue* GenerateKeyListValue();
-
-		void SetField(const char* key, Value* dataValue);
-		Value* GetField(const char* key);
-		bool DelField(const char* key, GC::Reference<Value, true>& valueRef);
-
-		HashMap<GC::Reference<Value, false>>& GetValueMap() { return this->valueMap; }
-		const HashMap<GC::Reference<Value, false>>& GetValueMap() const { return this->valueMap; }
-
+		// For the GC:
 		virtual bool IterationBegin(void*& userData) override;
 		virtual Object* IterationNext(void* userData) override;
 		virtual void IterationEnd(void* userData) override;
 
-	private:
+		// Misc:
+		void Clear();
+		SetValue* CalculateUnionWith(const SetValue* setValue) const;
+		SetValue* CalculateIntersectionWith(const SetValue* setValue) const;
+		SetValue* CalculateDifferenceWith(const SetValue* setValue) const;
+		bool IsEQualTo(const SetValue* setValue) const;
 
-		// TODO: Maybe replace this with std::map?
-		HashMap<GC::Reference<Value, false>> valueMap;
+		typedef std::map<Value*, GC::Reference<Value, false>*> Map;
+
+	private:
+		
+		Map* map;
 	};
 
-	class POWDER_API MapValueIterator : public CppFunctionValue
+	class POWDER_API SetValueIterator : public CppFunctionValue
 	{
 	public:
-		MapValueIterator(MapValue* mapValue);
-		virtual ~MapValueIterator();
+		SetValueIterator(SetValue* setValue);
+		virtual ~SetValueIterator();
 
 		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error) override;
 
-		GC::Reference<MapValue, false> mapValueRef;
-		HashMap<GC::Reference<Value, false>>::iterator mapIter;
+		GC::Reference<SetValue, false> setValueRef;
+		SetValue::Map::iterator* mapIter;
 	};
 }

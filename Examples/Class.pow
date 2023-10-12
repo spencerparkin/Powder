@@ -1,0 +1,37 @@
+# Class.pow
+
+new_point = func(x, y) {
+    inst = {
+        "x": x,
+        "y": y
+    };
+    inst.mag = func[inst]() {
+        return inst.x * inst.x + inst.y * inst.y;       # TODO: Add sqrt() sys-call.
+    };
+    inst.print = func[inst]() {
+        output("<" + inst.x + ", " + inst.y + ">\n");
+    };
+    return inst;
+};
+
+new_complex = func(x, y) {
+    inst = new_point(x, y);
+    inst.conj = func[inst]() {
+        return new_complex(inst.x, -inst.y);
+    };
+    return inst;
+};
+
+a = new_point(2, 3);
+b = new_point(4, -5);
+
+a.print();
+b.print();
+
+output("|a| = " + a.mag() + "\n");
+output("|b| = " + b.mag() + "\n");
+
+c = new_complex(4, 5);
+c = c.conj();
+
+c.print();

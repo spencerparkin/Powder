@@ -157,7 +157,8 @@
       [ "expression", "-", "expression" ],
       [ "expression", "*", "expression" ],
       [ "expression", "/", "expression" ],
-      [ "expression", "%", "expression" ]
+      [ "expression", "%", "expression" ],
+      [ "expression", "^", "expression" ]
     ],
     "unary-expression": [
       [ "left-unary-expression" ],
@@ -176,12 +177,30 @@
     "wrapped-expression": [
       [ "(", "expression", ")" ]
     ],
+    "comprehension-expression": [
+      [ "list-comprehension-expression" ],
+      [ "map-comprehension-expression" ],
+      [ "set-comprehension-expression" ]
+    ],
+    "list-comprehension-expression": [
+      [ "[", "expression", "for", "for-iteration-expression", "]" ],
+      [ "[", "expression", "for", "for-iteration-expression", "if", "expression", "]" ]
+    ],
+    "map-comprehension-expression": [
+      [ "{", "expression", ":", "for-iteration-expression", "in", "expression", "}" ],
+      [ "{", "expression", ":", "for-iteration-expression", "in", "expression", "if", "expression", "}" ]
+    ],
+    "set-comprehension-expression": [
+      [ "{", "expression", "for", "for-iteration-expression", "}" ],
+      [ "{", "expression", "for", "for-iteration-expression", "if", "expression", "}" ]
+    ],
     "literal": [
       [ "null" ],
       [ "@string" ],
       [ "@number" ],
       [ "list-literal" ],
-      [ "map-literal" ]
+      [ "map-literal" ],
+      [ "set-literal" ]
     ],
     "list-literal": [
       [ "[", "]" ],
@@ -201,6 +220,14 @@
     ],
     "map-pair": [
       [ "expression", ":", "expression" ]
+    ],
+    "set-literal": [
+      [ "emptyset" ],
+      [ "{", "set-member-list", "}" ]
+    ],
+    "set-member-list": [
+      [ "set-member-list", ",", "set-member-list" ],
+      [ "expression" ]
     ],
     "function-call": [
       [ "expression", "(", ")", -1 ],
