@@ -69,9 +69,7 @@
           "continue",
           "emptyset",
           "in",
-          "len",
-          "remove",
-          "insert"
+          "len"
         ]
       }
     },

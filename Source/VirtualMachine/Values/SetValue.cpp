@@ -148,49 +148,33 @@ bool SetValue::IsEQualTo(const SetValue* setValue) const
 	return "set";
 }
 
-/*virtual*/ bool SetValue::SetField(Value* fieldValue, Value* dataValue, Error& error)
-{
-	if (fieldValue)
-	{
-		error.Add("Field value not used with sets.");
-		return false;
-	}
-
-	if (this->map->find(dataValue) == this->map->end())
-		this->map->insert(std::pair<Value*, GC::Reference<Value, false>*>(dataValue, new GC::Reference<Value, false>(dataValue)));
-
-	return true;
-}
-
-/*virtual*/ Value* SetValue::GetField(Value* fieldValue, Error& error)
-{
-	error.Add("No supported.");
-	return nullptr;
-}
-
-/*virtual*/ bool SetValue::DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error)
-{
-	if (fieldValue)
-	{
-		error.Add("Field value not used with sets.");
-		return false;
-	}
-
-	if (this->map->size() == 0)
-	{
-		error.Add("Can't remove element from empty set.");
-		return false;
-	}
-
-	Map::iterator iter = this->map->begin();
-	valueRef.Set(iter->first);
-	this->map->erase(iter);
-	return true;
-}
-
 /*virtual*/ BooleanValue* SetValue::IsMember(const Value* value) const
 {
 	return new BooleanValue(this->map->find(const_cast<Value*>(value)) != this->map->end());
+}
+
+/*virtual*/ bool SetValue::AddMember(Value* value, Error& error)
+{
+	if (this->map->find(value) == this->map->end())
+	{
+		this->map->insert(std::pair<Value*, GC::Reference<Value, false>*>(value, new GC::Reference<Value, false>(value)));
+		return true;
+	}
+
+	return false;
+}
+
+/*virtual*/ bool SetValue::RemoveMember(Value* value, Error& error)
+{
+	Map::iterator iter = this->map->find(value);
+	if (iter != this->map->end())
+	{
+		delete iter->second;
+		this->map->erase(iter);
+		return true;
+	}
+
+	return false;
 }
 
 /*virtual*/ CppFunctionValue* SetValue::MakeIterator(void)

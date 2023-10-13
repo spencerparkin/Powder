@@ -44,7 +44,7 @@ namespace Powder
 			GREATER_THAN,
 			GREATER_THAN_OR_EQUAL,
 
-			// List and map operations:
+			// List, map & set operations:
 			GET_FIELD,			// Binary
 			SET_FIELD,			// Ternary
 			DEL_FIELD,			// Binary

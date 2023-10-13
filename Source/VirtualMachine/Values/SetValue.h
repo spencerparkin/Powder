@@ -21,9 +21,8 @@ namespace Powder
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 		virtual std::string ToString() const override;
 		virtual std::string GetTypeString() const override;
-		virtual bool SetField(Value* fieldValue, Value* dataValue, Error& error) override;
-		virtual Value* GetField(Value* fieldValue, Error& error) override;
-		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error) override;
+		virtual bool AddMember(Value* value, Error& error) override;
+		virtual bool RemoveMember(Value* value, Error& error) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 

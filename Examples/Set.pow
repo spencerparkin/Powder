@@ -6,8 +6,8 @@ set_a = emptyset;
 set_b = {x, 2, 3};
 
 if(x in set_b) {
-    remove(set_b, x);
-    insert(set_a, x);
+    add_member(set_b, x);
+    del_member(set_a, x);
 };
 
 if(!(2 in set_b)) {
@@ -37,7 +37,8 @@ print_set(set_f, "set_f");
 
 output("Draining set_a...\n");
 while(len(set_a) > 0) {
-    x = del set_a;
+    x = any_member(set_a);
+    del_member(set_a, x);
     output(x + "\n");
 };
 

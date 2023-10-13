@@ -9,6 +9,7 @@
 #include "CppFunctionValue.h"
 #include "BooleanValue.h"
 #include "AddressValue.h"
+#include "SetValue.h"
 #include "MapValue.h"
 #include "NullValue.h"
 #include "VirtualMachine.h"
@@ -79,6 +80,12 @@ namespace Powder
 			return SysCall::RAND_FLOAT;
 		else if (funcName == "rand_seed")
 			return SysCall::RAND_SEED;
+		else if (funcName == "del_member")
+			return SysCall::DEL_MEMBER;
+		else if (funcName == "add_member")
+			return SysCall::ADD_MEMBER;
+		else if (funcName == "any_member")
+			return SysCall::ANY_MEMBER;
 		else if (funcName == "error")
 			return SysCall::ERROR_;
 
@@ -109,8 +116,11 @@ namespace Powder
 			case SysCall::SQRT:
 			case SysCall::TYPE:
 			case SysCall::RAND_SEED:
+			case SysCall::ANY_MEMBER:
 			case SysCall::ERROR_:
 				return 1;
+			case SysCall::ADD_MEMBER:
+			case SysCall::DEL_MEMBER:
 			case SysCall::RAND_INT:
 			case SysCall::RAND_FLOAT:
 			case SysCall::SAME:
@@ -308,6 +318,47 @@ namespace Powder
 					return Executor::Result::RUNTIME_ERROR;
 				StringValue* stringValue = new StringValue(valueRef.Get()->GetTypeString());
 				if (!executor->PushValueOntoEvaluationStackTop(stringValue, error))
+					return Executor::Result::RUNTIME_ERROR;
+				break;
+			}
+			case SysCall::DEL_MEMBER:
+			case SysCall::ADD_MEMBER:
+			{
+				GC::Reference<Value, true> setValueRef, memberValueRef;
+				if (!executor->PopValueFromEvaluationStackTop(setValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PopValueFromEvaluationStackTop(memberValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				SetValue* setValue = dynamic_cast<SetValue*>(setValueRef.Get());
+				if (!setValue)
+				{
+					error.Add("Expected set value for add/del member call.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
+				bool resultBool = false;
+				if (sysCallCode == SysCall::ADD_MEMBER)
+					resultBool = setValue->AddMember(memberValueRef.Get(), error);
+				else if (sysCallCode == SysCall::DEL_MEMBER)
+					resultBool = setValue->RemoveMember(memberValueRef.Get(), error);
+				if (!executor->PushValueOntoEvaluationStackTop(new BooleanValue(resultBool), error))
+					return Executor::Result::RUNTIME_ERROR;
+				break;
+			}
+			case SysCall::ANY_MEMBER:
+			{
+				GC::Reference<Value, true> setValueRef;
+				if (!executor->PopValueFromEvaluationStackTop(setValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				SetValue* setValue = dynamic_cast<SetValue*>(setValueRef.Get());
+				if (!setValue)
+				{
+					error.Add("Expected set value for any member call.");
+					return Executor::Result::RUNTIME_ERROR;
+				}
+				Value* memberValue = setValue->AnyMember(error);
+				if (!memberValue)
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PushValueOntoEvaluationStackTop(memberValue, error))
 					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}

@@ -37,6 +37,9 @@ namespace Powder
 			SQRT,
 			TYPE,
 			SAME,
+			ADD_MEMBER,
+			DEL_MEMBER,
+			ANY_MEMBER,
 			ERROR_
 		};
 
