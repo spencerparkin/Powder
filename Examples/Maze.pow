@@ -38,7 +38,7 @@ find_rep = func(node) {
 in_same_group = func(nodeA, nodeB) {
     repA = find_rep(nodeA);
     repB = find_rep(nodeB);
-    return &repA == &repB;
+    return same(repA, repB);
 };
 
 merge_groups = func(nodeA, nodeB) {

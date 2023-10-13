@@ -24,6 +24,11 @@ namespace Powder
 		return new NumberValue(this->number);
 	}
 
+	/*virtual*/ std::string NumberValue::GetTypeString() const
+	{
+		return "number";
+	}
+
 	/*virtual*/ Value* NumberValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		switch (mathOp)

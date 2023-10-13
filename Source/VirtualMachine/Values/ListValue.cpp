@@ -27,6 +27,11 @@ namespace Powder
 		return std::format("List of length {}", this->Length());
 	}
 
+	/*virtual*/ std::string ListValue::GetTypeString() const
+	{
+		return "list";
+	}
+
 	/*virtual*/ Value* ListValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		switch (mathOp)

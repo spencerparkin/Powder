@@ -7,6 +7,7 @@
 #include "StringValue.h"
 #include "ContainerValue.h"
 #include "CppFunctionValue.h"
+#include "BooleanValue.h"
 #include "AddressValue.h"
 #include "MapValue.h"
 #include "NullValue.h"
@@ -62,6 +63,16 @@ namespace Powder
 			return SysCall::SIN;
 		else if (funcName == "tan")
 			return SysCall::TAN;
+		else if (funcName == "log")
+			return SysCall::LOG;
+		else if (funcName == "exp")
+			return SysCall::EXP;
+		else if (funcName == "sqrt")
+			return SysCall::SQRT;
+		else if (funcName == "type")
+			return SysCall::TYPE;
+		else if (funcName == "same")
+			return SysCall::SAME;
 		else if (funcName == "rand_int")
 			return SysCall::RAND_INT;
 		else if (funcName == "rand_float")
@@ -93,11 +104,16 @@ namespace Powder
 			case SysCall::COS:
 			case SysCall::SIN:
 			case SysCall::TAN:
+			case SysCall::LOG:
+			case SysCall::EXP:
+			case SysCall::SQRT:
+			case SysCall::TYPE:
 			case SysCall::RAND_SEED:
 			case SysCall::ERROR_:
 				return 1;
 			case SysCall::RAND_INT:
 			case SysCall::RAND_FLOAT:
+			case SysCall::SAME:
 				return 2;
 		}
 
@@ -220,6 +236,9 @@ namespace Powder
 			case SysCall::COS:
 			case SysCall::SIN:
 			case SysCall::TAN:
+			case SysCall::LOG:
+			case SysCall::EXP:
+			case SysCall::SQRT:
 			{
 				GC::Reference<Value, true> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
@@ -231,6 +250,9 @@ namespace Powder
 					case SysCall::COS: output = ::cos(input); break;
 					case SysCall::SIN: output = ::sin(input); break;
 					case SysCall::TAN: output = ::tan(input); break;
+					case SysCall::EXP: output = ::exp(input); break;
+					case SysCall::LOG: output = ::log(input); break;
+					case SysCall::SQRT: output = ::sqrt(input); break;
 				}
 				if (!executor->PushValueOntoEvaluationStackTop(new NumberValue(output), error))
 					return Executor::Result::RUNTIME_ERROR;
@@ -265,6 +287,28 @@ namespace Powder
 				if (!seedValue)
 					return Executor::Result::RUNTIME_ERROR;
 				::srand((int)seedValue->AsNumber());
+				break;
+			}
+			case SysCall::SAME:
+			{
+				GC::Reference<Value, true> valueARef, valueBRef;
+				if (!executor->PopValueFromEvaluationStackTop(valueARef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PopValueFromEvaluationStackTop(valueBRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				BooleanValue* booleanValue = new BooleanValue(valueARef.Get() == valueBRef.Get());
+				if (!executor->PushValueOntoEvaluationStackTop(booleanValue, error))
+					return Executor::Result::RUNTIME_ERROR;
+				break;
+			}
+			case SysCall::TYPE:
+			{
+				GC::Reference<Value, true> valueRef;
+				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				StringValue* stringValue = new StringValue(valueRef.Get()->GetTypeString());
+				if (!executor->PushValueOntoEvaluationStackTop(stringValue, error))
+					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
 			case SysCall::AS_ITERATOR:

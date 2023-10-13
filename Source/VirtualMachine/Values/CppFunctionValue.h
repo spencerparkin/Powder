@@ -15,5 +15,6 @@ namespace Powder
 
 		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error) = 0;
 		virtual std::string ToString() const override;
+		virtual std::string GetTypeString() const override;
 	};
 }

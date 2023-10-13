@@ -38,4 +38,9 @@ namespace Powder
 	{
 		iterationArray.push_back(&this->executableRef);
 	}
+
+	/*virtual*/ std::string AddressValue::GetTypeString() const
+	{
+		return "address";
+	}
 }

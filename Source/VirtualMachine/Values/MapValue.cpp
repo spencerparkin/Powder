@@ -26,6 +26,11 @@ namespace Powder
 		return std::format("Map of size {}", this->valueMap.NumEntries());
 	}
 
+	/*virtual*/ std::string MapValue::GetTypeString() const
+	{
+		return "map";
+	}
+
 	/*virtual*/ Value* MapValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		switch (mathOp)

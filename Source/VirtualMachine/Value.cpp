@@ -39,4 +39,9 @@ namespace Powder
 	{
 		return 0.0f;
 	}
+
+	/*virtual*/ std::string Value::GetTypeString() const
+	{
+		return "unknown";
+	}
 }

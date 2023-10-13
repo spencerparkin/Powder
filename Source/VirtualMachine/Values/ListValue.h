@@ -24,6 +24,7 @@ namespace Powder
 		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
+		virtual std::string GetTypeString() const override;
 
 		void PushLeft(Value* value);
 		bool PopLeft(GC::Reference<Value, true>& valueRef, Error& error);

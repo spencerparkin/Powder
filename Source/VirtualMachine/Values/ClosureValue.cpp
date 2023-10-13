@@ -32,4 +32,9 @@ namespace Powder
 		AddressValue::PopulateIterationArray(iterationArray);
 		iterationArray.push_back(&this->scopeRef);
 	}
+
+	/*virtual*/ std::string ClosureValue::GetTypeString() const
+	{
+		return "closure";
+	}
 }

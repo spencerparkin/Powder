@@ -15,4 +15,9 @@ namespace Powder
 	{
 		return "C++ function";
 	}
+
+	/*virtual*/ std::string CppFunctionValue::GetTypeString() const
+	{
+		return "c++function";
+	}
 }

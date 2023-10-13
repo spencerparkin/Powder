@@ -32,6 +32,11 @@ namespace Powder
 			COS,
 			SIN,
 			TAN,
+			LOG,
+			EXP,
+			SQRT,
+			TYPE,
+			SAME,
 			ERROR_
 		};
 

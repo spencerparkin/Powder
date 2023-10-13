@@ -18,7 +18,8 @@ namespace Powder
 		virtual std::string ToString() const override;
 		virtual bool FromString(const std::string& str) override;
 		virtual bool AsBoolean() const override;
-		virtual double AsNumber() const;
+		virtual double AsNumber() const override;
+		virtual std::string GetTypeString() const override;
 
 		void SetString(const std::string& str) { *this->str = str; }
 		const std::string& GetString() const { return *this->str; }

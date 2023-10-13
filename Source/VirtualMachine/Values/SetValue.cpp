@@ -143,6 +143,11 @@ bool SetValue::IsEQualTo(const SetValue* setValue) const
 	return std::format("Set of size {}", this->map->size());
 }
 
+/*virtual*/ std::string SetValue::GetTypeString() const
+{
+	return "set";
+}
+
 /*virtual*/ bool SetValue::SetField(Value* fieldValue, Value* dataValue, Error& error)
 {
 	if (fieldValue)

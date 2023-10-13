@@ -50,10 +50,6 @@ namespace Powder
 			DEL_FIELD,			// Binary
 			SIZE,				// Unary
 			CONTAINS,			// Binary
-
-			// Unary reference operations:
-			REFERENCE,
-			DEREFERENCE
 		};
 
 		static MathOp TranslateBinaryOperatorInfixToken(const std::string& tokenText);

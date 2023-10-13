@@ -25,6 +25,11 @@ namespace Powder
 		return new StringValue(*this->str);
 	}
 
+	/*virtual*/ std::string StringValue::GetTypeString() const
+	{
+		return "string";
+	}
+
 	/*virtual*/ Value* StringValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		std::string strCast = value->ToString();
