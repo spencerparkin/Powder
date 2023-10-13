@@ -160,21 +160,19 @@ namespace Powder
 				std::string str;
 				virtualMachine->GetIODevice()->InputString(str);
 
-				Value* value = nullptr;
+				GC::Reference<Value, true> valueRef;
+				valueRef.Set(new NumberValue());
 
-				// Note that we don't need to free these values,
-				// because their memory is managed by the GC.
-				value = new NumberValue();
-				if (!value->FromString(str))
+				if (!valueRef.Get()->FromString(str))
 				{
-					value = new StringValue();
-					if (!value->FromString(str))
+					valueRef.Set(new StringValue());
+					if (!valueRef.Get()->FromString(str))
 					{
-						value = new NullValue();
+						valueRef.Set(new NullValue());
 					}
 				}
 
-				if (!executor->PushValueOntoEvaluationStackTop(value, error))
+				if (!executor->PushValueOntoEvaluationStackTop(valueRef.Get(), error))
 					return Executor::Result::RUNTIME_ERROR;
 
 				break;

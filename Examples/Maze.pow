@@ -49,8 +49,21 @@ merge_groups = func(nodeA, nodeB) {
     repA.parent = repB;
 };
 
-maze_rows = 10;
-maze_cols = 20;
+get_clamped_number = func(prompt, min, max) {
+    while(1) {
+        output(prompt);
+        value = input();
+        if(min <= value && value <= max)
+            break;
+        output("Number given must be between " + as_str(min) + " and " + as_str(max) + ".\n");
+    };
+    return value;
+};
+
+# Get random seed and dimensions from user.
+rand_seed(get_clamped_number("Random seed: ", -1000, 1000));
+maze_rows = get_clamped_number("Maze rows: ", 2, 20);
+maze_cols = get_clamped_number("Maze columns: ", 2, 20);
 
 # Generate maze graph vertices.
 output("Making vertices...\n");
