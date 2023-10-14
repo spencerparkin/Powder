@@ -47,6 +47,8 @@ namespace Powder
 			typeEntry.code = PushInstruction::DataType::EMPTY_LIST;
 		else if (*literalTypeNode->text == "map-literal")
 			typeEntry.code = PushInstruction::DataType::EMPTY_MAP;
+		else if (*literalTypeNode->text == "set-literal")
+			typeEntry.code = PushInstruction::DataType::EMPTY_SET;
 		else
 		{
 			error.Add(std::string(literalTypeNode->fileLocation) + std::format("Did not recognize \"{}\" data-type under \"literal\" in AST.", literalTypeNode->text->c_str()));
@@ -56,9 +58,9 @@ namespace Powder
 		pushInstruction->assemblyData->configMap.Insert("type", typeEntry);
 		pushInstruction->assemblyData->configMap.Insert("data", dataEntry);
 
-		if (*literalTypeNode->text == "list-literal" || *literalTypeNode->text == "map-literal")
+		if (*literalTypeNode->text == "list-literal" || *literalTypeNode->text == "map-literal" || *literalTypeNode->text == "set-literal")
 		{
-			// In this case, next come the instructions that populate the list or map.
+			// In this case, next come the instructions that populate the list, map or set.
 			if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, literalTypeNode, error))
 			{
 				error.Add(std::string(literalTypeNode->fileLocation) + "Failed to generate instruction to populate list or map.");

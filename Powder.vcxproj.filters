@@ -211,6 +211,9 @@
     <ClCompile Include="Source\VirtualMachine\Values\SetValue.cpp">
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\SetExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -407,6 +410,9 @@
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Values\SetValue.h">
       <Filter>Source\VirtualMachine\Values</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\SetExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

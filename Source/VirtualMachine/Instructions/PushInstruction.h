@@ -19,6 +19,7 @@ namespace Powder
 			STRING,
 			EMPTY_LIST,
 			EMPTY_MAP,
+			EMPTY_SET,
 			ADDRESS,
 			CLOSURE,
 			EXISTING_VALUE

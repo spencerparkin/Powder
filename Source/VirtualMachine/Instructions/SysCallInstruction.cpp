@@ -323,9 +323,9 @@ namespace Powder
 			case SysCall::ADD_MEMBER:
 			{
 				GC::Reference<Value, true> setValueRef, memberValueRef;
-				if (!executor->PopValueFromEvaluationStackTop(setValueRef, error))
-					return Executor::Result::RUNTIME_ERROR;
 				if (!executor->PopValueFromEvaluationStackTop(memberValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PopValueFromEvaluationStackTop(setValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				SetValue* setValue = dynamic_cast<SetValue*>(setValueRef.Get());
 				if (!setValue)

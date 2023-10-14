@@ -4,6 +4,7 @@
 #include "EditorApp.h"
 #include "ListValue.h"
 #include "MapValue.h"
+#include "SetValue.h"
 #include "ClosureValue.h"
 #include "EditorApp.h"
 #include "EditorFrame.h"
@@ -287,6 +288,13 @@ void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString
 			this->GenerateTreeForValue(childItemId, wxString(key), subValueRef.Get(), valueSet);
 			return true;
 		});
+	}
+
+	Powder::SetValue* setValue = dynamic_cast<Powder::SetValue*>(value);
+	if (setValue)
+	{
+		for (Powder::SetValue::Map::iterator iter = setValue->GetMap()->begin(); iter != setValue->GetMap()->end(); iter++)
+			this->GenerateTreeForValue(childItemId, wxString::Format("0x%08x", int(iter->first)), iter->second->Get(), valueSet);
 	}
 
 	Powder::ClosureValue* closureValue = dynamic_cast<Powder::ClosureValue*>(value);

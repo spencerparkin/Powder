@@ -35,6 +35,8 @@ namespace Powder
 			return MathOp::DIVIDE;
 		else if (tokenText == "%")
 			return MathOp::MODULUS;
+		else if (tokenText == "^")
+			return MathOp::EXPONENTIATE;
 		else if (tokenText == "==")
 			return MathOp::EQUAL;
 		else if (tokenText == "!=")

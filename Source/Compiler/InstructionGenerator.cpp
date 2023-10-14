@@ -20,6 +20,7 @@
 #include "MapExpressionHandler.h"
 #include "MapKeysExpressionHandler.h"
 #include "ListPushPopExpressionHandler.h"
+#include "SetExpressionHandler.h"
 #include "FunctionCallExpressionHandler.h"
 #include "FunctionDefinitionExpressionHandler.h"
 #include "ReturnStatementHandler.h"
@@ -60,6 +61,7 @@ namespace Powder
 		this->syntaxHandlerMap.Insert("map-literal", new MapExpressionHandler());
 		this->syntaxHandlerMap.Insert("map-keys-expression", new MapKeysExpressionHandler());
 		this->syntaxHandlerMap.Insert("list-push-pop-expression", new ListPushPopExpressionHandler());
+		this->syntaxHandlerMap.Insert("set-literal", new SetExpressionHandler());
 		this->syntaxHandlerMap.Insert("function-call", new FunctionCallExpressionHandler());
 		this->syntaxHandlerMap.Insert("function-definition", new FunctionDefinitionExpressionHandler());
 		this->syntaxHandlerMap.Insert("return-statement", new ReturnStatementHandler());

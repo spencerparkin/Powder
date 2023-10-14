@@ -6,8 +6,8 @@ set_a = emptyset;
 set_b = {x, 2, 3};
 
 if(x in set_b) {
-    add_member(set_b, x);
-    del_member(set_a, x);
+    add_member(set_a, x);
+    del_member(set_b, x);
 };
 
 if(!(2 in set_b)) {

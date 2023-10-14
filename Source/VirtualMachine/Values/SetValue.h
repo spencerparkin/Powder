@@ -16,6 +16,8 @@ namespace Powder
 		SetValue();
 		virtual ~SetValue();
 
+		typedef std::map<Value*, GC::Reference<Value, false>*> Map;
+
 		// For the VM:
 		virtual Value* Copy() const override;
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
@@ -37,8 +39,7 @@ namespace Powder
 		SetValue* CalculateIntersectionWith(const SetValue* setValue) const;
 		SetValue* CalculateDifferenceWith(const SetValue* setValue) const;
 		bool IsEQualTo(const SetValue* setValue) const;
-
-		typedef std::map<Value*, GC::Reference<Value, false>*> Map;
+		Map* GetMap() { return this->map; }
 
 	private:
 		

@@ -6,6 +6,7 @@
 #include "NumberValue.h"
 #include "ListValue.h"
 #include "MapValue.h"
+#include "SetValue.h"
 #include "AddressValue.h"
 #include "ClosureValue.h"
 #include "Executor.h"
@@ -66,6 +67,13 @@ namespace Powder
 			case DataType::EMPTY_MAP:
 			{
 				if (!executor->PushValueOntoEvaluationStackTop(new MapValue(), error))
+					return Executor::Result::RUNTIME_ERROR;
+				programBufferLocation += 2;
+				break;
+			}
+			case DataType::EMPTY_SET:
+			{
+				if (!executor->PushValueOntoEvaluationStackTop(new SetValue(), error))
 					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2;
 				break;
@@ -139,7 +147,7 @@ namespace Powder
 		}
 
 		programBufferLocation += 2L;
-		if (typeEntry->code == DataType::NULL_VALUE || typeEntry->code == DataType::EMPTY_LIST || typeEntry->code == DataType::EMPTY_MAP)
+		if (typeEntry->code == DataType::NULL_VALUE || typeEntry->code == DataType::EMPTY_LIST || typeEntry->code == DataType::EMPTY_MAP || typeEntry->code == DataType::EMPTY_SET)
 			programBufferLocation += 0L;
 		else if (typeEntry->code == DataType::STRING)
 			programBufferLocation += uint64_t(dataEntry->string.length()) + 1L;
@@ -175,6 +183,8 @@ namespace Powder
 				detail += "[]";
 			else if (typeEntry->code == DataType::EMPTY_MAP)
 				detail += "{}";
+			else if (typeEntry->code == DataType::EMPTY_SET)
+				detail += "emptyset";
 			else if (typeEntry->code == DataType::EXISTING_VALUE)
 				detail += std::format("stack({})", dataEntry->offset);
 			else
