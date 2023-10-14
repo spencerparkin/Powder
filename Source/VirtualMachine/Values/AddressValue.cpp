@@ -31,7 +31,7 @@ namespace Powder
 
 	/*virtual*/ std::string AddressValue::ToString() const
 	{
-		return std::format("Addr: {}", int(this->programBufferLocation));
+		return std::format("Addr: {}", int(this->programBufferLocation));	// TODO: Format in hex.
 	}
 
 	/*virtual*/ void AddressValue::PopulateIterationArray(std::vector<Object*>& iterationArray)
@@ -42,5 +42,10 @@ namespace Powder
 	/*virtual*/ std::string AddressValue::GetTypeString() const
 	{
 		return "address";
+	}
+
+	/*virtual*/ std::string AddressValue::GetSetKey() const
+	{
+		return std::format("address:{}", int(this->programBufferLocation));
 	}
 }

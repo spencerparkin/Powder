@@ -18,6 +18,7 @@ namespace Powder
 		virtual Value* CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const override;
 		virtual void PopulateIterationArray(std::vector<Object*>& iterationArray) override;
 		virtual std::string GetTypeString() const override;
+		virtual std::string GetSetKey() const override;
 
 		GC::Reference<Scope, false> scopeRef;
 	};

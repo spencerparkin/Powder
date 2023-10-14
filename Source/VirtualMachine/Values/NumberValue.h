@@ -18,6 +18,7 @@ namespace Powder
 		virtual bool AsBoolean() const override;
 		virtual double AsNumber() const override;
 		virtual std::string GetTypeString() const override;
+		virtual std::string GetSetKey() const override;
 
 	private:
 		double number;

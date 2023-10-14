@@ -20,4 +20,9 @@ namespace Powder
 	{
 		return "c++function";
 	}
+
+	/*virtual*/ std::string CppFunctionValue::GetSetKey() const
+	{
+		return std::format("c++function:{}", int(this));
+	}
 }

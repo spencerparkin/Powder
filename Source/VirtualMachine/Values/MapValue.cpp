@@ -31,6 +31,11 @@ namespace Powder
 		return "map";
 	}
 
+	/*virtual*/ std::string MapValue::GetSetKey() const
+	{
+		return std::format("map:{}", int(this));
+	}
+
 	/*virtual*/ Value* MapValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		switch (mathOp)

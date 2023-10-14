@@ -60,6 +60,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PowderModules", "PowderModules", "{5C5CAC99-1938-42BC-931F-4528A3FB4B9B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Math", "Modules\Math\Math.vcxproj", "{1EC928B2-E746-4764-9F25-A786016DCE09}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FFCE671A-9F49-470A-9D4E-80C5B95038AC} = {FFCE671A-9F49-470A-9D4E-80C5B95038AC}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

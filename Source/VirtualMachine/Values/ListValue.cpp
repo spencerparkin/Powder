@@ -32,6 +32,11 @@ namespace Powder
 		return "list";
 	}
 
+	/*virtual*/ std::string ListValue::GetSetKey() const
+	{
+		return std::format("list:{}", int(this));
+	}
+
 	/*virtual*/ Value* ListValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		switch (mathOp)

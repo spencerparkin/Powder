@@ -30,6 +30,11 @@ namespace Powder
 		return "string";
 	}
 
+	/*virtual*/ std::string StringValue::GetSetKey() const
+	{
+		return std::string("string:") + *this->str;
+	}
+
 	/*virtual*/ Value* StringValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		std::string strCast = value->ToString();

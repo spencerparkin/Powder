@@ -135,4 +135,9 @@ namespace Powder
 	{
 		return this->number;
 	}
+
+	/*virtual*/ std::string NumberValue::GetSetKey() const
+	{
+		return std::format("{}", this->number);
+	}
 }

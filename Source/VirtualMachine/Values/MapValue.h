@@ -24,6 +24,7 @@ namespace Powder
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 		virtual std::string GetTypeString() const override;
+		virtual std::string GetSetKey() const override;
 
 		ListValue* GenerateKeyListValue();
 

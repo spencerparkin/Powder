@@ -21,7 +21,7 @@ SetValue::SetValue()
 
 void SetValue::Clear()
 {
-	for (const std::pair<Value*, GC::Reference<Value, false>*>& pair : *this->map)
+	for (const MapPair& pair : *this->map)
 		delete pair.second;
 
 	this->map->clear();
@@ -31,8 +31,8 @@ void SetValue::Clear()
 {
 	SetValue* setValue = new SetValue();
 
-	for (const std::pair<Value*, GC::Reference<Value, false>*>& pair : *this->map)
-		setValue->map->insert(std::pair<Value*, GC::Reference<Value, false>*>(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
+	for (const MapPair& pair : *this->map)
+		setValue->map->insert(MapPair(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
 
 	return setValue;
 }
@@ -96,9 +96,9 @@ SetValue* SetValue::CalculateUnionWith(const SetValue* setValue) const
 {
 	SetValue* unionSet = (SetValue*)setValue->Copy();
 
-	for (const std::pair<Value*, GC::Reference<Value, false>*>& pair : *this->map)
+	for (const MapPair& pair : *this->map)
 		if(unionSet->map->find(pair.first) == unionSet->map->end())
-			unionSet->map->insert(std::pair<Value*, GC::Reference<Value, false>*>(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
+			unionSet->map->insert(MapPair(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
 
 	return unionSet;
 }
@@ -107,9 +107,9 @@ SetValue* SetValue::CalculateIntersectionWith(const SetValue* setValue) const
 {
 	SetValue* intersectionSet = new SetValue();
 
-	for (const std::pair<Value*, GC::Reference<Value, false>*>& pair : *this->map)
+	for (const MapPair& pair : *this->map)
 		if(setValue->map->find(pair.first) != setValue->map->end())
-			intersectionSet->map->insert(std::pair<Value*, GC::Reference<Value, false>*>(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
+			intersectionSet->map->insert(MapPair(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
 
 	return intersectionSet;
 }
@@ -118,20 +118,20 @@ SetValue* SetValue::CalculateDifferenceWith(const SetValue* setValue) const
 {
 	SetValue* differenceSet = new SetValue();
 
-	for (const std::pair<Value*, GC::Reference<Value, false>*>& pair : *this->map)
+	for (const MapPair& pair : *this->map)
 		if (setValue->map->find(pair.first) == setValue->map->end())
-			differenceSet->map->insert(std::pair<Value*, GC::Reference<Value, false>*>(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
+			differenceSet->map->insert(MapPair(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
 
 	return differenceSet;
 }
 
 bool SetValue::IsEQualTo(const SetValue* setValue) const
 {
-	for (const std::pair<Value*, GC::Reference<Value, false>*>& pair : *this->map)
+	for (const MapPair& pair : *this->map)
 		if (setValue->map->find(pair.first) == setValue->map->end())
 			return false;
 
-	for (const std::pair<Value*, GC::Reference<Value, false>*>& pair : *setValue->map)
+	for (const MapPair& pair : *setValue->map)
 		if (this->map->find(pair.first) == this->map->end())
 			return false;
 
@@ -148,16 +148,21 @@ bool SetValue::IsEQualTo(const SetValue* setValue) const
 	return "set";
 }
 
+/*virtual*/ std::string SetValue::GetSetKey() const
+{
+	return std::format("set:{}", int(this));
+}
+
 /*virtual*/ BooleanValue* SetValue::IsMember(const Value* value) const
 {
-	return new BooleanValue(this->map->find(const_cast<Value*>(value)) != this->map->end());
+	return new BooleanValue(this->map->find(value->GetSetKey()) != this->map->end());
 }
 
 /*virtual*/ bool SetValue::AddMember(Value* value, Error& error)
 {
-	if (this->map->find(value) == this->map->end())
+	if (this->map->find(value->GetSetKey()) == this->map->end())
 	{
-		this->map->insert(std::pair<Value*, GC::Reference<Value, false>*>(value, new GC::Reference<Value, false>(value)));
+		this->map->insert(MapPair(value->GetSetKey(), new GC::Reference<Value, false>(value)));
 		return true;
 	}
 
@@ -166,7 +171,7 @@ bool SetValue::IsEQualTo(const SetValue* setValue) const
 
 /*virtual*/ bool SetValue::RemoveMember(Value* value, Error& error)
 {
-	Map::iterator iter = this->map->find(value);
+	Map::iterator iter = this->map->find(value->GetSetKey());
 	if (iter != this->map->end())
 	{
 		delete iter->second;
@@ -238,7 +243,7 @@ SetValueIterator::SetValueIterator(SetValue* setValue)
 			returnValueRef.Set(new NullValue());
 		else
 		{
-			returnValueRef.Set((*this->mapIter)->first);
+			returnValueRef.Set((*this->mapIter)->second->Get());
 			++(*this->mapIter);
 		}
 	}

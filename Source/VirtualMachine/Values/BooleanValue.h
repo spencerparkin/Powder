@@ -16,6 +16,7 @@ namespace Powder
 		virtual std::string ToString() const override;
 		virtual bool AsBoolean() const override;
 		virtual std::string GetTypeString() const override;
+		virtual std::string GetSetKey() const override;
 
 		void SetBool(bool boolValue) { this->boolValue = boolValue; }
 		bool GetBool() const { return this->boolValue; }

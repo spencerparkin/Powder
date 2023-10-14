@@ -22,6 +22,11 @@ namespace Powder
 		return "null";
 	}
 
+	/*virtual*/ std::string NullValue::GetSetKey() const
+	{
+		return "null";
+	}
+
 	/*virtual*/ Value* NullValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		switch (mathOp)

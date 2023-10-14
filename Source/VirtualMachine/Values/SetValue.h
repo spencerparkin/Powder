@@ -16,7 +16,8 @@ namespace Powder
 		SetValue();
 		virtual ~SetValue();
 
-		typedef std::map<Value*, GC::Reference<Value, false>*> Map;
+		typedef std::map<std::string, GC::Reference<Value, false>*> Map;
+		typedef std::pair<std::string, GC::Reference<Value, false>*> MapPair;
 
 		// For the VM:
 		virtual Value* Copy() const override;
@@ -27,6 +28,7 @@ namespace Powder
 		virtual bool RemoveMember(Value* value, Error& error) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
+		virtual std::string GetSetKey() const override;
 
 		// For the GC:
 		virtual bool IterationBegin(void*& userData) override;

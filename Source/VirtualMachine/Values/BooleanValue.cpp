@@ -32,6 +32,11 @@ namespace Powder
 		return "boolean";
 	}
 
+	/*virtual*/ std::string BooleanValue::GetSetKey() const
+	{
+		return std::format("bool:{}", (this->boolValue ? "true" : "false"));
+	}
+
 	/*virtual*/ Value* BooleanValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
 	{
 		if (!value)
