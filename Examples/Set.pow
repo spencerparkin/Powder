@@ -14,7 +14,7 @@ if(!(2 in set_b)) {
     output("Not in there!\n");
 };
 
-set_a += 2;
+add_member(set_a, 2);
 
 set_c = set_a ^ set_b;  # Intersection
 set_d = set_a + set_b;  # Union

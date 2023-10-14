@@ -57,6 +57,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParseTool", "ThirdParty\Par
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GarbageCollector", "ThirdParty\GarbageCollector\GarbageCollector.vcxproj", "{0945D50A-9D68-41F7-9F90-61B28C2423A8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PowderModules", "PowderModules", "{5C5CAC99-1938-42BC-931F-4528A3FB4B9B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Math", "Modules\Math\Math.vcxproj", "{1EC928B2-E746-4764-9F25-A786016DCE09}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -121,9 +125,21 @@ Global
 		{0945D50A-9D68-41F7-9F90-61B28C2423A8}.Release|x64.Build.0 = Release|x64
 		{0945D50A-9D68-41F7-9F90-61B28C2423A8}.Release|x86.ActiveCfg = Release|Win32
 		{0945D50A-9D68-41F7-9F90-61B28C2423A8}.Release|x86.Build.0 = Release|Win32
+		{1EC928B2-E746-4764-9F25-A786016DCE09}.Debug|x64.ActiveCfg = Debug|x64
+		{1EC928B2-E746-4764-9F25-A786016DCE09}.Debug|x64.Build.0 = Debug|x64
+		{1EC928B2-E746-4764-9F25-A786016DCE09}.Debug|x86.ActiveCfg = Debug|Win32
+		{1EC928B2-E746-4764-9F25-A786016DCE09}.Debug|x86.Build.0 = Debug|Win32
+		{1EC928B2-E746-4764-9F25-A786016DCE09}.Release|x64.ActiveCfg = Release|x64
+		{1EC928B2-E746-4764-9F25-A786016DCE09}.Release|x64.Build.0 = Release|x64
+		{1EC928B2-E746-4764-9F25-A786016DCE09}.Release|x86.ActiveCfg = Release|Win32
+		{1EC928B2-E746-4764-9F25-A786016DCE09}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E5CE34C2-CE36-4335-A31C-4AE31FB7A46C} = {5C5CAC99-1938-42BC-931F-4528A3FB4B9B}
+		{1EC928B2-E746-4764-9F25-A786016DCE09} = {5C5CAC99-1938-42BC-931F-4528A3FB4B9B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {43AB0A6D-2A47-4043-AC15-D6E0B0F3057C}

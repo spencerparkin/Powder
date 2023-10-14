@@ -11,6 +11,7 @@ public:
 
 	virtual bool AsBoolean() const override;
 	virtual std::string ToString() const override;
+	virtual std::string GetTypeString() const override;
 
 	std::fstream fileStream;
 };

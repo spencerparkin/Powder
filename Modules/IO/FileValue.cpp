@@ -19,3 +19,8 @@ FileValue::FileValue()
 {
 	return "File Stream";
 }
+
+/*virtual*/ std::string FileValue::GetTypeString() const
+{
+	return "file";
+}
