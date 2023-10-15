@@ -34,7 +34,12 @@ namespace Powder
 
 	/*virtual*/ std::string ListValue::GetSetKey() const
 	{
-		return std::format("list:{}", int(this));
+		std::string key = "list:";
+
+		for (const LinkedList<GC::Reference<Value, false>>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
+			key += node->value.Get()->GetSetKey() + ",";
+
+		return key;
 	}
 
 	/*virtual*/ Value* ListValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const

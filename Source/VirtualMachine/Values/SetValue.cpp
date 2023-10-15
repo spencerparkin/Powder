@@ -150,7 +150,12 @@ bool SetValue::IsEQualTo(const SetValue* setValue) const
 
 /*virtual*/ std::string SetValue::GetSetKey() const
 {
-	return std::format("set:{}", int(this));
+	std::string key = "set:";
+
+	for (const MapPair& pair : *this->map)
+		key += pair.first + ",";
+
+	return key;
 }
 
 /*virtual*/ BooleanValue* SetValue::IsMember(const Value* value) const

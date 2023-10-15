@@ -33,7 +33,13 @@ namespace Powder
 
 	/*virtual*/ std::string MapValue::GetSetKey() const
 	{
-		return std::format("map:{}", int(this));
+		std::string key = "map:";
+
+		MapValue* mapValue = const_cast<MapValue*>(this);
+		for (HashMap<GC::Reference<Value, false>>::iterator iter = mapValue->valueMap.begin(); iter != mapValue->valueMap.end(); ++iter)
+			key += (*iter).Get()->GetSetKey() + ",";
+
+		return key;
 	}
 
 	/*virtual*/ Value* MapValue::CombineWith(const Value* value, MathInstruction::MathOp mathOp, Executor* executor) const
@@ -139,6 +145,8 @@ namespace Powder
 	/*virtual*/ GC::Object* MapValue::IterationNext(void* userData)
 	{
 		auto iter = (HashMap<GC::Reference<Value, false>>::iterator*)userData;
+		if (*iter == this->valueMap.end())
+			return nullptr;
 		GC::Object* object = &(**iter);
 		++(*iter);
 		return object;
