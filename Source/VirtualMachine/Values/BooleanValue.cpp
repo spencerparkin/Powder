@@ -67,6 +67,14 @@ namespace Powder
 				{
 					return new BooleanValue((this->boolValue || booleanValue->boolValue) && this->boolValue != booleanValue->boolValue);
 				}
+				case MathInstruction::MathOp::EQUAL:
+				{
+					return new BooleanValue(this->boolValue == booleanValue->boolValue);
+				}
+				case MathInstruction::MathOp::NOT_EQUAL:
+				{
+					return new BooleanValue(this->boolValue != booleanValue->boolValue);
+				}
 			}
 		}
 

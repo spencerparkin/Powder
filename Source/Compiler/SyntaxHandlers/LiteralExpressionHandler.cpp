@@ -43,6 +43,19 @@ namespace Powder
 			typeEntry.code = PushInstruction::DataType::NUMBER;
 			dataEntry.number = ::strtod(literalDataNode->text->c_str(), nullptr);
 		}
+		else if (*literalTypeNode->text == "bool-literal")
+		{
+			typeEntry.code = PushInstruction::DataType::BOOL;
+			if (*literalDataNode->text == "true")
+				dataEntry.number = 1.0;
+			else if (*literalDataNode->text == "false")
+				dataEntry.number = 0.0;
+			else
+			{
+				error.Add(std::string(literalDataNode->fileLocation) + std::format("Expected bool literal to be \"true\" or \"false\", not \"{}\".", literalDataNode->text->c_str()));
+				return false;
+			}
+		}
 		else if (*literalTypeNode->text == "list-literal")
 			typeEntry.code = PushInstruction::DataType::EMPTY_LIST;
 		else if (*literalTypeNode->text == "map-literal")

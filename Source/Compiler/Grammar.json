@@ -196,9 +196,14 @@
       [ "null" ],
       [ "@string" ],
       [ "@number" ],
+      [ "bool-literal" ],
       [ "list-literal" ],
       [ "map-literal" ],
       [ "set-literal" ]
+    ],
+    "bool-literal": [
+      [ "true" ],
+      [ "false" ]
     ],
     "list-literal": [
       [ "[", "]" ],

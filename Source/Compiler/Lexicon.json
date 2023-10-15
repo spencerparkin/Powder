@@ -69,7 +69,9 @@
           "continue",
           "emptyset",
           "in",
-          "len"
+          "len",
+          "true",
+          "false"
         ]
       }
     },

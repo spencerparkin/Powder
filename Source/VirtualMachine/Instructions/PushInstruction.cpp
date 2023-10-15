@@ -4,6 +4,7 @@
 #include "NullValue.h"
 #include "StringValue.h"
 #include "NumberValue.h"
+#include "BooleanValue.h"
 #include "ListValue.h"
 #include "MapValue.h"
 #include "SetValue.h"
@@ -55,6 +56,15 @@ namespace Powder
 				if (!executor->PushValueOntoEvaluationStackTop(new NumberValue(number), error))
 					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2 + sizeof(double);
+				break;
+			}
+			case DataType::BOOL:
+			{
+				bool boolValue = false;
+				::memcpy_s(&boolValue, sizeof(bool), &programBuffer[programBufferLocation + 2], sizeof(bool));
+				if (!executor->PushValueOntoEvaluationStackTop(new BooleanValue(boolValue), error))
+					return Executor::Result::RUNTIME_ERROR;
+				programBufferLocation += 2 + sizeof(bool);
 				break;
 			}
 			case DataType::EMPTY_LIST:
@@ -140,6 +150,11 @@ namespace Powder
 			}
 			else if (typeEntry->code == DataType::NUMBER)
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(double), &dataEntry->number, sizeof(double));
+			else if (typeEntry->code == DataType::BOOL)
+			{
+				bool boolValue = (dataEntry->number == 0.0) ? false : true;
+				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(bool), &boolValue, sizeof(bool));
+			}
 			else if (typeEntry->code == DataType::ADDRESS || typeEntry->code == DataType::CLOSURE)
 				::memcpy_s(&programBuffer[programBufferLocation + 2], sizeof(uint64_t), &dataEntry->instruction->assemblyData->programBufferLocation, sizeof(uint64_t));
 			else if (typeEntry->code == DataType::EXISTING_VALUE)
@@ -153,6 +168,8 @@ namespace Powder
 			programBufferLocation += uint64_t(dataEntry->string.length()) + 1L;
 		else if (typeEntry->code == DataType::NUMBER)
 			programBufferLocation += sizeof(double);
+		else if (typeEntry->code == DataType::BOOL)
+			programBufferLocation += sizeof(bool);
 		else if (typeEntry->code == DataType::ADDRESS || typeEntry->code == DataType::CLOSURE)
 			programBufferLocation += sizeof(uint64_t);
 		else if (typeEntry->code == DataType::EXISTING_VALUE)
@@ -175,6 +192,8 @@ namespace Powder
 				detail += dataEntry->string;
 			else if (typeEntry->code == DataType::NUMBER)
 				detail += std::format("{}", dataEntry->number);
+			else if (typeEntry->code == DataType::BOOL)
+				detail += (dataEntry->number == 0.0) ? "false" : "true";
 			else if (typeEntry->code == ADDRESS || typeEntry->code == CLOSURE)
 				detail += std::format("{}", dataEntry->instruction->assemblyData->programBufferLocation);
 			else if (typeEntry->code == DataType::NULL_VALUE)

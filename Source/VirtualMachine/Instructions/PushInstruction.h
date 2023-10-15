@@ -17,6 +17,7 @@ namespace Powder
 			NULL_VALUE,
 			NUMBER,
 			STRING,
+			BOOL,
 			EMPTY_LIST,
 			EMPTY_MAP,
 			EMPTY_SET,
