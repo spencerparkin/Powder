@@ -187,6 +187,17 @@ bool SetValue::IsEQualTo(const SetValue* setValue) const
 	return false;
 }
 
+/*virtual*/ Value* SetValue::AnyMember(Error& error)
+{
+	if (this->map->size() == 0)
+	{
+		error.Add("Can't return any member of an empty set.");
+		return nullptr;
+	}
+
+	return this->map->begin()->second->Get();
+}
+
 /*virtual*/ CppFunctionValue* SetValue::MakeIterator(void)
 {
 	return new SetValueIterator(this);

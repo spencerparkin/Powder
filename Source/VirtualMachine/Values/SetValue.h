@@ -26,6 +26,7 @@ namespace Powder
 		virtual std::string GetTypeString() const override;
 		virtual bool AddMember(Value* value, Error& error) override;
 		virtual bool RemoveMember(Value* value, Error& error) override;
+		virtual Value* AnyMember(Error& error) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 		virtual std::string GetSetKey() const override;
