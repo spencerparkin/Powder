@@ -198,6 +198,8 @@ bool SetValue::IsEQualTo(const SetValue* setValue) const
 /*virtual*/ GC::Object* SetValue::IterationNext(void* userData)
 {
 	auto iter = (Map::iterator*)userData;
+	if (*iter == this->map->end())
+		return nullptr;
 	GC::Object* object = (**iter).second;
 	++(*iter);
 	return object;
