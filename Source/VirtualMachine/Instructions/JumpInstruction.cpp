@@ -63,6 +63,7 @@ namespace Powder
 					break;
 				}
 				
+				// TODO: This is great.  The script can call into C++.  But how could the C++ call into script?
 				CppFunctionValue* cppFunctionValue = dynamic_cast<CppFunctionValue*>(valueRef.Get());
 				if (cppFunctionValue)
 				{
