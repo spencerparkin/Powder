@@ -10,7 +10,7 @@ NewComplexValueFunction::NewComplexValueFunction()
 {
 }
 
-/*virtual*/ bool NewComplexValueFunction::Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::Error& error)
+/*virtual*/ bool NewComplexValueFunction::Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::VirtualMachine* virtualMachine, Powder::Error& error)
 {
 	if (argListValue->Length() != 2)
 	{

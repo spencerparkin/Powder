@@ -80,7 +80,7 @@ namespace Powder
 
 					std::string errorMsg;
 					GC::Reference<Value, true> resultValueRef;
-					if (!cppFunctionValue->Call(argListValue, resultValueRef, error))
+					if (!cppFunctionValue->Call(argListValue, resultValueRef, virtualMachine, error))
 						return Executor::Result::RUNTIME_ERROR;
 
 					if (!resultValueRef.Get())

@@ -8,5 +8,5 @@ public:
 	NewComplexValueFunction();
 	virtual ~NewComplexValueFunction();
 
-	virtual bool Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::Error& error) override;
+	virtual bool Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::VirtualMachine* virtualMachine, Powder::Error& error) override;
 };

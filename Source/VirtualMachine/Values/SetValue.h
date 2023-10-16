@@ -55,7 +55,7 @@ namespace Powder
 		SetValueIterator(SetValue* setValue);
 		virtual ~SetValueIterator();
 
-		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error) override;
+		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, VirtualMachine* virtualMachine, Error& error) override;
 
 		GC::Reference<SetValue, false> setValueRef;
 		SetValue::Map::iterator* mapIter;

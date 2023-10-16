@@ -167,7 +167,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ bool MapValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error)
+	/*virtual*/ bool MapValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, VirtualMachine* virtualMachine, Error& error)
 	{
 		if (argListValue->Length() != 1)
 		{

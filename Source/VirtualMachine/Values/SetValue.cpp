@@ -238,7 +238,7 @@ SetValueIterator::SetValueIterator(SetValue* setValue)
 	delete this->mapIter;
 }
 
-/*virtual*/ bool SetValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error)
+/*virtual*/ bool SetValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, VirtualMachine* virtualMachine, Error& error)
 {
 	if (argListValue->Length() != 1)
 	{

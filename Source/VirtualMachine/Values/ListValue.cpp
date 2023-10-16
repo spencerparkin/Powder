@@ -36,6 +36,7 @@ namespace Powder
 	{
 		std::string key = "list:";
 
+		// TODO: This could infinitely recurse!  (Same problem in MapValue class!)
 		for (const LinkedList<GC::Reference<Value, false>>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
 			key += node->value.Get()->GetSetKey() + ",";
 
@@ -270,7 +271,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ bool ListValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, Error& error)
+	/*virtual*/ bool ListValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, VirtualMachine* virtualMachine, Error& error)
 	{
 		if (argListValue->Length() != 1)
 		{
