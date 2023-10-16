@@ -40,6 +40,8 @@ namespace Powder
 		virtual Object* IterationNext(void* userData) override;
 		virtual void IterationEnd(void* userData) override;
 
+		void SortWithPredicate(std::function<bool(const LinkedList<GC::Reference<Value, false>>::Node* nodeA, const LinkedList<GC::Reference<Value, false>>::Node* nodeB)> predicate);
+
 	private:
 		LinkedList<GC::Reference<Value, false>> valueList;
 		mutable std::vector<LinkedList<GC::Reference<Value, false>>::Node*>* valueListIndex;

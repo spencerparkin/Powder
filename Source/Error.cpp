@@ -36,3 +36,8 @@ void Error::Add(const std::string& errorMessage)
 {
 	this->errorMessageArray->push_back(errorMessage);
 }
+
+int Error::GetCount()
+{
+	return this->errorMessageArray->size();
+}

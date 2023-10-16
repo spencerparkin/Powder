@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Defines.h"
+#include <functional>
+#include <algorithm>
 
 namespace Powder
 {
@@ -136,6 +138,22 @@ namespace Powder
 					}
 				}
 			} while (swapCount > 0);
+		}
+
+		void SortWithPredicate(std::function<bool(const LinkedList<T>::Node*, const LinkedList<T>::Node*)> predicate)
+		{
+			std::vector<Node*> nodeArray;
+			for (Node* node = this->head; node; node = node->next)
+				nodeArray.push_back(node);
+
+			std::sort(nodeArray.begin(), nodeArray.end(), predicate);
+
+			this->head = nullptr;
+			this->tail = nullptr;
+			this->count = 0;
+
+			for (Node* node : nodeArray)
+				this->InsertNodeAfter(this->tail, node);
 		}
 
 		Node* GetHead() { return this->head; }

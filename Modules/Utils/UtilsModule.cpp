@@ -1,12 +1,12 @@
-#include "MathModule.h"
+#include "UtilsModule.h"
+#include "SortFunctionValue.h"
 #include "MapValue.h"
-#include "NewComplexValueFunction.h"
 
 Powder::MapValue* GenerateFunctionMap()
 {
 	Powder::MapValue* mapValue = new Powder::MapValue();
 
-	mapValue->SetField("complex", new NewComplexValueFunction());
+	mapValue->SetField("sort", new SortFunctionValue());
 
 	return mapValue;
 }

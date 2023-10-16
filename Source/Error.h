@@ -17,6 +17,7 @@ namespace Powder
 
 		void Clear();
 		void Add(const std::string& errorMessage);
+		int GetCount();
 
 	private:
 

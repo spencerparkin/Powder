@@ -225,6 +225,12 @@ namespace Powder
 		return true;
 	}
 
+	void ListValue::SortWithPredicate(std::function<bool(const LinkedList<GC::Reference<Value, false>>::Node*, const LinkedList<GC::Reference<Value, false>>::Node*)> predicate)
+	{
+		this->valueList.SortWithPredicate(predicate);
+		this->valueListIndexValid = false;
+	}
+
 	/*virtual*/ CppFunctionValue* ListValue::MakeIterator(void)
 	{
 		return new ListValueIterator(this);
