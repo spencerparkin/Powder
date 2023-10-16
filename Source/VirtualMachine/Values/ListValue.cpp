@@ -271,7 +271,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ bool ListValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ bool ListValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error)
 	{
 		if (argListValue->Length() != 1)
 		{

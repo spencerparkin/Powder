@@ -14,6 +14,7 @@ namespace Powder
 	class Scope;
 	class Executable;
 
+	// A better name for this might have been "Thread" or "Fiber".
 	class POWDER_API Executor
 	{
 	public:

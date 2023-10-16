@@ -8,5 +8,5 @@ public:
 	OpenFileFunctionValue();
 	virtual ~OpenFileFunctionValue();
 
-	virtual bool Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::VirtualMachine* virtualMachine, Powder::Error& error) override;
+	virtual bool Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::CppCallingContext& context, Powder::Error& error) override;
 };

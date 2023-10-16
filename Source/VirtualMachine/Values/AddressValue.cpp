@@ -7,12 +7,14 @@ namespace Powder
 	AddressValue::AddressValue()
 	{
 		this->programBufferLocation = 0;
+		this->cppReturn = false;
 	}
 
 	AddressValue::AddressValue(const Executable* executable, uint64_t programBufferLocation)
 	{
 		this->executableRef.Set(const_cast<Executable*>(executable));
 		this->programBufferLocation = programBufferLocation;
+		this->cppReturn = false;
 	}
 
 	/*virtual*/ AddressValue::~AddressValue()

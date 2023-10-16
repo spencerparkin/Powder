@@ -60,10 +60,12 @@ namespace Powder
 						executor->ReplaceCurrentScope(closureValue->scopeRef.Get());
 					}
 
+					if (addressValue->cppReturn)
+						return Executor::Result::HALT;
+
 					break;
 				}
 				
-				// TODO: This is great.  The script can call into C++.  But how could the C++ call into script?
 				CppFunctionValue* cppFunctionValue = dynamic_cast<CppFunctionValue*>(valueRef.Get());
 				if (cppFunctionValue)
 				{
@@ -80,7 +82,8 @@ namespace Powder
 
 					std::string errorMsg;
 					GC::Reference<Value, true> resultValueRef;
-					if (!cppFunctionValue->Call(argListValue, resultValueRef, virtualMachine, error))
+					CppCallingContext context{ executor, virtualMachine };
+					if (!cppFunctionValue->Call(argListValue, resultValueRef, context, error))
 						return Executor::Result::RUNTIME_ERROR;
 
 					if (!resultValueRef.Get())

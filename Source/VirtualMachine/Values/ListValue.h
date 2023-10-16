@@ -54,7 +54,7 @@ namespace Powder
 		ListValueIterator(ListValue* listValue);
 		virtual ~ListValueIterator();
 
-		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, VirtualMachine* virtualMachine, Error& error) override;
+		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error) override;
 
 		GC::Reference<ListValue, false> listValueRef;
 		LinkedList<GC::Reference<Value, false>>::Node* listNode;

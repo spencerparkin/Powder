@@ -23,5 +23,6 @@ namespace Powder
 
 		GC::Reference<Executable, false> executableRef;
 		uint64_t programBufferLocation;
+		bool cppReturn;
 	};
 }

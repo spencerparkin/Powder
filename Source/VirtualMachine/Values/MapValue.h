@@ -51,7 +51,7 @@ namespace Powder
 		MapValueIterator(MapValue* mapValue);
 		virtual ~MapValueIterator();
 
-		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, VirtualMachine* virtualMachine, Error& error) override;
+		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error) override;
 
 		GC::Reference<MapValue, false> mapValueRef;
 		HashMap<GC::Reference<Value, false>>::iterator mapIter;
