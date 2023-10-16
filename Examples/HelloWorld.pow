@@ -1,8 +1,7 @@
 # HelloWorld.pow
 
-i = null;
+f = func() {
+    output("Hello!\n");
+};
 
-while(1) {
-    output("Hello, World!\n");
-    sleep(1);
-}
+f();

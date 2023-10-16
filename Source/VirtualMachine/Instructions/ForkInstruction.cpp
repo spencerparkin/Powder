@@ -24,7 +24,7 @@ namespace Powder
 		const uint8_t* programBuffer = executable->byteCodeBuffer;
 		uint64_t forkedProgramBufferLocation = 0;
 		::memcpy(&forkedProgramBufferLocation, &programBuffer[programBufferLocation + 1], sizeof(uint64_t));
-		if (!virtualMachine->CreateExecutorAtLocation(forkedProgramBufferLocation, error, executor->GetCurrentScope()))
+		if (!virtualMachine->CreateExecutorAtLocation(forkedProgramBufferLocation, executor->GetExecutable(), executor->GetCurrentScope(), error))
 			return Executor::Result::RUNTIME_ERROR;
 		programBufferLocation += sizeof(uint8_t) + sizeof(uint64_t);
 		return Executor::Result::CONTINUE;

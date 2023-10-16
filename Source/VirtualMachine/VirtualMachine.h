@@ -33,8 +33,8 @@ namespace Powder
 		VirtualMachine();
 		virtual ~VirtualMachine();
 
-		bool ExecuteByteCode(const Executable* executable, Error& error, Scope* scope);
-		bool CreateExecutorAtLocation(uint64_t programBufferLocation, Error& error, Scope* scope);
+		bool ExecuteByteCode(uint64_t programBufferLocation, const Executable* executable, Scope* scope, Error& error);
+		bool CreateExecutorAtLocation(uint64_t programBufferLocation, const Executable* executable, Scope* scope, Error& error);
 
 		class POWDER_API CompilerInterface
 		{

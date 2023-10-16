@@ -9,9 +9,10 @@
 
 namespace Powder
 {
-	Executor::Executor(uint64_t programBufferLocation, Scope* scope)
+	Executor::Executor(uint64_t programBufferLocation, const Executable* executable, Scope* scope)
 	{
 		this->currentScopeRef.Set(scope);
+		this->executableRef.Set(executable);
 		this->programBufferLocation = programBufferLocation;
 		this->evaluationStack = new std::vector<GC::Reference<Value, true>>();
 	}
@@ -47,8 +48,15 @@ namespace Powder
 		this->currentScopeRef.Set(scope);
 	}
 
-	/*virtual*/ Executor::Result Executor::Execute(const Executable* executable, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ Executor::Result Executor::Execute(VirtualMachine* virtualMachine, Error& error)
 	{
+		const Executable* executable = this->executableRef.Get();
+		if (!executable)
+		{
+			error.Add("Can't run null executable.");
+			return Executor::Result::RUNTIME_ERROR;
+		}
+
 		while (this->programBufferLocation < executable->byteCodeBufferSize)
 		{
 			VirtualMachine::DebuggerTrap* debuggerTrap = virtualMachine->GetDebuggerTrap();

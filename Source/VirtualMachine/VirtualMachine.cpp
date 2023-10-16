@@ -59,7 +59,7 @@ namespace Powder
 		delete this->executorListStack;
 	}
 
-	bool VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, Error& error, Scope* scope)
+	bool VirtualMachine::CreateExecutorAtLocation(uint64_t programBufferLocation, const Executable* executable, Scope* scope, Error& error)
 	{
 		if (this->executorListStack->size() == 0)
 		{
@@ -67,17 +67,23 @@ namespace Powder
 			return false;
 		}
 
+		if (programBufferLocation >= executable->byteCodeBufferSize)
+		{
+			error.Add("Given program buffer location matches or exceeds the size of the given executable buffer.");
+			return false;
+		}
+
 		ExecutorList* executorList = (*this->executorListStack)[this->executorListStack->size() - 1];
-		Executor* executor = new Executor(programBufferLocation, scope);
+		Executor* executor = new Executor(programBufferLocation, executable, scope);
 		executorList->AddTail(executor);
 		return true;
 	}
 
-	bool VirtualMachine::ExecuteByteCode(const Executable* executable, Error& error, Scope* scope)
+	bool VirtualMachine::ExecuteByteCode(uint64_t programBufferLocation, const Executable* executable, Scope* scope, Error& error)
 	{
 		ExecutorList executorList;
 		this->executorListStack->push_back(&executorList);
-		executorList.AddTail(new Executor(0L, scope));
+		executorList.AddTail(new Executor(programBufferLocation, executable, scope));
 		
 		Executor::Result result;
 
@@ -85,7 +91,7 @@ namespace Powder
 		{
 			ExecutorList::Node* node = executorList.GetHead();
 			Executor* executor = node->value;
-			result = executor->Execute(executable, this, error);
+			result = executor->Execute(this, error);
 			executorList.Remove(node);
 			if (result == Executor::Result::YIELD)
 				executorList.AddTail(executor);
@@ -123,7 +129,7 @@ namespace Powder
 				if (!executableRef.Get()->Load(programByteCodePath, error))
 					return false;
 
-				if (!this->ExecuteByteCode(executableRef.Get(), error, scope))
+				if (!this->ExecuteByteCode(0L, executableRef.Get(), scope, error))
 					return false;
 				
 				return true;
@@ -171,7 +177,7 @@ namespace Powder
 			}
 		}
 
-		return this->ExecuteByteCode(executableRef.Get(), error, scope);
+		return this->ExecuteByteCode(0L, executableRef.Get(), scope, error);
 	}
 
 	MapValue* VirtualMachine::LoadModuleFunctionMap(const std::string& moduleAbsolutePath, Error& error)

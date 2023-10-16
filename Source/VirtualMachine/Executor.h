@@ -3,6 +3,7 @@
 #include "Defines.h"
 #include "Value.h"
 #include "Scope.h"
+#include "Executable.h"
 #include "Reference.h"
 #include <cinttypes>
 
@@ -16,7 +17,7 @@ namespace Powder
 	class POWDER_API Executor
 	{
 	public:
-		Executor(uint64_t programBufferLocation, Scope* scope);
+		Executor(uint64_t programBufferLocation, const Executable* executable, Scope* scope);
 		virtual ~Executor();
 
 		enum Result
@@ -27,13 +28,14 @@ namespace Powder
 			RUNTIME_ERROR
 		};
 
-		virtual Result Execute(const Executable* executable, VirtualMachine* virtualMachine, Error& error);
+		virtual Result Execute(VirtualMachine* virtualMachine, Error& error);
 
 		bool PushScope();
 		bool PopScope();
 
 		Scope* GetCurrentScope() { return this->currentScopeRef.Get(); }
 		uint64_t GetProgramBufferLocation() { return this->programBufferLocation; }
+		const Executable* GetExecutable() { return this->executableRef.Get(); }
 
 		void ReplaceCurrentScope(Scope* scope);
 
@@ -50,6 +52,7 @@ namespace Powder
 	protected:
 
 		uint64_t programBufferLocation;
+		GC::Reference<const Executable, true> executableRef;
 		GC::Reference<Scope, true> currentScopeRef;
 		std::vector<GC::Reference<Value, true>>* evaluationStack;
 	};
