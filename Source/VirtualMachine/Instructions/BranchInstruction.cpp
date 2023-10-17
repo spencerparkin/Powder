@@ -21,9 +21,9 @@ namespace Powder
 		return 0x01;
 	}
 
-	/*virtual*/ uint32_t BranchInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t BranchInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
-		const uint8_t* programBuffer = executable->byteCodeBuffer;
+		const uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		GC::Reference<Value, true> valueRef;
 		if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 			return Executor::Result::RUNTIME_ERROR;

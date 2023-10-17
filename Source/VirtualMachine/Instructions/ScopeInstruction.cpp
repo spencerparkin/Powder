@@ -19,9 +19,9 @@ namespace Powder
 		return 0x08;
 	}
 
-	/*virtual*/ uint32_t ScopeInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t ScopeInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
-		const uint8_t* programBuffer = executable->byteCodeBuffer;
+		const uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		uint8_t scopeOp = programBuffer[programBufferLocation + 1];
 		switch (scopeOp)
 		{

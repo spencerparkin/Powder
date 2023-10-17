@@ -21,9 +21,9 @@ namespace Powder
 		return 0x09;
 	}
 
-	/*virtual*/ uint32_t StoreInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t StoreInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
-		const uint8_t* programBuffer = executable->byteCodeBuffer;
+		const uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		std::string name = this->ExtractEmbeddedString(programBuffer, programBufferLocation + 1);
 		if (!executor->StoreAndPopValueFromEvaluationStackTop(name.c_str(), error, virtualMachine->GetDebuggerTrap()))
 			return Executor::Result::RUNTIME_ERROR;

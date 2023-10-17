@@ -12,7 +12,7 @@ namespace Powder
 	Executor::Executor(uint64_t programBufferLocation, const Executable* executable, Scope* scope)
 	{
 		this->currentScopeRef.Set(scope);
-		this->executableRef.Set(executable);
+		this->executableRef.Set(const_cast<Executable*>(executable));
 		this->programBufferLocation = programBufferLocation;
 		this->evaluationStack = new std::vector<GC::Reference<Value, true>>();
 	}
@@ -50,21 +50,20 @@ namespace Powder
 
 	/*virtual*/ Executor::Result Executor::Execute(VirtualMachine* virtualMachine, Error& error)
 	{
-		const Executable* executable = this->executableRef.Get();
-		if (!executable)
+		if (!this->executableRef.Get())
 		{
 			error.Add("Can't run null executable.");
 			return Executor::Result::RUNTIME_ERROR;
 		}
 
-		while (this->programBufferLocation < executable->byteCodeBufferSize)
+		while (this->programBufferLocation < this->executableRef.Get()->byteCodeBufferSize)
 		{
 			VirtualMachine::DebuggerTrap* debuggerTrap = virtualMachine->GetDebuggerTrap();
 			if (debuggerTrap)
-				if (debuggerTrap->TrapExecution(executable, this))
+				if (debuggerTrap->TrapExecution(this->executableRef.Get(), this))
 					return Executor::Result::HALT;
 
-			uint8_t opCode = executable->byteCodeBuffer[this->programBufferLocation];
+			uint8_t opCode = this->executableRef.Get()->byteCodeBuffer[this->programBufferLocation];
 			Instruction* instruction = virtualMachine->LookupInstruction(opCode);
 			if (!instruction)
 			{
@@ -72,7 +71,7 @@ namespace Powder
 				return Result::RUNTIME_ERROR;
 			}
 
-			Executor::Result result = (Executor::Result)instruction->Execute(executable, this->programBufferLocation, this, virtualMachine, error);
+			Executor::Result result = (Executor::Result)instruction->Execute(this->executableRef, this->programBufferLocation, this, virtualMachine, error);
 			if (result != Executor::Result::CONTINUE)
 				return result;
 		}

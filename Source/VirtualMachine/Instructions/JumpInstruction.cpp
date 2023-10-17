@@ -25,9 +25,9 @@ namespace Powder
 		return 0x03;
 	}
 
-	/*virtual*/ uint32_t JumpInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t JumpInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
-		const uint8_t* programBuffer = executable->byteCodeBuffer;
+		const uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		Type type = Type(programBuffer[programBufferLocation + 1]);
 		switch (type)
 		{
@@ -46,8 +46,8 @@ namespace Powder
 				if (addressValue)
 				{
 					programBufferLocation = addressValue->programBufferLocation;
-					executable = addressValue->executableRef.Get();
-					if (!executable)
+					executableRef.Set(addressValue->executableRef.Get());
+					if (!executableRef.Get())
 					{
 						error.Add("Address value does not reference an executable.  Cannot jump!");
 						return Executor::Result::RUNTIME_ERROR;

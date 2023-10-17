@@ -20,11 +20,11 @@ namespace Powder
 		return 0x0C;
 	}
 
-	/*virtual*/ uint32_t ListInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t ListInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		Value* result = nullptr;
 
-		const uint8_t* programBuffer = executable->byteCodeBuffer;
+		const uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		uint8_t action = programBuffer[programBufferLocation + 1];
 		switch (action)
 		{

@@ -53,7 +53,7 @@ namespace Powder
 	protected:
 
 		uint64_t programBufferLocation;
-		GC::Reference<const Executable, true> executableRef;
+		GC::Reference<Executable, true> executableRef;
 		GC::Reference<Scope, true> currentScopeRef;
 		std::vector<GC::Reference<Value, true>>* evaluationStack;
 	};

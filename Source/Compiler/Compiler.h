@@ -2,6 +2,7 @@
 
 #include "Defines.h"
 #include "VirtualMachine.h"
+#include "Executable.h"
 #include "Lexer.h"
 #include "Parser.h"
 #include "Error.h"

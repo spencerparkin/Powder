@@ -16,7 +16,7 @@ namespace Powder
 		return 0x0B;
 	}
 
-	/*virtual*/ uint32_t YieldInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t YieldInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		programBufferLocation++;
 		return Executor::Result::YIELD;

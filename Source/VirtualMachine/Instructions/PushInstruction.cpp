@@ -28,9 +28,9 @@ namespace Powder
 		return 0x07;
 	}
 
-	/*virtual*/ uint32_t PushInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t PushInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
-		uint8_t* programBuffer = executable->byteCodeBuffer;
+		uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		uint8_t pushType = programBuffer[programBufferLocation + 1];
 		switch (pushType)
 		{
@@ -93,7 +93,7 @@ namespace Powder
 			{
 				uint64_t programBufferAddress = 0L;
 				::memcpy_s(&programBufferAddress, sizeof(uint64_t), &programBuffer[programBufferLocation + 2], sizeof(uint64_t));
-				AddressValue* addressValue = (pushType == DataType::ADDRESS) ? new AddressValue(executable, programBufferAddress) : new ClosureValue(executable, programBufferAddress);
+				AddressValue* addressValue = (pushType == DataType::ADDRESS) ? new AddressValue(executableRef.Get(), programBufferAddress) : new ClosureValue(executableRef.Get(), programBufferAddress);
 				if (!executor->PushValueOntoEvaluationStackTop(addressValue, error))
 					return Executor::Result::RUNTIME_ERROR;
 				programBufferLocation += 2 + sizeof(uint64_t);

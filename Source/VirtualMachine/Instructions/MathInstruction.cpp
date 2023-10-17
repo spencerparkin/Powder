@@ -75,7 +75,7 @@ namespace Powder
 		return MathOp::UNKNOWN;
 	}
 
-	/*virtual*/ uint32_t MathInstruction::Execute(const Executable*& executable, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t MathInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		GC::Reference<Value, true> resultRef;
 
@@ -86,7 +86,7 @@ namespace Powder
 		// only deals with concrete (rather than symbolic) values on the evaluation stack.
 		// A list (or map) is itself a concrete value, as are the values used as fields,
 		// or the values stored in the container at those fields.  Containers can store containers.
-		const uint8_t* programBuffer = executable->byteCodeBuffer;
+		const uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		uint8_t mathOp = programBuffer[programBufferLocation + 1];
 		switch (mathOp)
 		{
