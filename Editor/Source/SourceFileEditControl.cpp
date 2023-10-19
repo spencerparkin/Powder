@@ -19,6 +19,7 @@ SourceFileEditControl::SourceFileEditControl(wxWindow* parent, const wxString& f
 	wxFont font;
 	font.SetFaceName("Courier New");
 	font.SetFamily(wxFONTFAMILY_MODERN);
+	//font.SetPointSize(25);  TODO: Make it possible to change this with a tool-bar button or something like that.
 	this->StyleSetFont(0, font);
 	this->StyleSetFont(STYLE_COMMENT, font);
 	this->StyleSetFont(STYLE_KEYWORD, font);
