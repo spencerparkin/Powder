@@ -77,14 +77,14 @@ void SetValue::Clear()
 		{
 			const SetValue* setValue = dynamic_cast<const SetValue*>(value);
 			if (setValue)
-				resultValue = this->CalculateIntersectionWith(setValue);
+				resultValue = this->CalculateDifferenceWith(setValue);
 			break;
 		}
 		case MathInstruction::MathOp::EXPONENTIATE:
 		{
 			const SetValue* setValue = dynamic_cast<const SetValue*>(value);
 			if (setValue)
-				resultValue = this->CalculateDifferenceWith(setValue);
+				resultValue = this->CalculateIntersectionWith(setValue);
 			break;
 		}
 	}
