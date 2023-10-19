@@ -184,6 +184,8 @@ void ValuesPanel::ApplyExpansionMap(wxTreeItemId parentItemId)
 
 wxTreeItemId ValuesPanel::GenerateScopeItems(Powder::Scope* scope)
 {
+	// TODO: Prevent possible infinite recursion here.
+
 	wxTreeItemId treeItemId;
 	wxTreeItemId parentTreeItemId;
 
@@ -262,6 +264,7 @@ void ValuesPanel::GenerateTreeForValue(wxTreeItemId parentItemId, const wxString
 
 	if (valueSet.find(value) != valueSet.end())
 	{
+		// TODO: Get rid of this.  Even if the data is recursive, we should be able to expand as far as we want.
 		this->valueTreeControl->AppendItem(childItemId, "Recursive!");
 		return;
 	}
