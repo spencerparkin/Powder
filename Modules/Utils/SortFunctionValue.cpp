@@ -13,6 +13,8 @@ SortFunctionValue::SortFunctionValue()
 
 /*virtual*/ bool SortFunctionValue::Call(Powder::ListValue* argListValue, GC::Reference<Powder::Value, true>& returnValueRef, Powder::CppCallingContext& context, Powder::Error& error)
 {
+	// I believe this is a stable sort.
+
 	if (argListValue->Length() != 2)
 	{
 		error.Add("Sort function expected exactly two arguments: a list value, then a predicate function value.");
@@ -115,8 +117,8 @@ SortFunctionValue::SortedArray* SortFunctionValue::MergeSortedArrays(const Sorte
 	{
 		if (i < (signed)sortedArrayA->size() && j < (signed)sortedArrayB->size())
 		{
-			Value* valueA = (*sortedArray)[i];
-			Value* valueB = (*sortedArray)[j];
+			Value* valueA = (*sortedArrayA)[i];
+			Value* valueB = (*sortedArrayB)[j];
 
 			bool compareResult = false;
 

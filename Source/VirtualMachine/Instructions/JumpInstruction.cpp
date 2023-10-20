@@ -25,7 +25,7 @@ namespace Powder
 		return 0x03;
 	}
 
-	/*virtual*/ uint32_t JumpInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t JumpInstruction::Execute(GC::Reference<Executable, false>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		const uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		Type type = Type(programBuffer[programBufferLocation + 1]);

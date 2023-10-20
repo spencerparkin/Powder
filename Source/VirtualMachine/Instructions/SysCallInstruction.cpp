@@ -130,7 +130,7 @@ namespace Powder
 		return -1;
 	}
 
-	/*virtual*/ uint32_t SysCallInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t SysCallInstruction::Execute(GC::Reference<Executable, false>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		const uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		uint8_t sysCallCode = programBuffer[programBufferLocation + 1];

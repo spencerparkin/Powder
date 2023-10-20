@@ -14,7 +14,7 @@ namespace Powder
 		this->currentScopeRef.Set(scope);
 		this->executableRef.Set(const_cast<Executable*>(executable));
 		this->programBufferLocation = programBufferLocation;
-		this->evaluationStack = new std::vector<GC::Reference<Value, true>>();
+		this->evaluationStack = new std::vector<GC::Reference<Value, false>>();
 	}
 
 	/*virtual*/ Executor::~Executor()
@@ -150,5 +150,14 @@ namespace Powder
 	uint32_t Executor::StackSize() const
 	{
 		return this->evaluationStack->size();
+	}
+
+	/*virtual*/ void Executor::PopulateIterationArray(std::vector<GC::Object*>& iterationArray)
+	{
+		iterationArray.push_back(&this->executableRef);
+		iterationArray.push_back(&this->currentScopeRef);
+		
+		for (GC::Reference<Value, false>& valueRef : *this->evaluationStack)
+			iterationArray.push_back(&valueRef);
 	}
 }

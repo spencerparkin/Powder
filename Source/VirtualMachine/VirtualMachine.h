@@ -33,7 +33,7 @@ namespace Powder
 		VirtualMachine();
 		virtual ~VirtualMachine();
 
-		bool ExecuteByteCode(uint64_t programBufferLocation, const Executable* executable, Scope* scope, Error& error);
+		bool ExecuteByteCode(GC::Reference<Executor, true>& executorRef, Error& error);
 		bool CreateExecutorAtLocation(uint64_t programBufferLocation, const Executable* executable, Scope* scope, Error& error);
 
 		class POWDER_API CompilerInterface
@@ -89,7 +89,7 @@ namespace Powder
 
 	protected:
 
-		typedef LinkedList<Executor*> ExecutorList;
+		typedef LinkedList<GC::Reference<Executor, true>> ExecutorList;
 		typedef HashMap<void*> ModuleMap;
 		typedef HashMap<Instruction*> InstructionMap;
 

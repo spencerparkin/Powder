@@ -1,0 +1,21 @@
+# Sort.pow
+
+utils = module("Utils.dll");
+
+list = [];
+for(i = 0; i < 10; i++)
+    list --< rand_int(0, 1000);
+
+print_list = func() {
+    for(item in list)
+        output(as_str(item) + "\n");
+};
+
+print_list();
+
+utils.sort(list, func(a, b) {
+    output("Comparing " + a + " with " + b + "\n");
+    return a < b;
+});
+
+print_list();

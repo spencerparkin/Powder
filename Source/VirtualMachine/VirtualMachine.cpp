@@ -79,31 +79,27 @@ namespace Powder
 		return true;
 	}
 
-	bool VirtualMachine::ExecuteByteCode(uint64_t programBufferLocation, const Executable* executable, Scope* scope, Error& error)
+	bool VirtualMachine::ExecuteByteCode(GC::Reference<Executor, true>& executorRef, Error& error)
 	{
 		ExecutorList executorList;
 		this->executorListStack->push_back(&executorList);
-		executorList.AddTail(new Executor(programBufferLocation, executable, scope));
+		executorList.AddTail(executorRef.Get());
 		
 		Executor::Result result;
 
 		while (executorList.GetCount() > 0)
 		{
 			ExecutorList::Node* node = executorList.GetHead();
-			Executor* executor = node->value;
-			result = executor->Execute(this, error);
+			GC::Reference<Executor, true> executorRef(node->value.Get());
+			result = executorRef.Get()->Execute(this, error);
 			executorList.Remove(node);
 			if (result == Executor::Result::YIELD)
-				executorList.AddTail(executor);
-			else
-			{
-				delete executor;
-				if (result == Executor::Result::RUNTIME_ERROR)
-					break;
-			}
+				executorList.AddTail(executorRef.Get());
+			else if (result == Executor::Result::RUNTIME_ERROR)
+				break;
 		}
 
-		DeleteList<Executor*>(executorList);
+		executorList.RemoveAll();
 		this->executorListStack->pop_back();
 
 		return result != Executor::Result::RUNTIME_ERROR;
@@ -125,11 +121,11 @@ namespace Powder
 			if (byteCodeTime >= sourceCodeTime)
 			{
 				GC::Reference<Executable, true> executableRef(new Executable());
-
 				if (!executableRef.Get()->Load(programByteCodePath, error))
 					return false;
 
-				if (!this->ExecuteByteCode(0L, executableRef.Get(), scope, error))
+				GC::Reference<Executor, true> executorRef(new Executor(0L, executableRef.Get(), scope));
+				if (!this->ExecuteByteCode(executorRef, error))
 					return false;
 				
 				return true;
@@ -177,7 +173,8 @@ namespace Powder
 			}
 		}
 
-		return this->ExecuteByteCode(0L, executableRef.Get(), scope, error);
+		GC::Reference<Executor, true> executorRef(new Executor(0L, executableRef.Get(), scope));
+		return this->ExecuteByteCode(executorRef, error);
 	}
 
 	MapValue* VirtualMachine::LoadModuleFunctionMap(const std::string& moduleAbsolutePath, Error& error)
@@ -234,7 +231,7 @@ namespace Powder
 			ExecutorList* executorList = (*this->executorListStack)[i];
 			for(ExecutorList::Node* node = executorList->GetHead(); node; node = node->GetNext())
 			{
-				Executor* executor = node->value;
+				Executor* executor = node->value.Get();
 				Scope* scope = executor->GetCurrentScope();
 				scopeArray.push_back(scope);
 			}

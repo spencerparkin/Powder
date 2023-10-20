@@ -21,7 +21,7 @@ namespace Powder
 		return 0x0D;
 	}
 
-	/*virtual*/ uint32_t MapInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t MapInstruction::Execute(GC::Reference<Executable, false>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		Value* result = nullptr;
 

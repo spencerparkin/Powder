@@ -19,7 +19,7 @@ namespace Powder
 		return 0x06;
 	}
 
-	/*virtual*/ uint32_t PopInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t PopInstruction::Execute(GC::Reference<Executable, false>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		GC::Reference<Value, true> valueRef;
 		if (!executor->PopValueFromEvaluationStackTop(valueRef, error))

@@ -3,7 +3,7 @@
 #include "SortFunctionValue.h"
 #include "MapValue.h"
 
-Powder::MapValue* GenerateFunctionMap()
+__declspec(dllexport) Powder::MapValue* GenerateFunctionMap()
 {
 	Powder::MapValue* mapValue = new Powder::MapValue();
 

@@ -19,7 +19,7 @@ namespace Powder
 		return 0x02;
 	}
 
-	/*virtual*/ uint32_t ForkInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t ForkInstruction::Execute(GC::Reference<Executable, false>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		const uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		uint64_t forkedProgramBufferLocation = 0;

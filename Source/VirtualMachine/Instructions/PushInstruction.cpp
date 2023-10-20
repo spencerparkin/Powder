@@ -28,7 +28,7 @@ namespace Powder
 		return 0x07;
 	}
 
-	/*virtual*/ uint32_t PushInstruction::Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
+	/*virtual*/ uint32_t PushInstruction::Execute(GC::Reference<Executable, false>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
 		uint8_t pushType = programBuffer[programBufferLocation + 1];

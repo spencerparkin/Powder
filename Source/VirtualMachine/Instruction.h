@@ -30,7 +30,7 @@ namespace Powder
 		// buffer.  An out-of-bounds error here means there is a bug in the compiler.
 		// The override should always advance or otherwise update the given program
 		// buffer location, and may change the given exectuable pointer.
-		virtual uint32_t Execute(GC::Reference<Executable, true>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error) = 0;
+		virtual uint32_t Execute(GC::Reference<Executable, false>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error) = 0;
 
 		enum AssemblyPass
 		{

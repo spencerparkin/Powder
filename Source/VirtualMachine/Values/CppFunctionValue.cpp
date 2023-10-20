@@ -34,6 +34,8 @@ namespace Powder
 	// In this way, I suppose the VM is not entirely indifferent to the compiler that's being used.  Oh well.
 	bool CppFunctionValue::CallScriptFunction(AddressValue* addressValue, GC::Reference<ListValue, true>& argListValueRef, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error)
 	{
+		int stackSizeBeforeCall = context.executor->StackSize();
+
 		// The script function will be popping this off the eval stack to populate its arguments.
 		if (!context.executor->PushValueOntoEvaluationStackTop(argListValueRef.Get(), error))
 			return false;
@@ -52,7 +54,11 @@ namespace Powder
 		returnAddressValueRef.Get()->cppReturn = true;
 		scope->StoreValue("__return_address__", returnAddressValueRef.Get());
 
-		if (!context.virtualMachine->ExecuteByteCode(addressValue->programBufferLocation, addressValue->executableRef.Get(), scope, error))
+		context.executor->SetProgramBufferLocation(addressValue->programBufferLocation);
+		context.executor->SetExecutable(addressValue->executableRef.Get());
+
+		GC::Reference<Executor, true> executorRef(context.executor);
+		if (!context.virtualMachine->ExecuteByteCode(executorRef, error))
 			return false;
 
 		if (!context.executor->PopScope())
@@ -60,6 +66,13 @@ namespace Powder
 
 		if (!context.executor->PopValueFromEvaluationStackTop(returnValueRef, error))
 			return false;
+
+		int stackSizeAfterCall = context.executor->StackSize();
+		if (stackSizeAfterCall != stackSizeBeforeCall)
+		{
+			error.Add("Call from C++ to script didn't leave stack-size the same.");
+			return false;
+		}
 
 		return true;
 	}
