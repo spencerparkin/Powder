@@ -3,6 +3,7 @@
 #include "NumberValue.h"
 #include "BooleanValue.h"
 #include "StringValue.h"
+#include "RecursionGuard.hpp"
 
 namespace Powder
 {
@@ -35,11 +36,13 @@ namespace Powder
 	/*virtual*/ std::string ListValue::GetSetKey() const
 	{
 		std::string key = "list:";
-
-		// TODO: This could infinitely recurse!  (Same problem in MapValue class!)
-		for (const LinkedList<GC::Reference<Value, false>>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
-			key += node->value.Get()->GetSetKey() + ",";
-
+		static bool recursionFlag = false;
+		RecursionGuard guard(&recursionFlag);
+		if (guard.IsRecursing())
+			key += "recursive";
+		else
+			for (const LinkedList<GC::Reference<Value, false>>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
+				key += node->value.Get()->GetSetKey() + ",";
 		return key;
 	}
 

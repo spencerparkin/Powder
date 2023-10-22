@@ -5,6 +5,7 @@
 #include "StringValue.h"
 #include "BooleanValue.h"
 #include "NullValue.h"
+#include "RecursionGuard.hpp"
 
 namespace Powder
 {
@@ -34,11 +35,16 @@ namespace Powder
 	/*virtual*/ std::string MapValue::GetSetKey() const
 	{
 		std::string key = "map:";
-
-		MapValue* mapValue = const_cast<MapValue*>(this);
-		for (HashMap<GC::Reference<Value, false>>::iterator iter = mapValue->valueMap.begin(); iter != mapValue->valueMap.end(); ++iter)
-			key += (*iter).Get()->GetSetKey() + ",";
-
+		static bool recursionFlag = false;
+		RecursionGuard guard(&recursionFlag);
+		if (guard.IsRecursing())
+			key += "recursive";
+		else
+		{
+			MapValue* mapValue = const_cast<MapValue*>(this);
+			for (HashMap<GC::Reference<Value, false>>::iterator iter = mapValue->valueMap.begin(); iter != mapValue->valueMap.end(); ++iter)
+				key += (*iter).Get()->GetSetKey() + ",";
+		}
 		return key;
 	}
 

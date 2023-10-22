@@ -120,6 +120,7 @@
     <ClInclude Include="Source\PathResolver.h" />
     <ClInclude Include="Source\Utilities\HashMap.hpp" />
     <ClInclude Include="Source\Utilities\LinkedList.hpp" />
+    <ClInclude Include="Source\Utilities\RecursionGuard.hpp" />
     <ClInclude Include="Source\VirtualMachine\Executable.h" />
     <ClInclude Include="Source\VirtualMachine\Executor.h" />
     <ClInclude Include="Source\VirtualMachine\Instruction.h" />
