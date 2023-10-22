@@ -23,10 +23,12 @@ namespace Powder
 {
 	SysCallInstruction::SysCallInstruction()
 	{
+		this->runSet = new std::set<std::string>();
 	}
 
 	/*virtual*/ SysCallInstruction::~SysCallInstruction()
 	{
+		delete this->runSet;
 	}
 
 	/*virtual*/ uint8_t SysCallInstruction::OpCode() const
@@ -216,8 +218,12 @@ namespace Powder
 				std::string scriptAbsolutePath = pathResolver.ResolvePath(scriptRelativePath, PathResolver::SEARCH_CWD, error);
 				if (scriptAbsolutePath.size() == 0)
 					return Executor::Result::RUNTIME_ERROR;
-				if (!virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), error, executor->GetCurrentScope()))
-					return Executor::Result::RUNTIME_ERROR;
+				if (this->runSet->find(scriptAbsolutePath) == this->runSet->end())
+				{
+					if (!virtualMachine->ExecuteSourceCodeFile(scriptAbsolutePath.c_str(), error, executor->GetCurrentScope()))
+						return Executor::Result::RUNTIME_ERROR;
+					this->runSet->insert(scriptAbsolutePath);	// Prevent circular run() calls.
+				}
 				if (!executor->PushValueOntoEvaluationStackTop(new NullValue(), error))
 					return Executor::Result::RUNTIME_ERROR;
 				break;
