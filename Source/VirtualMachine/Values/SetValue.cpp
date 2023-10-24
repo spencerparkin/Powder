@@ -45,7 +45,7 @@ void SetValue::Clear()
 	{
 		case MathInstruction::MathOp::SIZE:
 		{
-			resultValue = new NumberValue(this->map->size());
+			resultValue = new NumberValue((double)this->map->size());
 			break;
 		}
 		case MathInstruction::MathOp::NOT_EQUAL:

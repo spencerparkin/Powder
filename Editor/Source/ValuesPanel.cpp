@@ -212,7 +212,7 @@ wxTreeItemId ValuesPanel::GenerateScopeItems(Powder::Scope* scope)
 
 	if (!childItemId.IsOk())
 	{
-		wxString label = wxString::Format("Scope (0x%08x)", int(scope));
+		wxString label = wxString::Format("Scope (0x%08x)", uintptr_t(scope));
 		if (parentTreeItemId.IsOk())
 			treeItemId = this->valueTreeControl->AppendItem(parentTreeItemId, label, -1, -1, new ScopeTreeItemData(scope));
 		else

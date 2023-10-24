@@ -149,7 +149,7 @@ namespace Powder
 
 	uint32_t Executor::StackSize() const
 	{
-		return this->evaluationStack->size();
+		return (uint32_t)this->evaluationStack->size();
 	}
 
 	/*virtual*/ void Executor::PopulateIterationArray(std::vector<GC::Object*>& iterationArray)

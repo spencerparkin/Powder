@@ -40,6 +40,6 @@ namespace Powder
 
 	/*virtual*/ std::string ClosureValue::GetSetKey() const
 	{
-		return std::format("closure:{}|", int(this->scopeRef.Get())) + AddressValue::GetSetKey();
+		return std::format("closure:{}|", uintptr_t(this->scopeRef.Get())) + AddressValue::GetSetKey();
 	}
 }

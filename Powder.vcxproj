@@ -267,18 +267,19 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); POWDER_API_EXPORT</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);POWDER_API_EXPORT;POWDER_DEBUG;GC_EXPORT</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty;./Source/Compiler/SyntaxHandlers</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty;./Source/Compiler/SyntaxHandlers;$(SolutionDir)\ThirdParty\GarbageCollector\Source;$(SolutionDir)\ThirdParty\ParseParty\Source</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;GarbageCollector.lib;ParseParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -287,12 +288,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); POWDER_API_EXPORT</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); POWDER_API_EXPORT;GC_EXPORT</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty;./Source/Compiler/SyntaxHandlers</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>./Source/Compiler/LanguageConstructs;./Source;./Source/VirtualMachine;./Source/VirtualMachine/Instructions;./Source/GarbageCollector;./Source/Compiler;./Source/Utilities;./Source/VirtualMachine/Values;./Source/ThirdParty;./Source/Compiler/SyntaxHandlers;$(SolutionDir)\ThirdParty\GarbageCollector\Source;$(SolutionDir)\ThirdParty\ParseParty\Source</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -300,7 +301,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;GarbageCollector.lib;ParseParty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

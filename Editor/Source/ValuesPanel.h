@@ -64,7 +64,7 @@ public:
 		wxString CalcLabel()
 		{
 			std::string valueStr = value->ToString();
-			return wxString::Format("%s (0x%08x): %s", (const char*)this->name.c_str(), int(value), valueStr.c_str());
+			return wxString::Format("%s (0x%08x): %s", (const char*)this->name.c_str(), uintptr_t(value), valueStr.c_str());
 		}
 
 		wxString name;

@@ -58,7 +58,7 @@ void EvalStackPanel::RebuildStackList(Powder::Executor* executor)
 	for (uint32_t i = 0; i < executor->StackSize(); i++)
 	{
 		Powder::Value* value = executor->StackValue(i, nullptr);
-		this->evalStackCtrl->InsertItem(i, wxString::Format("0x%08x", uint32_t(value)));
+		this->evalStackCtrl->InsertItem(i, wxString::Format("0x%08x", uintptr_t(value)));
 		this->evalStackCtrl->SetItem(i, 1, wxString(value->ToString().c_str()));
 	}
 }

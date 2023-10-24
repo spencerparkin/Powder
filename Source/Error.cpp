@@ -39,5 +39,5 @@ void Error::Add(const std::string& errorMessage)
 
 int Error::GetCount()
 {
-	return this->errorMessageArray->size();
+	return (int)this->errorMessageArray->size();
 }

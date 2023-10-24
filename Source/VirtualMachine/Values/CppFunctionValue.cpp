@@ -27,7 +27,7 @@ namespace Powder
 
 	/*virtual*/ std::string CppFunctionValue::GetSetKey() const
 	{
-		return std::format("c++function:{}", int(this));
+		return std::format("c++function:{}", uintptr_t(this));
 	}
 
 	// Note that this function must be updated if the calling convention in the compiler is changed.

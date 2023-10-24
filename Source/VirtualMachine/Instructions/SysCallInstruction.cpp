@@ -186,7 +186,7 @@ namespace Powder
 					return Executor::Result::RUNTIME_ERROR;
 				std::string str = valueRef.Get()->ToString();
 				virtualMachine->GetIODevice()->OutputString(str);
-				if (!executor->PushValueOntoEvaluationStackTop(new NumberValue(str.length()), error))
+				if (!executor->PushValueOntoEvaluationStackTop(new NumberValue((double)str.length()), error))
 					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}
