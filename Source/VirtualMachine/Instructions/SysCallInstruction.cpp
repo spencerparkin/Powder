@@ -196,7 +196,7 @@ namespace Powder
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				std::string moduleRelativePath = valueRef.Get()->ToString();
-				std::string moduleAbsolutePath = pathResolver.ResolvePath(moduleRelativePath, PathResolver::SEARCH_BASE | PathResolver::SEARCH_CWD, error);
+				std::string moduleAbsolutePath = pathResolver.ResolvePath(moduleRelativePath, PathResolver::SEARCH_MODULES | PathResolver::SEARCH_CWD, error);
 				if (moduleAbsolutePath.size() == 0)
 					return Executor::Result::RUNTIME_ERROR;
 				MapValue* functionMapValue = virtualMachine->LoadModuleFunctionMap(moduleAbsolutePath, error);

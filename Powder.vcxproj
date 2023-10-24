@@ -267,7 +267,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);POWDER_API_EXPORT;POWDER_DEBUG;GC_EXPORT</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);POWDER_API_EXPORT;POWDER_DEBUG;GC_EXPORT;POWDER_64BIT</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -288,7 +288,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions); POWDER_API_EXPORT;GC_EXPORT</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;POWDER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);POWDER_API_EXPORT;GC_EXPORT;POWDER_64BIT</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

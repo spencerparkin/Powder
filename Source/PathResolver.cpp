@@ -22,29 +22,59 @@ namespace Powder
 		std::filesystem::path unresolvedPath = givenPath;
 		std::filesystem::path resolvedPath;
 
-		if (unresolvedPath.is_absolute())
-			resolvedPath = unresolvedPath;
-		else if (unresolvedPath.is_relative())
+		while (true)
 		{
-			if ((searchFlags & SEARCH_CWD) != 0)
+			if (unresolvedPath.is_absolute())
 			{
-				resolvedPath = std::filesystem::current_path() / unresolvedPath;
-				if (!std::filesystem::exists(resolvedPath))
-					this->SearchDirectoryForFile(std::filesystem::current_path(), unresolvedPath, resolvedPath);
+				resolvedPath = unresolvedPath;
+				if (std::filesystem::exists(resolvedPath))
+					break;
 			}
-			
-			if (!std::filesystem::exists(resolvedPath))
+
+			if (unresolvedPath.is_relative())
 			{
+				if ((searchFlags & SEARCH_CWD) != 0)
+				{
+					resolvedPath = std::filesystem::current_path() / unresolvedPath;
+					if (!std::filesystem::exists(resolvedPath))
+						this->SearchDirectoryForFile(std::filesystem::current_path(), unresolvedPath, resolvedPath);
+
+					if (std::filesystem::exists(resolvedPath))
+						break;
+				}
+
 				if (*this->baseDirectory == "")
 					this->FindBaseDirectoryUsingModulePath();
+
+#if defined POWDER_DEBUG
+				const std::string config = "Debug";
+#else
+				const std::string config = "Release";
+#endif
+
+				if ((searchFlags & SEARCH_MODULES))
+				{
+#if defined POWDER_64BIT
+					resolvedPath = *this->baseDirectory / "x64" / config / unresolvedPath;
+#else
+					resolvedPath = *this->baseDirectory / config / unresolvedPath;
+#endif
+					if (std::filesystem::exists(resolvedPath))
+						break;
+				}
 
 				if ((searchFlags & SEARCH_BASE) != 0)
 				{
 					resolvedPath = *this->baseDirectory / unresolvedPath;
 					if (!std::filesystem::exists(resolvedPath))
 						this->SearchDirectoryForFile(*this->baseDirectory, unresolvedPath, resolvedPath);
+
+					if (std::filesystem::exists(resolvedPath))
+						break;
 				}
 			}
+
+			break;
 		}
 
 		if (!std::filesystem::exists(resolvedPath))

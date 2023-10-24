@@ -17,7 +17,8 @@ namespace Powder
 		enum
 		{
 			SEARCH_CWD = 1,
-			SEARCH_BASE = 2
+			SEARCH_BASE = 2,
+			SEARCH_MODULES = 4
 		};
 
 		std::string ResolvePath(const std::string& givenPath, int searchFlags, Error& error);
