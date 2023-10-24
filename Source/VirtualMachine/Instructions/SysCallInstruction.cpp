@@ -9,6 +9,7 @@
 #include "CppFunctionValue.h"
 #include "BooleanValue.h"
 #include "AddressValue.h"
+#include "RangeIteratorValue.h"
 #include "SetValue.h"
 #include "MapValue.h"
 #include "NullValue.h"
@@ -90,6 +91,8 @@ namespace Powder
 			return SysCall::ANY_MEMBER;
 		else if (funcName == "error")
 			return SysCall::ERROR_;
+		else if (funcName == "range")
+			return SysCall::RANGE;
 
 		return SysCall::UNKNOWN;
 	}
@@ -127,6 +130,8 @@ namespace Powder
 			case SysCall::RAND_FLOAT:
 			case SysCall::SAME:
 				return 2;
+			case SysCall::RANGE:
+				return 3;
 		}
 
 		return -1;
@@ -413,6 +418,20 @@ namespace Powder
 					return Executor::Result::RUNTIME_ERROR;
 				NumberValue* numberValue = new NumberValue(valueRef.Get()->AsNumber());
 				if (!executor->PushValueOntoEvaluationStackTop(numberValue, error))
+					return Executor::Result::RUNTIME_ERROR;
+				break;
+			}
+			case SysCall::RANGE:
+			{
+				GC::Reference<Value, true> startValueRef, stopValueRef, stepValueRef;
+				if (!executor->PopValueFromEvaluationStackTop(stepValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PopValueFromEvaluationStackTop(stopValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				if (!executor->PopValueFromEvaluationStackTop(startValueRef, error))
+					return Executor::Result::RUNTIME_ERROR;
+				RangeIteratorValue* rangeIteratorValue = new RangeIteratorValue(startValueRef.Get()->AsNumber(), stopValueRef.Get()->AsNumber(), stepValueRef.Get()->AsNumber());
+				if (!executor->PushValueOntoEvaluationStackTop(rangeIteratorValue, error))
 					return Executor::Result::RUNTIME_ERROR;
 				break;
 			}

@@ -40,7 +40,8 @@ namespace Powder
 			ADD_MEMBER,
 			DEL_MEMBER,
 			ANY_MEMBER,
-			ERROR_
+			ERROR_,
+			RANGE
 		};
 
 		static SysCall TranslateAsSysCall(const std::string& funcName);

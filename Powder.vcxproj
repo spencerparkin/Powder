@@ -78,6 +78,7 @@
     <ClCompile Include="Source\VirtualMachine\Values\ListValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\MapValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\NumberValue.cpp" />
+    <ClCompile Include="Source\VirtualMachine\Values\RangeIteratorValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\SetValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\StringValue.cpp" />
     <ClCompile Include="Source\VirtualMachine\Values\NullValue.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="Source\VirtualMachine\Values\ListValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\MapValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\NumberValue.h" />
+    <ClInclude Include="Source\VirtualMachine\Values\RangeIteratorValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\SetValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\StringValue.h" />
     <ClInclude Include="Source\VirtualMachine\Values\NullValue.h" />

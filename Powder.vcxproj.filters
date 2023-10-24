@@ -214,6 +214,9 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\SetExpressionHandler.cpp">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Values\RangeIteratorValue.cpp">
+      <Filter>Source\VirtualMachine\Values</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -416,6 +419,9 @@
     </ClInclude>
     <ClInclude Include="Source\Utilities\RecursionGuard.hpp">
       <Filter>Source\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Values\RangeIteratorValue.h">
+      <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
