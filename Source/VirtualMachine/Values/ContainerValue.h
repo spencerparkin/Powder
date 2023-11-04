@@ -18,7 +18,7 @@ namespace Powder
 
 		virtual bool SetField(Value* fieldValue, Value* dataValue, Error& error);
 		virtual Value* GetField(Value* fieldValue, Error& error);
-		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error);
+		virtual bool DelField(Value* fieldValue, GC::CriticalReference<Value>& valueRef, Error& error);
 		virtual BooleanValue* IsMember(const Value* value) const = 0;
 		virtual bool AddMember(Value* value, Error& error);
 		virtual bool RemoveMember(Value* value, Error& error);

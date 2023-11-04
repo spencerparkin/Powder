@@ -20,7 +20,7 @@ namespace Powder
 		virtual std::string ToString() const override;
 		virtual bool SetField(Value* fieldValue, Value* dataValue, Error& error) override;
 		virtual Value* GetField(Value* fieldValue, Error& error) override;
-		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error) override;
+		virtual bool DelField(Value* fieldValue, GC::CriticalReference<Value>& valueRef, Error& error) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 		virtual std::string GetTypeString() const override;
@@ -30,10 +30,10 @@ namespace Powder
 
 		void SetField(const char* key, Value* dataValue);
 		Value* GetField(const char* key);
-		bool DelField(const char* key, GC::Reference<Value, true>& valueRef);
+		bool DelField(const char* key, GC::CriticalReference<Value>& valueRef);
 
-		HashMap<GC::Reference<Value, false>>& GetValueMap() { return this->valueMap; }
-		const HashMap<GC::Reference<Value, false>>& GetValueMap() const { return this->valueMap; }
+		HashMap<GC::NonCriticalReference<Value>>& GetValueMap() { return this->valueMap; }
+		const HashMap<GC::NonCriticalReference<Value>>& GetValueMap() const { return this->valueMap; }
 
 		virtual bool IterationBegin(void*& userData) override;
 		virtual Object* IterationNext(void* userData) override;
@@ -42,7 +42,7 @@ namespace Powder
 	private:
 
 		// TODO: Maybe replace this with std::map?
-		HashMap<GC::Reference<Value, false>> valueMap;
+		HashMap<GC::NonCriticalReference<Value>> valueMap;
 	};
 
 	class POWDER_API MapValueIterator : public CppFunctionValue
@@ -51,9 +51,9 @@ namespace Powder
 		MapValueIterator(MapValue* mapValue);
 		virtual ~MapValueIterator();
 
-		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error) override;
+		virtual bool Call(ListValue* argListValue, GC::CriticalReference<Value>& returnValueRef, CppCallingContext& context, Error& error) override;
 
 		GC::Reference<MapValue, false> mapValueRef;
-		HashMap<GC::Reference<Value, false>>::iterator mapIter;
+		HashMap<GC::NonCriticalReference<Value>>::iterator mapIter;
 	};
 }

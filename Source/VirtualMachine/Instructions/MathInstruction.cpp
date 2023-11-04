@@ -77,7 +77,7 @@ namespace Powder
 
 	/*virtual*/ uint32_t MathInstruction::Execute(GC::Reference<Executable, false>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
-		GC::Reference<Value, true> resultRef;
+		GC::CriticalReference<Value> resultRef;
 
 		// It was decided that loading and storing (assignment), to and from scope,
 		// would not be a math operation, and so it seems contradictory here to support
@@ -92,7 +92,7 @@ namespace Powder
 		{
 			case MathOp::GET_FIELD:
 			{
-				GC::Reference<Value, true> fieldValueRef, valueRef;
+				GC::CriticalReference<Value> fieldValueRef, valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(fieldValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
@@ -113,7 +113,7 @@ namespace Powder
 			{
 				if (!executor->PopValueFromEvaluationStackTop(resultRef, error))
 					return Executor::Result::RUNTIME_ERROR;
-				GC::Reference<Value, true> fieldValueRef, valueRef;
+				GC::CriticalReference<Value> fieldValueRef, valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(fieldValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
@@ -132,7 +132,7 @@ namespace Powder
 			}
 			case MathOp::DEL_FIELD:
 			{
-				GC::Reference<Value, true> fieldValueRef, valueRef;
+				GC::CriticalReference<Value> fieldValueRef, valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(fieldValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
@@ -151,7 +151,7 @@ namespace Powder
 			}
 			case MathOp::CONTAINS:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				ContainerValue* containerValue = dynamic_cast<ContainerValue*>(valueRef.Get());
@@ -160,7 +160,7 @@ namespace Powder
 					error.Add("Membership math operation expected a container value on the evaluation stack.");
 					return Executor::Result::RUNTIME_ERROR;
 				}
-				GC::Reference<Value, true> memberValueRef;
+				GC::CriticalReference<Value> memberValueRef;
 				if (!executor->PopValueFromEvaluationStackTop(memberValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				resultRef.Set(containerValue->IsMember(memberValueRef.Get()));
@@ -172,14 +172,14 @@ namespace Powder
 				mathOp &= ~0x80;
 				if (unary)
 				{
-					GC::Reference<Value, true> valueRef;
+					GC::CriticalReference<Value> valueRef;
 					if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 						return Executor::Result::RUNTIME_ERROR;
 					resultRef.Set(valueRef.Get()->CombineWith(nullptr, (MathOp)mathOp, executor));
 				}
 				else
 				{
-					GC::Reference<Value, true> rightValueRef, leftValueRef;
+					GC::CriticalReference<Value> rightValueRef, leftValueRef;
 					if (!executor->PopValueFromEvaluationStackTop(rightValueRef, error))
 						return Executor::Result::RUNTIME_ERROR;
 					if (!executor->PopValueFromEvaluationStackTop(leftValueRef, error))

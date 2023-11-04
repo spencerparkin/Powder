@@ -22,7 +22,7 @@ namespace Powder
 		return nullptr;
 	}
 
-	/*virtual*/ bool ContainerValue::DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error)
+	/*virtual*/ bool ContainerValue::DelField(Value* fieldValue, GC::CriticalReference<Value>& valueRef, Error& error)
 	{
 		error.Add("No supported.");
 		return false;

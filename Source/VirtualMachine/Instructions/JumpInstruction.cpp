@@ -38,7 +38,7 @@ namespace Powder
 			}
 			case Type::JUMP_TO_LOADED_ADDRESS:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 
@@ -69,7 +69,7 @@ namespace Powder
 				CppFunctionValue* cppFunctionValue = dynamic_cast<CppFunctionValue*>(valueRef.Get());
 				if (cppFunctionValue)
 				{
-					GC::Reference<Value, true> argValueRef;
+					GC::CriticalReference<Value> argValueRef;
 					if (!executor->PopValueFromEvaluationStackTop(argValueRef, error))
 						return Executor::Result::RUNTIME_ERROR;
 
@@ -81,7 +81,7 @@ namespace Powder
 					}
 
 					std::string errorMsg;
-					GC::Reference<Value, true> resultValueRef;
+					GC::CriticalReference<Value> resultValueRef;
 					CppCallingContext context{ executor, virtualMachine };
 					if (!cppFunctionValue->Call(argListValue, resultValueRef, context, error))
 						return Executor::Result::RUNTIME_ERROR;

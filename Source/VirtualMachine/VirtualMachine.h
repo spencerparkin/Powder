@@ -89,14 +89,14 @@ namespace Powder
 
 	protected:
 
-		typedef LinkedList<GC::Reference<Executor, true>> ExecutorList;
+		typedef LinkedList<GC::CriticalReference<Executor>> ExecutorList;
 		typedef HashMap<void*> ModuleMap;
 		typedef HashMap<Instruction*> InstructionMap;
 
 		CompilerInterface* compiler;
 		IODevice* ioDevice;
 		DebuggerTrap* debuggerTrap;
-		GC::Reference<Scope, true> globalScopeRef;
+		GC::CriticalReference<Scope> globalScopeRef;
 		ModuleMap moduleMap;
 		InstructionMap instructionMap;
 		std::vector<ExecutorList*>* executorListStack;

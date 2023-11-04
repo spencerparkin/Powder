@@ -23,12 +23,12 @@ namespace Powder
 		CppFunctionValue();
 		virtual ~CppFunctionValue();
 
-		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error) = 0;
+		virtual bool Call(ListValue* argListValue, GC::CriticalReference<Value>& returnValueRef, CppCallingContext& context, Error& error) = 0;
 		virtual std::string ToString() const override;
 		virtual std::string GetTypeString() const override;
 		virtual std::string GetSetKey() const override;
 
 		// If this call returns false, then the caller must also return false as the state of the VM is left undefined.
-		bool CallScriptFunction(AddressValue* addressValue, GC::Reference<ListValue, true>& argListValueRef, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error);
+		bool CallScriptFunction(AddressValue* addressValue, GC::Reference<ListValue, true>& argListValueRef, GC::CriticalReference<Value>& returnValueRef, CppCallingContext& context, Error& error);
 	};
 }

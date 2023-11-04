@@ -16,8 +16,8 @@ namespace Powder
 		SetValue();
 		virtual ~SetValue();
 
-		typedef std::map<std::string, GC::Reference<Value, false>*> Map;
-		typedef std::pair<std::string, GC::Reference<Value, false>*> MapPair;
+		typedef std::map<std::string, GC::NonCriticalReference<Value>*> Map;
+		typedef std::pair<std::string, GC::NonCriticalReference<Value>*> MapPair;
 
 		// For the VM:
 		virtual Value* Copy() const override;
@@ -55,9 +55,9 @@ namespace Powder
 		SetValueIterator(SetValue* setValue);
 		virtual ~SetValueIterator();
 
-		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error) override;
+		virtual bool Call(ListValue* argListValue, GC::CriticalReference<Value>& returnValueRef, CppCallingContext& context, Error& error) override;
 
-		GC::Reference<SetValue, false> setValueRef;
+		GC::NonCriticalReference<SetValue> setValueRef;
 		SetValue::Map::iterator* mapIter;
 	};
 }

@@ -24,7 +24,7 @@ namespace Powder
 	/*virtual*/ uint32_t BranchInstruction::Execute(GC::Reference<Executable, false>& executableRef, uint64_t& programBufferLocation, Executor* executor, VirtualMachine* virtualMachine, Error& error)
 	{
 		const uint8_t* programBuffer = executableRef.Get()->byteCodeBuffer;
-		GC::Reference<Value, true> valueRef;
+		GC::CriticalReference<Value> valueRef;
 		if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 			return Executor::Result::RUNTIME_ERROR;
 		if (valueRef.Get()->AsBoolean())

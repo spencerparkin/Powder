@@ -41,7 +41,7 @@ namespace Powder
 					error.Add("List instruction can only pop elements from a list value.");
 					return Executor::Result::RUNTIME_ERROR;
 				}
-				GC::Reference<Value, true> elementValueRef;
+				GC::CriticalReference<Value> elementValueRef;
 				if (action == Action::POP_LEFT)
 				{
 					if (!listValue->PopLeft(elementValueRef, error))
@@ -62,7 +62,7 @@ namespace Powder
 			case Action::PUSH_RIGHT:
 			{
 				// Notice that we pop the pushed value, but leave the list value.
-				GC::Reference<Value, true> elementValueRef;
+				GC::CriticalReference<Value> elementValueRef;
 				if (!executor->PopValueFromEvaluationStackTop(elementValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				Value* value = executor->StackTop(error);

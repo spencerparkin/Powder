@@ -18,7 +18,7 @@ RangeIteratorValue::RangeIteratorValue(double start, double stop, double step)
 {
 }
 
-/*virtual*/ bool RangeIteratorValue::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error)
+/*virtual*/ bool RangeIteratorValue::Call(ListValue* argListValue, GC::CriticalReference<Value>& returnValueRef, CppCallingContext& context, Error& error)
 {
 	if (argListValue->Length() != 1)
 	{

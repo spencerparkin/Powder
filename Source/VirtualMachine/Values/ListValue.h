@@ -21,16 +21,16 @@ namespace Powder
 		virtual std::string ToString() const override;
 		virtual bool SetField(Value* fieldValue, Value* dataValue, Error& error) override;
 		virtual Value* GetField(Value* fieldValue, Error& error) override;
-		virtual bool DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error) override;
+		virtual bool DelField(Value* fieldValue, GC::CriticalReference<Value>& valueRef, Error& error) override;
 		virtual BooleanValue* IsMember(const Value* value) const override;
 		virtual CppFunctionValue* MakeIterator(void) override;
 		virtual std::string GetTypeString() const override;
 		virtual std::string GetSetKey() const override;
 
 		void PushLeft(Value* value);
-		bool PopLeft(GC::Reference<Value, true>& valueRef, Error& error);
+		bool PopLeft(GC::CriticalReference<Value>& valueRef, Error& error);
 		void PushRight(Value* value);
-		bool PopRight(GC::Reference<Value, true>& valueRef, Error& error);
+		bool PopRight(GC::CriticalReference<Value>& valueRef, Error& error);
 
 		unsigned int Length() const { return this->valueList.GetCount(); }
 		Value* operator[](int i);
@@ -40,11 +40,11 @@ namespace Powder
 		virtual Object* IterationNext(void* userData) override;
 		virtual void IterationEnd(void* userData) override;
 
-		void SortWithPredicate(std::function<bool(const LinkedList<GC::Reference<Value, false>>::Node* nodeA, const LinkedList<GC::Reference<Value, false>>::Node* nodeB)> predicate);
+		void SortWithPredicate(std::function<bool(const LinkedList<GC::NonCriticalReference<Value>>::Node* nodeA, const LinkedList<GC::NonCriticalReference<Value>>::Node* nodeB)> predicate);
 
 	private:
-		LinkedList<GC::Reference<Value, false>> valueList;
-		mutable std::vector<LinkedList<GC::Reference<Value, false>>::Node*>* valueListIndex;
+		LinkedList<GC::NonCriticalReference<Value>> valueList;
+		mutable std::vector<LinkedList<GC::NonCriticalReference<Value>>::Node*>* valueListIndex;
 		mutable bool valueListIndexValid;
 
 		void RebuildIndexIfNeeded(void) const;
@@ -56,9 +56,9 @@ namespace Powder
 		ListValueIterator(ListValue* listValue);
 		virtual ~ListValueIterator();
 
-		virtual bool Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error) override;
+		virtual bool Call(ListValue* argListValue, GC::CriticalReference<Value>& returnValueRef, CppCallingContext& context, Error& error) override;
 
 		GC::Reference<ListValue, false> listValueRef;
-		LinkedList<GC::Reference<Value, false>>::Node* listNode;
+		LinkedList<GC::NonCriticalReference<Value>>::Node* listNode;
 	};
 }

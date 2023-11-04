@@ -149,7 +149,7 @@ namespace Powder
 			}
 			case SysCall::ERROR_:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				error.Add("User error: " + valueRef.Get()->ToString());
@@ -167,7 +167,7 @@ namespace Powder
 				std::string str;
 				virtualMachine->GetIODevice()->InputString(str);
 
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				valueRef.Set(new NumberValue());
 
 				if (!valueRef.Get()->FromString(str))
@@ -186,7 +186,7 @@ namespace Powder
 			}
 			case SysCall::OUTPUT:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				std::string str = valueRef.Get()->ToString();
@@ -197,7 +197,7 @@ namespace Powder
 			}
 			case SysCall::MODULE:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				std::string moduleRelativePath = valueRef.Get()->ToString();
@@ -216,7 +216,7 @@ namespace Powder
 			}
 			case SysCall::RUN_SCRIPT:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				std::string scriptRelativePath = valueRef.Get()->ToString();
@@ -235,7 +235,7 @@ namespace Powder
 			}
 			case SysCall::SLEEP:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				double sleepSeconds = valueRef.Get()->AsNumber();
@@ -259,7 +259,7 @@ namespace Powder
 			case SysCall::EXP:
 			case SysCall::SQRT:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				double input = valueRef.Get()->AsNumber();
@@ -280,7 +280,7 @@ namespace Powder
 			case SysCall::RAND_INT:
 			case SysCall::RAND_FLOAT:
 			{
-				GC::Reference<Value, true> minValueRef, maxValueRef;
+				GC::CriticalReference<Value> minValueRef, maxValueRef;
 				if (!executor->PopValueFromEvaluationStackTop(maxValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				if (!executor->PopValueFromEvaluationStackTop(minValueRef, error))
@@ -310,7 +310,7 @@ namespace Powder
 			}
 			case SysCall::SAME:
 			{
-				GC::Reference<Value, true> valueARef, valueBRef;
+				GC::CriticalReference<Value> valueARef, valueBRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueARef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				if (!executor->PopValueFromEvaluationStackTop(valueBRef, error))
@@ -322,7 +322,7 @@ namespace Powder
 			}
 			case SysCall::TYPE:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				StringValue* stringValue = new StringValue(valueRef.Get()->GetTypeString());
@@ -333,7 +333,7 @@ namespace Powder
 			case SysCall::DEL_MEMBER:
 			case SysCall::ADD_MEMBER:
 			{
-				GC::Reference<Value, true> setValueRef, memberValueRef;
+				GC::CriticalReference<Value> setValueRef, memberValueRef;
 				if (!executor->PopValueFromEvaluationStackTop(memberValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				if (!executor->PopValueFromEvaluationStackTop(setValueRef, error))
@@ -355,7 +355,7 @@ namespace Powder
 			}
 			case SysCall::ANY_MEMBER:
 			{
-				GC::Reference<Value, true> setValueRef;
+				GC::CriticalReference<Value> setValueRef;
 				if (!executor->PopValueFromEvaluationStackTop(setValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				SetValue* setValue = dynamic_cast<SetValue*>(setValueRef.Get());
@@ -382,7 +382,7 @@ namespace Powder
 					CppFunctionValue* iteratorValue = containerValue->MakeIterator();
 					if (iteratorValue)
 					{
-						GC::Reference<Value, true> poppedValueRef;
+						GC::CriticalReference<Value> poppedValueRef;
 						if (!executor->PopValueFromEvaluationStackTop(poppedValueRef, error))
 							return Executor::Result::RUNTIME_ERROR;
 						if (!executor->PushValueOntoEvaluationStackTop(iteratorValue, error))
@@ -403,7 +403,7 @@ namespace Powder
 			}
 			case SysCall::AS_STRING:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				StringValue* stringValue = new StringValue(valueRef.Get()->ToString());
@@ -413,7 +413,7 @@ namespace Powder
 			}
 			case SysCall::AS_NUMBER:
 			{
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				NumberValue* numberValue = new NumberValue(valueRef.Get()->AsNumber());
@@ -423,7 +423,7 @@ namespace Powder
 			}
 			case SysCall::RANGE:
 			{
-				GC::Reference<Value, true> startValueRef, stopValueRef, stepValueRef;
+				GC::CriticalReference<Value> startValueRef, stopValueRef, stepValueRef;
 				if (!executor->PopValueFromEvaluationStackTop(stepValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				if (!executor->PopValueFromEvaluationStackTop(stopValueRef, error))

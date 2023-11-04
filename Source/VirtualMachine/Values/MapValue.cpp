@@ -42,7 +42,7 @@ namespace Powder
 		else
 		{
 			MapValue* mapValue = const_cast<MapValue*>(this);
-			for (HashMap<GC::Reference<Value, false>>::iterator iter = mapValue->valueMap.begin(); iter != mapValue->valueMap.end(); ++iter)
+			for (HashMap<GC::NonCriticalReference<Value>>::iterator iter = mapValue->valueMap.begin(); iter != mapValue->valueMap.end(); ++iter)
 				key += (*iter).Get()->GetSetKey() + ",";
 		}
 		return key;
@@ -78,7 +78,7 @@ namespace Powder
 	/*virtual*/ BooleanValue* MapValue::IsMember(const Value* value) const
 	{
 		std::string key = value->ToString();
-		GC::Reference<Value, false>* valueRef = const_cast<MapValue*>(this)->valueMap.LookupPtr(key.c_str());
+		GC::NonCriticalReference<Value>* valueRef = const_cast<MapValue*>(this)->valueMap.LookupPtr(key.c_str());
 		return new BooleanValue(valueRef != nullptr && valueRef->Get() != nullptr);
 	}
 
@@ -89,13 +89,13 @@ namespace Powder
 
 	Value* MapValue::GetField(const char* key)
 	{
-		GC::Reference<Value, false>* dataValueRef = this->valueMap.LookupPtr(key);
+		GC::NonCriticalReference<Value>* dataValueRef = this->valueMap.LookupPtr(key);
 		return dataValueRef ? dataValueRef->Get() : nullptr;
 	}
 
-	bool MapValue::DelField(const char* key, GC::Reference<Value, true>& valueRef)
+	bool MapValue::DelField(const char* key, GC::CriticalReference<Value>& valueRef)
 	{
-		GC::Reference<Value, false>* existingValueRef = this->valueMap.LookupPtr(key);
+		GC::NonCriticalReference<Value>* existingValueRef = this->valueMap.LookupPtr(key);
 		if (existingValueRef)
 		{
 			valueRef.Set(existingValueRef->Get());
@@ -119,7 +119,7 @@ namespace Powder
 		return this->GetField(key.c_str());
 	}
 
-	/*virtual*/ bool MapValue::DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error)
+	/*virtual*/ bool MapValue::DelField(Value* fieldValue, GC::CriticalReference<Value>& valueRef, Error& error)
 	{
 		std::string key = fieldValue->ToString();
 		return this->DelField(key.c_str(), valueRef);
@@ -128,7 +128,7 @@ namespace Powder
 	ListValue* MapValue::GenerateKeyListValue()
 	{
 		ListValue* listValue = new ListValue();
-		this->valueMap.ForAllEntries([=](const char* key, GC::Reference<Value, false>& valueRef) -> bool {
+		this->valueMap.ForAllEntries([=](const char* key, GC::NonCriticalReference<Value>& valueRef) -> bool {
 			listValue->PushRight(new StringValue(key));
 			return true;
 		});
@@ -142,7 +142,7 @@ namespace Powder
 
 	/*virtual*/ bool MapValue::IterationBegin(void*& userData)
 	{
-		auto iter = new HashMap<GC::Reference<Value, false>>::iterator();
+		auto iter = new HashMap<GC::NonCriticalReference<Value>>::iterator();
 		*iter = this->valueMap.begin();
 		userData = iter;
 		return true;
@@ -150,7 +150,7 @@ namespace Powder
 
 	/*virtual*/ GC::Object* MapValue::IterationNext(void* userData)
 	{
-		auto iter = (HashMap<GC::Reference<Value, false>>::iterator*)userData;
+		auto iter = (HashMap<GC::NonCriticalReference<Value>>::iterator*)userData;
 		if (*iter == this->valueMap.end())
 			return nullptr;
 		GC::Object* object = &(**iter);
@@ -160,7 +160,7 @@ namespace Powder
 
 	/*virtual*/ void MapValue::IterationEnd(void* userData)
 	{
-		auto iter = (HashMap<GC::Reference<Value, false>>::iterator*)userData;
+		auto iter = (HashMap<GC::NonCriticalReference<Value>>::iterator*)userData;
 		delete iter;
 	}
 
@@ -173,7 +173,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ bool MapValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error)
+	/*virtual*/ bool MapValueIterator::Call(ListValue* argListValue, GC::CriticalReference<Value>& returnValueRef, CppCallingContext& context, Error& error)
 	{
 		if (argListValue->Length() != 1)
 		{

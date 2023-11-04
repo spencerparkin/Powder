@@ -19,7 +19,7 @@ ReadLineFunctionValue::ReadLineFunctionValue()
 		return false;
 	}
 
-	GC::Reference<Value, true> valueRef;
+	GC::CriticalReference<Value> valueRef;
 	if (!argListValue->PopLeft(valueRef, error))
 		return false;
 

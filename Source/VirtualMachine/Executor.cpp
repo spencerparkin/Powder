@@ -14,7 +14,7 @@ namespace Powder
 		this->currentScopeRef.Set(scope);
 		this->executableRef.Set(const_cast<Executable*>(executable));
 		this->programBufferLocation = programBufferLocation;
-		this->evaluationStack = new std::vector<GC::Reference<Value, false>>();
+		this->evaluationStack = new std::vector<GC::NonCriticalReference<Value>>();
 	}
 
 	/*virtual*/ Executor::~Executor()
@@ -99,7 +99,7 @@ namespace Powder
 
 	bool Executor::StoreAndPopValueFromEvaluationStackTop(const char* identifier, Error& error, void* debuggerTrap)
 	{
-		GC::Reference<Value, true> valueRef;
+		GC::CriticalReference<Value> valueRef;
 		if (!this->PopValueFromEvaluationStackTop(valueRef, error))
 			return false;
 
@@ -117,7 +117,7 @@ namespace Powder
 		return true;
 	}
 
-	bool Executor::PopValueFromEvaluationStackTop(GC::Reference<Value, true>& valueRef, Error& error)
+	bool Executor::PopValueFromEvaluationStackTop(GC::CriticalReference<Value>& valueRef, Error& error)
 	{
 		if (this->evaluationStack->size() == 0)
 		{
@@ -157,7 +157,7 @@ namespace Powder
 		iterationArray.push_back(&this->executableRef);
 		iterationArray.push_back(&this->currentScopeRef);
 		
-		for (GC::Reference<Value, false>& valueRef : *this->evaluationStack)
+		for (GC::NonCriticalReference<Value>& valueRef : *this->evaluationStack)
 			iterationArray.push_back(&valueRef);
 	}
 }

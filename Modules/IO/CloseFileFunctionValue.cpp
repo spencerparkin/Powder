@@ -19,7 +19,7 @@ CloseFileFunctionValue::CloseFileFunctionValue()
 		return false;
 	}
 
-	GC::Reference<Value, true> valueRef;
+	GC::CriticalReference<Value> valueRef;
 	if (!argListValue->PopLeft(valueRef, error))
 	{
 		error.Add("Close call expected an argument.");

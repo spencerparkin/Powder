@@ -19,7 +19,7 @@ WriteLineFunctionValue::WriteLineFunctionValue()
 		return false;
 	}
 
-	GC::Reference<Value, true> fileValueRef;
+	GC::CriticalReference<Value> fileValueRef;
 	if (!argListValue->PopLeft(fileValueRef, error))
 		return false;
 
@@ -30,7 +30,7 @@ WriteLineFunctionValue::WriteLineFunctionValue()
 		return false;
 	}
 
-	GC::Reference<Value, true> lineValueRef;
+	GC::CriticalReference<Value> lineValueRef;
 	if (!argListValue->PopLeft(lineValueRef, error))
 		return false;
 	Powder::StringValue* lineValue = dynamic_cast<Powder::StringValue*>(lineValueRef.Get());

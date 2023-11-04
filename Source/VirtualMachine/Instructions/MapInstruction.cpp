@@ -32,7 +32,7 @@ namespace Powder
 			case Action::REMOVE:
 			{
 				// Notice we pop the field value, but leave the map value.
-				GC::Reference<Value, true> fieldValueRef;
+				GC::CriticalReference<Value> fieldValueRef;
 				if (!executor->PopValueFromEvaluationStackTop(fieldValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				Value* value = executor->StackTop(error);
@@ -44,7 +44,7 @@ namespace Powder
 					error.Add("Map instruction can only remove elements from a map value.");
 					return Executor::Result::RUNTIME_ERROR;
 				}
-				GC::Reference<Value, true> dataValueRef;
+				GC::CriticalReference<Value> dataValueRef;
 				if (!mapValue->DelField(fieldValueRef.Get(), dataValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				if (virtualMachine->GetDebuggerTrap())
@@ -54,7 +54,7 @@ namespace Powder
 			case Action::INSERT:
 			{
 				// Notice we pop the field and data values, but leave the map value.
-				GC::Reference<Value, true> dataValueRef, fieldValueRef;
+				GC::CriticalReference<Value> dataValueRef, fieldValueRef;
 				if (!executor->PopValueFromEvaluationStackTop(dataValueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				if (!executor->PopValueFromEvaluationStackTop(fieldValueRef, error))
@@ -77,7 +77,7 @@ namespace Powder
 			case Action::MAKE_KEY_LIST:
 			{
 				// In this case, the map value is replaced with the list value.
-				GC::Reference<Value, true> valueRef;
+				GC::CriticalReference<Value> valueRef;
 				if (!executor->PopValueFromEvaluationStackTop(valueRef, error))
 					return Executor::Result::RUNTIME_ERROR;
 				MapValue* mapValue = dynamic_cast<MapValue*>(valueRef.Get());

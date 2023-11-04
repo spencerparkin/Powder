@@ -25,7 +25,7 @@ namespace Powder
 
 		void Absorb(Scope* scope);
 
-		typedef HashMap<GC::Reference<Value, false>> ValueMap;
+		typedef HashMap<GC::NonCriticalReference<Value>> ValueMap;
 
 		ValueMap* GetValueMap() { return &this->valueMap; }
 
@@ -33,7 +33,7 @@ namespace Powder
 
 	private:
 
-		GC::Reference<Scope, false> containingScopeRef;
+		GC::NonCriticalReference<Scope> containingScopeRef;
 
 		ValueMap valueMap;
 	};

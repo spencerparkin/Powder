@@ -10,7 +10,7 @@ namespace Powder
 	ListValue::ListValue()
 	{
 		this->valueListIndexValid = false;
-		this->valueListIndex = new std::vector<LinkedList<GC::Reference<Value, false>>::Node*>;
+		this->valueListIndex = new std::vector<LinkedList<GC::NonCriticalReference<Value>>::Node*>;
 	}
 
 	/*virtual*/ ListValue::~ListValue()
@@ -41,7 +41,7 @@ namespace Powder
 		if (guard.IsRecursing())
 			key += "recursive";
 		else
-			for (const LinkedList<GC::Reference<Value, false>>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
+			for (const LinkedList<GC::NonCriticalReference<Value>>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
 				key += node->value.Get()->GetSetKey() + ",";
 		return key;
 	}
@@ -91,7 +91,7 @@ namespace Powder
 	/*virtual*/ BooleanValue* ListValue::IsMember(const Value* value) const
 	{
 		std::string valueStr = value->ToString();
-		for (const LinkedList<GC::Reference<Value, false>>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
+		for (const LinkedList<GC::NonCriticalReference<Value>>::Node* node = this->valueList.GetHead(); node; node = node->GetNext())
 			if (node->value.Get()->ToString() == valueStr)
 				return new BooleanValue(true);
 		return new BooleanValue(false);
@@ -139,7 +139,7 @@ namespace Powder
 		return dataValue;
 	}
 
-	/*virtual*/ bool ListValue::DelField(Value* fieldValue, GC::Reference<Value, true>& valueRef, Error& error)
+	/*virtual*/ bool ListValue::DelField(Value* fieldValue, GC::CriticalReference<Value>& valueRef, Error& error)
 	{
 		NumberValue* numberValue = dynamic_cast<NumberValue*>(fieldValue);
 		if (!numberValue)
@@ -181,7 +181,7 @@ namespace Powder
 		{
 			this->valueListIndexValid = true;
 			this->valueListIndex->clear();
-			for (LinkedList<GC::Reference<Value, false>>::Node* node = const_cast<LinkedList<GC::Reference<Value, false>>*>(&this->valueList)->GetHead(); node; node = node->GetNext())
+			for (LinkedList<GC::NonCriticalReference<Value>>::Node* node = const_cast<LinkedList<GC::NonCriticalReference<Value>>*>(&this->valueList)->GetHead(); node; node = node->GetNext())
 				this->valueListIndex->push_back(node);
 		}
 	}
@@ -192,7 +192,7 @@ namespace Powder
 		this->valueListIndexValid = false;
 	}
 
-	bool ListValue::PopLeft(GC::Reference<Value, true>& valueRef, Error& error)
+	bool ListValue::PopLeft(GC::CriticalReference<Value>& valueRef, Error& error)
 	{
 		if (this->valueList.GetCount() == 0)
 		{
@@ -213,7 +213,7 @@ namespace Powder
 			this->valueListIndex->push_back(this->valueList.GetTail());
 	}
 
-	bool ListValue::PopRight(GC::Reference<Value, true>& valueRef, Error& error)
+	bool ListValue::PopRight(GC::CriticalReference<Value>& valueRef, Error& error)
 	{
 		if (this->valueList.GetCount() == 0)
 		{
@@ -228,7 +228,7 @@ namespace Powder
 		return true;
 	}
 
-	void ListValue::SortWithPredicate(std::function<bool(const LinkedList<GC::Reference<Value, false>>::Node*, const LinkedList<GC::Reference<Value, false>>::Node*)> predicate)
+	void ListValue::SortWithPredicate(std::function<bool(const LinkedList<GC::NonCriticalReference<Value>>::Node*, const LinkedList<GC::NonCriticalReference<Value>>::Node*)> predicate)
 	{
 		this->valueList.SortWithPredicate(predicate);
 		this->valueListIndexValid = false;
@@ -241,7 +241,7 @@ namespace Powder
 
 	/*virtual*/ bool ListValue::IterationBegin(void*& userData)
 	{
-		auto nodePtr = new LinkedList<GC::Reference<Value, false>>::Node*;
+		auto nodePtr = new LinkedList<GC::NonCriticalReference<Value>>::Node*;
 		if (this->valueList.GetCount() == 0)
 			*nodePtr = nullptr;
 		else
@@ -254,7 +254,7 @@ namespace Powder
 	{
 		GC::Object* object = nullptr;
 
-		auto nodePtr = (LinkedList<GC::Reference<Value, false>>::Node**)userData;
+		auto nodePtr = (LinkedList<GC::NonCriticalReference<Value>>::Node**)userData;
 		if (*nodePtr)
 		{
 			object = &(*nodePtr)->value;
@@ -266,7 +266,7 @@ namespace Powder
 
 	/*virtual*/ void ListValue::IterationEnd(void* userData)
 	{
-		auto nodePtr = (LinkedList<GC::Reference<Value, false>>::Node**)userData;
+		auto nodePtr = (LinkedList<GC::NonCriticalReference<Value>>::Node**)userData;
 		delete nodePtr;
 	}
 
@@ -280,7 +280,7 @@ namespace Powder
 	{
 	}
 
-	/*virtual*/ bool ListValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error)
+	/*virtual*/ bool ListValueIterator::Call(ListValue* argListValue, GC::CriticalReference<Value>& returnValueRef, CppCallingContext& context, Error& error)
 	{
 		if (argListValue->Length() != 1)
 		{

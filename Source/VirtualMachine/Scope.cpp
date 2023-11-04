@@ -27,7 +27,7 @@ namespace Powder
 		Scope* scope = this;
 		while (scope)
 		{
-			GC::Reference<Value, false>* valueRef = scope->valueMap.LookupPtr(identifier);
+			GC::NonCriticalReference<Value>* valueRef = scope->valueMap.LookupPtr(identifier);
 			if (valueRef)
 				return valueRef->Get();
 
@@ -42,7 +42,7 @@ namespace Powder
 
 	void Scope::StoreValue(const char* identifier, Value* value)
 	{
-		GC::Reference<Value, false>* valueRef = this->valueMap.LookupPtr(identifier);
+		GC::NonCriticalReference<Value>* valueRef = this->valueMap.LookupPtr(identifier);
 		if (valueRef)
 		{
 			valueRef->Set(value);
@@ -59,7 +59,7 @@ namespace Powder
 
 	void Scope::Absorb(Scope* scope)
 	{
-		scope->valueMap.ForAllEntries([this](const char* key, GC::Reference<Value, false>& valueRef) -> bool {
+		scope->valueMap.ForAllEntries([this](const char* key, GC::NonCriticalReference<Value>& valueRef) -> bool {
 			this->StoreValue(key, valueRef.Get());
 			return true;
 		});
@@ -68,7 +68,7 @@ namespace Powder
 	/*virtual*/ void Scope::PopulateIterationArray(std::vector<GC::Object*>& iterationArray)
 	{
 		iterationArray.push_back(&this->containingScopeRef);
-		for (GC::Reference<Value, false>& valueRef : this->valueMap)
+		for (GC::NonCriticalReference<Value>& valueRef : this->valueMap)
 			iterationArray.push_back(&valueRef);
 	}
 }

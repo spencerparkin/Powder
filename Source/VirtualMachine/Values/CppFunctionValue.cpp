@@ -32,7 +32,7 @@ namespace Powder
 
 	// Note that this function must be updated if the calling convention in the compiler is changed.
 	// In this way, I suppose the VM is not entirely indifferent to the compiler that's being used.  Oh well.
-	bool CppFunctionValue::CallScriptFunction(AddressValue* addressValue, GC::Reference<ListValue, true>& argListValueRef, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error)
+	bool CppFunctionValue::CallScriptFunction(AddressValue* addressValue, GC::Reference<ListValue, true>& argListValueRef, GC::CriticalReference<Value>& returnValueRef, CppCallingContext& context, Error& error)
 	{
 		int stackSizeBeforeCall = context.executor->StackSize();
 

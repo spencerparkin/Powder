@@ -32,7 +32,7 @@ void SetValue::Clear()
 	SetValue* setValue = new SetValue();
 
 	for (const MapPair& pair : *this->map)
-		setValue->map->insert(MapPair(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
+		setValue->map->insert(MapPair(pair.first, new GC::NonCriticalReference<Value>(pair.second->Get())));
 
 	return setValue;
 }
@@ -98,7 +98,7 @@ SetValue* SetValue::CalculateUnionWith(const SetValue* setValue) const
 
 	for (const MapPair& pair : *this->map)
 		if(unionSet->map->find(pair.first) == unionSet->map->end())
-			unionSet->map->insert(MapPair(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
+			unionSet->map->insert(MapPair(pair.first, new GC::NonCriticalReference<Value>(pair.second->Get())));
 
 	return unionSet;
 }
@@ -109,7 +109,7 @@ SetValue* SetValue::CalculateIntersectionWith(const SetValue* setValue) const
 
 	for (const MapPair& pair : *this->map)
 		if(setValue->map->find(pair.first) != setValue->map->end())
-			intersectionSet->map->insert(MapPair(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
+			intersectionSet->map->insert(MapPair(pair.first, new GC::NonCriticalReference<Value>(pair.second->Get())));
 
 	return intersectionSet;
 }
@@ -120,7 +120,7 @@ SetValue* SetValue::CalculateDifferenceWith(const SetValue* setValue) const
 
 	for (const MapPair& pair : *this->map)
 		if (setValue->map->find(pair.first) == setValue->map->end())
-			differenceSet->map->insert(MapPair(pair.first, new GC::Reference<Value, false>(pair.second->Get())));
+			differenceSet->map->insert(MapPair(pair.first, new GC::NonCriticalReference<Value>(pair.second->Get())));
 
 	return differenceSet;
 }
@@ -167,7 +167,7 @@ bool SetValue::IsEQualTo(const SetValue* setValue) const
 {
 	if (this->map->find(value->GetSetKey()) == this->map->end())
 	{
-		this->map->insert(MapPair(value->GetSetKey(), new GC::Reference<Value, false>(value)));
+		this->map->insert(MapPair(value->GetSetKey(), new GC::NonCriticalReference<Value>(value)));
 		return true;
 	}
 
@@ -238,7 +238,7 @@ SetValueIterator::SetValueIterator(SetValue* setValue)
 	delete this->mapIter;
 }
 
-/*virtual*/ bool SetValueIterator::Call(ListValue* argListValue, GC::Reference<Value, true>& returnValueRef, CppCallingContext& context, Error& error)
+/*virtual*/ bool SetValueIterator::Call(ListValue* argListValue, GC::CriticalReference<Value>& returnValueRef, CppCallingContext& context, Error& error)
 {
 	if (argListValue->Length() != 1)
 	{

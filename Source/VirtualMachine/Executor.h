@@ -49,7 +49,7 @@ namespace Powder
 		bool StoreAndPopValueFromEvaluationStackTop(const char* identifier, Error& error, void* debuggerTrap);
 
 		bool PushValueOntoEvaluationStackTop(Value* value, Error& error);
-		bool PopValueFromEvaluationStackTop(GC::Reference<Value, true>& valueRef, Error& error);
+		bool PopValueFromEvaluationStackTop(GC::CriticalReference<Value>& valueRef, Error& error);
 
 		Value* StackTop(Error& error);
 		Value* StackValue(int32_t stackOffset, Error* error);	// This is relative to the top of the stack.
@@ -60,8 +60,8 @@ namespace Powder
 	protected:
 
 		uint64_t programBufferLocation;
-		GC::Reference<Executable, false> executableRef;
-		GC::Reference<Scope, false> currentScopeRef;
-		std::vector<GC::Reference<Value, false>>* evaluationStack;
+		GC::NonCriticalReference<Executable> executableRef;
+		GC::NonCriticalReference<Scope> currentScopeRef;
+		std::vector<GC::NonCriticalReference<Value>>* evaluationStack;
 	};
 }

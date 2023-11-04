@@ -21,7 +21,7 @@ OpenFileFunctionValue::OpenFileFunctionValue()
 		return false;
 	}
 
-	GC::Reference<Value, true> filePathValueRef;
+	GC::CriticalReference<Value> filePathValueRef;
 	if (!argListValue->PopLeft(filePathValueRef, error))
 		return false;
 
@@ -31,7 +31,7 @@ OpenFileFunctionValue::OpenFileFunctionValue()
 	returnValueRef.Set(fileValue);
 
 	std::ios_base::openmode openMode = std::fstream::in;
-	GC::Reference<Value, true> openModeValueRef;
+	GC::CriticalReference<Value> openModeValueRef;
 	if (argListValue->Length() > 0)
 		if (!argListValue->PopLeft(openModeValueRef, error))
 			return false;

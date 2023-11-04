@@ -18,7 +18,7 @@ NewComplexValueFunction::NewComplexValueFunction()
 		return false;
 	}
 
-	GC::Reference<Value, true> realValueRef, imagValueRef;
+	GC::CriticalReference<Value> realValueRef, imagValueRef;
 	argListValue->PopLeft(realValueRef, error);
 	argListValue->PopLeft(imagValueRef, error);
 

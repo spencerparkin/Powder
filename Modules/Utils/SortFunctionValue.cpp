@@ -93,7 +93,7 @@ SortFunctionValue::SortFunctionValue()
 
 	for (int i = 0; i < (signed)sortedArray->size(); i++)
 	{
-		GC::Reference<Value, true> valueRef;
+		GC::CriticalReference<Value> valueRef;
 		if (!listValue->PopLeft(valueRef, error))
 			return false;
 	}
