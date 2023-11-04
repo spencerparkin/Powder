@@ -110,7 +110,8 @@
       [ "container-field-expression" ],
       [ "function-definition" ],
       [ "pre-bump-expression" ],
-      [ "post-bump-expression" ]
+      [ "post-bump-expression" ],
+      [ "comprehension-expression" ]
     ],
     "membership-expression": [
       [ "expression", "in", "expression" ]
@@ -181,14 +182,23 @@
       [ "set-comprehension-expression" ]
     ],
     "list-comprehension-expression": [
-      [ "[", "expression", "for", "for-iteration-expression", "]" ],
-      [ "[", "expression", "for", "for-iteration-expression", "if", "expression", "]" ]
+      [ "[", "list-comprehension-expression-internals", "]" ]
+    ],
+    "list-comprehension-expression-internals": [
+      [ "expression", "for", "for-iteration-expression" ],
+      [ "expression", "for", "for-iteration-expression", "if", "expression" ]
     ],
     "map-comprehension-expression": [
-      [ "{", "expression", ":", "for-iteration-expression", "in", "expression", "}" ],
-      [ "{", "expression", ":", "for-iteration-expression", "in", "expression", "if", "expression", "}" ]
+      [ "{", "map-comprehension-expression-internals", "}" ]
+    ],
+    "map-comprehension-expression-internals": [
+      [ "expression", ":", "for-iteration-expression", "in", "expression" ],
+      [ "expression", ":", "for-iteration-expression", "in", "expression", "if", "expression" ]
     ],
     "set-comprehension-expression": [
+      [ "{", "set-comprehension-expression-internals", "}" ]
+    ],
+    "set-comprehension-expression-internals": [
       [ "{", "expression", "for", "for-iteration-expression", "}" ],
       [ "{", "expression", "for", "for-iteration-expression", "if", "expression", "}" ]
     ],
