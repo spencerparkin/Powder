@@ -192,15 +192,15 @@
       [ "{", "map-comprehension-expression-internals", "}" ]
     ],
     "map-comprehension-expression-internals": [
-      [ "expression", ":", "for-iteration-expression", "in", "expression" ],
-      [ "expression", ":", "for-iteration-expression", "in", "expression", "if", "expression" ]
+      [ "map-pair", "for", "for-iteration-expression", "in", "expression" ],
+      [ "map-pair", "for", "for-iteration-expression", "in", "expression", "if", "expression" ]
     ],
     "set-comprehension-expression": [
       [ "{", "set-comprehension-expression-internals", "}" ]
     ],
     "set-comprehension-expression-internals": [
-      [ "{", "expression", "for", "for-iteration-expression", "}" ],
-      [ "{", "expression", "for", "for-iteration-expression", "if", "expression", "}" ]
+      [ "expression", "|", "for-iteration-expression" ],
+      [ "expression", "|", "for-iteration-expression", "if", "expression" ]
     ],
     "literal": [
       [ "null" ],

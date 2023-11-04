@@ -179,7 +179,7 @@ namespace Powder
 		return true;
 	}
 
-	bool ForEachStatementHandler::GenerateInstructionForIteratorCallSetup(LinkedList<Instruction*>& instructionList, const char* action, const ParseParty::Lexer::FileLocation& fileLocation, Error& error)
+	/*static*/ bool ForEachStatementHandler::GenerateInstructionForIteratorCallSetup(LinkedList<Instruction*>& instructionList, const char* action, const ParseParty::Lexer::FileLocation& fileLocation, Error& error)
 	{
 		PushInstruction* pushInstruction = Instruction::CreateForAssembly<PushInstruction>(fileLocation);
 		AssemblyData::Entry entry;

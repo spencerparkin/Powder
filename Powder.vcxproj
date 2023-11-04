@@ -26,6 +26,7 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\BreakOrContinueStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\BumpExpressionHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\ComprehensionExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ContainerSizeExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\DeleteFieldExpressionHandler.cpp" />
@@ -92,6 +93,7 @@
     <ClInclude Include="Source\Compiler\SyntaxHandlers\BinaryExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\BreakOrContinueStatementHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\BumpExpressionHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\ComprehensionExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ContainerFieldExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ContainerSizeExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\DeleteFieldExpressionHandler.h" />

@@ -1,0 +1,16 @@
+# Comprehension.pow
+
+list = [2*x for x in range(1, 10) if x % 2 == 0];
+
+for(i in list) {
+    output(as_str(i) + "\n");
+}
+
+#identity_ele = func(row, col) {
+#    if(row == col)
+#        return 1;
+#    return 0;
+#};
+#
+# TODO: Implement tertiary operator expression: <condition> ? <true> : <false>.
+#identity_mat = [[identity_ele(row, col) for row in range(0, 2)] for col in range(0, 2)];
