@@ -16,6 +16,9 @@
     <ClInclude Include="NewComplexValueFunction.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="MatrixValue.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MathModule.cpp">
@@ -25,6 +28,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="NewComplexValueFunction.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MatrixValue.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

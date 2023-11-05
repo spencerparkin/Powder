@@ -21,11 +21,13 @@
   <ItemGroup>
     <ClInclude Include="ComplexValue.h" />
     <ClInclude Include="MathModule.h" />
+    <ClInclude Include="MatrixValue.h" />
     <ClInclude Include="NewComplexValueFunction.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ComplexValue.cpp" />
     <ClCompile Include="MathModule.cpp" />
+    <ClCompile Include="MatrixValue.cpp" />
     <ClCompile Include="NewComplexValueFunction.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
