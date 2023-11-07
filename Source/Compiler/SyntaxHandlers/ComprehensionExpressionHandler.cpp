@@ -23,9 +23,6 @@ ComprehensionExpressionHandler::ComprehensionExpressionHandler()
 {
 }
 
-// I'm not terribly happy that a lot of code here is duplicated from what we find in the ForEachStatementHandler class, but
-// we are sharing some code here with that class and others, and also, there is a significant departure here from that code
-// in the meat of what's ultimately going on.
 /*virtual*/ bool ComprehensionExpressionHandler::HandleSyntaxNode(const ParseParty::Parser::SyntaxNode* syntaxNode, LinkedList<Instruction*>& instructionList, InstructionGenerator* instructionGenerator, Error& error)
 {
 	if (syntaxNode->GetChildCount() != 1)
@@ -49,7 +46,7 @@ ComprehensionExpressionHandler::ComprehensionExpressionHandler()
 		return false;
 	}
 
-	auto pushInstruction = new PushInstruction();
+	auto pushInstruction = Instruction::CreateForAssembly<PushInstruction>(comprehensionTypeNode->fileLocation);
 	pushInstruction->assemblyData->configMap.Insert("type", entry);
 	instructionList.AddTail(pushInstruction);
 
@@ -166,12 +163,11 @@ ComprehensionExpressionHandler::ComprehensionExpressionHandler()
 	entry.code = PushInstruction::EXISTING_VALUE;
 	pushInstruction->assemblyData->configMap.Insert("type", entry);
 	entry.Reset();
-	entry.offset = -2;		// TODO: Need to test/check this.
+	entry.offset = 1;
 	pushInstruction->assemblyData->configMap.Insert("data", entry);
 	instructionList.AddTail(pushInstruction);
 
 	// Run code now that will leave a value on the stack that we can use to populate a list or set, or two values on the stack for populating a map.
-	LinkedList<Instruction*> forLoopBodyInstructionList;
 	if (*comprehensionTypeNode->text == "list-comprehension-expression" || *comprehensionTypeNode->text == "set-comprehension-expression")
 	{
 		if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, elementNode, error))
@@ -224,7 +220,7 @@ ComprehensionExpressionHandler::ComprehensionExpressionHandler()
 	entry.Reset();
 	entry.code = JumpInstruction::JUMP_TO_EMBEDDED_ADDRESS;
 	jumpInstruction->assemblyData->configMap.Insert("type", entry);
-	forLoopBodyInstructionList.AddTail(jumpInstruction);
+	instructionList.AddTail(jumpInstruction);
 
 	// Finally, pop the iterator function off the eval-stack, leaving only the newly populated container behind.
 	popInstruction = Instruction::CreateForAssembly<PopInstruction>(iterationNode->fileLocation);

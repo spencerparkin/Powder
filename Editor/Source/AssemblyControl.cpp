@@ -18,7 +18,7 @@ AssemblyControl::AssemblyControl(wxWindow* parent) : wxListCtrl(parent, wxID_ANY
 	const InstructionEntry& entry = this->instructionList[item];
 	switch (column)
 	{
-		case 0: return wxString::Format("0x%08x", uint32_t(entry.address));
+		case 0: return wxString::Format("0x%p", (void*)entry.address);
 		case 1: return entry.instruction;
 	}
 

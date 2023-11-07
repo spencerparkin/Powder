@@ -33,7 +33,7 @@ namespace Powder
 
 	/*virtual*/ std::string AddressValue::ToString() const
 	{
-		return std::format("Addr: {}", int(this->programBufferLocation));	// TODO: Format in hex.
+		return std::format("Addr: {:#08x}", int(this->programBufferLocation));
 	}
 
 	/*virtual*/ void AddressValue::PopulateIterationArray(std::vector<Object*>& iterationArray)

@@ -423,7 +423,7 @@ void EditorFrame::OnDeleteExecutables(wxCommandEvent& event)
 			if (errorMsg.length() > 0)
 				wxMessageBox("Some files could not be deleted!\n\n" + errorMsg, "Error!", wxICON_ERROR | wxOK, this);
 			else
-				wxMessageBox(wxString::Format("Deleted %d files!", fileFinder.foundFileArray.size()), "Success!", wxICON_INFORMATION | wxOK, this);
+				wxMessageBox(wxString::Format("Deleted %d files!", (int)fileFinder.foundFileArray.size()), "Success!", wxICON_INFORMATION | wxOK, this);
 		}		
 	}
 }
