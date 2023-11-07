@@ -36,7 +36,7 @@ namespace Powder
 			case MathInstruction::MathOp::FACTORIAL:
 			{
 				// TODO: There is actually a factorial for non-integers, and why not support it?  It might not be trivial to calculate, though.
-				double rounded = double(uint32_t(this->number));
+				double rounded = double(::round(this->number));
 				double factorial = 1.0;
 				while (rounded-- > 0.0)
 					factorial *= rounded;
@@ -45,6 +45,12 @@ namespace Powder
 			case MathInstruction::MathOp::NEGATE:
 			{
 				return new NumberValue(-this->number);
+			}
+			case MathInstruction::MathOp::NOT_EQUAL:
+			{
+				if (!dynamic_cast<const NumberValue*>(value))
+					return new BooleanValue(true);
+				break;
 			}
 		}
 
