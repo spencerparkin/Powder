@@ -154,8 +154,28 @@ ComprehensionExpressionHandler::ComprehensionExpressionHandler()
 	instructionList.AddTail(loopExitBranchInstruction);
 
 	// The body of our for-loop is now a process of evaluating one or more expressions and then using them to populate a container.
-	
-	// TODO: But if there's an if-statement involved, then evaluate conditional here, then branch to top of for-loop if necessary.
+	// But first, we need to check if a condition is given.
+	if (internalsNode->GetChild(3) && *internalsNode->GetChild(3)->text == "if")
+	{
+		const ParseParty::Parser::SyntaxNode* conditionNode = internalsNode->GetChild(4);
+		if (!conditionNode)
+		{
+			error.Add(std::string(internalsNode->GetChild(3)->fileLocation) + "Expected condition expression after \"if\" clause of comprehension.");
+			return false;
+		}
+
+		if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, conditionNode, error))
+		{
+			error.Add(std::string(conditionNode->fileLocation) + "Failed to generate \"if\" clause of comprehension.");
+			return false;
+		}
+
+		BranchInstruction* branchInstruction = Instruction::CreateForAssembly<BranchInstruction>(conditionNode->fileLocation);
+		entry.Reset();
+		entry.instruction = forLoopHeadNode->GetNext()->value;
+		branchInstruction->assemblyData->configMap.Insert("branch", entry);
+		instructionList.AddTail(branchInstruction);
+	}
 
 	// Presently, the iterator is at the stack top, but we need the container at the top.
 	pushInstruction = Instruction::CreateForAssembly<PushInstruction>(elementNode->fileLocation);
