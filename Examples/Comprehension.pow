@@ -18,13 +18,18 @@ for(ele in set) {
     output("element: " + ele + "\n");
 };
 
-output("Done!\n");
+identity_ele = func(row, col) {
+    if(row == col)
+        return 1;
+    return 0;
+};
 
-#identity_ele = func(row, col) {
-#    if(row == col)
-#        return 1;
-#    return 0;
-#};
-#
 # TODO: Implement tertiary operator expression: <condition> ? <true> : <false>.
-#identity_mat = [[identity_ele(row, col) for row in range(0, 2)] for col in range(0, 2)];
+identity_mat = [[identity_ele(row, col) for row in range(0, 2, 1)] for col in range(0, 2, 1)];
+
+for(i = 0; i < 3; i++) {
+    for(j = 0; j < 3; j++) {
+        output(as_str(identity_mat[i][j]) + " ");
+    };
+    output("\n");
+};
