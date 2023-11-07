@@ -4,7 +4,13 @@ list = [2*x for x in range(1, 10, 1) if x % 2 == 0];
 
 for(i in list) {
     output(as_str(i) + "\n");
-}
+};
+
+map = {"key_" + as_str(i) : "value_" + as_str(i) for i in list};
+
+for(key in map) {
+    output(key + " --> " + map[key] + "\n");
+};
 
 #identity_ele = func(row, col) {
 #    if(row == col)

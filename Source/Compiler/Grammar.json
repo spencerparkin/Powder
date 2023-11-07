@@ -192,8 +192,8 @@
       [ "{", "map-comprehension-expression-internals", "}" ]
     ],
     "map-comprehension-expression-internals": [
-      [ "map-pair", "for", "for-iteration-expression", "in", "expression" ],
-      [ "map-pair", "for", "for-iteration-expression", "in", "expression", "if", "expression" ]
+      [ "map-pair", "for", "for-iteration-expression" ],
+      [ "map-pair", "for", "for-iteration-expression", "if", "expression" ]
     ],
     "set-comprehension-expression": [
       [ "{", "set-comprehension-expression-internals", "}" ]

@@ -196,10 +196,40 @@ ComprehensionExpressionHandler::ComprehensionExpressionHandler()
 			return false;
 		}
 	}
-	if (*comprehensionTypeNode->text == "map-comprehension-expression")
+	else if (*comprehensionTypeNode->text == "map-comprehension-expression")
 	{
-		// TODO: Eval value expression.
-		// TODO: Eval key expression.
+		if (*elementNode->text != "map-pair")
+		{
+			error.Add(std::string(elementNode->fileLocation) + "Expected map-pair as element node in map comprehension.");
+			return false;
+		}
+
+		const ParseParty::Parser::SyntaxNode* keyExpressionNode = elementNode->GetChild(0);
+		if (!keyExpressionNode)
+		{
+			error.Add(std::string(elementNode->fileLocation) + "Expected key expression node for element of map comprehension.");
+			return false;
+		}
+
+		const ParseParty::Parser::SyntaxNode* valueExpressionNode = elementNode->GetChild(2);
+		if (!valueExpressionNode)
+		{
+			error.Add(std::string(elementNode->fileLocation) + "Expected value expression node for element of map comprehension.");
+			return false;
+		}
+
+		// We must push the key first, then the value.
+		if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, keyExpressionNode, error))
+		{
+			error.Add(std::string(keyExpressionNode->fileLocation) + "Failed to generate instructions for pushing key expression of map comprehension.");
+			return false;
+		}
+
+		if (!instructionGenerator->GenerateInstructionListRecursively(instructionList, valueExpressionNode, error))
+		{
+			error.Add(std::string(valueExpressionNode->fileLocation) + "Failed to generate instructions for pushing value expression of map comprehension.");
+			return false;
+		}
 	}
 
 	// Load the value in the set or list, or the key/value pair in the map.
