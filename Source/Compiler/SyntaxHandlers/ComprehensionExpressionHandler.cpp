@@ -245,7 +245,7 @@ ComprehensionExpressionHandler::ComprehensionExpressionHandler()
 	{
 		SysCallInstruction* sysCallInstruction = Instruction::CreateForAssembly<SysCallInstruction>(elementNode->fileLocation);
 		entry.Reset();
-		entry.code = SysCallInstruction::AS_ITERATOR;
+		entry.code = SysCallInstruction::ADD_MEMBER;
 		sysCallInstruction->assemblyData->configMap.Insert("sysCall", entry);
 		instructionList.AddTail(sysCallInstruction);
 	}

@@ -199,8 +199,8 @@
       [ "{", "set-comprehension-expression-internals", "}" ]
     ],
     "set-comprehension-expression-internals": [
-      [ "expression", "|", "for-iteration-expression" ],
-      [ "expression", "|", "for-iteration-expression", "if", "expression" ]
+      [ "expression", "for", "for-iteration-expression" ],
+      [ "expression", "for", "for-iteration-expression", "if", "expression" ]
     ],
     "literal": [
       [ "null" ],

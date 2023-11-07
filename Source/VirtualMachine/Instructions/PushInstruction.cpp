@@ -132,7 +132,11 @@ namespace Powder
 			return false;
 		}
 
-		if (!dataEntry && typeEntry->code != DataType::NULL_VALUE && typeEntry->code != DataType::EMPTY_LIST && typeEntry->code != DataType::EMPTY_MAP)
+		if (!dataEntry &&
+			typeEntry->code != DataType::NULL_VALUE &&
+			typeEntry->code != DataType::EMPTY_LIST &&
+			typeEntry->code != DataType::EMPTY_MAP &&
+			typeEntry->code != DataType::EMPTY_SET)
 		{
 			error.Add(std::string(this->assemblyData->fileLocation) + "Some push instructions can't be assembled without being given more information about the push content.");
 			return false;

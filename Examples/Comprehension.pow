@@ -12,6 +12,14 @@ for(key in map) {
     output(key + " --> " + map[key] + "\n");
 };
 
+set = {x + "_blah" for x in ["yo", "boo"]};
+
+for(ele in set) {
+    output("element: " + ele + "\n");
+};
+
+output("Done!\n");
+
 #identity_ele = func(row, col) {
 #    if(row == col)
 #        return 1;
