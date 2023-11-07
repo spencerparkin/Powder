@@ -101,6 +101,7 @@
       [ "membership-expression" ],
       [ "container-size-expression" ],
       [ "list-push-pop-expression" ],
+      [ "ternary-expression" ],
       [ "binary-expression" ],
       [ "unary-expression" ],
       [ "member-access-expression" ],
@@ -139,6 +140,9 @@
     ],
     "assignment-expression": [
       [ "expression", "=", "expression" ]
+    ],
+    "ternary-expression": [
+      [ "expression", "?", "expression", ":", "expression" ]
     ],
     "binary-expression": [
       [ "expression", "+=", "expression" ],

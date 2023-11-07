@@ -220,6 +220,9 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ComprehensionExpressionHandler.cpp">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\TernaryExpressionHandler.cpp">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\VirtualMachine\Executor.h">
@@ -427,6 +430,9 @@
       <Filter>Source\VirtualMachine\Values</Filter>
     </ClInclude>
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ComprehensionExpressionHandler.h">
+      <Filter>Source\Compiler\SyntaxHandlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\TernaryExpressionHandler.h">
       <Filter>Source\Compiler\SyntaxHandlers</Filter>
     </ClInclude>
   </ItemGroup>

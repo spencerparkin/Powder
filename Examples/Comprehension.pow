@@ -18,14 +18,7 @@ for(ele in set) {
     output("element: " + ele + "\n");
 };
 
-identity_ele = func(row, col) {
-    if(row == col)
-        return 1;
-    return 0;
-};
-
-# TODO: Implement tertiary operator expression: <condition> ? <true> : <false>.
-identity_mat = [[identity_ele(row, col) for row in range(0, 2, 1)] for col in range(0, 2, 1)];
+identity_mat = [[row == col ? 1 : 0 for row in range(0, 2, 1)] for col in range(0, 2, 1)];
 
 for(i = 0; i < 3; i++) {
     for(j = 0; j < 3; j++) {

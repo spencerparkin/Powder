@@ -47,6 +47,7 @@
     <ClCompile Include="Source\Compiler\SyntaxHandlers\ReturnStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\SetExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\StatementListHandler.cpp" />
+    <ClCompile Include="Source\Compiler\SyntaxHandlers\TernaryExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\UnaryExpressionHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.cpp" />
     <ClCompile Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="Source\Compiler\SyntaxHandlers\ReturnStatementHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\SetExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\StatementListHandler.h" />
+    <ClInclude Include="Source\Compiler\SyntaxHandlers\TernaryExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\UnaryExpressionHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\WhileStatementHandler.h" />
     <ClInclude Include="Source\Compiler\SyntaxHandlers\YieldStatementHandler.h" />
