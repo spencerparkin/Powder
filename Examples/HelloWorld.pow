@@ -1,7 +1,3 @@
 # HelloWorld.pow
 
-f = func() {
-    output("Hello!\n");
-};
-
-f();
+output("Hello, world!\n");
