@@ -20,6 +20,7 @@
 #include <wx/toolbar.h>
 #include <wx/msgdlg.h>
 
+// TODO: Add some toolbar buttons for increasing or decreasing the font size in the source-code edit control.
 EditorFrame::EditorFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Powder Editor", pos, size)
 {
 	this->auiManager = new wxAuiManager(this, wxAUI_MGR_DEFAULT);
