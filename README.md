@@ -23,7 +23,7 @@ I have made a You-Tube video series about Powder, which critics are raving about
 * Part 2: [Types](https://www.youtube.com/watch?v=Aj3svD-MCU4)
 * Part 3: [Functions](https://www.youtube.com/watch?v=PjEWqetVlVQ)
 * Part 4: [Objects](https://www.youtube.com/watch?v=jUgLFbKQV-0)
-* Part 5: [Mazes](https://www.youtube.com/watch?v=8jjUrTNph-E&t=51s)
+* Part 5: [Mazes](https://www.youtube.com/watch?v=8jjUrTNph-E)
 * Part 6: [Extensions](https://www.youtube.com/watch?v=8JldO1F1YA8)
 * Part 7: [Comprehensions](https://www.youtube.com/watch?v=duKToQgUcys)
 * Part 8: [Forking](https://www.youtube.com/watch?v=pIRvbT4MgnQ)

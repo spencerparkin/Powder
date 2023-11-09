@@ -5,6 +5,10 @@
 #include "Value.h"
 #include <wx/treectrl.h>
 
+// TODO: This panel needs the most work, because it's clunky, and the VM is catering too much to this code.
+//       I think I'm doing some stuff in the VM to make this code easier, and I don't want that.
+//       Simplify the VM and then let more work be done here to inspect things so that the VM can remain simple.
+//       Also, you should be able to click and expand indefinitely in the case of resursive references.
 class ValuesPanel : public Panel
 {
 public:
