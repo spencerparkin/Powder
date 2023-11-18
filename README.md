@@ -17,17 +17,6 @@ As you can see, it looks a lot like C, and that's on purpose.  You'll find many 
 
 Powder is a dynamically typed and garbage collected language.  Built-in types include numbers, strings, lists, sets, maps and functions, to name a few.  Types can be added to the language using extension modules.  A primitive IDE and debugger is provided with the whole project.
 
-I have made a You-Tube video series about Powder, which critics are raving about.  People are throwing money at me to see the videos, but I keep trying to remind them that the videos are free.  All proceeds have gone to help fund my mortgage.  The links are as follows.  (You'll laugh, you'll cry.  It's an emotional roller coaster, so get the pop-corn, the tissue-box, and some drugs.  Enjoy!)
-
-* Part 1: [Introduction](https://www.youtube.com/watch?v=awjfhq5j2EI)
-* Part 2: [Types](https://www.youtube.com/watch?v=Aj3svD-MCU4)
-* Part 3: [Functions](https://www.youtube.com/watch?v=PjEWqetVlVQ)
-* Part 4: [Objects](https://www.youtube.com/watch?v=jUgLFbKQV-0)
-* Part 5: [Mazes](https://www.youtube.com/watch?v=8jjUrTNph-E)
-* Part 6: [Extensions](https://www.youtube.com/watch?v=8JldO1F1YA8)
-* Part 7: [Comprehensions](https://www.youtube.com/watch?v=duKToQgUcys)
-* Part 8: [Forking](https://www.youtube.com/watch?v=pIRvbT4MgnQ)
-
 ## Under the Hood
 
 Here I'm going to blab on with some of my thoughts on the implimentation of the project.
